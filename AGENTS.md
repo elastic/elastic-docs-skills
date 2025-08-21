@@ -107,13 +107,6 @@ Comments in Markdown files use the `%` symbol and are **CRITICAL** for documenta
 
 **ALWAYS** sign your comments with your LLM agent name and date.
 
-### Comment guidelines
-
--   **Use sparingly**: Only add comments when they provide essential context
--   **Be concise**: Keep comments brief and to the point
--   **Update with content**: When you modify content, update or remove related comments
--   **Avoid obvious comments**: Don't comment on self-explanatory content
-
 ## Components for content organization
 
 ### Dropdowns for progressive disclosure
@@ -200,71 +193,6 @@ Install on Linux:
 -   **Keep content parallel**: Ensure all tabs have similar structure and depth
 -   **Limit tab count**: Use 3-5 tabs maximum to avoid overwhelming users
 -   **Consider sync**: Use `:sync:` attributes when tabs should maintain state across page navigation
-
-### Stepper component for complex procedures
-
-Use the stepper component for procedures with many steps or complex workflows that benefit from clear progression.
-
-#### When to use steppers
-
--   **Multi-phase setup**: Initial configuration, data ingestion, and verification
--   **Complex workflows**: Procedures with dependencies between steps
--   **Long procedures**: Tasks with 10+ steps that would be overwhelming as a simple list
--   **Branching logic**: Procedures where steps depend on previous choices
-
-#### Stepper syntax
-
-````markdown
-:::::{stepper}
-::::{step} Prepare your environment
-
-Before you begin, ensure you have:
-
-- {{edot}} 8.12 or later installed
-- At least 4GB of available memory
-- Network access to download additional components
-
-:::{note}
-**Note**
-This step is required for all deployment types.
-:::
-::::
-
-::::{step} Configure basic settings
-
-1. Open the configuration file
-2. Set the cluster name
-3. Configure network settings
-
-% This step varies by deployment type
-:::{dropdown} Deployment-specific settings
-:open:
-
-**{{ess}}**: Use the Cloud console
-**{{self}}**: Edit `elasticsearch.yml`
-**{{ece}}**: Use the ECE admin interface
-:::
-::::
-
-::::{step} Verify the installation
-
-Test that everything is working:
-
-```bash
-curl -X GET "localhost:9200/_cluster/health?pretty"
-```
-
-You should see a response indicating the cluster is healthy.
-::::
-:::::
-````
-
-#### Stepper best practices
-
--   **Logical progression**: Ensure steps build upon each other logically
--   **Clear outcomes**: Each step should have a measurable success criterion
--   **Appropriate granularity**: Don't make steps too small or too large
--   **Use sync attributes**: Help users navigate between related stepper components
 
 ## Links
 
@@ -356,7 +284,7 @@ The `applies_to` tag filters content based on the user's selected product and ve
 
 - When a significant new feature is introduced, you **MUST** tag it accordingly in the docs together with the applicable `M.N` version of the product or of Elastic Stack. 
 - When a deprecation occurs in an EDOT, you **MUST** tag the feature/setting/entity so that it's clear from which version it becomes deprecated. 
-- When a feature/setting is no longer available, you **MUST** remove it from the documentation. 
+- When a feature/setting is no longer available for Serverless, you **MUST** remove it from the documentation. This applies to Serverless ONLY.
 
 If this context information is not available, you **MUST** ask the user for it.
 
