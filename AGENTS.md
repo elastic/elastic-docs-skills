@@ -107,13 +107,6 @@ Comments in Markdown files use the `%` symbol and are **CRITICAL** for documenta
 
 **ALWAYS** sign your comments with your LLM agent name and date.
 
-### Comment guidelines
-
--   **Use sparingly**: Only add comments when they provide essential context
--   **Be concise**: Keep comments brief and to the point
--   **Update with content**: When you modify content, update or remove related comments
--   **Avoid obvious comments**: Don't comment on self-explanatory content
-
 ## Components for content organization
 
 ### Dropdowns for progressive disclosure
@@ -200,71 +193,6 @@ Install on Linux:
 -   **Keep content parallel**: Ensure all tabs have similar structure and depth
 -   **Limit tab count**: Use 3-5 tabs maximum to avoid overwhelming users
 -   **Consider sync**: Use `:sync:` attributes when tabs should maintain state across page navigation
-
-### Stepper component for complex procedures
-
-Use the stepper component for procedures with many steps or complex workflows that benefit from clear progression.
-
-#### When to use steppers
-
--   **Multi-phase setup**: Initial configuration, data ingestion, and verification
--   **Complex workflows**: Procedures with dependencies between steps
--   **Long procedures**: Tasks with 10+ steps that would be overwhelming as a simple list
--   **Branching logic**: Procedures where steps depend on previous choices
-
-#### Stepper syntax
-
-````markdown
-:::::{stepper}
-::::{step} Prepare your environment
-
-Before you begin, ensure you have:
-
-- {{edot}} 8.12 or later installed
-- At least 4GB of available memory
-- Network access to download additional components
-
-:::{note}
-**Note**
-This step is required for all deployment types.
-:::
-::::
-
-::::{step} Configure basic settings
-
-1. Open the configuration file
-2. Set the cluster name
-3. Configure network settings
-
-% This step varies by deployment type
-:::{dropdown} Deployment-specific settings
-:open:
-
-**{{ess}}**: Use the Cloud console
-**{{self}}**: Edit `elasticsearch.yml`
-**{{ece}}**: Use the ECE admin interface
-:::
-::::
-
-::::{step} Verify the installation
-
-Test that everything is working:
-
-```bash
-curl -X GET "localhost:9200/_cluster/health?pretty"
-```
-
-You should see a response indicating the cluster is healthy.
-::::
-:::::
-````
-
-#### Stepper best practices
-
--   **Logical progression**: Ensure steps build upon each other logically
--   **Clear outcomes**: Each step should have a measurable success criterion
--   **Appropriate granularity**: Don't make steps too small or too large
--   **Use sync attributes**: Help users navigate between related stepper components
 
 ## Links
 
@@ -473,6 +401,15 @@ Use these to draw attention to important information.
 -   Always use sentence case for headings.
 -   Add anchor names to headings using the `[anchor-name]` syntax.
 
+**Examples:**
+```markdown
+# Configure data views in Kibana [configure-data-views]
+## Set up index patterns [index-patterns]  
+### Advanced configuration options [advanced-config]
+```
+
+**Note:** Do NOT use `{#anchor-name}` syntax - always use square brackets `[anchor-name]`.
+
 ### Handling urgent updates
 
 When product changes require immediate documentation updates:
@@ -499,3 +436,104 @@ When product changes require immediate documentation updates:
 ```markdown
 {applies_to}`stack: removed 10.0, deprecated 9.5, ga 9.0`
 ```
+
+## SEO guidelines for documentation content
+
+These guidelines supplement the core documentation principles above to ensure your content is discoverable by search engines, AI systems, and users. **ALL** content **MUST** follow the existing guidelines plus these additional SEO requirements.
+
+**Note**: This section references and builds upon the foundational guidelines already established in this document. Always follow the core principles first, then apply these SEO enhancements.
+
+### Page structure and headings
+
+Follow the standard [heading guidelines](#headings) with these additional SEO requirements:
+
+-   **H1 uniqueness**: **ALWAYS** ensure H1 titles are unique across all documentation.
+-   **Keyword inclusion**: **ALWAYS** include the primary keyword naturally in H1s.
+-   **Descriptive titles**: **AVOID** vague titles like "Overview" or "Introduction".
+    -   **Good**: `# Configure data views in Kibana [configure-data-views]`
+    -   **Bad**: `# Data views [data-views]`
+-   **Heading specificity**: **AVOID** generic H2/H3 headings like "Settings" or "Configuration". Use descriptive headings that include relevant keywords where natural.
+
+### Introductory paragraphs
+
+The first paragraph after the H1 is **CRITICAL** for both users and search engines.
+
+-   **Page purpose**: **ALWAYS** summarize the page purpose in one to three clear sentences.
+-   **User outcomes**: **ALWAYS** state what users will learn or accomplish.
+-   **Keyword placement**: **ALWAYS** include primary and secondary keywords naturally in the first one to two sentences.
+-   **Front-loading**: **ALWAYS** place the most important information first. The first 150-160 characters may be used for search snippets.
+-   **Context**: Address user intent and provide essential context.
+
+Example:
+```markdown
+Learn how to configure index patterns in Kibana to manage and visualize your Elasticsearch data efficiently. This guide walks you through each step, from creating a new pattern to troubleshooting common issues.
+```
+
+### Content structure and optimization
+
+Follow the standard [voice and tone principles](#principle-2-voice-and-tone) and [accessibility guidelines](#principle-3-accessibility-and-inclusivity) with these additional SEO requirements:
+
+-   **Keywords**: **ALWAYS** incorporate relevant keywords naturally throughout content. **NEVER** force keywords unnaturally.
+-   **Unique content**: **ALWAYS** ensure unique, valuable content on every page. **AVOID** duplicate content across pages.
+-   **Comprehensive coverage**: **ALWAYS** provide substantial information that fully answers user questions.
+-   **Scannability**: **ALWAYS** break content into scannable sections with visual elements and short paragraphs.
+
+### Lists and structured content
+
+Follow the standard [lists and tables guidelines](#lists-and-tables) with these additional SEO considerations:
+
+-   **List length**: **LIMIT** lists to five to seven items when possible. Group longer lists logically.
+-   **Keywords in lists**: **INCORPORATE** relevant keywords naturally in list items where they fit contextually.
+-   **Mobile accessibility**: **ENSURE** all table content is accessible on mobile devices.
+
+### Link optimization
+
+Follow the comprehensive [link guidelines](#links) with these additional SEO considerations:
+
+-   **Internal link priority**: **PRIORITIZE** internal links over external ones for SEO value.
+-   **Link relevance**: **AVOID** overlinking. **ONLY** include the most relevant and helpful connections.
+
+**Note**: Remind users to regularly audit external links for accuracy and continued relevance.
+
+### Multimedia and visual content
+
+Follow the [accessibility guidelines](#principle-3-accessibility-and-inclusivity) for alt text and meaningful content with these additional SEO requirements:
+
+-   **Image filenames**: **ALWAYS** use descriptive, lowercase filenames with hyphens. Example: `kibana-dashboard-setup.png`.
+-   **Text in images**: **NEVER** embed critical text within images as it's not searchable.
+-   **Unique visuals**: **ALWAYS** ensure images are unique and directly support the content.
+-   **Text alternatives**: **ALWAYS** ensure all critical information is available in text format, not just in videos.
+
+**Note**: Remind users to compress images and videos for optimal web performance and mobile loading speeds.
+
+### URL structure requirements
+
+URLs are determined by the [file and URL structure](#file-and-url-structure) in docs-builder. For SEO optimization:
+
+-   **Title alignment**: **ALWAYS** ensure URLs align with page titles and H1 headings.
+-   **URL clarity**: **ALWAYS** keep URLs short, descriptive, and keyword-focused.
+
+### Mobile-friendly content writing
+
+Write content that works well on mobile devices:
+
+-   **Scannable formatting**: **ALWAYS** use short paragraphs, bullet points, and clear headings for mobile readability.
+-   **Scrolling**: **AVOID** creating content that requires horizontal scrolling, such as very wide code blocks or tables.
+-   **Clear instructions**: **ALWAYS** reference UI elements clearly without relying on precise positioning that may differ on mobile.
+
+**Note**: Suggest to users that they test pages on various mobile devices to ensure all features and navigation work properly on smaller screens.
+
+### Content accuracy and versioning
+
+When creating or updating content:
+
+-   **Versioning**: **ALWAYS** use appropriate `applies_to` tags when features are version-specific.
+-   **Terminology**: **MAINTAIN** consistent terminology and technical accuracy throughout the content.
+-   **Current information**: **ALWAYS** ask for version information or current status when uncertain about feature availability.
+
+**Ongoing maintenance reminders for users**:
+- Regularly audit content for accuracy and broken links
+- Set up redirects when removing or merging pages to preserve SEO value  
+- Review user feedback to identify unclear sections that need improvement
+- Update screenshots and UI references when interfaces change
+- Refresh code examples to reflect current product versions
