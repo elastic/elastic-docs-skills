@@ -158,32 +158,32 @@ Use tabs when you have multiple approaches to the same task or different version
 
 ```markdown
 :::::{tab-set}
-:::::{tab-item} Windows
+::::{tab-item} Windows
 :sync: windows
 
 Install on Windows:
 
 1. Download the Windows installer
 2. Run the installer as administrator
-:::::
+::::
 
-:::::{tab-item} macOS
+::::{tab-item} macOS
 :sync: macos
 
 Install on macOS:
 
 1. Download the macOS installer
 2. Double-click the `.pkg` file
-:::::
+::::
 
-:::::{tab-item} Linux
+::::{tab-item} Linux
 :sync: linux
 
 Install on Linux:
 
 1. Download the Linux tarball
 2. Extract and run the installation script
-:::::
+::::
 :::::
 ```
 
