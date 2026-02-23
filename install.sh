@@ -243,35 +243,53 @@ cmd_interactive() {
 
   CATALOG="$catalog" RESULT_FILE="$result_file" "$python_cmd" "$tui_script" </dev/tty >/dev/tty 2>/dev/null || true
 
-  local selected=""
+  local actions=""
   if [[ -s "$result_file" ]]; then
-    selected=$(cat "$result_file")
+    actions=$(cat "$result_file")
   fi
   rm -f "$result_file"
 
-  if [[ -z "$selected" ]]; then
+  if [[ -z "$actions" ]]; then
     echo ""
-    warn "No skills selected."
+    warn "No changes selected."
     exit 0
   fi
 
   echo ""
   mkdir -p "$INSTALL_DIR"
 
-  local count=0
-  while IFS= read -r selected_name; do
-    [[ -z "$selected_name" ]] && continue
-    while IFS=$'\t' read -r name version category description path; do
-      if [[ "$name" == "$selected_name" ]]; then
-        install_one "$name" "$path" "$version"
-        ((count++))
-        break
+  local installed=0 uninstalled=0
+  while IFS= read -r action_line; do
+    [[ -z "$action_line" ]] && continue
+    local action="${action_line%%:*}"
+    local skill_name="${action_line#*:}"
+
+    if [[ "$action" == "uninstall" ]]; then
+      local target="$INSTALL_DIR/$skill_name"
+      if [[ -d "$target" ]]; then
+        rm -rf "$target"
+        ok "Uninstalled ${BOLD}$skill_name${NC}"
+        ((uninstalled++))
       fi
-    done <<< "$catalog"
-  done <<< "$selected"
+    elif [[ "$action" == "install" ]]; then
+      while IFS=$'\t' read -r name version category description path; do
+        if [[ "$name" == "$skill_name" ]]; then
+          install_one "$name" "$path" "$version"
+          ((installed++))
+          break
+        fi
+      done <<< "$catalog"
+    fi
+  done <<< "$actions"
 
   echo ""
-  ok "Installed $count skill(s) to $INSTALL_DIR"
+  local summary=""
+  [[ $installed -gt 0 ]] && summary="Installed $installed skill(s)"
+  [[ $uninstalled -gt 0 ]] && {
+    [[ -n "$summary" ]] && summary="$summary, "
+    summary="${summary}Uninstalled $uninstalled skill(s)"
+  }
+  ok "$summary"
 }
 
 # ─── Main ────────────────────────────────────────────────────────────────────
