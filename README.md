@@ -6,19 +6,32 @@ Browse the catalog, pick the skills you need, and install them with a single com
 
 ## Quick start
 
+No clone needed — just curl and run:
+
 ```bash
-git clone https://github.com/elastic/elastic-docs-skills.git
-cd elastic-docs-skills
-./install.sh
+curl -sSL https://raw.githubusercontent.com/elastic/elastic-docs-skills/main/install.sh | bash
 ```
 
-This launches an interactive TUI (powered by [gum](https://github.com/charmbracelet/gum)) where you can select which skills to install.
+This fetches the skill catalog from GitHub and launches an interactive TUI (powered by [gum](https://github.com/charmbracelet/gum)) where you can select which skills to install.
 
 ### Other install options
 
 ```bash
-./install.sh --list          # List all available skills
-./install.sh --all           # Install everything
+# List available skills
+curl -sSL https://raw.githubusercontent.com/elastic/elastic-docs-skills/main/install.sh | bash -s -- --list
+
+# Install all skills
+curl -sSL https://raw.githubusercontent.com/elastic/elastic-docs-skills/main/install.sh | bash -s -- --all
+```
+
+Or from a local clone:
+
+```bash
+git clone https://github.com/elastic/elastic-docs-skills.git
+cd elastic-docs-skills
+./install.sh                   # Interactive TUI
+./install.sh --list            # List all available skills
+./install.sh --all             # Install everything
 ./install.sh --uninstall NAME  # Remove an installed skill
 ```
 

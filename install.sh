@@ -3,12 +3,27 @@ set -euo pipefail
 
 # elastic-docs-skills installer
 # Interactive TUI for installing Claude Code skills from the catalog
+# Can be run locally or via: curl -sSL https://raw.githubusercontent.com/elastic/elastic-docs-skills/main/install.sh | bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILLS_DIR="$SCRIPT_DIR/skills"
+REPO="elastic/elastic-docs-skills"
+BRANCH="main"
+RAW_BASE="https://raw.githubusercontent.com/$REPO/$BRANCH"
+API_BASE="https://api.github.com/repos/$REPO"
 INSTALL_DIR="$HOME/.claude/skills"
 
-# Colors (used when gum is not available for basic output)
+# Detect if running from a local clone
+LOCAL_MODE=false
+SCRIPT_DIR=""
+SKILLS_DIR=""
+if [[ -n "${BASH_SOURCE[0]:-}" ]] && [[ -f "${BASH_SOURCE[0]}" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [[ -d "$SCRIPT_DIR/skills" ]]; then
+    LOCAL_MODE=true
+    SKILLS_DIR="$SCRIPT_DIR/skills"
+  fi
+fi
+
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -25,15 +40,20 @@ err()   { echo -e "${RED}${BOLD}✗${NC} $1" >&2; }
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") [OPTIONS]
+Usage: install.sh [OPTIONS]
 
 Interactive installer for elastic-docs-skills catalog.
+Works both from a local clone and via curl from GitHub.
+
+  curl -sSL $RAW_BASE/install.sh | bash
+  curl -sSL $RAW_BASE/install.sh | bash -s -- --list
+  curl -sSL $RAW_BASE/install.sh | bash -s -- --all
 
 Options:
-  --list          List all available skills and exit
-  --all           Install all skills (non-interactive)
+  --list            List all available skills and exit
+  --all             Install all skills (non-interactive)
   --uninstall NAME  Remove an installed skill
-  --help          Show this help message
+  --help            Show this help message
 
 Without options, launches an interactive TUI to select skills.
 Requires gum (https://github.com/charmbracelet/gum).
@@ -43,10 +63,7 @@ EOF
 # ─── Gum dependency ─────────────────────────────────────────────────────────
 
 check_gum() {
-  if command -v gum &>/dev/null; then
-    return 0
-  fi
-  return 1
+  command -v gum &>/dev/null
 }
 
 install_gum() {
@@ -90,7 +107,12 @@ gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
 
 # ─── Skill scanning ─────────────────────────────────────────────────────────
 
-# Parse frontmatter value from a SKILL.md file
+# Parse frontmatter value from content (stdin or file)
+parse_field_from_content() {
+  local content="$1" field="$2"
+  echo "$content" | sed -n '/^---$/,/^---$/p' | grep "^${field}:" | head -1 | sed "s/^${field}: *//"
+}
+
 parse_field() {
   local file="$1" field="$2"
   sed -n '/^---$/,/^---$/p' "$file" | grep "^${field}:" | head -1 | sed "s/^${field}: *//"
@@ -103,13 +125,7 @@ declare -a SKILL_VERSIONS=()
 declare -a SKILL_DESCRIPTIONS=()
 declare -a SKILL_CATEGORIES=()
 
-scan_skills() {
-  SKILL_PATHS=()
-  SKILL_NAMES=()
-  SKILL_VERSIONS=()
-  SKILL_DESCRIPTIONS=()
-  SKILL_CATEGORIES=()
-
+scan_skills_local() {
   while IFS= read -r skill_file; do
     local name version description category rel_path
 
@@ -117,7 +133,6 @@ scan_skills() {
     version="$(parse_field "$skill_file" "version")"
     description="$(parse_field "$skill_file" "description")"
 
-    # Extract category from path: skills/<category>/<name>/SKILL.md
     rel_path="${skill_file#"$SKILLS_DIR/"}"
     category="$(echo "$rel_path" | cut -d'/' -f1)"
 
@@ -132,10 +147,132 @@ scan_skills() {
     SKILL_DESCRIPTIONS+=("${description:-No description}")
     SKILL_CATEGORIES+=("$category")
   done < <(find "$SKILLS_DIR" -name "SKILL.md" -type f 2>/dev/null | sort)
+}
+
+scan_skills_remote() {
+  info "Fetching skill catalog from GitHub..."
+
+  # Use GitHub API to recursively find all SKILL.md files under skills/
+  local tree_response
+  tree_response=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || {
+    err "Failed to fetch repository tree from GitHub"
+    exit 1
+  }
+
+  # Extract paths matching skills/**/SKILL.md
+  local skill_paths
+  skill_paths=$(echo "$tree_response" | grep -o '"path":"skills/[^"]*SKILL\.md"' | sed 's/"path":"//;s/"//' | sort)
+
+  if [[ -z "$skill_paths" ]]; then
+    err "No skills found in the remote catalog"
+    exit 1
+  fi
+
+  while IFS= read -r remote_path; do
+    local content name version description category
+
+    # Fetch the raw file content
+    content=$(curl -fsSL "${RAW_BASE}/${remote_path}" 2>/dev/null) || {
+      warn "Failed to fetch $remote_path"
+      continue
+    }
+
+    name="$(parse_field_from_content "$content" "name")"
+    version="$(parse_field_from_content "$content" "version")"
+    description="$(parse_field_from_content "$content" "description")"
+
+    # Extract category: skills/<category>/<name>/SKILL.md
+    category="$(echo "$remote_path" | cut -d'/' -f2)"
+
+    if [[ -z "$name" ]]; then
+      warn "Skipping $remote_path — missing name field"
+      continue
+    fi
+
+    SKILL_PATHS+=("$remote_path")
+    SKILL_NAMES+=("$name")
+    SKILL_VERSIONS+=("${version:-0.0.0}")
+    SKILL_DESCRIPTIONS+=("${description:-No description}")
+    SKILL_CATEGORIES+=("$category")
+  done <<< "$skill_paths"
+}
+
+scan_skills() {
+  SKILL_PATHS=()
+  SKILL_NAMES=()
+  SKILL_VERSIONS=()
+  SKILL_DESCRIPTIONS=()
+  SKILL_CATEGORIES=()
+
+  if [[ "$LOCAL_MODE" == true ]]; then
+    scan_skills_local
+  else
+    scan_skills_remote
+  fi
 
   if [[ ${#SKILL_NAMES[@]} -eq 0 ]]; then
-    err "No skills found in $SKILLS_DIR"
+    err "No skills found"
     exit 1
+  fi
+}
+
+# ─── Installation ────────────────────────────────────────────────────────────
+
+install_skill_local() {
+  local index="$1"
+  local name="${SKILL_NAMES[$index]}"
+  local version="${SKILL_VERSIONS[$index]}"
+  local source_dir
+  source_dir="$(dirname "${SKILL_PATHS[$index]}")"
+  local target="$INSTALL_DIR/$name"
+
+  mkdir -p "$target"
+  cp -r "$source_dir"/* "$target"/
+  ok "Installed ${BOLD}$name${NC} v$version → $target"
+}
+
+install_skill_remote() {
+  local index="$1"
+  local name="${SKILL_NAMES[$index]}"
+  local version="${SKILL_VERSIONS[$index]}"
+  local remote_path="${SKILL_PATHS[$index]}"
+  local remote_dir
+  remote_dir="$(dirname "$remote_path")"
+  local target="$INSTALL_DIR/$name"
+
+  mkdir -p "$target"
+
+  # Fetch the SKILL.md
+  curl -fsSL "${RAW_BASE}/${remote_path}" -o "$target/SKILL.md" 2>/dev/null || {
+    err "Failed to download $name"
+    return 1
+  }
+
+  # Check for additional files in the skill directory via the tree API
+  local tree_response
+  tree_response=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || true
+
+  local extra_files
+  extra_files=$(echo "$tree_response" | grep -o "\"path\":\"${remote_dir}/[^\"]*\"" | sed 's/"path":"//;s/"//' | grep -v "SKILL\.md$" || true)
+
+  while IFS= read -r extra_path; do
+    [[ -z "$extra_path" ]] && continue
+    local filename="${extra_path#"$remote_dir/"}"
+    local target_subdir="$target/$(dirname "$filename")"
+    mkdir -p "$target_subdir"
+    curl -fsSL "${RAW_BASE}/${extra_path}" -o "$target/$filename" 2>/dev/null || {
+      warn "Failed to download supplementary file: $filename"
+    }
+  done <<< "$extra_files"
+
+  ok "Installed ${BOLD}$name${NC} v$version → $target"
+}
+
+install_skill() {
+  if [[ "$LOCAL_MODE" == true ]]; then
+    install_skill_local "$1"
+  else
+    install_skill_remote "$1"
   fi
 }
 
@@ -172,19 +309,6 @@ cmd_uninstall() {
 
   rm -rf "$target"
   ok "Uninstalled skill '$name'"
-}
-
-install_skill() {
-  local index="$1"
-  local name="${SKILL_NAMES[$index]}"
-  local version="${SKILL_VERSIONS[$index]}"
-  local source_dir
-  source_dir="$(dirname "${SKILL_PATHS[$index]}")"
-  local target="$INSTALL_DIR/$name"
-
-  mkdir -p "$target"
-  cp -r "$source_dir"/* "$target"/
-  ok "Installed ${BOLD}$name${NC} v$version → $target"
 }
 
 cmd_install_all() {
@@ -252,7 +376,6 @@ cmd_interactive() {
   # Match selections back to skill indices and install
   local count=0
   while IFS= read -r line; do
-    # Extract skill name (first field, trimmed)
     local selected_name
     selected_name="$(echo "$line" | awk '{print $1}')"
 
@@ -275,6 +398,12 @@ cmd_interactive() {
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 main() {
+  if [[ "$LOCAL_MODE" == true ]]; then
+    info "Running from local clone: $SCRIPT_DIR"
+  else
+    info "Running in remote mode — fetching from github.com/$REPO"
+  fi
+
   case "${1:-}" in
     --help|-h)
       usage
@@ -287,7 +416,7 @@ main() {
       ;;
     --uninstall)
       if [[ -z "${2:-}" ]]; then
-        err "Usage: $(basename "$0") --uninstall <skill-name>"
+        err "Usage: install.sh --uninstall <skill-name>"
         exit 1
       fi
       cmd_uninstall "$2"
