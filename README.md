@@ -120,3 +120,7 @@ elastic-docs-skills/
 2. Create a skill using `/create-skill` or manually
 3. Ensure your `SKILL.md` has all required frontmatter fields
 4. Open a PR — CI will validate your skill automatically
+
+## License
+
+This repository is licensed under the [Creative Commons Attribution 4.0 International License (CC-BY-4.0)](https://creativecommons.org/licenses/by/4.0/). See [LICENSE.txt](LICENSE.txt) for the full text.

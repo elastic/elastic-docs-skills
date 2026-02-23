@@ -1,0 +1,2 @@
+elastic-docs-skills
+Copyright 2025 Elasticsearch B.V.
