@@ -32,7 +32,7 @@ Based on the answers, generate a well-structured `SKILL.md` file with:
 - Proper YAML frontmatter including all relevant fields and `version: 1.0.0`
 - Clear, actionable instructions in the markdown body
 - Use of `$ARGUMENTS` or positional args (`$0`, `$1`) if the skill accepts input
-- Shell injection (`` !`command` ``) for dynamic context where useful
+- Shell injection (the exclamation-backtick syntax) for dynamic context where useful
 
 Required frontmatter fields:
 ```yaml
