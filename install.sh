@@ -59,7 +59,7 @@ Without options, launches an interactive TUI to select skills.
 EOF
 }
 
-# ─── Skill scanning (bash) ──────────────────────────────────────────────────
+# ─── Skill scanning ─────────────────────────────────────────────────────────
 
 parse_field() {
   local file="$1" field="$2"
@@ -115,7 +115,7 @@ build_catalog() {
   fi
 }
 
-# ─── Installation helpers ────────────────────────────────────────────────────
+# ─── Installation ────────────────────────────────────────────────────────────
 
 install_one_local() {
   local name="$1" path="$2" version="$3"
@@ -138,7 +138,7 @@ install_one_remote() {
     err "Failed to download $name"; return 1
   }
 
-  # Fetch any supplementary files
+  # Fetch supplementary files
   local tree_response extra_files
   tree_response=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || true
   extra_files=$(echo "$tree_response" | grep -o "\"path\":\"${remote_dir}/[^\"]*\"" | sed 's/"path":"//;s/"//' | grep -v "SKILL\.md$" || true)
@@ -217,207 +217,37 @@ cmd_interactive() {
     exit 1
   fi
 
-  # Build catalog TSV
+  # Build catalog
   local catalog
   catalog="$(build_catalog)"
   [[ -z "$catalog" ]] && { err "No skills found"; exit 1; }
 
-  # Launch Python curses TUI, passing catalog via env, get selected names back
-  local selected
-  selected=$(CATALOG="$catalog" "$python_cmd" -c '
-import curses
-import sys
-import os
+  # Get the TUI script (local or fetch from GitHub)
+  local tui_script=""
+  if [[ "$LOCAL_MODE" == true ]] && [[ -f "$SCRIPT_DIR/tui.py" ]]; then
+    tui_script="$SCRIPT_DIR/tui.py"
+  else
+    tui_script=$(mktemp "${TMPDIR:-/tmp}/elastic-tui-XXXXXX.py")
+    curl -fsSL "${RAW_BASE}/tui.py" -o "$tui_script" 2>/dev/null || {
+      err "Failed to download TUI component"
+      rm -f "$tui_script"
+      exit 1
+    }
+    trap "rm -f '$tui_script'" EXIT
+  fi
 
-def main(stdscr):
-    curses.curs_set(0)
-    curses.use_default_colors()
-    curses.start_color()
-    curses.init_pair(1, curses.COLOR_CYAN, -1)     # header/title
-    curses.init_pair(2, curses.COLOR_GREEN, -1)     # selected marker
-    curses.init_pair(3, curses.COLOR_YELLOW, -1)    # installed tag
-    curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_BLUE)  # cursor highlight
-    curses.init_pair(5, curses.COLOR_MAGENTA, -1)   # summary
+  # Run TUI: curses needs /dev/tty for display and input
+  # Results are written to a temp file
+  local result_file
+  result_file=$(mktemp "${TMPDIR:-/tmp}/elastic-result-XXXXXX")
 
-    install_dir = os.path.expanduser("~/.claude/skills")
+  CATALOG="$catalog" RESULT_FILE="$result_file" "$python_cmd" "$tui_script" </dev/tty >/dev/tty 2>/dev/null || true
 
-    # Parse catalog from env
-    catalog_raw = os.environ.get("CATALOG", "")
-    items = []
-    for line in catalog_raw.strip().split("\n"):
-        if not line.strip():
-            continue
-        parts = line.split("\t")
-        if len(parts) >= 5:
-            name, version, category, description, path = parts[0], parts[1], parts[2], parts[3], parts[4]
-            installed = os.path.isfile(os.path.join(install_dir, name, "SKILL.md"))
-            items.append({
-                "name": name,
-                "version": version,
-                "category": category,
-                "description": description,
-                "path": path,
-                "installed": installed,
-                "selected": False,
-            })
-
-    if not items:
-        return ""
-
-    cursor = 0
-    scroll_offset = 0
-    filter_text = ""
-
-    def get_filtered():
-        if not filter_text:
-            return list(range(len(items)))
-        ft = filter_text.lower()
-        return [i for i, it in enumerate(items)
-                if ft in it["name"].lower()
-                or ft in it["category"].lower()
-                or ft in it["description"].lower()]
-
-    while True:
-        stdscr.clear()
-        max_y, max_x = stdscr.getmaxyx()
-        filtered = get_filtered()
-
-        # Title
-        title = " elastic-docs-skills installer "
-        stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
-        stdscr.addnstr(0, max(0, (max_x - len(title)) // 2), title, max_x - 1)
-        stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
-
-        # Help line
-        help_text = "SPACE=toggle  ENTER=install  /=filter  a=all  n=none  q=quit"
-        stdscr.addnstr(1, max(0, (max_x - len(help_text)) // 2), help_text, max_x - 1)
-
-        # Filter bar
-        if filter_text:
-            filter_display = f" Filter: {filter_text}_ "
-        else:
-            filter_display = " Type / to filter "
-        stdscr.addnstr(2, 0, filter_display, max_x - 1, curses.color_pair(1))
-
-        # Column header
-        header_y = 3
-        hdr = f"  {'':3s} {'NAME':<20s} {'CATEGORY':<12s} {'VERSION':<10s} DESCRIPTION"
-        stdscr.attron(curses.A_BOLD)
-        stdscr.addnstr(header_y, 0, hdr[:max_x - 1], max_x - 1)
-        stdscr.attroff(curses.A_BOLD)
-
-        # Separator
-        stdscr.addnstr(header_y + 1, 0, "─" * min(max_x - 1, 80), max_x - 1)
-
-        # List area
-        list_start_y = header_y + 2
-        list_height = max_y - list_start_y - 2  # reserve 2 lines at bottom
-        if list_height < 1:
-            list_height = 1
-
-        # Adjust scroll
-        if cursor < scroll_offset:
-            scroll_offset = cursor
-        if cursor >= scroll_offset + list_height:
-            scroll_offset = cursor - list_height + 1
-
-        for row_idx in range(list_height):
-            fi = scroll_offset + row_idx
-            if fi >= len(filtered):
-                break
-            item_idx = filtered[fi]
-            item = items[item_idx]
-
-            marker = "[x]" if item["selected"] else "[ ]"
-            tag = " *" if item["installed"] else ""
-            line = f"  {marker} {item['name']:<20s} {item['category']:<12s} v{item['version']:<9s} {item['description'][:max_x - 55]}{tag}"
-
-            y = list_start_y + row_idx
-            if y >= max_y - 2:
-                break
-
-            if fi == cursor:
-                stdscr.attron(curses.color_pair(4))
-                stdscr.addnstr(y, 0, line[:max_x - 1].ljust(max_x - 1), max_x - 1)
-                stdscr.attroff(curses.color_pair(4))
-            elif item["selected"]:
-                stdscr.attron(curses.color_pair(2))
-                stdscr.addnstr(y, 0, line[:max_x - 1], max_x - 1)
-                stdscr.attroff(curses.color_pair(2))
-            else:
-                stdscr.addnstr(y, 0, line[:max_x - 1], max_x - 1)
-
-        # Status bar
-        selected_count = sum(1 for it in items if it["selected"])
-        status = f" {selected_count} selected | {len(filtered)}/{len(items)} skills | * = installed "
-        status_y = max_y - 1
-        stdscr.attron(curses.color_pair(5) | curses.A_BOLD)
-        stdscr.addnstr(status_y, 0, status[:max_x - 1], max_x - 1)
-        stdscr.attroff(curses.color_pair(5) | curses.A_BOLD)
-
-        stdscr.refresh()
-        key = stdscr.getch()
-
-        if key == ord("q") or key == 27:  # q or ESC
-            return ""
-        elif key == ord("\n") or key == curses.KEY_ENTER or key == 10 or key == 13:
-            selected_names = [it["name"] for it in items if it["selected"]]
-            return "\n".join(selected_names)
-        elif key == curses.KEY_UP or key == ord("k"):
-            if cursor > 0:
-                cursor -= 1
-        elif key == curses.KEY_DOWN or key == ord("j"):
-            if cursor < len(filtered) - 1:
-                cursor += 1
-        elif key == ord(" "):
-            if filtered:
-                idx = filtered[cursor]
-                items[idx]["selected"] = not items[idx]["selected"]
-                if cursor < len(filtered) - 1:
-                    cursor += 1
-        elif key == ord("a"):
-            for fi in filtered:
-                items[fi]["selected"] = True
-        elif key == ord("n"):
-            for fi in filtered:
-                items[fi]["selected"] = False
-        elif key == ord("/"):
-            # Enter filter mode
-            filter_text = ""
-            cursor = 0
-            scroll_offset = 0
-            stdscr.nodelay(False)
-            while True:
-                # Redraw filter bar
-                if filter_text:
-                    fd = f" Filter: {filter_text}_ (ESC to clear) "
-                else:
-                    fd = " Filter: _ (type to search, ESC to clear) "
-                stdscr.addnstr(2, 0, fd[:max_x - 1].ljust(max_x - 1), max_x - 1, curses.color_pair(1))
-                stdscr.refresh()
-                fk = stdscr.getch()
-                if fk == 27:  # ESC
-                    filter_text = ""
-                    cursor = 0
-                    scroll_offset = 0
-                    break
-                elif fk == ord("\n") or fk == 10 or fk == 13:
-                    cursor = 0
-                    scroll_offset = 0
-                    break
-                elif fk == curses.KEY_BACKSPACE or fk == 127 or fk == 8:
-                    filter_text = filter_text[:-1]
-                    cursor = 0
-                    scroll_offset = 0
-                elif 32 <= fk <= 126:
-                    filter_text += chr(fk)
-                    cursor = 0
-                    scroll_offset = 0
-
-result = curses.wrapper(main)
-if result:
-    print(result)
-' <<< "" 2>/dev/null) || true
+  local selected=""
+  if [[ -s "$result_file" ]]; then
+    selected=$(cat "$result_file")
+  fi
+  rm -f "$result_file"
 
   if [[ -z "$selected" ]]; then
     echo ""
