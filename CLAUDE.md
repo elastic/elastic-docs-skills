@@ -38,6 +38,7 @@ sources:                     # Upstream URLs this skill encodes (for freshness c
 - **authoring** — Skills that help write or edit documentation content
 - **review** — Skills that validate, lint, or check existing content
 - **workflow** — Skills for meta-tasks (retros, session analysis, project management)
+- **project** — Skills scoped to specific documentation areas (e.g., Kibana Lens charts)
 
 ## Conventions
 
