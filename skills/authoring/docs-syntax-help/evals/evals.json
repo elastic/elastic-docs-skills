@@ -1,0 +1,38 @@
+{
+  "skill_name": "docs-syntax-help",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm trying to nest a code block inside a note inside a tab, and the build keeps failing. Here's what I have:\n\n:::{tab-set}\n:::{tab-item} Example\n:::{note}\n```yaml\nkey: value\n```\n:::\n:::\n:::",
+      "expected_output": "Identifies the colon count mismatch in nested directives and provides corrected syntax with proper nesting levels",
+      "expectations": [
+        "Identifies that the outer tab-set needs more colons than tab-item, which needs more than note",
+        "Provides corrected syntax with 4+ colons for tab-set, 3+ for tab-item, 3 for note",
+        "Explains that code blocks inside directives use backtick fences",
+        "The corrected example would actually build successfully"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I create synced tabs where Java and Python tabs switch together across the whole page?",
+      "expected_output": "Shows tab-set with :group: and tab-item with :sync: options, explaining that matching group+sync values synchronize across tab sets",
+      "expectations": [
+        "Uses the :group: option on tab-set",
+        "Uses the :sync: option on each tab-item",
+        "Shows a complete, valid tab-set example",
+        "Explains that matching group and sync values cause synchronization"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need to add explicit callouts to a YAML code block but I keep getting a build error about mismatched callout counts",
+      "expected_output": "Explains the <N> marker syntax and the rule that the numbered list count must exactly match the marker count",
+      "expectations": [
+        "Shows the <N> marker syntax at line ends in code blocks",
+        "Shows the matching numbered list after the code block",
+        "States that the marker count must exactly equal the list item count",
+        "Provides a working example"
+      ]
+    }
+  ]
+}

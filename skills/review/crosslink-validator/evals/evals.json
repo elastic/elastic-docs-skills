@@ -1,0 +1,28 @@
+{
+  "skill_name": "crosslink-validator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check the cross-links in this file. It has these links:\n- [Kibana dashboards](kibana://dashboards/overview.md)\n- [Getting started](docs-content://get-started/intro.md)\n- [External docs](https://elastic.co/guide)\n- [Relative page](../setup.md)",
+      "expected_output": "Identifies the two cross-links (kibana:// and docs-content://), skips the https:// and relative links, and attempts to resolve each cross-link",
+      "expectations": [
+        "Identifies kibana://dashboards/overview.md as a cross-link to validate",
+        "Identifies docs-content://get-started/intro.md as a cross-link to validate",
+        "Skips the https:// URL (not a cross-link)",
+        "Skips the relative ../setup.md link (not a cross-link)",
+        "Attempts to resolve each cross-link via MCP or WebFetch fallback"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Validate all cross-links in the docs/security/ directory of our repo",
+      "expected_output": "Uses Grep to find cross-link patterns in the directory, then resolves each one and produces a structured report",
+      "expectations": [
+        "Uses Grep or Glob to scan the directory for cross-link patterns",
+        "Produces a report with summary counts (found, valid, broken)",
+        "Groups results by file",
+        "Reports file path and line number for any broken links"
+      ]
+    }
+  ]
+}

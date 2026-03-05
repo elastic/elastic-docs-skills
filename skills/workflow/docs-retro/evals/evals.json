@@ -1,0 +1,30 @@
+{
+  "skill_name": "docs-retro",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run a retro on the current session",
+      "expected_output": "A structured retrospective report analyzing the current conversation with sections for docs opportunities, skill usage analysis, missing skills, and action items",
+      "expectations": [
+        "Produces a report with an executive summary",
+        "Includes a docs opportunities section (or states none identified)",
+        "Includes a skill usage analysis table",
+        "Includes a missing skills section (or states none identified)",
+        "Includes actionable items as a checklist",
+        "Does not modify any files"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Analyze the session transcript at ~/.claude/projects/my-project/abc123.jsonl and tell me what skills were used and what's missing",
+      "expected_output": "Attempts to locate and read the JSONL transcript, then produces a focused report on skill usage and missing skills",
+      "expectations": [
+        "Attempts to read the specified JSONL file",
+        "Parses conversation turns from the transcript",
+        "Reports which skills were invoked and their outcomes",
+        "Identifies workflows that lacked skill support",
+        "Proposes names and descriptions for missing skills"
+      ]
+    }
+  ]
+}

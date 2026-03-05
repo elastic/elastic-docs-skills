@@ -1,0 +1,37 @@
+{
+  "skill_name": "applies-to-tagging",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I just added a new page about machine learning anomaly detection that's available in both stack (since 8.15) and serverless elasticsearch. Can you add the right applies_to frontmatter?",
+      "expected_output": "Correct YAML frontmatter with applies_to containing stack: ga 8.15 and serverless with elasticsearch subkey set to ga",
+      "expectations": [
+        "The output includes applies_to in YAML frontmatter format",
+        "stack is set to ga with version 8.15",
+        "serverless uses the elasticsearch subkey set to ga",
+        "No mixed dimensions are used (stack/serverless only)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Can you check the applies_to tags in this file? The frontmatter says:\n---\napplies_to:\n  stack: ga 9.2, ga 9.3\n  serverless: ga\n  deployment:\n    ess: ga\n---",
+      "expected_output": "Report identifying two validation errors: duplicate lifecycle for same key (ga 9.2, ga 9.3) and mixed dimensions (stack/serverless mixed with deployment)",
+      "expectations": [
+        "Flags the duplicate ga lifecycle as invalid (one version per lifecycle rule)",
+        "Flags mixed dimensions (stack/serverless cannot be combined with deployment at page level)",
+        "Does not flag serverless: ga as an error"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need to mark a section as unavailable in serverless but keep it for stack. It's a heading called '## Node-to-node encryption'. What's the right syntax?",
+      "expected_output": "Section-level applies_to annotation using backtick-fenced block placed after the heading, with serverless: unavailable",
+      "expectations": [
+        "Uses backtick-fenced applies_to block (not colon-fenced)",
+        "Places the block after the heading, not inline with it",
+        "Sets serverless to unavailable",
+        "Does not remove or modify the heading itself"
+      ]
+    }
+  ]
+}
