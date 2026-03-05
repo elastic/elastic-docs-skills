@@ -22,6 +22,16 @@
         "Adds the entry under the redirects: key in redirects.yml",
         "Mentions searching for internal links to the old path that need updating"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "I renamed a heading anchor from #old-setup to #setup on the same page (security/configure.md). The page itself didn't move. Should I add a redirect?",
+      "expected_output": "Explains that redirects.yml handles page-level redirects, not anchor renames on the same page, and suggests alternative approaches",
+      "expectations": [
+        "Does NOT generate a redirects.yml entry for a same-page anchor rename",
+        "Explains that redirects are for page moves, not anchor changes on the same page",
+        "Suggests searching for internal links pointing to the old anchor and updating them"
+      ]
     }
   ]
 }

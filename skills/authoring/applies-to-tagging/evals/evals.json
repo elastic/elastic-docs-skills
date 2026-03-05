@@ -32,6 +32,17 @@
         "Sets serverless to unavailable",
         "Does not remove or modify the heading itself"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Check the applies_to tags in this file:\n---\napplies_to:\n  stack: ga 9.0\n  serverless:\n    elasticsearch: ga\n    observability: ga\n---\n\n# Configure index lifecycle policies\n\nThis page explains how to set up ILM policies.",
+      "expected_output": "Reports that the applies_to frontmatter is valid with no issues",
+      "expectations": [
+        "Does NOT flag the structure as invalid — stack + serverless is a valid dimension pair",
+        "Does NOT flag the serverless subkeys as errors — elasticsearch and observability are valid project types",
+        "Does NOT suggest changes to a correctly formed applies_to block",
+        "Confirms the frontmatter is valid or produces a clean report with no issues"
+      ]
     }
   ]
 }

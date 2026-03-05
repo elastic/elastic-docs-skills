@@ -100,17 +100,34 @@ After writing the file:
 3. Do NOT move on until the user confirms they're happy with the result
 4. If the user requests changes, edit the file and present the updated version again
 
-### Step 5: Generate evals
+### Step 5: Generate evals interactively
 
-After the user approves the skill, generate 2-3 test cases as `evals/evals.json` inside the skill directory. Follow the schema in `references/eval-schemas.md`.
+After the user approves the skill, generate eval test cases as `evals/evals.json` inside the skill directory. Follow the schema in `references/eval-schemas.md`.
+
+#### 5a: Draft initial evals
+
+Generate 3-4 evals covering:
+
+1. **Core use case** — the happy path the skill is designed for
+2. **Edge case** — unusual input, boundary condition, or complex scenario
+3. **Negative eval** — input where the skill should NOT trigger, flag, or produce output. This is critical to prevent false positives and over-triggering. Examples:
+   - For a linter/checker: valid input that should pass cleanly
+   - For a generator: a request that falls outside the skill's scope
+   - For an analyzer: input with nothing to report
 
 Good evals:
 - Use realistic, substantive prompts (not "do X" — include file paths, context, specifics)
 - Have expectations that are discriminating (fail when the skill doesn't work, not just pass for any output)
-- Cover the core use case, an edge case, and a validation/error scenario
+- Negative evals should use "Does NOT flag/generate/suggest" expectations
 - Test the skill's unique value-add, not things the base model already handles
 
-Present the evals to the user: "Here are the test cases I'd suggest. Do these look right, or do you want to add more?"
+#### 5b: Review with the user
+
+Present the evals and ask: **"Here are the test cases I'd suggest — including a negative eval to catch false positives. Do these cover the right scenarios, or do you want to add/change any?"**
+
+#### 5c: Iterate
+
+If the user suggests additional scenarios, failure modes, or edge cases, add them. Pay special attention to cases the user has seen in practice — real-world failures make the best evals.
 
 ### Step 6: Optimize the description (optional)
 

@@ -33,6 +33,17 @@
         "States that the marker count must exactly equal the list item count",
         "Provides a working example"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Is this valid Elastic docs syntax?\n\n::::{tab-set}\n:::{tab-item} Console\n```console\nGET _cluster/health\n```\n:::\n:::{tab-item} Python\n```python\nclient.cluster.health()\n```\n:::\n::::",
+      "expected_output": "Confirms the syntax is valid — proper colon counts, correct nesting, backtick code blocks inside directives",
+      "expectations": [
+        "Does NOT flag the colon counts as wrong (4 for outer, 3 for inner is correct)",
+        "Does NOT flag the code blocks as incorrectly formatted",
+        "Confirms the syntax is valid or would build successfully",
+        "Does NOT suggest restructuring a correctly formed tab-set"
+      ]
     }
   ]
 }

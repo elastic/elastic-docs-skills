@@ -22,6 +22,17 @@
         "Checks for problem-cause-solution structure",
         "Generates a report with required elements checklist"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check this how-to page against the content type guidelines:\n\n# Create an API key\n\nTo create an API key for your deployment:\n\n## Before you begin\n\nYou need the `manage_api_key` cluster privilege.\n\n## Steps\n\n1. Open **Stack Management > API keys**.\n2. Click **Create API key**.\n3. Enter a name for the key.\n4. (Optional) Set an expiration date.\n5. Click **Create**.\n\n## Next steps\n\nUse the API key to authenticate REST API requests.",
+      "expected_output": "Reports that the page follows how-to guidelines well — has prerequisites, numbered steps, and next steps",
+      "expectations": [
+        "Does NOT flag the page as mismatched with the how-to content type",
+        "Recognizes the prerequisite section as correct structure",
+        "Recognizes the numbered steps as proper how-to format",
+        "Does NOT recommend converting it to a different content type"
+      ]
     }
   ]
 }

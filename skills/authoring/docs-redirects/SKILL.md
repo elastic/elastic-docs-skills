@@ -1,11 +1,11 @@
 ---
 name: docs-redirects
-version: 1.0.0
+version: 1.0.1
 description: Create and manage redirects in Elastic documentation when pages are moved, renamed, or deleted. Use when moving docs pages, renaming files, restructuring content, or when the user asks about redirects.
 argument-hint: <old-path> <new-path>
 allowed-tools: Read, Grep, Glob, Edit, Write
 sources:
-  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/redirects
+  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/contribute/redirects
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. See the NOTICE file distributed with
@@ -78,6 +78,17 @@ redirects:
       'removed-anchor':
 ```
 
+### Remove anchors on a page that still exists
+
+When a page hasn't moved but specific anchors were removed, omit the `to:` field:
+
+```yaml
+redirects:
+  'existing-page.md':
+    anchors:
+      'removed-anchor':
+```
+
 ### Cross-repository redirects
 
 Use the `repo-name://path` syntax:
@@ -124,6 +135,10 @@ redirects:
    - Toctree entries referencing the old path
 
 6. **Report**: Summarize what was done — redirects added and links updated.
+
+## Validation
+
+Run `docs-builder diff validate` locally to verify all necessary redirect rules are in place after your changes. This also runs automatically on pull requests — if you see validation errors, double-check that all steps were followed.
 
 ## Guidelines
 

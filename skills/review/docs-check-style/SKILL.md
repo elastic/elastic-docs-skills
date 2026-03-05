@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.0.0
+version: 1.0.1
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 context: fork
@@ -130,6 +130,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Hyphens**: Compound adjectives before nouns (real-time results), two vowels together (re-enable), self-/ex-/all- prefixes. No hyphen for predicate adjectives ("up to date") or adverbs ending in -ly ("newly installed").
 - **Gerunds**: Use in top-level task titles. Use action verbs in lower-level titles. Avoid gerunds in prepositional phrases ("how to configure" not "on configuring").
 - **Noun vs. verb compounds**: backup/back up, login/log in, setup/set up, startup/start up.
+- **Quotation marks**: Use double quotation marks to quote error messages or introduce an unfamiliar term on first use only. Do **not** use quotation marks for code/commands (use monospace instead), for emphasis (use bold or italic), or for product/feature/UI names. Place commas and periods **inside** closing quotation marks. Place colons, semicolons, question marks, and exclamation points **outside** closing quotation marks (unless part of the quoted material). Use single quotation marks only for quotations within quotations.
 
 ### Formatting
 
