@@ -26,72 +26,36 @@ on:
 
 jobs:
   validate:
-    name: Validate SKILL.md files
+    name: Validate skills
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate skill frontmatter
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Install skill-validator
+        run: go install github.com/agent-ecosystem/skill-validator/cmd/skill-validator@latest
+
+      - name: Validate skills
         shell: bash
         run: |
           errors=0
 
-          # Find all SKILL.md files in the catalog
-          while IFS= read -r file; do
-            echo "Checking $file..."
-
-            # Check file has frontmatter delimiters
-            first_line=$(head -1 "$file")
-            if [[ "$first_line" != "---" ]]; then
-              echo "::error file=$file::Missing YAML frontmatter (file must start with ---)"
-              ((errors++))
-              continue
-            fi
-
-            # Extract frontmatter (between first and second ---)
-            frontmatter=$(sed -n '2,/^---$/p' "$file" | sed '$d')
-
-            if [[ -z "$frontmatter" ]]; then
-              echo "::error file=$file::Empty or malformed YAML frontmatter"
-              ((errors++))
-              continue
-            fi
-
-            # Check required fields
-            for field in name description version; do
-              value=$(echo "$frontmatter" | grep "^${field}:" | head -1 | sed "s/^${field}: *//")
-              if [[ -z "$value" ]]; then
-                echo "::error file=$file::Missing required field: $field"
-                ((errors++))
+          for dir in skills/*/*/; do
+            if ! skill-validator check --emit-annotations -o markdown "$dir" >> "$GITHUB_STEP_SUMMARY" 2>&1; then
+              exit_code=$?
+              # exit 1 = errors, exit 2 = warnings only
+              if [[ $exit_code -eq 1 ]]; then
+                errors=1
               fi
-            done
-
-            # Validate version is SemVer
-            version=$(echo "$frontmatter" | grep "^version:" | head -1 | sed "s/^version: *//")
-            if [[ -n "$version" ]] && ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-              echo "::error file=$file::Invalid version '$version' — must be SemVer (e.g., 1.0.0)"
-              ((errors++))
             fi
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+          done
 
-            # Validate directory name matches skill name
-            skill_name=$(echo "$frontmatter" | grep "^name:" | head -1 | sed "s/^name: *//")
-            dir_name=$(basename "$(dirname "$file")")
-            if [[ -n "$skill_name" && "$skill_name" != "$dir_name" ]]; then
-              echo "::error file=$file::Skill name '$skill_name' does not match directory name '$dir_name'"
-              ((errors++))
-            fi
-
-            if [[ $errors -eq 0 ]]; then
-              echo "  ✓ Valid"
-            fi
-
-          done < <(find skills -name "SKILL.md" -type f 2>/dev/null | sort)
-
-          if [[ $errors -gt 0 ]]; then
-            echo ""
-            echo "Found $errors validation error(s)"
+          if [[ $errors -ne 0 ]]; then
+            echo "::error::Skill validation failed with errors"
             exit 1
           fi
-
-          echo ""
-          echo "All skills validated successfully"
