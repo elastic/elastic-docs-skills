@@ -1,0 +1,32 @@
+{
+  "skill_name": "docs-check-style",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check this paragraph for style issues:\n\n\"Please click the button below to launch the application. The user will be able to easily configure their settings. We will provide you with the necessary information, e.g. API keys, which can be utilized to execute the relevant queries.\"",
+      "expected_output": "Flags multiple style violations: please, click, below, launch, easily, e.g., will, utilized, execute",
+      "expectations": [
+        "Flags 'please' as unnecessary per style guide",
+        "Flags 'below' as a positional reference (accessibility issue)",
+        "Flags 'launch' and suggests 'open'",
+        "Flags 'easily' as adding no value",
+        "Flags 'e.g.' and suggests 'for example'",
+        "Flags 'utilized' and suggests 'use'",
+        "Flags 'execute' and suggests 'run'",
+        "Categorizes issues by area (Word Choice, Voice/Tone, Accessibility)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review this heading and procedure for style:\n\n## How To Setup The Elasticsearch Cluster\n1. First, type your cluster name in the Name field\n2. Choose a region from the dropdown\n3. Click the Save button",
+      "expected_output": "Flags capitalization issues in heading, 'type' should be 'enter', 'choose' should be 'select', 'click the Save button' should be 'click Save'",
+      "expectations": [
+        "Flags heading capitalization (should be sentence-style, not title case)",
+        "Flags 'Setup' should be 'Set Up' (verb form) or suggests 'Set up'",
+        "Flags 'type' and suggests 'enter'",
+        "Flags 'Choose' and suggests 'Select'",
+        "Flags 'Click the Save button' and suggests 'Click **Save**' (no 'button' after label)"
+      ]
+    }
+  ]
+}

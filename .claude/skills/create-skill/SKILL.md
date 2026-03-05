@@ -100,7 +100,28 @@ After writing the file:
 3. Do NOT move on until the user confirms they're happy with the result
 4. If the user requests changes, edit the file and present the updated version again
 
-### Step 5: Suggest testing and contributing
+### Step 5: Generate evals
+
+After the user approves the skill, generate 2-3 test cases as `evals/evals.json` inside the skill directory. Follow the schema in `references/eval-schemas.md`.
+
+Good evals:
+- Use realistic, substantive prompts (not "do X" — include file paths, context, specifics)
+- Have expectations that are discriminating (fail when the skill doesn't work, not just pass for any output)
+- Cover the core use case, an edge case, and a validation/error scenario
+- Test the skill's unique value-add, not things the base model already handles
+
+Present the evals to the user: "Here are the test cases I'd suggest. Do these look right, or do you want to add more?"
+
+### Step 6: Optimize the description (optional)
+
+After evals are written, offer to optimize the skill's `description` field for better triggering accuracy. The description is the primary mechanism that determines whether Claude invokes a skill.
+
+A good description:
+- States what the skill does AND specific contexts for when to use it
+- Is slightly "pushy" to combat under-triggering (Claude tends to not use skills even when they'd help)
+- Includes trigger words users would naturally say
+
+### Step 7: Suggest testing and contributing
 
 Once the user approves, suggest testing:
 - Running `./install.sh` to install it locally

@@ -1,0 +1,27 @@
+{
+  "skill_name": "content-type-checker",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check this page against the content type guidelines. It's a how-to guide but it starts with a long explanation of what Elasticsearch indices are, has no numbered steps, and the title is 'Elasticsearch Index Management Overview'.",
+      "expected_output": "Report identifying content type mismatch (title says overview but claimed how-to), missing step-by-step instructions, and excessive conceptual content for a how-to",
+      "expectations": [
+        "Identifies the title pattern as inconsistent with how-to type",
+        "Flags the lack of numbered/step-by-step instructions",
+        "Notes that conceptual explanations belong in an overview, not a how-to",
+        "Produces a structured report with required elements and best practices sections"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I wrote a troubleshooting page for common Kibana dashboard errors. Can you check if it follows the right structure? The file is at docs/troubleshooting/kibana-dashboards.md",
+      "expected_output": "Evaluation against troubleshooting content type guidelines, checking for problem/cause/solution structure, symptoms, and prerequisites",
+      "expectations": [
+        "Attempts to read the file or asks for its content",
+        "References the troubleshooting content type guidelines",
+        "Checks for problem-cause-solution structure",
+        "Generates a report with required elements checklist"
+      ]
+    }
+  ]
+}
