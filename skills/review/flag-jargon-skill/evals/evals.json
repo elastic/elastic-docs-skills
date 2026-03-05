@@ -1,0 +1,42 @@
+{
+  "skill_name": "flag-jargon-skill",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check this paragraph for jargon:\n\n\"To migrate from ESS to Serverless, first export your index patterns from Kibana. The Stack provides built-in tools for this. If you're using CCR, disable it before migration. Contact support if you need help with your Classic deployment.\"",
+      "expected_output": "Flags ESS, Serverless, index patterns, the Stack, CCR, and Classic with appropriate categories and replacements",
+      "expectations": [
+        "Flags 'ESS' as Internal Abbreviation and suggests 'Elastic Cloud' or 'Elasticsearch Service'",
+        "Flags 'Serverless' as Internal Code Name and suggests qualifying with 'Elastic' or using the specific project type",
+        "Flags 'index patterns' as Outdated Term and suggests 'data view'",
+        "Flags 'the Stack' as Informal Shorthand and suggests 'Elastic Stack'",
+        "Flags 'CCR' as Unexplained Acronym and suggests spelling out 'Cross-cluster replication'",
+        "Flags 'Classic' as Internal Code Name and suggests 'hosted deployment' or specifying the deployment type",
+        "Groups findings by category in the report"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Check this paragraph for jargon:\n\n\"Elastic Agent collects data and sends it to Elasticsearch. You can manage your agents in Fleet. Use KQL in Discover to search your data. For advanced queries, try ES|QL or the Query DSL.\"",
+      "expected_output": "Flags some terms that lack first-use context but recognizes that others are acceptable",
+      "expectations": [
+        "Does NOT flag 'Elastic Agent' (properly qualified on first use)",
+        "Flags 'agents' (second mention) only if 'Elastic Agent' context is insufficient, or accepts it as a back-reference",
+        "Flags 'Fleet' as Informal Shorthand needing context like 'Fleet management UI'",
+        "Flags 'KQL' as Unexplained Acronym and suggests expanding to 'Kibana Query Language'",
+        "Flags 'Discover' as Informal Shorthand needing context like 'the Discover app in Kibana'",
+        "Flags 'ES|QL' as Unexplained Acronym and suggests expanding to 'Elasticsearch Query Language'"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check this code-heavy doc section for jargon:\n\n\"## Configure ILM policies\n\nIndex Lifecycle Management (ILM) lets you automate index management. Run the following in Dev Tools:\n\n```json\nPUT _ilm/policy/my_policy\n{\n  \"policy\": {\n    \"phases\": {\n      \"hot\": { \"actions\": { \"rollover\": { \"max_size\": \"50gb\" } } }\n    }\n  }\n}\n```\n\nThe ILM policy above configures rollover at 50 GB.\"",
+      "expected_output": "Recognizes that ILM is spelled out on first use, flags Dev Tools as needing context, does not flag terms inside code blocks",
+      "expectations": [
+        "Does NOT flag 'ILM' in the body text because it was expanded on first use as 'Index Lifecycle Management (ILM)'",
+        "Flags 'Dev Tools' as Informal Shorthand and suggests adding Kibana context",
+        "Does NOT flag any terms inside the JSON code block (code blocks are exempt)"
+      ]
+    }
+  ]
+}
