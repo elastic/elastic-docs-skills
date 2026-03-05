@@ -68,5 +68,6 @@ Output from blind comparator.
 
 - **Prompts should be realistic**: Include file paths, personal context, specifics. Not abstract requests.
 - **Expectations should be discriminating**: They should fail when the skill doesn't work, not just pass for any output.
-- **2-3 evals per skill minimum**: Cover the core use case, an edge case, and a validation/error case.
+- **3-4 evals per skill minimum**: Cover the core use case, an edge case, a validation/error scenario, and a negative case.
 - **Focus on what matters**: Test the skill's unique value-add, not things the base model already handles.
+- **Always include negative evals**: At least one eval should test input where the skill should produce no findings, no output, or decline to act. Use "Does NOT flag/generate/suggest X" expectations. Without negative evals, skills drift toward over-triggering — one-sided evals create one-sided optimization.
