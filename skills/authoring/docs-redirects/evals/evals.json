@@ -1,0 +1,27 @@
+{
+  "skill_name": "docs-redirects",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm moving security/authentication.md to security/user-auth/overview.md. The old page had anchors #saml and #oidc that now live on separate pages security/user-auth/saml.md and security/user-auth/oidc.md. Can you set up the redirects?",
+      "expected_output": "A complex redirect entry in redirects.yml using the 'many' form with anchor-level routing to different target pages",
+      "expectations": [
+        "Creates a redirect from security/authentication.md to security/user-auth/overview.md as the default target",
+        "Maps #saml anchor to security/user-auth/saml.md",
+        "Maps #oidc anchor to security/user-auth/oidc.md",
+        "Uses the many form for multi-target anchor routing",
+        "Uses single quotes around YAML paths"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We deleted the page getting-started/quick-start.md and the content now lives in the docs-content repo at get-started/quickstart.md. Add a redirect.",
+      "expected_output": "A cross-repository redirect using the repo:// syntax",
+      "expectations": [
+        "Uses cross-repository syntax (docs-content://get-started/quickstart.md or similar)",
+        "Adds the entry under the redirects: key in redirects.yml",
+        "Mentions searching for internal links to the old path that need updating"
+      ]
+    }
+  ]
+}
