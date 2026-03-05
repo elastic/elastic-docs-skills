@@ -55,12 +55,6 @@ jobs:
             echo "" >> "$GITHUB_STEP_SUMMARY"
           done
 
-            if [[ $errors -eq 0 ]]; then
-              echo "  ✓ Valid"
-            fi
-
-          done < <(find skills -name "SKILL.md" -type f 2>/dev/null | sort)
-
           # Validate eval files
           while IFS= read -r eval_file; do
             echo "Checking $eval_file..."
