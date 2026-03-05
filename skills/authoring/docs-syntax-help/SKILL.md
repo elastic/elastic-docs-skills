@@ -481,7 +481,11 @@ Included files must live in a `_snippets` folder:
 :::
 ```
 
-Link to anchors in included content: `[text](parent-file.md#anchor-from-snippet)`.
+Link to anchors in included content using the parent page path:
+
+```
+[Link text](parent-file.md#anchor-from-snippet)
+```
 
 ## CSV tables
 

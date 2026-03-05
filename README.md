@@ -64,24 +64,30 @@ Bump the `version` field in your `SKILL.md` frontmatter when making changes.
 
 ## CI validation
 
-All PRs are validated by GitHub Actions (`.github/workflows/validate-skills.yml`):
+All PRs that touch `skills/**` are validated by GitHub Actions using [`skill-validator`](https://github.com/agent-ecosystem/skill-validator). The workflow (`.github/workflows/validate-skills.yml`) runs the following checks on every skill:
 
-- Every `skills/**/SKILL.md` must have valid YAML frontmatter
-- Required fields: `name`, `description`, `version`
-- `version` must be valid SemVer
-- Directory name must match the `name` field
+- **Structure** — `SKILL.md` exists with valid YAML frontmatter and required fields
+- **Links** — all external URLs resolve successfully
+- **Content analysis** — word density, code block ratios, instruction specificity
+- **Contamination detection** — flags cross-language code examples that could confuse LLMs
+
+Results are posted as inline annotations on the PR and rendered in the Actions step summary. Warnings are non-blocking; only errors fail the check.
 
 ## Repository structure
 
 ```
 elastic-docs-skills/
-├── .github/workflows/        # CI validation
-├── .claude/skills/            # Skills that work within this repo
-├── skills/                    # The browsable catalog
+├── .github/
+│   ├── copilot-setup-steps.yml   # GitHub Copilot coding agent setup
+│   └── workflows/
+│       ├── validate-skills.yml   # Skill validation via skill-validator
+│       └── skill-freshness.lock.yml
+├── .claude/skills/               # Skills that work within this repo
+├── skills/                       # The browsable catalog
 │   └── <category>/
 │       └── <skill-name>/
 │           └── SKILL.md
-├── install.sh                 # Interactive TUI installer
+├── install.sh                    # Interactive TUI installer
 └── README.md
 ```
 
