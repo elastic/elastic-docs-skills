@@ -1,0 +1,54 @@
+{
+  "skill_name": "docs-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run /docs-performance https://www.elastic.co/docs/deploy-manage/deploy/self-managed/installing-elasticsearch",
+      "expected_output": "A performance report for the installing-elasticsearch page including a semantic summary from the MCP, GA4 traffic metrics, GSC search data or a note that it is unavailable, and web feedback from Reddit/Discuss/Stack Overflow",
+      "expectations": [
+        "Calls GetDocumentByUrl or AnalyzeDocumentStructure via MCP for the target page",
+        "Reads ~/.claude/data/ga4-traffic.json and looks up the page path",
+        "Checks ~/.claude/data/gsc-data.json and either shows GSC metrics or notes it is unavailable",
+        "Runs at least 2 web searches targeting Reddit, Discuss.elastic.co, or Stack Overflow",
+        "Produces a structured report with sections for Page Summary, Traffic, Search Performance, and Web Feedback",
+        "Does not modify any files"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run /docs-performance 1234 --timeframe 90d",
+      "expected_output": "A performance report for all .md files changed in PR #1234, with a summary table followed by per-page breakdowns, using a 90-day timeframe",
+      "expectations": [
+        "Runs gh pr view 1234 --json files to get the list of changed files",
+        "Filters to .md files only and maps them to /docs/ URL paths",
+        "Produces a summary table listing all pages with pageviews, score, tier, GSC clicks, and feedback count",
+        "Includes per-page sections with MCP semantic context, GA4 data, GSC data, and web feedback",
+        "Notes the 90-day timeframe in the report header",
+        "Does not modify any files"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run /docs-performance /docs/solutions/search",
+      "expected_output": "A performance report for all pages under the /docs/solutions/search section, capped at 20 pages, with a summary table and per-page breakdowns",
+      "expectations": [
+        "Reads the GA4 cache and matches all pagePaths starting with /docs/solutions/search",
+        "Caps results at 20 pages and notes if truncated",
+        "Sorts pages by traffic score descending in the summary table",
+        "Fetches MCP semantic context for each page",
+        "Produces a summary table before the per-page sections",
+        "Does not modify any files"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Run /docs-performance https://www.elastic.co/docs/deploy-manage/deploy/self-managed/installing-elasticsearch and also update the page to fix the broken example in the introduction",
+      "expected_output": "Produces the performance report only and does not edit any documentation files",
+      "expectations": [
+        "Produces the performance report as requested",
+        "Does NOT edit, write, or modify any .md or documentation files",
+        "May note that file editing is outside the scope of this skill"
+      ]
+    }
+  ]
+}
