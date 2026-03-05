@@ -1,6 +1,6 @@
 ---
 name: applies-to-tagging
-version: 1.0.0
+version: 1.0.1
 description: Validate and generate applies_to tags in Elastic documentation. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, or when content changes lifecycle state (preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory>
 context: fork
@@ -58,9 +58,23 @@ serverless: unavailable
 ```
 ````
 
+The `yaml {applies_to}` variant is also supported to enable YAML syntax highlighting in editors:
+````markdown
+```yaml {applies_to}
+stack: ga 9.1
+serverless: unavailable
+```
+````
+
 **Inline**:
 ```markdown
 Some text {applies_to}`stack: ga 9.1` more text.
+```
+
+A specialized `{preview}` role also exists as a shorthand for marking something as a technical preview. It takes the version as its argument:
+```markdown
+Feature name {preview}`9.1`
+:   Definition body
 ```
 
 **Admonitions** (via `:applies_to:` directive option):
