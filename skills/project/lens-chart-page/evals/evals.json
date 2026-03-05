@@ -1,0 +1,49 @@
+{
+  "skill_name": "lens-chart-page",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm creating a new documentation page for heat map charts. What sections should the page have and in what order?",
+      "expected_output": "Lists the five required sections in order: title/intro, Build a chart stepper, optional advanced scenarios, Settings reference, and Examples",
+      "expectations": [
+        "Lists title and introduction as the first section",
+        "Lists the Build a chart stepper as the second section",
+        "Lists the Settings reference section",
+        "Lists the Examples section as the last section",
+        "Mentions that advanced scenarios are optional and only for non-obvious techniques"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should I include an advanced scenario section for a treemap chart page that shows how to use treemaps with different fields?",
+      "expected_output": "Advises against it — scenarios that amount to 'pick different fields' belong in Examples, not in advanced scenarios. Treemap is a simpler chart type where Examples are usually sufficient.",
+      "expectations": [
+        "Advises against creating the advanced scenario section for this case",
+        "Explains that 'use the chart with different fields' is not genuinely advanced",
+        "Suggests putting it in the Examples section instead",
+        "Mentions that simpler chart types like treemap usually only need Examples"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How should I document the settings for a pie chart's Slice by dimension?",
+      "expected_output": "Explains the two-part structure: Data (listing aggregation functions with field selectors and sub-options) and Appearance (visual options). Mentions using shared snippets for rank-by and breakdown advanced settings.",
+      "expectations": [
+        "Describes the two top-level definition list entries: Data and Appearance",
+        "Mentions listing aggregation functions under Data",
+        "Mentions documenting Field selector conventions (Top values supports multiple fields)",
+        "Mentions reusing shared snippets like lens-rank-by-options.md or lens-breakdown-advanced-settings.md"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I need to verify the UI labels before writing the settings section. How should I do that?",
+      "expected_output": "Directs to the lens-chart-settings skill for verifying labels against the Kibana source code. Emphasizes never guessing UI labels.",
+      "expectations": [
+        "References the lens-chart-settings skill as the tool for verification",
+        "States that UI labels must be verified against source code, not guessed",
+        "Delegates the specifics of how to verify (source code paths, i18n keys) to lens-chart-settings rather than duplicating them"
+      ]
+    }
+  ]
+}

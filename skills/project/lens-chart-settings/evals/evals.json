@@ -1,0 +1,47 @@
+{
+  "skill_name": "lens-chart-settings",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to document the legend settings for a treemap chart. Does treemap have a Position option in its legend?",
+      "expected_output": "Explains that treemap (a partition chart) does not have a Position option because partition charts don't pass the `location` prop to the shared LegendSettings component. Only XY charts have Position.",
+      "expectations": [
+        "States that treemap does NOT have a legend Position option",
+        "Explains that Position requires the `location` prop, which partition charts don't pass",
+        "Mentions that only XY-type charts (bar, line, area) have Position"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Where in the Kibana source code should I look to find what Style panel options are available for a pie chart?",
+      "expected_output": "Directs to partition_charts_meta.ts for the chart config, then toolbar/style_settings.tsx for the panel structure, and toolbar/titles_and_text_setttings.tsx for slice labels and values",
+      "expectations": [
+        "Points to partition_charts_meta.ts as the starting point for per-chart configuration",
+        "Mentions toolbar/style_settings.tsx for the Style panel structure",
+        "Mentions toolbar/titles_and_text_setttings.tsx for slice labels and values options",
+        "References the path x-pack/platform/plugins/shared/lens/public/visualizations/partition/"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I wrote 'Legend size' as the label for the legend width dropdown in my chart docs. Is that correct?",
+      "expected_output": "Corrects the label to 'Width', citing the i18n key xpack.lens.shared.legendSizeSetting.label",
+      "expectations": [
+        "States the correct UI label is 'Width', not 'Legend size'",
+        "References the i18n key or source code as evidence",
+        "Lists this as a common mistake to avoid"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "What's the difference between waffle charts and other partition charts when it comes to legend settings?",
+      "expected_output": "Explains that waffle has Show value (via defaultLegendStats), no Nested toggle (hideNestedLegendSwitch is true), and always shows legend by default in Auto mode",
+      "expectations": [
+        "Mentions waffle has Show value in legend (via defaultLegendStats)",
+        "Mentions waffle hides the Nested legend switch",
+        "Mentions waffle's Auto legend visibility shows always (vs other partition charts)",
+        "Notes that waffle has max 1 Group by dimension vs 2-3 for other partition types"
+      ]
+    }
+  ]
+}
