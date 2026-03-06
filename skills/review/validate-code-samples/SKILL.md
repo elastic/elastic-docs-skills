@@ -4,7 +4,7 @@ version: 1.0.0
 description: Validate code samples in Elastic documentation markdown files. Checks for missing language identifiers, missing subs=true when using {{variables}}, inline comments that should be callouts, and invalid JSON in console blocks. Use when reviewing documentation PRs, auditing a section of docs, or writing new content with code examples. Trigger with /validate-code-samples.
 disable-model-invocation: true
 argument-hint: <file|dir|glob> [--output <path>]
-allowed-tools: Read, Glob, Grep, Write, Bash(find *), Bash(python3 *), CallMcpTool
+allowed-tools: Read, Glob, Grep, Write, Bash(find *), Bash(python3 *), mcp__elastic-docs__search_docs, mcp__elastic-docs__get_document_by_url
 sources:
   - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/code
   - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/substitutions

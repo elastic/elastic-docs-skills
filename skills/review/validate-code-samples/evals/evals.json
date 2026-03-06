@@ -60,14 +60,14 @@
     {
       "id": 6,
       "note": "The prompt references a file path but supplies the file content inline. The skill should use the inline content as the file body — no file system access is needed. This pattern works in CI without external repos and is the recommended approach for Check F evals.",
-      "prompt": "Check ~/docs/reindex-example.md for code sample issues. The file contains:\n```console\nPOST _reindex\n{\n  \"source\": { \"index\": \"old-index\" },\n  \"dest\": { \"index\": \"new-index\" },\n  \"size\": 1000\n}\n```",
-      "expected_output": "Uses the elastic-docs MCP server to look up the reindex API, finds the endpoint exists, and flags the 'size' field as deprecated (replaced by 'max_docs')",
+      "prompt": "Check ~/docs/reindex-example.md for code sample issues. The file contains:\n```console\nPOST _reindex\n{\n  \"source\": { \"index\": \"old-index\" },\n  \"dest\": { \"index\": \"new-index\" },\n  \"conflicts\": \"proceed\"\n}\n```",
+      "expected_output": "Uses the elastic-docs MCP server to look up the reindex API, confirms the endpoint exists, and does not flag 'source', 'dest', or 'conflicts' as errors — all are valid documented request body fields",
       "expectations": [
         "Calls SemanticSearch or GetDocumentByUrl to look up the POST _reindex API reference",
         "Confirms the endpoint exists in current Elastic documentation",
-        "Flags the 'size' field as deprecated in favor of 'max_docs'",
-        "Includes the API docs URL in the issue detail",
-        "Does NOT flag 'source' or 'dest' as errors (they are valid documented fields)",
+        "Does NOT flag 'source', 'dest', or 'conflicts' as errors (all are valid documented fields)",
+        "Includes the API docs URL in the API Validation section",
+        "Reports no issues for this file",
         "Treats the inline file content in the prompt as the file to validate — no external file access required"
       ]
     }
