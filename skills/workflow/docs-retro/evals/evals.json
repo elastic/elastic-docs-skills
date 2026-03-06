@@ -25,6 +25,18 @@
         "Identifies workflows that lacked skill support",
         "Proposes names and descriptions for missing skills"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run a retro on a session where the user only asked 'hello' and 'what time is it' — no docs work was done",
+      "expected_output": "Produces a retro report that correctly identifies no docs-relevant work and does not fabricate opportunities or skill gaps",
+      "expectations": [
+        "Does NOT fabricate docs opportunities from a non-docs session",
+        "Does NOT invent skill usage that didn't happen",
+        "States that no docs-related work was identified in the session",
+        "Still produces a structured report (not an error or refusal)",
+        "Does not modify any files"
+      ]
     }
   ]
 }

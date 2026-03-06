@@ -27,6 +27,18 @@
         "Flags 'Choose' and suggests 'Select'",
         "Flags 'Click the Save button' and suggests 'Click **Save**' (no 'button' after label)"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check this paragraph for style issues:\n\n\"To create a data view, open Stack Management and select **Data Views**. Enter a name and an index pattern that matches your data. Click **Save**.\"",
+      "expected_output": "Reports no or minimal style issues — the paragraph uses active voice, direct address, correct UI element formatting, and appropriate verbs",
+      "expectations": [
+        "Does NOT flag 'open' as a word choice issue (it's the correct verb for navigating to a page)",
+        "Does NOT flag 'select' as a word choice issue (it's the correct verb for choosing a menu item)",
+        "Does NOT flag 'Click **Save**' (correct UI interaction format — no 'button' after label)",
+        "Does NOT flag 'enter' as a word choice issue (it's the preferred verb for text input)",
+        "Reports the paragraph as clean or flags only minor issues"
+      ]
     }
   ]
 }

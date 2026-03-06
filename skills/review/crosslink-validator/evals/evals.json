@@ -23,6 +23,17 @@
         "Groups results by file",
         "Reports file path and line number for any broken links"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check the cross-links in this file:\n- [Install guide](../install.md)\n- [Elastic website](https://www.elastic.co)\n- [API reference](https://www.elastic.co/docs/api/overview)\n- [Local anchor](#configuration)",
+      "expected_output": "Reports that no cross-links were found — all links are relative, external HTTPS, or local anchors, none use the repo:// scheme",
+      "expectations": [
+        "Does NOT flag ../install.md as a cross-link (it's a relative link)",
+        "Does NOT flag the https:// URLs as cross-links",
+        "Does NOT flag #configuration as a cross-link (it's a local anchor)",
+        "Reports zero cross-links found or states there are no cross-links to validate"
+      ]
     }
   ]
 }

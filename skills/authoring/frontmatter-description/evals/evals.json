@@ -1,0 +1,63 @@
+{
+  "skill_name": "frontmatter-description",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a description to this how-to page frontmatter:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\n---\n\n# Add controls to dashboards [add-controls]\n\nAdd interactive filter controls to dashboards to let viewers dynamically filter the displayed data. Controls support Options lists for field value selection, Range sliders for numeric ranges, and Time sliders for time-based filtering.",
+      "expected_output": "A description field added to the frontmatter, under 200 characters, action-oriented, no label prefix",
+      "expectations": [
+        "Generates a description that is 200 characters or fewer",
+        "Does NOT start with a label prefix like 'Guide -' or 'How-to -'",
+        "Uses plain text (no Jinja2 substitutions like {{product.kibana}})",
+        "Writes a complete sentence, not a fragment",
+        "Mentions controls or filtering as the key topic"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Write a description for this tutorial page:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\n---\n\n# Get started with Elasticsearch [elasticsearch-get-started]\n\nThis tutorial walks you through setting up Elasticsearch, indexing your first documents, and running basic search queries.",
+      "expected_output": "A description starting with 'Step-by-step tutorial for...'",
+      "expectations": [
+        "Description starts with 'Step-by-step tutorial for' or similar tutorial-indicating phrase",
+        "Is 200 characters or fewer",
+        "Does NOT use 'Tutorial -' as a label prefix",
+        "Uses plain text ('Elasticsearch' not '{{product.elasticsearch}}')"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "This page has a bad description. Improve it:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\ndescription: Reference - Kibana settings for advanced users.\n---\n\n# Kibana advanced settings reference [advanced-settings]\n\nKibana advanced settings control the behavior of Kibana. Adjust appearance, search defaults, notifications, and other system-wide options from Stack Management.",
+      "expected_output": "Rewritten description that removes the label prefix, is a complete sentence, and works 'reference' naturally into the text",
+      "expectations": [
+        "Removes the 'Reference -' label prefix",
+        "Writes a complete sentence",
+        "Is 200 characters or fewer",
+        "Works 'reference' or 'settings' naturally into the description",
+        "Does NOT use 'you can' or 'users can'"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Add a description for this troubleshooting page:\n\n---\napplies_to:\n  stack: ga\n---\n\n# Troubleshoot Elasticsearch cluster health [troubleshoot-cluster-health]\n\nWhen your cluster health turns yellow or red, follow these steps to identify the root cause and restore your cluster to green status.",
+      "expected_output": "Description starting with 'Troubleshooting guide for...'",
+      "expectations": [
+        "Description starts with 'Troubleshooting guide for' or similar troubleshooting-indicating phrase",
+        "Is 200 characters or fewer",
+        "Does NOT start with 'Troubleshooting -' as a label prefix",
+        "Mentions cluster health or related symptoms"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "This description uses Jinja2 variables which aren't parsed in frontmatter. Fix it:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\ndescription: Create visualizations in {{product.kibana}} using {{esql}} queries to explore your {{product.elasticsearch}} data.\n---\n\n# Create ES|QL visualizations [esql-visualizations]",
+      "expected_output": "Description rewritten with plain text instead of Jinja2 variables",
+      "expectations": [
+        "Replaces {{product.kibana}} with 'Kibana'",
+        "Replaces {{esql}} with 'ES|QL'",
+        "Replaces {{product.elasticsearch}} with 'Elasticsearch'",
+        "Keeps the description under 200 characters",
+        "Preserves the meaning of the original description"
+      ]
+    }
+  ]
+}

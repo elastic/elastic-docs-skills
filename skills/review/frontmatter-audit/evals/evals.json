@@ -1,0 +1,62 @@
+{
+  "skill_name": "frontmatter-audit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit this file's frontmatter:\n\n---\napplies_to:\n  stack: ga\n---\n\n# Configure machine learning anomaly detection alerts in Kibana [configure-ml-alerts]\n\nSet up alerting rules for anomaly detection jobs.",
+      "expected_output": "Report flagging missing serverless key in applies_to, missing products, missing description, and recommending navigation_title due to long H1",
+      "expectations": [
+        "Flags the missing 'serverless' key in applies_to",
+        "Flags the missing 'products' element",
+        "Flags the missing 'description' field",
+        "Recommends adding navigation_title because the H1 exceeds ~50 characters",
+        "Produces a structured report"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Audit this file's frontmatter. Configuration: required applies_to keys are stack and serverless, required product is kibana.\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\nproducts:\n  - id: kibana\ndescription: Create dashboards with visualizations, controls, and content. Configure settings, organize panels, and save custom analytics views.\n---\n\n# Create a dashboard [create-dashboard]\n\nCreate dashboards to visualize your data.",
+      "expected_output": "Report showing the file passes all checks",
+      "expectations": [
+        "Reports that applies_to has both required keys",
+        "Reports that products includes the required 'kibana'",
+        "Reports that description is present and valid",
+        "Does NOT flag navigation_title since the H1 is short enough",
+        "Does NOT report any issues for this file"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Audit frontmatter for this file:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\nproducts:\n  - id: kibana\ndescription: Reference - Kibana settings list. You can use these to configure {{product.kibana}} behavior and customize the UI for your needs and preferences.\n---\n\n# Advanced settings [advanced-settings]\n\nKibana advanced settings.",
+      "expected_output": "Report flagging the description for having a label prefix, containing Jinja2 variables, and possibly exceeding 200 characters",
+      "expectations": [
+        "Flags the 'Reference -' label prefix in the description",
+        "Flags the Jinja2 variable '{{product.kibana}}' in the description",
+        "Checks and reports whether the description exceeds 200 characters",
+        "Does NOT flag applies_to or products since they are correct"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Audit this file. It has a mapped_pages field:\n\n---\nmapped_pages:\n  - old-page.md\napplies_to:\n  stack: preview 9.0, ga 9.2\n  serverless: ga\nproducts:\n  - id: elasticsearch\ndescription: Index lifecycle management automates index transitions through phases to optimize storage and performance.\n---\n\n# ILM overview [ilm-overview]",
+      "expected_output": "Report that does NOT flag or modify mapped_pages, preserves the version-specific applies_to values, and passes most checks",
+      "expectations": [
+        "Does NOT flag or suggest changes to mapped_pages",
+        "Preserves the version-specific applies_to value 'preview 9.0, ga 9.2' without normalizing it",
+        "Validates the description as acceptable",
+        "Does NOT suggest the file has issues with applies_to syntax"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Audit this file's frontmatter:\n\n---\napplies_to:\n  stack: ga\n  deployment:\n    ece: ga\n---\n\n# Deploy Elasticsearch [deploy-es]\n\nDeploy Elasticsearch on your infrastructure.",
+      "expected_output": "Report flagging mixed dimensions in applies_to (stack and deployment keys combined)",
+      "expectations": [
+        "Flags the mixed dimensions: 'stack' and 'deployment' should not be combined at page level",
+        "Flags the missing 'description' field",
+        "Flags the missing 'products' element",
+        "Produces a structured report with these issues"
+      ]
+    }
+  ]
+}

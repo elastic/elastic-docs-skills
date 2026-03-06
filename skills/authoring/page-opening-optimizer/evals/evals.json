@@ -1,0 +1,62 @@
+{
+  "skill_name": "page-opening-optimizer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Optimize the opening of this how-to page:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\ndescription: Learn how to use pattern analysis to find log patterns.\n---\n\n# Pattern analysis\n\nYou can use pattern analysis in Discover to find patterns in your log data. It helps you find common patterns.",
+      "expected_output": "Improved H1 with anchor, a richer opening paragraph that defines what pattern analysis is and its value, and a suggestion to add a requirements section",
+      "expectations": [
+        "Adds an anchor to the H1 (e.g., [pattern-analysis] or similar)",
+        "Rewrites the opening paragraph to define what pattern analysis is and explain its value",
+        "Does not repeat the frontmatter description verbatim in the opening paragraph",
+        "Replaces 'Discover' with bold formatting (**Discover**) as a UI element",
+        "Considers whether a requirements section is appropriate"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Optimize this overview page opening. The toc.yml shows it has children.\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\n---\n\n# Dashboards\n\nDashboards let you visualize your data.\n\n## Requirements\n\n- Access to Kibana",
+      "expected_output": "Expanded opening paragraph with value proposition and key capabilities, removal of the requirements section since this is an overview page",
+      "expectations": [
+        "Identifies the page as an overview type (has children in toc.yml)",
+        "Does NOT keep or add a requirements section for an overview page",
+        "Expands the opening paragraph to include value proposition and key capabilities",
+        "Uses {{product.kibana}} substitution instead of hardcoded 'Kibana'"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Optimize the opening for this tutorial page:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\n---\n\n# ES|QL tutorial\n\nES|QL is a query language. This tutorial shows you how to use it.\n\n## Prerequisites\n\n- Kibana version 8.0 or later\n- Some data to query",
+      "expected_output": "Improved H1 with context and anchor, acronym spelled out on first use, version reference updated, substitutions applied",
+      "expectations": [
+        "Improves the H1 to be more discoverable (e.g., 'Query your data with ES|QL in Discover')",
+        "Adds an anchor to the H1",
+        "Spells out the acronym on first use: 'Elasticsearch Query Language ({{esql}})'",
+        "Removes the pre-9.0 version reference ('version 8.0 or later')",
+        "Replaces hardcoded 'Kibana' with {{product.kibana}} substitution"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Optimize this page opening. There is a warning admonition right after the H1:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\n---\n\n# Background search [background-search]\n\nRun searches in the background.\n\n::::{important} - Background search replaces Search sessions\nBackground search is a feature introduced in version 9.2. It replaces the deprecated **Search sessions** feature.\n::::\n\nTo run a background search, click the button.",
+      "expected_output": "Opening paragraph improved but the important admonition left completely unchanged",
+      "expectations": [
+        "Does NOT modify the important admonition text, formatting, or position",
+        "Improves the opening paragraph between the H1 and the admonition",
+        "Preserves the admonition title format ('- Background search replaces Search sessions')",
+        "Does NOT move the admonition to a different position"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Check if this reference page opening needs optimization:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\ndescription: Complete list of Kibana advanced settings.\n---\n\n# Kibana advanced settings reference [kibana-advanced-settings]\n\nKibana advanced settings control the behavior of Kibana. Use **Stack Management > Advanced Settings** to modify these values. Changes take effect immediately for all users.\n\n## General settings",
+      "expected_output": "Report that the opening is already well-structured with minimal changes needed, possibly just substitution fixes",
+      "expectations": [
+        "Recognizes this as a reference page type",
+        "Does NOT recommend adding a requirements section to a reference page",
+        "Suggests replacing hardcoded 'Kibana' with {{product.kibana}} substitution",
+        "Does not recommend major restructuring since the opening is already functional"
+      ]
+    }
+  ]
+}
