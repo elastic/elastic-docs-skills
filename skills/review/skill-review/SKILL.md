@@ -53,6 +53,8 @@ Extract the following from the combined content:
 
 Use the Elastic Docs MCP server at `https://www.elastic.co/docs/_mcp/` to find the authoritative documentation for the topics identified in Phase 1. The server is a stateless HTTP endpoint — no authentication required.
 
+**Important: version baseline.** Only consider documentation for Elastic version 9.x and higher as the source of truth. Pre-9.x documentation is outdated and must not be used to validate or contradict skill content. If a skill references pre-9.x versions, flag those references as requiring updates.
+
 ### Available MCP tools
 
 The server exposes six tools organized into three groups:
@@ -108,6 +110,7 @@ For each procedural claim and factual assertion from Phase 1, check whether the 
 - Configuration syntax and default values.
 - Version-specific claims (feature introduced in X, deprecated in Y).
 - Field names, index patterns, and environment variables.
+- **Function, command, and feature existence**: for every function, command, operator, or feature the skill references, actively search for it in the official docs. Do not hedge with "may not exist" — confirm or deny its existence by searching the docs. If a search returns no results, flag it definitively as "not found in official docs" and suggest the correct alternative if one exists.
 
 Flag contradictions with citations from both the skill and the docs.
 
@@ -235,7 +238,8 @@ If the skill has no issues in a section, say so explicitly rather than omitting 
 
 ## Guidelines
 
-- Treat the official Elastic documentation as the ultimate source of truth for accuracy checks.
+- Treat the official Elastic documentation for version 9.x and higher as the ultimate source of truth for accuracy checks. Ignore pre-9.x docs.
+- **Verify, don't hedge.** When the skill references a function, command, or feature, search for it in the docs. Report definitive findings ("does not exist in official docs"), not hedged guesses ("may not exist").
 - Do NOT treat coverage gaps as errors. Skills often capture useful knowledge that docs should adopt.
 - Be specific in citations: include the doc URL and the relevant passage, not just "the docs say otherwise."
 - Review SKILL.md and `references/` files. Do not review scripts.
