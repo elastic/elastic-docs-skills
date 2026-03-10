@@ -1,6 +1,6 @@
 ---
 name: skill-review
-version: 1.1.0
+version: 1.2.0
 description: Review an Elastic agent skill against official documentation for accuracy, completeness, and coverage gaps. Use when a writer wants to review, audit, or validate a skill from a repository of agent skills.
 disable-model-invocation: true
 argument-hint: <path-to-skill-folder-or-SKILL.md>
@@ -88,6 +88,20 @@ The server exposes six tools organized into three groups:
 4. **`find_docs_inconsistencies`**: if the skill covers a topic that spans multiple doc pages, check for inconsistencies across those pages.
 
 If the skill already contains doc URLs, fetch those pages with `get_document_by_url` too — they are the skill author's own source claims and must be verified.
+
+### Pre-9.0 version history: elastic.co/guide
+
+`https://www.elastic.co/docs/` covers **9.0 and later only**. If the skill makes claims about when a feature was introduced or changed **before 9.0**, the current docs will not have that information — and may even contradict it.
+
+Use **WebFetch** on `https://www.elastic.co/guide/` (which covers up to 8.19) when:
+
+- The skill states a feature was introduced or changed in a version earlier than 9.0 (e.g., "Introduced 8.18").
+- The current docs show a different introduction version and you need to verify which is correct.
+- The skill describes behavior that may have changed between the 8.x and 9.x releases.
+
+Example: if a skill says "LOOKUP JOIN was introduced in 8.18" but the 9.x docs say "Preview in 9.0, GA since 9.1", fetch the 8.18 release notes or the feature page from `/guide/` to determine whether the 8.x claim is accurate or was a pre-release detail that never shipped.
+
+Do not flag a discrepancy between the skill and 9.x docs as an error if the skill is making a claim about 8.x history — verify against `/guide/` first.
 
 ### Fallback: WebFetch
 
