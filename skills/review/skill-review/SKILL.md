@@ -4,7 +4,6 @@ version: 1.0.0
 description: Review an Elastic agent skill against official documentation for accuracy, completeness, and coverage gaps. Use when a writer wants to review, audit, or validate a skill from a repository of agent skills.
 disable-model-invocation: true
 argument-hint: <path-to-skill-folder-or-SKILL.md>
-context: fork
 allowed-tools: Read, Grep, Glob, CallMcpTool, WebFetch
 sources:
   - https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
@@ -116,13 +115,23 @@ Review the prose content (SKILL.md and references, not scripts) against Elastic 
 
 ### Frontmatter checks
 
-Verify the following against [agent-skills-sandbox conventions](https://github.com/elastic/agent-skills-sandbox/blob/main/AGENTS.md):
+Before checking frontmatter, look for a repo-level conventions file (`AGENTS.md`, `CLAUDE.md`, or `CONTRIBUTING.md`) in the skill's repository root. If one exists, read it and apply its frontmatter rules. If none exists, fall back to Anthropic's standard skill requirements.
 
-- `name` matches the `<group>-<skill-folder>` pattern (e.g., `elasticsearch-esql` for `skills/elasticsearch/esql/`).
-- `description` is present, under 200 characters, and includes both *what the skill does* and *when to use it*.
+**Repo-specific rules** (apply only if defined in the conventions file):
+
+- Naming pattern (e.g., `<group>-<skill-folder>`).
+- Description length limit (e.g., 200 characters).
+- Required metadata fields (e.g., `metadata.author`, `metadata.version`).
+- Any other constraints the repo enforces.
+
+**Universal rules** (always apply):
+
+- `name` is present, kebab-case, and matches the skill's folder name.
+- `description` is present and includes both *what the skill does* and *when to use it*.
 - `description` is written in third person ("Executes queries...", not "I help you execute queries").
-- `metadata.author` is present and identifies the owning team.
-- `metadata.version` is present and follows SemVer.
+- `version` or `metadata.version` is present and follows SemVer.
+
+Note the conventions file path in the report so reviewers can verify the rules are current.
 
 ### Instruction quality
 
