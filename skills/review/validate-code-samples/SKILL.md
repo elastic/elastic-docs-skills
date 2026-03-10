@@ -4,7 +4,7 @@ version: 1.0.0
 description: Validate code samples in Elastic documentation markdown files. Checks for missing language identifiers, missing subs=true when using {{variables}}, inline comments that should be callouts, and invalid JSON in console blocks. Use when reviewing documentation PRs, auditing a section of docs, or writing new content with code examples. Trigger with /validate-code-samples.
 disable-model-invocation: true
 argument-hint: <file|dir|glob> [--output <path>]
-allowed-tools: Read, Glob, Grep, Write, Bash(find *), Bash(python3 *), mcp__elastic-docs__search_docs, mcp__elastic-docs__get_document_by_url
+allowed-tools: Read, Glob, Grep, Write, Bash, mcp__elastic-docs__search_docs, mcp__elastic-docs__get_document_by_url
 sources:
   - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/code
   - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/substitutions
@@ -58,6 +58,8 @@ Resolve the target:
 For each file, read its full content and extract every fenced code block. A fenced code block starts and ends with three or more backticks (`` ``` ``).
 
 **Skip code blocks inside HTML comments.** Before extracting blocks, strip all HTML comments (`<!-- ... -->`, including multi-line) from the file content. Code blocks inside comments are not rendered and should not be validated.
+
+**Skip MyST directive blocks.** If the fence info string starts with `{` and ends with `}` (e.g., `` ```{applies_to} ``, `` ```{note} ``, `` ```{warning} ``), the block is a docs-builder directive, not a code sample. Skip it entirely — do not run any checks against it.
 
 For each block, capture:
 - **Line number** of the opening fence
@@ -371,15 +373,15 @@ From each `console` block, collect every `METHOD /path` line. Deduplicate the sa
 
 ##### Step F-2: Look up the API reference page
 
-Use **`SemanticSearch`** with a targeted query: `"request body fields <endpoint> elasticsearch API"` (e.g., `"request body fields reindex elasticsearch API"`), with `product: "elasticsearch"`.
+Use **`mcp__elastic-docs__search_docs`** with a targeted query: `"request body fields <endpoint> elasticsearch API"` (e.g., `"request body fields reindex elasticsearch API"`), with `product: "elasticsearch"`.
 
-Pick the top result whose URL starts with `/docs/api/doc/elasticsearch/operation/`. Then call **`GetDocumentByUrl`** with `includeBody: true` on the matched URL to get the full parameter list, including any deprecation notices.
+Pick the top result whose URL starts with `/docs/api/doc/elasticsearch/operation/`. Then call **`mcp__elastic-docs__get_document_by_url`** with `include_body: true` on the matched URL to get the full parameter list, including any deprecation notices.
 
 If no matching result is found, note "API docs not found for `<METHOD> <path>`" and skip this call.
 
 ##### Step F-3: Verify the endpoint exists
 
-If `SemanticSearch` returns no result matching the method+path, or the top result's description doesn't match the expected operation, flag:
+If `mcp__elastic-docs__search_docs` returns no result matching the method+path, or the top result's description doesn't match the expected operation, flag:
 
 ```
 > **Issue:** `DELETE /_search/scroll` — no matching API reference page found. This endpoint may have been removed or renamed.
@@ -388,7 +390,7 @@ If `SemanticSearch` returns no result matching the method+path, or the top resul
 
 ##### Step F-4: Flag unrecognized or deprecated fields
 
-For each top-level JSON key in the code block's request body, check the full page body text returned by `GetDocumentByUrl`:
+For each top-level JSON key in the code block's request body, check the full page body text returned by `mcp__elastic-docs__get_document_by_url`:
 
 **Unrecognized field** (advisory) — if the field name does not appear anywhere in the docs body (look for it in backtick or bold formatting, e.g., `` `field_name` `` or `**field_name**`), flag it as an advisory finding. API docs pages may not enumerate every valid field, so treat these as hints to verify rather than definitive errors:
 
