@@ -27,6 +27,40 @@ import sys
 #   uninstall:<name> — uninstall skill
 
 
+def parse_semver(v):
+    """Parse a version string into a comparable tuple of ints."""
+    parts = v.split(".")
+    result = []
+    for p in parts[:3]:
+        try:
+            result.append(int(p))
+        except (ValueError, IndexError):
+            result.append(0)
+    while len(result) < 3:
+        result.append(0)
+    return tuple(result)
+
+
+def get_installed_version(install_dir, name):
+    """Read the version from an installed skill's SKILL.md frontmatter."""
+    skill_path = os.path.join(install_dir, name, "SKILL.md")
+    try:
+        with open(skill_path) as f:
+            in_frontmatter = False
+            for line in f:
+                stripped = line.strip()
+                if stripped == "---":
+                    if in_frontmatter:
+                        break
+                    in_frontmatter = True
+                    continue
+                if in_frontmatter and stripped.startswith("version:"):
+                    return stripped.split(":", 1)[1].strip()
+    except OSError:
+        pass
+    return None
+
+
 def main(stdscr):
     curses.curs_set(0)
     curses.use_default_colors()
@@ -37,6 +71,7 @@ def main(stdscr):
     curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_CYAN)    # cursor highlight
     curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_GREEN)   # status bar
     curses.init_pair(6, curses.COLOR_RED, -1)                     # uninstall marker
+    curses.init_pair(7, curses.COLOR_MAGENTA, -1)                 # update available
 
     install_dir = os.path.expanduser("~/.claude/skills")
     result_file = os.environ.get("RESULT_FILE", "")
@@ -53,6 +88,12 @@ def main(stdscr):
                 parts[0], parts[1], parts[2], parts[3], parts[4],
             )
             installed = os.path.isfile(os.path.join(install_dir, name, "SKILL.md"))
+            installed_version = get_installed_version(install_dir, name) if installed else None
+            update_available = (
+                installed
+                and installed_version is not None
+                and parse_semver(version) > parse_semver(installed_version)
+            )
             items.append({
                 "name": name,
                 "version": version,
@@ -60,7 +101,9 @@ def main(stdscr):
                 "description": description,
                 "path": path,
                 "installed": installed,
-                # action: None (no change), "install", or "uninstall"
+                "installed_version": installed_version,
+                "update_available": update_available,
+                # action: None, "install", "update", or "uninstall"
                 "action": None,
             })
 
@@ -84,8 +127,16 @@ def main(stdscr):
 
     def toggle_item(idx):
         item = items[idx]
-        if item["installed"]:
-            # Installed: cycle None -> uninstall -> None
+        if item["update_available"]:
+            # Has update: cycle None -> update -> uninstall -> None
+            if item["action"] is None:
+                item["action"] = "update"
+            elif item["action"] == "update":
+                item["action"] = "uninstall"
+            else:
+                item["action"] = None
+        elif item["installed"]:
+            # Installed, up to date: cycle None -> uninstall -> None
             if item["action"] is None:
                 item["action"] = "uninstall"
             else:
@@ -100,7 +151,7 @@ def main(stdscr):
     def write_result():
         actions = []
         for it in items:
-            if it["action"] == "install":
+            if it["action"] in ("install", "update"):
                 actions.append(f"install:{it['name']}")
             elif it["action"] == "uninstall":
                 actions.append(f"uninstall:{it['name']}")
@@ -111,8 +162,12 @@ def main(stdscr):
     def get_marker(item):
         if item["action"] == "install":
             return "[+]"
+        elif item["action"] == "update":
+            return "[^]"
         elif item["action"] == "uninstall":
             return "[-]"
+        elif item["update_available"]:
+            return "[^]"
         elif item["installed"]:
             return "[*]"
         else:
@@ -121,8 +176,12 @@ def main(stdscr):
     def get_status_label(item):
         if item["action"] == "install":
             return " INSTALL"
+        elif item["action"] == "update":
+            return f" UPDATE {item['installed_version']}->{item['version']}"
         elif item["action"] == "uninstall":
             return " REMOVE"
+        elif item["update_available"]:
+            return f" v{item['version']} available"
         elif item["installed"]:
             return " installed"
         else:
@@ -165,6 +224,7 @@ def main(stdscr):
             ("ENTER", "confirm"),
             ("/", "filter"),
             ("a", "all"),
+            ("u", "updates"),
             ("n", "none"),
             ("q", "quit"),
         ]
@@ -235,7 +295,6 @@ def main(stdscr):
             is_cursor = fi == cursor
 
             if is_cursor:
-                # Highlighted row
                 stdscr.attron(curses.color_pair(4) | curses.A_BOLD)
                 stdscr.addnstr(y, 0, line[: max_x - 1].ljust(max_x - 1), max_x - 1)
                 stdscr.attroff(curses.color_pair(4) | curses.A_BOLD)
@@ -243,10 +302,18 @@ def main(stdscr):
                 stdscr.attron(curses.color_pair(2) | curses.A_BOLD)
                 stdscr.addnstr(y, 0, line[: max_x - 1], max_x - 1)
                 stdscr.attroff(curses.color_pair(2) | curses.A_BOLD)
+            elif item["action"] == "update":
+                stdscr.attron(curses.color_pair(2) | curses.A_BOLD)
+                stdscr.addnstr(y, 0, line[: max_x - 1], max_x - 1)
+                stdscr.attroff(curses.color_pair(2) | curses.A_BOLD)
             elif item["action"] == "uninstall":
                 stdscr.attron(curses.color_pair(6))
                 stdscr.addnstr(y, 0, line[: max_x - 1], max_x - 1)
                 stdscr.attroff(curses.color_pair(6))
+            elif item["update_available"]:
+                stdscr.attron(curses.color_pair(7) | curses.A_BOLD)
+                stdscr.addnstr(y, 0, line[: max_x - 1], max_x - 1)
+                stdscr.attroff(curses.color_pair(7) | curses.A_BOLD)
             elif item["installed"]:
                 stdscr.attron(curses.color_pair(3))
                 stdscr.addnstr(y, 0, line[: max_x - 1], max_x - 1)
@@ -256,17 +323,25 @@ def main(stdscr):
 
         # ── Status bar ──
         to_install = sum(1 for it in items if it["action"] == "install")
+        to_update = sum(1 for it in items if it["action"] == "update")
         to_uninstall = sum(1 for it in items if it["action"] == "uninstall")
+        updates_avail = sum(
+            1 for it in items if it["update_available"] and it["action"] != "update"
+        )
         already = sum(1 for it in items if it["installed"])
 
         parts = [f" {len(items)} skills"]
         if already:
             parts.append(f"{already} installed")
+        if updates_avail:
+            parts.append(f"{updates_avail} update(s) available")
         if to_install:
             parts.append(f"+{to_install} to install")
+        if to_update:
+            parts.append(f"^{to_update} to update")
         if to_uninstall:
             parts.append(f"-{to_uninstall} to remove")
-        parts.append("[*]=installed [+]=install [-]=remove ")
+        parts.append("[*]=installed [+]=install [^]=update [-]=remove ")
         status = " | ".join(parts)
 
         status_y = max_y - 1
@@ -301,6 +376,11 @@ def main(stdscr):
                 item = items[fi]
                 if not item["installed"]:
                     item["action"] = "install"
+        elif key == ord("u"):
+            for fi in filtered:
+                item = items[fi]
+                if item["update_available"]:
+                    item["action"] = "update"
         elif key == ord("n"):
             for fi in filtered:
                 items[fi]["action"] = None
