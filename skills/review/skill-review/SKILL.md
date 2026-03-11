@@ -109,7 +109,7 @@ Do not flag a discrepancy between the skill and 9.x docs as an error if the skil
 If Phase 1 finds any API claim inventory items, you must explicitly attempt API operation-level verification, not only narrative docs.
 
 1. Run at least one API-focused search query that includes the method/path or operation name (for example, `PUT /_index_template/{name}`).
-2. Fetch at least 1-3 operation-level pages under `/docs/api/doc/.../operation/...` when available.
+2. Fetch up to 3 operation-level pages under `/docs/api/doc/.../operation/...` when available.
 3. Also fetch at least one narrative/reference page for behavior context.
 4. If operation pages are not retrievable via MCP after reasonable attempts:
    - Record this as an **API evidence retrieval limitation**.
@@ -141,7 +141,7 @@ For each procedural claim and factual assertion from Phase 1, check whether the 
 
 Flag contradictions with citations from both the skill and the docs.
 
-When API claim inventory exists, validate claims against both operation-level API pages and narrative/reference docs with equal importance. Use API pages to confirm endpoint/field/status-code existence and contract details, and use narrative/reference pages to confirm workflow intent, caveats, and recommended usage. Do not treat missing or conflicting evidence in only one source type as definitive without checking the other source type.
+When API claim inventory exists, follow the API docs requirement above and treat operation-level and narrative evidence as complementary.
 
 ### 3b. Completeness
 
