@@ -1,0 +1,49 @@
+{
+  "skill_name": "skill-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review the skill at skills/elasticsearch/elasticsearch-esql/ in the agent-skills-sandbox repo. Check it against the official Elastic ES|QL documentation for accuracy and completeness.",
+      "expected_output": "Reads the SKILL.md and reference files, queries the Elastic Docs MCP for ES|QL documentation, cross-references the skill content against the docs, and produces a structured report with accuracy findings, completeness gaps, coverage gaps, and writing quality issues.",
+      "expectations": [
+        "Reads SKILL.md and at least one file from references/",
+        "Uses the elastic-docs MCP (SemanticSearch or GetDocumentByUrl) to find ES|QL documentation",
+        "Produces a report with all required sections: skill summary, docs accuracy, completeness, coverage gaps, writing quality, and recommendations",
+        "Cites specific doc URLs consulted during the review",
+        "Checks frontmatter against agent-skills-sandbox conventions (name pattern, description length, required metadata fields)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review the skill at skills/security/alert-triage/ in agent-skills-sandbox. The skill includes practical triage workflow patterns and ES|QL query templates that may go beyond what the official Elastic Security docs cover.",
+      "expected_output": "Identifies content in the skill that extends beyond official documentation (such as triage workflow patterns, grouping heuristics, or query templates) and flags these as docs improvement opportunities rather than errors.",
+      "expectations": [
+        "Flags knowledge in the skill that is not in the official docs as 'docs improvement opportunities', NOT as errors",
+        "Distinguishes between contradictions (accuracy issues) and content the docs simply do not cover (coverage gaps)",
+        "Does NOT recommend removing useful procedural knowledge just because it is absent from the docs",
+        "Produces a recommendations section that separates skill fixes from docs opportunities"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review the file at README.md in the agent-skills-sandbox repo.",
+      "expected_output": "Reports that the path does not contain a SKILL.md file and is not a valid skill folder. Does not attempt to produce a skill review.",
+      "expectations": [
+        "Does NOT produce a full skill review report for a non-skill file",
+        "Clearly states that no SKILL.md was found or that the path is not a valid skill folder",
+        "Does NOT hallucinate skill content or fabricate review findings"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Review the skill at skills/cloud/create-project/ in agent-skills-sandbox. Pay close attention to whether the API endpoints and configuration steps match the current Elastic Cloud documentation.",
+      "expected_output": "Focuses the accuracy check on API endpoints, request parameters, and configuration steps, comparing them against the official Elastic Cloud Serverless API documentation.",
+      "expectations": [
+        "Checks API endpoints mentioned in the skill against the official docs",
+        "Verifies configuration parameters and default values against docs",
+        "Reports any discrepancies between the skill's API usage and the documented API",
+        "Checks for completeness of prerequisite steps (API key setup, region selection)"
+      ]
+    }
+  ]
+}

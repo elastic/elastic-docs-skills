@@ -32,6 +32,7 @@ BRANCH="main"
 RAW_BASE="https://raw.githubusercontent.com/$REPO/$BRANCH"
 API_BASE="https://api.github.com/repos/$REPO"
 INSTALL_DIR="$HOME/.claude/skills"
+TREE_CACHE=""
 
 # Detect if running from a local clone
 LOCAL_MODE=false
@@ -58,6 +59,18 @@ ok()    { echo -e "${GREEN}${BOLD}✓${NC} $1"; }
 warn()  { echo -e "${YELLOW}${BOLD}⚠${NC} $1"; }
 err()   { echo -e "${RED}${BOLD}✗${NC} $1" >&2; }
 
+# Returns 0 (true) if $1 > $2 in SemVer ordering (major.minor.patch)
+semver_gt() {
+  local IFS=.
+  local i a=($1) b=($2)
+  for ((i=0; i<3; i++)); do
+    local va=${a[i]:-0} vb=${b[i]:-0}
+    (( va > vb )) && return 0
+    (( va < vb )) && return 1
+  done
+  return 1
+}
+
 usage() {
   cat <<EOF
 Usage: install.sh [OPTIONS]
@@ -75,6 +88,27 @@ Options:
 
 Without options, launches an interactive TUI to select skills.
 EOF
+}
+
+# Attempt to fast-forward the local clone so the catalog reflects the latest
+# upstream versions. Skips silently when not on main or when git is unavailable.
+pull_latest_local() {
+  command -v git &>/dev/null || return 0
+  git -C "$SCRIPT_DIR" rev-parse --git-dir &>/dev/null 2>&1 || return 0
+
+  local current_branch
+  current_branch=$(git -C "$SCRIPT_DIR" symbolic-ref --short HEAD 2>/dev/null) || return 0
+
+  if [[ "$current_branch" == "main" || "$current_branch" == "master" ]]; then
+    info "Pulling latest from origin/$current_branch..."
+    if git -C "$SCRIPT_DIR" pull --ff-only --quiet 2>/dev/null; then
+      ok "Local clone is up to date"
+    else
+      warn "Could not fast-forward; using existing local versions"
+    fi
+  else
+    warn "On branch '$current_branch' — skipping pull (checkout main for latest versions)"
+  fi
 }
 
 # ─── Skill scanning ─────────────────────────────────────────────────────────
@@ -105,12 +139,11 @@ build_catalog_local() {
 
 build_catalog_remote() {
   info "Fetching skill catalog from GitHub..."
-  local tree_response
-  tree_response=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || {
+  TREE_CACHE=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || {
     err "Failed to fetch repository tree from GitHub"; exit 1
   }
   local skill_paths
-  skill_paths=$(echo "$tree_response" | grep -o '"path":"skills/[^"]*SKILL\.md"' | sed 's/"path":"//;s/"//' | sort)
+  skill_paths=$(echo "$TREE_CACHE" | grep -o '"path":"skills/[^"]*SKILL\.md"' | sed 's/"path":"//;s/"//' | sort)
   [[ -z "$skill_paths" ]] && { err "No skills found in the remote catalog"; exit 1; }
 
   while IFS= read -r remote_path; do
@@ -156,9 +189,13 @@ install_one_remote() {
     err "Failed to download $name"; return 1
   }
 
-  # Fetch supplementary files
+  # Fetch supplementary files (reuse cached tree when available)
   local tree_response extra_files
-  tree_response=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || true
+  if [[ -n "$TREE_CACHE" ]]; then
+    tree_response="$TREE_CACHE"
+  else
+    tree_response=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || true
+  fi
   extra_files=$(echo "$tree_response" | grep -o "\"path\":\"${remote_dir}/[^\"]*\"" | sed 's/"path":"//;s/"//' | grep -v "SKILL\.md$" || true)
   while IFS= read -r extra_path; do
     [[ -z "$extra_path" ]] && continue
@@ -244,12 +281,12 @@ cmd_update() {
     while IFS=$'\t' read -r name version category description path; do
       if [[ "$name" == "$skill_name" ]]; then
         found=true
-        if [[ "$version" == "$installed_version" ]]; then
-          ((skipped++))
-        else
+        if semver_gt "$version" "$installed_version"; then
           install_one "$name" "$path" "$version"
-          info "  Updated from v$installed_version"
+          info "  Updated v$installed_version → v$version"
           ((updated++))
+        else
+          ((skipped++))
         fi
         break
       fi
@@ -366,6 +403,7 @@ cmd_interactive() {
 main() {
   if [[ "$LOCAL_MODE" == true ]]; then
     info "Running from local clone: $SCRIPT_DIR"
+    pull_latest_local
   else
     info "Running in remote mode — fetching from github.com/$REPO"
   fi

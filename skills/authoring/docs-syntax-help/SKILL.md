@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.0.1
+version: 1.0.2
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 allowed-tools: Read, Grep, Glob, Edit, WebFetch
@@ -159,7 +159,7 @@ Default anchors auto-generate as lowercase, hyphenated, alphanumeric (diacritics
 
 **Cross-repository**: `[Text](kibana://path/to/page.md)` — link text is **mandatory**; omitting it causes the link to fail.
 
-**External**: `[Text](https://example.com)` — bare `https://` URLs (not `http://`) are automatically converted to clickable links that open in a new tab. Autolinks are not rendered inside code blocks. Bare URL autolinks pointing to `elastic.co/docs` trigger a build hint to use a cross-repository or relative link instead.
+**External**: `[Text](https://example.com)` — bare `https://` URLs (not `http://`) are automatically converted to clickable links that open in a new tab. Autolinks are not rendered inside code blocks or inline code. Bare URL autolinks pointing to `elastic.co/docs` trigger a build hint to use a cross-repository or relative link instead.
 
 **Auto-generated text** (uses target page title): `[](page.md)` or `[](page.md#section)`
 

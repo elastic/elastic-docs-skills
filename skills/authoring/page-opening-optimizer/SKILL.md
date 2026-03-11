@@ -1,6 +1,6 @@
 ---
 name: page-opening-optimizer
-version: 1.0.0
+version: 1.0.1
 description: Optimize the opening of an Elastic documentation page — H1 title, opening paragraph, and requirements section — following doc type conventions. Use when writing or improving page intros, optimizing titles for discoverability, adding requirements sections, or when the user asks to improve the first lines of a doc page.
 argument-hint: <file-or-directory>
 allowed-tools: Read, Grep, Glob, Edit, Shell
@@ -112,10 +112,10 @@ save your findings to reuse later or share with dashboards.
 - Use complete sentences, not bullet-point fragments
 - Spell out acronyms on first use: "Elasticsearch Query Language ({{esql}})"
 
-## Step 4: Add a requirements section
+## Step 4: Add a "Before you begin" section
 
-Add `## Requirements` **only when** all conditions are met:
-- No existing requirements/prerequisites section in the first 50 lines
+Add `## Before you begin` **only when** all conditions are met:
+- No existing "Before you begin", requirements, or prerequisites section in the first 50 lines
 - The page is **not** an overview page
 - At least one requirement is non-obvious
 
@@ -136,7 +136,7 @@ Add `## Requirements` **only when** all conditions are met:
 
 Use an H2 with a descriptive anchor:
 ```markdown
-## Requirements [create-dashboard-requirements]
+## Before you begin [create-dashboard-before-you-begin]
 
 To create dashboards, you need:
 
@@ -171,7 +171,7 @@ vale <file>
 Before modifying any file, verify:
 
 1. **Important/warning admonitions** in the first ~20 lines — **never** modify, move, or rewrite them. Edit only the content around them.
-2. **Overview page** (has `children:` in `toc.yml`) — do **not** add a requirements section.
+2. **Overview page** (has `children:` in `toc.yml`) — do **not** add a "Before you begin" section.
 3. **Pre-9.0 version references** — remove them (these docs are for Stack 9+). Only keep versions > 9.0.
 
 ## Quality checklist
@@ -181,7 +181,7 @@ Before modifying any file, verify:
 - [ ] `navigation_title` added if H1 > 50 characters
 - [ ] Opening paragraph doesn't repeat frontmatter description
 - [ ] Opening conveys purpose, value, and scope
-- [ ] Requirements section added where appropriate (not on overview pages)
+- [ ] "Before you begin" section added where appropriate (not on overview pages)
 - [ ] All substitutions used (no hardcoded product names)
 - [ ] Acronyms spelled out on first use
 - [ ] Bold for UI elements, monospace for technical elements
