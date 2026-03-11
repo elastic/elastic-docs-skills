@@ -31,6 +31,7 @@ REPO="elastic/elastic-docs-skills"
 BRANCH="main"
 RAW_BASE="https://raw.githubusercontent.com/$REPO/$BRANCH"
 API_BASE="https://api.github.com/repos/$REPO"
+CATALOG_JSON_URL="https://elastic.github.io/elastic-docs-skills/catalog.json"
 INSTALL_DIR="$HOME/.claude/skills"
 TREE_CACHE=""
 
@@ -123,6 +124,16 @@ parse_field_from_content() {
   echo "$content" | sed -n '/^---$/,/^---$/p' | grep "^${field}:" | head -1 | sed "s/^${field}: *//" || true
 }
 
+pick_python() {
+  for cmd in python3 python; do
+    if command -v "$cmd" &>/dev/null && "$cmd" -c "import sys; assert sys.version_info >= (3, 6)" 2>/dev/null; then
+      echo "$cmd"
+      return 0
+    fi
+  done
+  return 1
+}
+
 # Builds a TSV catalog: name\tversion\tcategory\tdescription\tpath
 build_catalog_local() {
   while IFS= read -r skill_file; do
@@ -137,8 +148,41 @@ build_catalog_local() {
   done < <(find "$SKILLS_DIR" -name "SKILL.md" -type f 2>/dev/null | sort)
 }
 
+build_catalog_remote_from_pages() {
+  local python_cmd catalog_json
+  python_cmd="$(pick_python)" || return 1
+  catalog_json=$(curl -fsSL "$CATALOG_JSON_URL" 2>/dev/null) || return 1
+
+  printf '%s' "$catalog_json" | "$python_cmd" -c '
+import json
+import sys
+
+data = json.load(sys.stdin)
+for skill in data:
+    name = (skill.get("name") or "").strip()
+    if not name:
+        continue
+    version = (skill.get("version") or "0.0.0").strip() or "0.0.0"
+    category = (skill.get("category") or "unknown").strip() or "unknown"
+    description = (skill.get("description") or "No description").replace("\t", " ").replace("\n", " ").strip()
+    path = (skill.get("path") or "").strip()
+    if not path:
+        path = f"skills/{category}/{name}/SKILL.md"
+    print(f"{name}\t{version}\t{category}\t{description}\t{path}")
+'
+}
+
 build_catalog_remote() {
-  info "Fetching skill catalog from GitHub..."
+  info "Fetching skill catalog index..."
+  local pages_catalog=""
+  pages_catalog=$(build_catalog_remote_from_pages 2>/dev/null || true)
+  if [[ -n "$pages_catalog" ]]; then
+    ok "Loaded catalog from GitHub Pages"
+    printf '%s\n' "$pages_catalog"
+    return 0
+  fi
+
+  info "Falling back to GitHub API catalog scan..."
   TREE_CACHE=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || {
     err "Failed to fetch repository tree from GitHub"; exit 1
   }
@@ -311,12 +355,7 @@ cmd_update() {
 cmd_interactive() {
   # Check Python 3 is available
   local python_cmd=""
-  for cmd in python3 python; do
-    if command -v "$cmd" &>/dev/null && "$cmd" -c "import sys; assert sys.version_info >= (3, 6)" 2>/dev/null; then
-      python_cmd="$cmd"
-      break
-    fi
-  done
+  python_cmd="$(pick_python || true)"
   if [[ -z "$python_cmd" ]]; then
     err "Python 3.6+ is required for the interactive installer."
     echo "  Use --list and --all for non-interactive mode."
@@ -324,15 +363,20 @@ cmd_interactive() {
   fi
 
   # Build catalog
+  info "Loading skill catalog..."
   local catalog
   catalog="$(build_catalog)"
   [[ -z "$catalog" ]] && { err "No skills found"; exit 1; }
+  local skill_count
+  skill_count=$(printf '%s\n' "$catalog" | sed '/^$/d' | wc -l | tr -d ' ')
+  ok "Loaded $skill_count skill(s)"
 
   # Get the TUI script (local or fetch from GitHub)
   local tui_script=""
   if [[ "$LOCAL_MODE" == true ]] && [[ -f "$SCRIPT_DIR/tui.py" ]]; then
     tui_script="$SCRIPT_DIR/tui.py"
   else
+    info "Downloading interactive UI component..."
     tui_script=$(mktemp "${TMPDIR:-/tmp}/elastic-tui-XXXXXX.py")
     curl -fsSL "${RAW_BASE}/tui.py" -o "$tui_script" 2>/dev/null || {
       err "Failed to download TUI component"
@@ -344,6 +388,7 @@ cmd_interactive() {
 
   # Run TUI: curses needs /dev/tty for display and input
   # Results are written to a temp file
+  info "Launching interactive selector..."
   local result_file
   result_file=$(mktemp "${TMPDIR:-/tmp}/elastic-result-XXXXXX")
 

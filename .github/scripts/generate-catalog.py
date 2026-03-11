@@ -593,6 +593,7 @@ def build_catalog_json(categories: dict[str, list[dict]]) -> list[dict]:
                     "version": skill.get("version", ""),
                     "description": skill.get("description", ""),
                     "category": cat,
+                    "path": skill.get("_path", ""),
                     "context": skill.get("context", ""),
                     "autoTrigger": skill.get("disable-model-invocation", "") != "true",
                     "sources": sources,
