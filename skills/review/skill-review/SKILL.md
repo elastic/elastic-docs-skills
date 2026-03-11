@@ -112,13 +112,14 @@ If Phase 1 finds any API claim inventory items, you must explicitly attempt API 
 2. Fetch up to 3 operation-level pages under `/docs/api/doc/.../operation/...` when available.
 3. Also fetch at least one narrative/reference page for behavior context.
 4. If operation pages are not retrievable via MCP after reasonable attempts:
+   - Attempt **WebFetch** directly on the corresponding public API operation URL (for example under `/docs/api/doc/.../operation/...`) before recording a limitation.
    - Record this as an **API evidence retrieval limitation**.
    - Do NOT mark a contradiction based only on missing retrievability.
    - Continue with the best available narrative/reference evidence and clearly state confidence limits.
 
 ### Fallback: WebFetch
 
-If the MCP is unavailable, construct URLs manually:
+If the MCP is unavailable, or MCP cannot retrieve specific API operation pages, construct URLs manually:
 
 1. Search `https://www.elastic.co/docs/` for the product and feature.
 2. Use **WebFetch** to retrieve page content.
