@@ -213,20 +213,20 @@ build_catalog() {
 # ─── Installation ────────────────────────────────────────────────────────────
 
 install_one_local() {
-  local name="$1" path="$2" version="$3"
+  local name="$1" path="$2" version="$3" target_name="${4:-$1}"
   local source_dir target
   source_dir="$(dirname "$path")"
-  target="$INSTALL_DIR/$name"
+  target="$INSTALL_DIR/$target_name"
   mkdir -p "$target"
   cp -r "$source_dir"/* "$target"/
   ok "Installed ${BOLD}$name${NC} v$version → $target"
 }
 
 install_one_remote() {
-  local name="$1" remote_path="$2" version="$3"
+  local name="$1" remote_path="$2" version="$3" target_name="${4:-$1}"
   local remote_dir target
   remote_dir="$(dirname "$remote_path")"
-  target="$INSTALL_DIR/$name"
+  target="$INSTALL_DIR/$target_name"
   mkdir -p "$target"
 
   curl -fsSL "${RAW_BASE}/${remote_path}" -o "$target/SKILL.md" 2>/dev/null || {
@@ -335,6 +335,25 @@ cmd_update() {
         break
       fi
     done <<< "$catalog"
+
+    # Seamless updates when skill frontmatter name changes but folder path stays stable.
+    if [[ "$found" == false ]]; then
+      while IFS=$'\t' read -r name version category description path; do
+        local catalog_dir_name
+        catalog_dir_name="$(basename "$(dirname "$path")")"
+        if [[ "$catalog_dir_name" == "$skill_name" ]]; then
+          found=true
+          if semver_gt "$version" "$installed_version"; then
+            install_one "$name" "$path" "$version" "$skill_name"
+            info "  Updated v$installed_version → v$version (name: $skill_name -> $name)"
+            ((updated++))
+          else
+            ((skipped++))
+          fi
+          break
+        fi
+      done <<< "$catalog"
+    fi
 
     if [[ "$found" == false ]]; then
       warn "Skill '$skill_name' is installed but not found in the catalog"

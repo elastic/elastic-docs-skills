@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.0.2
+version: 1.0.3
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 allowed-tools: Read, Grep, Glob, Edit, WebFetch

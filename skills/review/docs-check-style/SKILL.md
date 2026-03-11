@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.0.2
+version: 1.0.3
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 context: fork

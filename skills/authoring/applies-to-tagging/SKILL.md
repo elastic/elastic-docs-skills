@@ -1,6 +1,6 @@
 ---
-name: applies-to-tagging
-version: 1.0.1
+name: docs-applies-to-tagging
+version: 1.0.2
 description: Validate and generate applies_to tags in Elastic documentation. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, or when content changes lifecycle state (preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory>
 context: fork

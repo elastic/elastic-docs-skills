@@ -1,6 +1,6 @@
 ---
-name: content-type-checker
-version: 2.0.0
+name: docs-content-type-checker
+version: 2.0.1
 description: Check a docs-content page against Elastic content type guidelines (overview, how-to, tutorial, troubleshooting, changelog). Use when the user asks to check content type compliance, validate page structure, or review a doc against content type standards.
 argument-hint: <file-or-directory>
 context: fork

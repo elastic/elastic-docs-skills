@@ -1,6 +1,6 @@
 ---
-name: frontmatter-audit
-version: 1.0.0
+name: docs-frontmatter-audit
+version: 1.0.1
 description: Audit Elastic documentation files for frontmatter completeness and correctness. Checks applies_to, products, description, and navigation_title fields across a directory. Use when auditing docs metadata, checking frontmatter quality before publishing, or validating a batch of files.
 argument-hint: <file-or-directory>
 context: fork

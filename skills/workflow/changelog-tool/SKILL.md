@@ -1,6 +1,6 @@
 ---
-name: changelog-tool
-version: 1.0.1
+name: docs-changelog-tool
+version: 1.0.2
 description: Use before adding CLI options or profile fields, changing filter mechanisms, modifying the entry or bundle schema, updating the {changelog} directive or changelog render, or adding and modifying tests in docs-builder changelog commands.
 allowed-tools: Read, Grep, Glob, Edit, Bash
 ---

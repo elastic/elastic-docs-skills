@@ -58,7 +58,7 @@ Every skill must have YAML frontmatter with at least these fields:
 
 ```yaml
 ---
-name: my-skill              # Required — kebab-case, must match directory name
+name: docs-my-skill              # Required — kebab-case skill invocation name
 version: 1.0.0              # Required — SemVer (MAJOR.MINOR.PATCH)
 description: What it does    # Required — when to use this skill
 ---
@@ -102,12 +102,12 @@ If you cloned this repository, you can also run:
 
 ## CI validation
 
-All PRs that touch `skills/**` are validated by GitHub Actions using [`skill-validator`](https://github.com/agent-ecosystem/skill-validator). The workflow (`.github/workflows/validate-skills.yml`) runs the following checks on every skill:
+All PRs that touch `skills/**` are validated by GitHub Actions in `.github/workflows/validate-skills.yml`. The workflow runs the following checks on every skill:
 
 - Every `skills/**/SKILL.md` must have valid YAML frontmatter
 - Required fields: `name`, `description`, `version`
+- `name` must be kebab-case and unique across all skills
 - `version` must be valid SemVer
-- Directory name must match the `name` field
 - `evals/evals.json` (if present) must be valid JSON with required structure
 
 ## Repository structure

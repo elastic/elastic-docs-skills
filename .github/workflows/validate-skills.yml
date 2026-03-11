@@ -34,29 +34,65 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version: stable
-          cache: false
-
-      - name: Install skill-validator
-        run: go install github.com/agent-ecosystem/skill-validator/cmd/skill-validator@latest
-
       - name: Validate skills
         shell: bash
         run: |
           errors=0
 
-          for dir in skills/*/*/; do
-            if ! skill-validator check --emit-annotations -o markdown "$dir" >> "$GITHUB_STEP_SUMMARY" 2>&1; then
-              exit_code=$?
-              # exit 1 = errors, exit 2 = warnings only
-              if [[ $exit_code -eq 1 ]]; then
-                errors=1
-              fi
-            fi
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-          done
+          # Validate SKILL.md frontmatter (required keys, semver, unique names).
+          if ! python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          root = Path("skills")
+          semver_re = re.compile(r"^\d+\.\d+\.\d+$")
+          kebab_re = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+          errors = []
+          names = {}
+
+          for skill_md in sorted(root.glob("*/*/SKILL.md")):
+              text = skill_md.read_text()
+              match = re.match(r"^---\n(.+?)\n---", text, re.DOTALL)
+              if not match:
+                  errors.append(f"{skill_md}: missing YAML frontmatter")
+                  continue
+
+              fields = {}
+              for line in match.group(1).splitlines():
+                  if ":" not in line or line.startswith("  - "):
+                      continue
+                  key, _, val = line.partition(":")
+                  fields[key.strip()] = val.strip()
+
+              for key in ("name", "description", "version"):
+                  if not fields.get(key):
+                      errors.append(f"{skill_md}: missing required field '{key}'")
+
+              name = fields.get("name", "")
+              if name:
+                  if not kebab_re.match(name):
+                      errors.append(f"{skill_md}: name '{name}' must be kebab-case")
+                  names.setdefault(name, []).append(str(skill_md))
+
+              version = fields.get("version", "")
+              if version and not semver_re.match(version):
+                  errors.append(f"{skill_md}: version '{version}' must be SemVer (MAJOR.MINOR.PATCH)")
+
+          for name, paths in sorted(names.items()):
+              if len(paths) > 1:
+                  errors.append(f"Duplicate skill name '{name}' in: {', '.join(paths)}")
+
+          for e in errors:
+              print(f"::error::{e}")
+
+          print(f"Validated {len(list(root.glob('*/*/SKILL.md')))} skills.")
+          if errors:
+              raise SystemExit(1)
+          PY
+          then
+            ((errors++))
+          fi
 
           # Validate eval files
           while IFS= read -r eval_file; do

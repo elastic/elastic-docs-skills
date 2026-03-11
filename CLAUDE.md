@@ -21,7 +21,7 @@ Every `skills/**/SKILL.md` must have YAML frontmatter:
 
 ```yaml
 ---
-name: my-skill              # Required — kebab-case, must match directory name
+name: docs-my-skill              # Required — kebab-case skill invocation name
 version: 1.0.0              # Required — SemVer
 description: What it does    # Required — when to trigger this skill
 argument-hint: <args>        # Shown in autocomplete if skill accepts input
@@ -42,7 +42,7 @@ sources:                     # Upstream URLs this skill encodes (for freshness c
 
 ## Conventions
 
-- Skill names are kebab-case and must match their directory name
+- Skill names are kebab-case and must be unique across the catalog
 - Version follows SemVer: bump PATCH for fixes, MINOR for new features, MAJOR for breaking changes
 - Skills that only read/analyze should use `context: fork`
 - Skills that modify files should NOT use `context: fork`

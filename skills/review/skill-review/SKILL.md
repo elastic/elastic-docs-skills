@@ -1,6 +1,6 @@
 ---
-name: skill-review
-version: 1.2.0
+name: docs-skill-review
+version: 1.2.1
 description: Review an Elastic agent skill against official documentation for accuracy, completeness, and coverage gaps. Use when a writer wants to review, audit, or validate a skill from a repository of agent skills.
 disable-model-invocation: true
 argument-hint: <path-to-skill-folder-or-SKILL.md>
