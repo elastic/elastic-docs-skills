@@ -73,6 +73,8 @@ jobs:
               if name:
                   if not kebab_re.match(name):
                       errors.append(f"{skill_md}: name '{name}' must be kebab-case")
+                  if not name.startswith("docs-"):
+                      errors.append(f"{skill_md}: name '{name}' must start with 'docs-'")
                   names.setdefault(name, []).append(str(skill_md))
 
               version = fields.get("version", "")
