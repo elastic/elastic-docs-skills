@@ -1,7 +1,7 @@
 ---
-name: review-changelog
+name: docs-review-changelog
 version: 1.0.0
-description: Validate and assess the quality of Elastic changelog YAML files. Reports schema errors, content quality issues, and formatting problems by type. Use when checking or reviewing changelog files before merging — pairs with fix-changelog to get suggested fixes.
+description: Validate and assess the quality of Elastic changelog YAML files. Reports schema errors, content quality issues, and formatting problems by type. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
 allowed-tools: Read, Grep, Glob, WebFetch
@@ -107,4 +107,4 @@ Produce one section per file reviewed. Omit empty sections. Use this format:
 
 If a file has no issues, say so explicitly.
 
-End with a one-line overall summary across all files reviewed. If any files have quality or formatting warnings, suggest running `fix-changelog` to get suggested improvements.
+End with a one-line overall summary across all files reviewed. If any files have quality or formatting warnings, suggest running `docs-fix-changelog` to get suggested improvements.
