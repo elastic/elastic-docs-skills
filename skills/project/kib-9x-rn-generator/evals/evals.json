@@ -1,0 +1,64 @@
+{
+  "skill_name": "docs-kib-9x-rn-generator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Generate Kibana release notes from this raw tool output file: evals/files/sample-minor-release.md",
+      "expected_output": "Produces formatted Kibana 9.4.0 release notes with both Features and enhancements and Fixes sections, correct component sub-headings, PR links using {{kib-pull}}, and a Notes section with confidence assessments.",
+      "files": ["evals/files/sample-minor-release.md"],
+      "expectations": [
+        "Output contains a ## 9.4.0 header with [elastic-kibana-9.4.0-release-notes] anchor",
+        "Output contains ### Features and enhancements section before ### Fixes section",
+        "PR links use {{kib-pull}} format like [#210456]({{kib-pull}}210456)",
+        "ES|QL is normalized to {{esql}} (not written as ES|QL or ESQL)",
+        "Alerting items involving Cases use the sub-heading Alerting and cases",
+        "Fleet items appear under Data ingestion and Fleet sub-heading, not just Fleet",
+        "Lens/Dashboard items appear under Dashboards and Visualizations sub-heading",
+        "Platform items appear under Kibana platform sub-heading",
+        "Includes cross-references to Elastic Observability and Elastic Security release notes",
+        "Bullets are verb-first and present tense",
+        "Output ends with a Notes (Confidence + Assumptions) section outside the code block"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Generate Kibana release notes from this raw tool output file: evals/files/sample-patch-release.md",
+      "expected_output": "Produces formatted Kibana 9.3.2 patch release notes with only a Fixes section (no Features and enhancements heading since there are no features or enhancements).",
+      "files": ["evals/files/sample-patch-release.md"],
+      "expectations": [
+        "Output contains a ## 9.3.2 header with [elastic-kibana-9.3.2-release-notes] anchor",
+        "Output contains a ### Fixes section",
+        "Output does NOT contain a ### Features and enhancements section (no feature/enhancement items exist)",
+        "PR links use {{kib-pull}} format",
+        "Platform items appear under Kibana platform sub-heading (not just Platform)",
+        "Bullets are verb-first and present tense"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Generate Kibana release notes from this raw tool output file: evals/files/sample-with-breaking-changes.md",
+      "expected_output": "Produces formatted release notes that map items into Features/Fixes sections only. Breaking changes and deprecations are NOT added as section headings but are flagged in the Notes section for routing to separate files.",
+      "files": ["evals/files/sample-with-breaking-changes.md"],
+      "expectations": [
+        "Output does NOT contain a ### Breaking Changes heading in the Markdown code block",
+        "Output does NOT contain a ### Deprecations heading in the Markdown code block",
+        "Notes section flags the breaking change item (xpack.security.authProviders) for routing to breaking-changes.md",
+        "Notes section flags the deprecation item (fleet.agents.elasticsearch.host) for routing to deprecations.md",
+        "Connectors/MCP items appear under the Connectivity sub-heading",
+        "Search Playground items appear under the Search sub-heading",
+        "Output still has correctly formatted Features and enhancements and Fixes sections for the remaining items"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Can you summarize recent changes to the Kibana dashboard panel architecture? I'm writing a blog post.",
+      "expected_output": "The skill should NOT trigger for this request. This is a general question about Kibana architecture, not a request to generate release notes from raw tool output.",
+      "expectations": [
+        "Does NOT produce formatted release notes Markdown in a code block",
+        "Does NOT attempt to fetch PR context or prior release notes",
+        "Does NOT generate component sub-headings or PR link formatting",
+        "Recognizes this is not a release notes generation request"
+      ]
+    }
+  ]
+}
