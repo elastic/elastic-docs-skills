@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.0.3
+version: 1.0.4
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 allowed-tools: Read, Grep, Glob, Edit, WebFetch
@@ -206,6 +206,8 @@ var key = new ApiKey("<KEY>"); // Set up the API key
 
 Disable callout processing: ````callouts=false`
 
+**Rule**: Do not mix explicit and automatic callouts in the same code block — use only one type per block.
+
 ### Console code blocks
 
 Use `console` as the language. First line renders as a dev console command; rest as JSON.
@@ -251,7 +253,7 @@ Python content
 
 Tabs with matching `group` and `sync` values synchronize selection across tab sets on the same page.
 
-**Rules**: Do not nest tabs. Do not split procedures across tabs.
+**Rules**: Do not nest tabs. Do not split procedures across tabs. Do not use more than 6 tabs. Do not use tabs in dropdowns.
 
 ## Applies-switch
 
@@ -590,6 +592,7 @@ Use `* * *` for horizontal rules.
 | Images outside toc.yml/docset.yml folder | Move images inside the folder tree |
 | Footnote definitions inside directives | Move to document level |
 | `subs=true` on regular inline code | Use `` {subs=true}`code` `` role syntax |
+| Mixing explicit and automatic callouts in a code block | Use only one callout type per block |
 | Explicit callout count mismatch | Number of `<N>` markers must equal the list item count |
 
 ## How to help
