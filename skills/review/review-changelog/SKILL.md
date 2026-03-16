@@ -71,7 +71,7 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 **Type-specific:**
 - `breaking-change`: `impact` and `action` are REQUIRED — flag as errors if absent; `subtype` is strongly recommended
 - `deprecation` and `known-issue`: `impact` and/or `action` are recommended — flag as warnings if absent
-- `feature`: title/description should explain what users can now do, not how it was built
+- `feature` / `enhancement`: title/description should explain what users can now do, not how it was built
 - `bug-fix` / `regression`: title/description should explain what was wrong and what is now correct
 - `description` if present: must add context beyond repeating the title; flagging "See PR" or "Internal refactoring" as low-value
 - `impact` if present: should explain scope and who is affected
