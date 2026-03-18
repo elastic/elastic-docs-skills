@@ -27,7 +27,7 @@ You are updating the Elastic Security LLM performance matrix. The user will prov
 
 ## Target file
 
-`solutions/security/ai/large-language-model-performance-matrix.md` in the `docs-content` repo.
+`solutions/security/ai/large-language-model-performance-matrix.md` in the `docs-content` repo. If the file moves, use the alternative location.
 
 ## Workflow
 
@@ -69,7 +69,7 @@ The file contains two tables with identical column headers:
 
 ### Row ordering
 
-Rows in each table are sorted by **Average Score descending** (highest first).
+Rows in each table are sorted by **Average Score** (highest first aka descending order).
 
 ### Row format
 
