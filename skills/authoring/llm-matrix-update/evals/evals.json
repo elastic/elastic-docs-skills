@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Update the LLM performance matrix. Here is the new data:\n\nModel | Alert Analysis | Security Knowledge | ES|QL Generation | Knowledge Base Retrieval | Attack Discovery | Automatic Migration | Overall Average\nModelX | 9.50 | 8.00 | 7.30 | 6.00 | 8.50 | 10.00 | 8.22\nModelY | 7.80 | 6.20 | 4.40 | 5.71 | Not Recommended | 9.81 | 5.65",
+      "prompt": "Update the LLM performance matrix. Replace the entire proprietary models table with the following data:\n\nModel | Alert Analysis | Security Knowledge | ES|QL Generation | Knowledge Base Retrieval | Attack Discovery | Automatic Migration | Overall Average\nModelX | 9.50 | 8.00 | 7.30 | 6.00 | 8.50 | 10.00 | 8.22\nModelY | 7.80 | 6.20 | 4.40 | 5.71 | Not Recommended | 9.81 | 5.65",
       "expected_output": "Updates the proprietary models table with two rows, formatted correctly with trailing zeros dropped and proper bold/ordering",
       "expectations": [
         "Reads the current file before making edits",
@@ -51,3 +51,4 @@
     }
   ]
 }
+ 

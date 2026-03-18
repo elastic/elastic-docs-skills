@@ -1,8 +1,9 @@
 ---
 name: llm-matrix-update
-version: 1.0.0
+version: 1.1.0
 description: Update the Elastic Security LLM performance matrix from screenshot or spreadsheet data. Use when the user provides new benchmark scores for the large language model support matrix, or asks to update LLM model scores in docs-content.
-allowed-tools: Read, Grep, Glob, Edit, Write
+argument-hint: <screenshot or table data>
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 sources:
   - https://www.elastic.co/docs/solutions/security/ai/large-language-model-performance-matrix
 ---
@@ -63,6 +64,8 @@ These rules are critical. The table uses specific conventions that must be prese
 The file contains two tables with identical column headers:
 
 | **Model** | **Alerts** | **Security Knowledge** | **{{esql}} Query Generation** | **Knowledge Base Retrieval** | **Attack Discovery** | **Automatic Migration** | **Average Score** |
+
+Note: `{{esql}}` is a docs-builder substitution variable that renders as "ES|QL" in the published page. Preserve it exactly as `{{esql}}` in the source file.
 
 - **Proprietary models**: Third-party provider models (section anchor: `_proprietary_models`)
 - **Open-source models**: Self-deployable models (section anchor: `_open_source_models`)
