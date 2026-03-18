@@ -1,0 +1,53 @@
+{
+  "skill_name": "llm-matrix-update",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Update the LLM performance matrix. Here is the new data:\n\nModel | Alert Analysis | Security Knowledge | ES|QL Generation | Knowledge Base Retrieval | Attack Discovery | Automatic Migration | Overall Average\nModelX | 9.50 | 8.00 | 7.30 | 6.00 | 8.50 | 10.00 | 8.22\nModelY | 7.80 | 6.20 | 4.40 | 5.71 | Not Recommended | 9.81 | 5.65",
+      "expected_output": "Updates the proprietary models table with two rows, formatted correctly with trailing zeros dropped and proper bold/ordering",
+      "expectations": [
+        "Reads the current file before making edits",
+        "Drops trailing zeros: 9.50 becomes 9.5, 8.00 becomes 8, 7.30 becomes 7.3, 6.00 becomes 6, 10.00 becomes 10",
+        "Formats model names in bold: **ModelX**, **ModelY**",
+        "Formats average scores in bold: **8.22**, **5.65**",
+        "Uses 'Not recommended' (capital N, lowercase r) not 'Not Recommended'",
+        "Orders rows by average score descending (ModelX before ModelY)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have updated benchmark scores. The proprietary table should now include a new model called 'Gemini 3.0' with scores: Alert Analysis 8.20, Security Knowledge 7.10, ES|QL Generation 5.50, Knowledge Base Retrieval 6.00, Attack Discovery 7.00, Automatic Migration 8.30, Overall Average 7.02. All existing models stay the same.",
+      "expected_output": "Adds one new row for Gemini 3.0 in the correct sorted position without modifying existing rows",
+      "expectations": [
+        "Reads the current file to see existing rows",
+        "Adds a single new row for Gemini 3.0",
+        "Does not modify any existing model rows",
+        "Inserts the row at the correct position based on descending average score",
+        "Formats as: | **Gemini 3.0** | 8.2 | 7.1 | 5.5 | 6 | 7 | 8.3 | **7.02** |"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here is the new OSS model data. Replace the open-source models table:\n\nGPT OSS 120B | 7.60 | 3.70 | 5.50 | 6.00 | 3.50 | 9.70 | 6.00\nGPT OSS 20b | 8.20 | 1.50 | 2.50 | Not Recommended | Not Recommended | Not Recommended | 2.03\nLlama 4 70B | 6.80 | 5.20 | 4.10 | 5.00 | Not Recommended | 7.90 | 4.83",
+      "expected_output": "Replaces the open-source models table with three rows, adding the new Llama 4 70B model in the correct sorted position",
+      "expectations": [
+        "Only modifies the open-source models table, not the proprietary table",
+        "Does not modify the frontmatter, headings, or intro content",
+        "Orders by average score descending: GPT OSS 120B (6.00), Llama 4 70B (4.83), GPT OSS 20b (2.03)",
+        "Drops trailing zeros consistently across all rows",
+        "Uses 'Not recommended' (capital N, lowercase r) for all failed entries"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The latest benchmarks show that GPT 5.1 has been removed from testing. Remove it from the LLM matrix. All other models stay the same.",
+      "expected_output": "Removes only the GPT 5.1 row from the proprietary models table without changing anything else",
+      "expectations": [
+        "Removes exactly one row: GPT 5.1",
+        "Does not modify any other rows",
+        "Does not change the open-source models table",
+        "Does not modify frontmatter, headings, or descriptions"
+      ]
+    }
+  ]
+}
