@@ -1,5 +1,5 @@
 ---
-name: llm-matrix-update
+name: docs-llm-matrix-update
 version: 1.1.0
 description: Update the Elastic Security LLM performance matrix from screenshot or spreadsheet data. Use when the user provides new benchmark scores for the large language model support matrix, or asks to update LLM model scores in docs-content.
 argument-hint: <screenshot or table data>
