@@ -1,0 +1,49 @@
+{
+  "skill_name": "docs-kibana-release-notes",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Convert this raw Kibana release notes output into Elastic Observability 9.3.2 Stack release notes. File is at ./raw-rn-9.3.2.md. Use gh to fetch PR context and docs-content release-notes/elastic-observability for style.",
+      "expected_output": "A single fenced Markdown code block with ## 9.3.2 [elastic-observability-9.3.2-release-notes], two ### sections (Features and enhancements, Fixes), verb-first bullets with {{kib-pull}} PR links, plus a Notes (Confidence + Assumptions) section.",
+      "expectations": [
+        "Output contains exactly one ## header and two ### headers in the required order",
+        "Anchors follow elastic-observability-9.3.2-release-notes and elastic-observability-9.3.2-features-enhancements / fixes",
+        "Bullets start with active verbs (Adds, Fixes, Improves, etc.) in present tense",
+        "Notes section explicitly calls out low-confidence bullets or assumptions",
+        "PR links use [#123456]({{kib-pull}}123456) format when PR numbers exist",
+        "No component sub-headings from the tool (e.g. Discover, Management) appear in the output"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have raw Security release notes in the clipboard for 9.4.0. Turn them into Stack format for elastic-security. Some items have no PR number.",
+      "expected_output": "Elastic Security 9.4.0 release notes in the required structure, with items lacking PR numbers left without links and flagged in Notes.",
+      "expectations": [
+        "Top anchor is elastic-security-9.4.0-release-notes",
+        "Bullets without PR numbers do not include a [#]({{kib-pull}}...) link",
+        "Notes section mentions missing PR numbers or reduced confidence where applicable",
+        "UI labels are bolded; feature names capitalized (not bolded)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check the links in our Observability 9.2.1 release notes page and suggest fixes.",
+      "expected_output": "Skill does NOT generate full Stack release notes from scratch; it is for converting raw Kibana RN tool output. User asked for link checking, not RN conversion.",
+      "expectations": [
+        "Does NOT output a full ## 9.2.1 [elastic-observability-9.2.1-release-notes] block with Features and Fixes",
+        "Either declines or suggests using crosslink-validator / the correct task; does not treat this as a Kibana RN conversion request"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The raw tool output has a 'Breaking changes' section and a 'Deprecations' section. Convert it to Stack Observability 9.5.0 format.",
+      "expected_output": "Release notes with only Features and enhancements and Fixes sections; breaking changes and deprecations mapped into those two sections, with mapping decisions explained in Notes.",
+      "expectations": [
+        "Output has only two ### sections: Features and enhancements, then Fixes",
+        "No ### Breaking changes or ### Deprecations headings appear",
+        "Notes section records how breaking changes and deprecations were mapped",
+        "Uses elastic-observability-9.5.0-release-notes anchor"
+      ]
+    }
+  ]
+}
