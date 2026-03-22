@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.0.4
+version: 1.0.5
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 allowed-tools: Read, Grep, Glob, Edit, WebFetch
@@ -459,6 +459,27 @@ Syntax: `{{version.<scheme>}}` (e.g., `{{version.stack}}` → `9.3.0`)
 Base version: `{{version.stack.base}}` → first version on V3 docs.
 
 Schemes: `stack`, `ece`, `eck`, `ess`, `esf`, `ecctl`, `curator`, plus APM agents and EDOT variants.
+
+## Navigation title
+
+An optional frontmatter field that sets a shorter label for the left navigation, breadcrumbs, and previous/next links — separate from the full H1 page title.
+
+```yaml
+---
+navigation_title: "Short nav label"
+---
+# Full Descriptive Page Title with Product Context [anchor]
+```
+
+**DOs**:
+- Use active phrasing and shorter forms
+- Make sure the nav title still clearly identifies the page topic
+- Omit product names already present in the full H1
+
+**DON'Ts**:
+- Don't duplicate the H1 page title exactly
+- Don't use a long nav title or lots of punctuation
+- Don't abbreviate with periods or ellipses
 
 ## Frontmatter
 
