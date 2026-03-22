@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.0.3
+version: 1.0.4
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 context: fork
@@ -157,7 +157,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Buttons**: "Click **Save**" — don't add "button" after the label.
 - **Checkboxes/radio buttons**: "Select **Logs**" / "Clear **Metrics**."
 - **Text fields**: "In the **Name** field, enter `value`."
-- **Toggles**: "Turn on **Feature**" / "Turn off **Feature**" — not "enable/disable" or "toggle."
+- **Toggles**: "Turn on **Feature**" / "Turn off **Feature**" — not "enable/disable" as verbs. Use "toggle" as a **noun** to refer to the UI element (e.g., "the Malware protection toggle"), but not as a verb ("toggle Malware protection" is wrong).
 - **Keys**: "Press Enter" / "Press Command+Alt+L."
 - **Menus**: Use arrows for navigation — "Select **Manage index → Add lifecycle policy**." Do **not** use the verbs "open" or "close" for menus; use "From the menu,..." instead. Refer to the element as "menu" — not "dropdown menu" or "dropdown list."
 - **Icons**: Reference by tooltip text, include inline icon. Avoid parentheses around icons.
