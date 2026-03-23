@@ -35,11 +35,39 @@
       "prompt": "I'm changing the bundle YAML schema to add a 'highlights' array to each entry. What's the impact across commands and docs?",
       "expected_output": "Identifies the cross-cutting impact on rendering, the directive, and multiple doc pages",
       "expectations": [
-        "Mentions that changelog render and the {changelog} directive share rendering logic and both need updating",
+        "Mentions that changelog render and the {changelog} directive both consume pre-bundled entries and both need updating for schema changes",
         "Mentions updating docs/syntax/changelog.md for the schema change",
         "Mentions updating changelog-bundle.md",
         "Mentions running all tests under Render/ (BasicRenderTests, HighlightsRenderTests, etc.)",
         "Mentions that changelog bundle-amend must handle the new field since it appends to existing bundles"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I want to modify how per-product rules in rules.bundle are applied when a changelog entry has multiple products. What must my plan include?",
+      "expected_output": "Identifies the algorithm, the callers that use it, the callers that do not, the behavior table requirement, and the test files to update",
+      "expectations": [
+        "Mentions PublishBlockerExtensions.ResolveBlocker as the shared algorithm implementation",
+        "Describes the intersection + alphabetical first-match algorithm",
+        "States that the plan must include a behavior table with at least four cases",
+        "States that rules.bundle filtering is applied only at bundle time (changelog bundle and changelog gh-release), not during changelog render or the {changelog} directive",
+        "Mentions ChangelogBundlingService.cs as the bundle-side caller of ResolveBlocker",
+        "States that changelog render uses feature-ID hiding only (ChangelogRenderUtilities) and does not call ResolveBlocker",
+        "States that the {changelog} directive also does not apply rule resolution",
+        "Mentions BundleChangelogsTests.cs and Render/BlockConfigurationTests.cs as the test files to update"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "How does the {changelog} directive differ from changelog render in how it applies filtering to entries?",
+      "expected_output": "Correctly distinguishes the two commands as both consuming pre-bundled entries, with no rule resolution in either, and identifies their distinct filtering options",
+      "expectations": [
+        "States that neither the directive nor changelog render applies rules.bundle or rules.publish rule resolution at runtime",
+        "States that all type/area/product filtering has already been applied at bundle time by changelog bundle or changelog gh-release",
+        "States that both commands hide entries by feature ID using hide-features metadata from bundles",
+        "Identifies changelog render's distinct options: --hide-features, --subsections, --file-type",
+        "Identifies the directive's distinct options: :type: filter (excludes breaking/deprecation/known-issue by default) and :subsections:",
+        "Identifies ChangelogRenderUtilities.ShouldHideEntry as the render-side implementation and ChangelogBlock.cs as the directive's implementation"
       ]
     }
   ]

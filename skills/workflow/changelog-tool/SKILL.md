@@ -30,11 +30,16 @@ Key files and their roles:
 ```
 ChangelogCommand.cs              — CLI entry points; mode detection; mutual-exclusivity guards
 ProfileFilterResolver.cs         — maps (profile + argument) → concrete filter
-ChangelogBundlingService.cs      — bundles filtered changelogs; calls ApplyConfigDefaults
+ChangelogBundlingService.cs      — bundles filtered changelogs; applies rules.bundle via GetBlockerForEntry → ResolveBlocker
 ChangelogRemoveService.cs        — removes filtered changelogs; checks bundle deps
-ChangelogConfigurationLoader.cs  — parses changelog.yml
+ChangelogConfigurationLoader.cs  — parses changelog.yml; forces Publish = null and emits deprecation warning
 BundleConfiguration.cs           — model: directory, outputDirectory, resolve, repo, owner, profiles
 ChangelogConfigurationYaml.cs    — internal YAML DTOs (always mirror model changes here)
+PublishBlockerExtensions.cs      — shared ResolveBlocker helper; intersection + alphabetical first-match algorithm
+ChangelogRenderUtilities.cs      — render-side ShouldHideEntry (feature-ID hiding only; no publish rules applied)
+ChangelogRenderingService.cs     — validates bundles, resolves entries, merges hide-features, renders output
+ChangelogBlock.cs                — {changelog} directive; discovers and merges pre-bundled entries; no rule resolution
+BlockConfiguration.cs            — RulesConfiguration / BundleRules / PublishRules models
 ```
 
 ## Command roles and synchronization
@@ -44,18 +49,19 @@ Each command has a distinct role. Changes to one often require parallel changes 
 | Command | Role | Must stay in sync with |
 |---------|------|------------------------|
 | `changelog add` | Creates a single changelog entry file from CLI args or a GitHub PR/issue | `changelog gh-release` (same creation logic), validation rules |
-| `changelog bundle` | Bundles filtered entries into a bundle YAML file | `changelog remove` (same filters), `changelog gh-release` (bundle step) |
+| `changelog bundle` | Bundles filtered entries into a bundle YAML file; applies `rules.bundle` filtering | `changelog remove` (same filters), `changelog gh-release` (bundle step) |
 | `changelog remove` | Removes entry files using the same filters as `bundle` | `changelog bundle` (filter parity) |
 | `changelog gh-release` | Does `add` + `bundle` in one step from a GitHub release | `changelog add` and `changelog bundle` (must stay functionally equivalent) |
-| `changelog render` | Renders bundles to Markdown or Asciidoc (legacy ES v8 docs) | `{changelog}` directive (same rendering logic), bundle schema |
+| `changelog render` | Renders pre-bundled entries to Markdown or Asciidoc (legacy ES v8 docs); hides entries by feature ID only | `{changelog}` directive (bundle schema, rendered output format) |
 | `changelog bundle-amend` | Appends entries to an existing bundle immutably | Bundle schema, `{changelog}` directive |
 | `changelog init` | Scaffolds `changelog.yml`; expands as onboarding needs grow | `changelog.example.yml` (must always reflect the latest defaults) |
+| `changelog evaluate-pr` | (CI) Evaluates a PR for changelog generation eligibility using config, PR metadata, and `rules.create` | `changelog add` (same creation logic triggered by the evaluation result) |
 
 ### Key synchronization rules
 
 - Entries created by `changelog add` (CLI-only) and entries created via GitHub PR/issue fetch must be indistinguishable — same fields, same validation, same downstream behavior.
 - `changelog gh-release` must produce output equivalent to running `changelog add` (per PR) followed by `changelog bundle`. Any change to either of those commands must be evaluated for `gh-release` too.
-- `changelog render` and the `{changelog}` directive share rendering logic. The directive is the primary consumer; `render` must be kept in parallel for as long as Asciidoc/Markdown output is needed for legacy docs.
+- `changelog render` and the `{changelog}` directive both consume pre-bundled entries and do **not** apply rule resolution at runtime. All type/area/product filtering happens at bundle time via `rules.bundle` in `ChangelogBundlingService`. The two differ in their own display options (`changelog render`: `--hide-features`, `--subsections`, `--file-type`; directive: `:type:`, `:subsections:`). Keep them in sync for **bundle schema changes and rendered output format**; `render` must be kept in parallel for as long as Asciidoc/Markdown output is needed for legacy docs.
 
 ### Filter parity checklist (bundle and remove)
 
@@ -64,6 +70,49 @@ When implementing a new filter mechanism (for example, `source: github_release`)
 1. Confirm that both `changelog bundle` and `changelog remove` support it with identical validation logic and error messages.
 2. Confirm that all forbidden-option guards in profile mode cover the new mechanism in both commands.
 3. Confirm that `ProfileFilterResolver` passes the result through to both `ChangelogBundlingService` and `ChangelogRemoveService` correctly.
+
+## Rule resolution for filter/blocking logic
+
+### `rules.bundle` vs `rules.publish`
+
+`rules.bundle` is the only supported place for type/area/product filtering. `rules.publish` is deprecated: the loader emits a deprecation warning and forces `Publish = null`, so it is never applied anywhere at runtime. All type/area filtering must be moved to `rules.bundle`.
+
+- `rules.bundle`: applied during `changelog bundle` and `changelog gh-release` via `ChangelogBundlingService.ApplyBundleFilter` → `GetBlockerForEntry` → `PublishBlockerExtensions.ResolveBlocker`.
+- `rules.publish`: deprecated; accepted in YAML only to emit a warning, then discarded.
+- `changelog render` and the `{changelog}` directive: neither applies rule resolution. Both consume pre-filtered bundles.
+
+### Per-product rule resolution for multi-product entries
+
+When an entry belongs to more than one product and per-product overrides are configured in `rules.bundle.products`, the applicable rule is chosen by the *intersection + alphabetical first-match* algorithm in `PublishBlockerExtensions.ResolveBlocker`:
+
+1. Compute intersection of context IDs and the entry's own products.
+2. Sort the intersection alphabetically (case-insensitive, ascending).
+3. Return the rule for the first ID in the sorted intersection that has a configured override.
+4. If the intersection is empty (entry products are disjoint from context), fall back to the entry's own products sorted alphabetically, then the global blocker.
+
+The context differs by caller:
+
+| Caller | Context IDs |
+|--------|-------------|
+| `changelog bundle` | `--output-products` when set; otherwise the entry's own products |
+| `changelog gh-release` | same as `changelog bundle` |
+| `changelog render` | does not call `ResolveBlocker`; feature-ID hiding only |
+| `{changelog}` directive | does not call `ResolveBlocker`; feature-ID hiding from bundle metadata only |
+
+Behavior table (mirrors `docs/contribute/changelog.md#changelog-bundle-multi-product-rules`):
+
+| Entry products | Context (`--output-products`) | Intersection | Rule used |
+|----------------|-------------------------------|--------------|-----------|
+| [kibana] | kibana, security | {kibana} | kibana rule |
+| [security] | kibana, security | {security} | security rule |
+| [kibana, security] | kibana, security | {kibana, security} → [kibana, security] | kibana rule (k < s) |
+| [elasticsearch] | kibana, security | empty → fallback to entry products | elasticsearch rule (if configured) or global |
+
+### Requirement: behavior table in plans
+
+Any plan that touches filter/rule/matching logic **must** include a behavior table showing at least four cases: (1) single-product entry matching context, (2) single-product entry not in context, (3) multi-product entry with matching context, (4) edge case (empty intersection or all-match). This prevents logic inversion bugs (for example, include semantics accidentally becoming exclude, or "any-blocks" instead of "first-match").
+
+Reference: "Area matching behavior" and "Per-product rule resolution" tables in `docs/contribute/changelog.md` are the canonical format.
 
 ## Invocation modes (bundle and remove)
 
@@ -181,3 +230,4 @@ Per-feature checklist:
 - Bundle schema change → update `changelog-bundle.md`, `docs/syntax/changelog.md`, and downstream command docs
 - Precedence chain → document explicitly in option description and contribute guide
 - **Fallback chain** for any option or field → document the full resolution order explicitly (for example: "CLI flag > profile field > bundle-level default > hardcoded default"). Use a table when there are more than two levels. **Never mark a field as "required" without first verifying that no fallback exists** in `ApplyConfigDefaults`, `ChangelogConfigurationLoader`, or the relevant service.
+- **Rule/filter logic change** → add or update a behavior table in `docs/contribute/changelog.md` following the format of the existing "Area matching behavior" and "Per-product rule resolution" tables. The plan for the change must include the proposed table before implementation begins.
