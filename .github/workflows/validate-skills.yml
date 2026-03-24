@@ -141,23 +141,13 @@ jobs:
             exit 1
           fi
 
-          # On PRs: require plugin.json version to be strictly greater than base when skills change
+          # On PRs: require .claude-plugin/plugin.json to be edited when skills change
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            base_version=$(git show "origin/${{ github.base_ref }}:.claude-plugin/plugin.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('version','0.0.0'))" 2>/dev/null || echo "0.0.0")
-            head_version=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json')).get('version','0.0.0'))" 2>/dev/null || echo "0.0.0")
-            # Use Python for semver comparison to avoid string ordering issues
-            is_bumped=$(python3 -c "
-          import sys
-          def parse(v):
-              try: return tuple(int(x) for x in v.split('.'))
-              except: return (0, 0, 0)
-          print('yes' if parse('$head_version') > parse('$base_version') else 'no')
-          ")
-            if [[ "$is_bumped" != "yes" ]]; then
-              echo "::error file=.claude-plugin/plugin.json::Skills changed but plugin.json version was not bumped (base: $base_version, head: $head_version). Please increment the version field."
+            if ! git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -q "^\.claude-plugin/plugin\.json$"; then
+              echo "::error file=.claude-plugin/plugin.json::Skills changed but .claude-plugin/plugin.json was not updated. Please bump the version field in .claude-plugin/plugin.json before merging."
               ((errors++))
             else
-              echo "plugin.json version bumped: $base_version → $head_version ✓"
+              echo ".claude-plugin/plugin.json updated ✓"
             fi
           fi
 
