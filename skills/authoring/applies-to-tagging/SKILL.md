@@ -1,6 +1,6 @@
 ---
-name: applies-to-tagging
-version: 1.0.1
+name: docs-applies-to-tagging
+version: 1.0.3
 description: Validate and generate applies_to tags in Elastic documentation. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, or when content changes lifecycle state (preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory>
 context: fork
@@ -124,6 +124,23 @@ Unversioned products (serverless) use lifecycle only: `serverless: ga`.
 ### Implicit version inference
 
 `stack: preview 9.0, beta 9.1, ga 9.3` is interpreted as `preview =9.0, beta 9.1-9.2, ga 9.3+`. The final lifecycle is always open-ended.
+
+The inference rules are:
+1. **Consecutive versions**: If a lifecycle is immediately followed by another in the next minor version, it's treated as an **exact version** (`=x.x`).
+2. **Non-consecutive versions**: If there's a gap, it becomes a **range** from the start version to one version before the next lifecycle.
+3. **Last lifecycle**: Always treated as **greater-than-or-equal** (`x.x+`).
+
+### Automatic version sorting
+
+When you specify multiple versions for the same product, the build system automatically sorts them in **descending order** (highest version first) regardless of the order in the source file. Items without versions are sorted last.
+
+For example:
+```yaml
+stack: preview =9.0, beta =9.1, ga 9.2+
+```
+Always renders as: GA since 9.2, Beta in 9.1, Preview in 9.0 — newest to oldest.
+
+Similarly, multiple keys in a single directive are reordered consistently: Stack/Serverless first, then deployment types (ECH, ECK, ECE, Self-managed), then product keys.
 
 ## Validation rules
 

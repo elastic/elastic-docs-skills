@@ -1,6 +1,6 @@
 ---
-name: lens-chart-page
-version: 1.0.0
+name: docs-lens-chart-page
+version: 1.0.1
 description: Create or update a Lens chart documentation page following Elastic docs conventions. Use when writing a new chart type page (pie, bar, metric, gauge, heat map, etc.) or updating an existing one in explore-analyze/visualize/charts/. Relies on lens-chart-settings for verifying UI labels against source code.
 allowed-tools: Read, Grep, Glob, Edit, WebFetch
 sources:

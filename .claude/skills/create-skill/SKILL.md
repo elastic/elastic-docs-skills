@@ -35,6 +35,8 @@ Ask the user: **"What should this skill do? Describe the task or workflow you wa
 
 If the user provided a skill name via `$ARGUMENTS`, acknowledge it, but still ask what the skill is for. A name alone is not enough context to generate a useful skill.
 
+If the provided name does not start with `docs-`, prepend it automatically and tell the user you normalized it to the catalog naming convention.
+
 Wait for the user's answer. If the response is vague (e.g., "help with docs"), ask follow-up questions until you have a concrete understanding of:
 - What problem the skill solves
 - What inputs it needs (files, URLs, arguments)
@@ -44,7 +46,7 @@ Wait for the user's answer. If the response is vague (e.g., "help with docs"), a
 
 Once the purpose is clear, use `AskUserQuestion` to collect the remaining details (you may batch related questions):
 
-1. **Skill name**: A short, kebab-case name (e.g., `review-docs`, `check-applies-to`). Suggest one based on the purpose.
+1. **Skill name**: A short, kebab-case name that MUST start with `docs-` (e.g., `docs-review-docs`, `docs-check-applies-to`). Suggest one based on the purpose.
 2. **Category**: Which category does this skill belong to? (e.g., `authoring`, `review`, `workflow`, `testing`)
 3. **Trigger**: Should it be user-invocable only (`disable-model-invocation: true`) or also auto-triggered by Claude?
 4. **Tools needed**: Which tools should the skill have access to? (e.g., `Read, Grep, Bash(gh *)`)
@@ -90,6 +92,11 @@ under the License. -->
 ```
 
 Write the skill to `skills/<category>/<skill-name>/SKILL.md` in the catalog.
+
+Before writing the file, validate `skill-name`:
+- Must be kebab-case.
+- Must start with `docs-`.
+- Must not duplicate an existing skill `name` in `skills/**/SKILL.md`.
 
 ### Step 4: Review with the user
 

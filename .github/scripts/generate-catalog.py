@@ -26,7 +26,12 @@ SKILLS_DIR = Path("skills")
 OUT_DIR = Path("_site")
 
 REPO_URL = "https://github.com/elastic/elastic-docs-skills"
-INSTALL_CMD = "curl -fsSL https://raw.githubusercontent.com/elastic/elastic-docs-skills/main/install.sh | bash"
+INSTALL_COMMANDS = {
+    "Install all": "npx --yes skills@latest add elastic/elastic-docs-skills -g",
+    "Update all": "npx --yes skills@latest update -g",
+    "TUI install": "curl -fsSL https://ela.st/docs-skills-install | bash",
+    "TUI update": "curl -fsSL https://ela.st/docs-skills-install | bash -s -- --update",
+}
 
 CATEGORY_META = {
     "authoring": {
@@ -143,18 +148,26 @@ def render_html(categories: dict[str, list[dict]]) -> str:
                 sources_html = f'<div class="sources">{len(sources)} source{"s" if len(sources) != 1 else ""}</div>'
 
             skill_url = f"{REPO_URL}/blob/main/{skill['_path']}"
+            install_cmd = f"npx --yes skills@latest add elastic/elastic-docs-skills --skill {name} -g"
+            card_id = name.replace("-", "_")
             cards_html += f"""
-        <a class="skill-card" href="{skill_url}" target="_blank" rel="noopener">
+        <div class="skill-card" data-url="{skill_url}">
           <div class="skill-header">
             <code class="skill-name">/{name}</code>
             <span class="version">v{version}</span>
           </div>
           <p class="skill-desc">{short_desc}</p>
+          <div class="skill-install">
+            <code id="cmd-{card_id}">{install_cmd}</code>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyCmd('cmd-{card_id}', this)" title="Copy install command">
+              <i data-feather="clipboard"></i>
+            </button>
+          </div>
           <div class="skill-footer">
             <div class="tags">{tags_html}</div>
             {sources_html}
           </div>
-        </a>
+        </div>
 """
         cards_html += """
       </div>
@@ -166,7 +179,7 @@ def render_html(categories: dict[str, list[dict]]) -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Elastic Docs Skills Catalog</title>
+  <title>Elastic Docs Skills Catalogue</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/feather-icons"></script>
@@ -339,10 +352,26 @@ def render_html(categories: dict[str, list[dict]]) -> str:
 
     .install-banner {{
       margin-top: 2rem;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+      width: min(100%, 900px);
+    }}
+
+    .install-row {{
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 0.5rem;
+      width: 100%;
+    }}
+
+    .cmd-label {{
+      min-width: 74px;
+      text-align: right;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
     }}
 
     .install-banner code {{
@@ -354,6 +383,9 @@ def render_html(categories: dict[str, list[dict]]) -> str:
       font-size: 0.8rem;
       color: var(--text);
       user-select: all;
+      text-align: left;
+      flex: 1;
+      overflow-x: auto;
     }}
 
     .install-banner .copy-btn {{
@@ -377,6 +409,30 @@ def render_html(categories: dict[str, list[dict]]) -> str:
     .install-banner .copy-btn svg {{
       width: 16px;
       height: 16px;
+    }}
+
+    .install-sep {{
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      padding: 0.25rem 0;
+      position: relative;
+    }}
+
+    .install-sep span {{
+      background: var(--bg);
+      padding: 0 0.75rem;
+      position: relative;
+      z-index: 1;
+    }}
+
+    .install-sep::before {{
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      border-top: 1px solid var(--border);
     }}
 
     .skill-header {{
@@ -447,6 +503,53 @@ def render_html(categories: dict[str, list[dict]]) -> str:
       color: #FEC514;
     }}
 
+    .skill-install {{
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      margin-bottom: 0.75rem;
+    }}
+
+    .skill-install code {{
+      flex: 1;
+      min-width: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: color-mix(in srgb, var(--surface) 50%, var(--bg));
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.35rem 0.6rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      user-select: all;
+    }}
+
+    .skill-install .copy-btn {{
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }}
+
+    .skill-install .copy-btn:hover {{
+      color: var(--accent);
+      border-color: var(--accent);
+    }}
+
+    .skill-install .copy-btn svg {{
+      width: 14px;
+      height: 14px;
+    }}
+
     .sources {{
       font-size: 0.7rem;
       color: var(--text-muted);
@@ -483,7 +586,7 @@ def render_html(categories: dict[str, list[dict]]) -> str:
       <i data-feather="zap"></i>
       <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">elastic/docs-skills</span>
     </div>
-    <h1><span>Skills Catalog</span></h1>
+    <h1><span>Elastic Docs Skills Catalogue</span></h1>
     <p>Claude Code skills for Elastic documentation workflows, available as slash commands.</p>
     <div class="stats">
       <div class="stat">
@@ -496,10 +599,35 @@ def render_html(categories: dict[str, list[dict]]) -> str:
       </div>
     </div>
     <div class="install-banner">
-      <code id="install-cmd">{INSTALL_CMD}</code>
-      <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('install-cmd').textContent).then(()=>{{this.innerHTML='<i data-feather=\\'check\\'></i>';feather.replace();setTimeout(()=>{{this.innerHTML='<i data-feather=\\'clipboard\\'></i>';feather.replace()}},2000)}})" title="Copy to clipboard">
-        <i data-feather="clipboard"></i>
-      </button>
+      <div class="install-row">
+        <span class="cmd-label">Install all</span>
+        <code id="install-cmd">{INSTALL_COMMANDS["Install all"]}</code>
+        <button class="copy-btn" onclick="copyCmd('install-cmd', this)" title="Copy install command">
+          <i data-feather="clipboard"></i>
+        </button>
+      </div>
+      <div class="install-row">
+        <span class="cmd-label">Update all</span>
+        <code id="update-cmd">{INSTALL_COMMANDS["Update all"]}</code>
+        <button class="copy-btn" onclick="copyCmd('update-cmd', this)" title="Copy update command">
+          <i data-feather="clipboard"></i>
+        </button>
+      </div>
+      <div class="install-sep"><span>or use the interactive TUI (macOS/Linux)</span></div>
+      <div class="install-row">
+        <span class="cmd-label">TUI install</span>
+        <code id="tui-install-cmd">{INSTALL_COMMANDS["TUI install"]}</code>
+        <button class="copy-btn" onclick="copyCmd('tui-install-cmd', this)" title="Copy TUI install command">
+          <i data-feather="clipboard"></i>
+        </button>
+      </div>
+      <div class="install-row">
+        <span class="cmd-label">TUI update</span>
+        <code id="tui-update-cmd">{INSTALL_COMMANDS["TUI update"]}</code>
+        <button class="copy-btn" onclick="copyCmd('tui-update-cmd', this)" title="Copy TUI update command">
+          <i data-feather="clipboard"></i>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -511,7 +639,27 @@ def render_html(categories: dict[str, list[dict]]) -> str:
     Built from <a href="https://github.com/elastic/elastic-docs-skills">elastic/elastic-docs-skills</a> &middot; Auto-generated on each push to <code>main</code>
   </footer>
 
-  <script>feather.replace();</script>
+  <script>
+    function copyCmd(id, button) {{
+      const value = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(value).then(() => {{
+        button.innerHTML = "<i data-feather='check'></i>";
+        feather.replace();
+        setTimeout(() => {{
+          button.innerHTML = "<i data-feather='clipboard'></i>";
+          feather.replace();
+        }}, 2000);
+      }});
+    }}
+
+    document.querySelectorAll('.skill-card[data-url]').forEach(card => {{
+      card.addEventListener('click', () => {{
+        window.open(card.dataset.url, '_blank', 'noopener');
+      }});
+    }});
+
+    feather.replace();
+  </script>
 </body>
 </html>
 """
@@ -531,6 +679,7 @@ def build_catalog_json(categories: dict[str, list[dict]]) -> list[dict]:
                     "version": skill.get("version", ""),
                     "description": skill.get("description", ""),
                     "category": cat,
+                    "path": skill.get("_path", ""),
                     "context": skill.get("context", ""),
                     "autoTrigger": skill.get("disable-model-invocation", "") != "true",
                     "sources": sources,

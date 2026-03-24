@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.0.1
+version: 1.0.3
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 context: fork
@@ -159,7 +159,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Text fields**: "In the **Name** field, enter `value`."
 - **Toggles**: "Turn on **Feature**" / "Turn off **Feature**" — not "enable/disable" or "toggle."
 - **Keys**: "Press Enter" / "Press Command+Alt+L."
-- **Menu navigation**: Use arrows — "Select **Manage index → Add lifecycle policy**."
+- **Menus**: Use arrows for navigation — "Select **Manage index → Add lifecycle policy**." Do **not** use the verbs "open" or "close" for menus; use "From the menu,..." instead. Refer to the element as "menu" — not "dropdown menu" or "dropdown list."
 - **Icons**: Reference by tooltip text, include inline icon. Avoid parentheses around icons.
 - **Procedures**: 5–9 steps. Focus on use cases, not piece-by-piece UI description. Eliminate obvious steps.
 - **Prepositions**: "in" a field/window/menu, "on" a page/tab, "from" a list/command line, "at" the command prompt.

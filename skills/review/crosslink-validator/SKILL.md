@@ -1,6 +1,6 @@
 ---
-name: crosslink-validator
-version: 2.0.0
+name: docs-crosslink-validator
+version: 2.0.1
 description: Validate all cross-links in an Elastic documentation markdown file by extracting them and resolving each one. Use when the user asks to check, validate, or verify links in a documentation page, or mentions broken links.
 argument-hint: <file-or-directory>
 context: fork

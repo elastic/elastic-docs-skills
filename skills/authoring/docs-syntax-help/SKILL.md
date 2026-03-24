@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.0.1
+version: 1.0.4
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 allowed-tools: Read, Grep, Glob, Edit, WebFetch
@@ -159,7 +159,7 @@ Default anchors auto-generate as lowercase, hyphenated, alphanumeric (diacritics
 
 **Cross-repository**: `[Text](kibana://path/to/page.md)` — link text is **mandatory**; omitting it causes the link to fail.
 
-**External**: `[Text](https://example.com)` — bare `https://` URLs (not `http://`) are automatically converted to clickable links that open in a new tab. Autolinks are not rendered inside code blocks. Bare URL autolinks pointing to `elastic.co/docs` trigger a build hint to use a cross-repository or relative link instead.
+**External**: `[Text](https://example.com)` — bare `https://` URLs (not `http://`) are automatically converted to clickable links that open in a new tab. Autolinks are not rendered inside code blocks or inline code. Bare URL autolinks pointing to `elastic.co/docs` trigger a build hint to use a cross-repository or relative link instead.
 
 **Auto-generated text** (uses target page title): `[](page.md)` or `[](page.md#section)`
 
@@ -206,6 +206,8 @@ var key = new ApiKey("<KEY>"); // Set up the API key
 
 Disable callout processing: ````callouts=false`
 
+**Rule**: Do not mix explicit and automatic callouts in the same code block — use only one type per block.
+
 ### Console code blocks
 
 Use `console` as the language. First line renders as a dev console command; rest as JSON.
@@ -251,7 +253,7 @@ Python content
 
 Tabs with matching `group` and `sync` values synchronize selection across tab sets on the same page.
 
-**Rules**: Do not nest tabs. Do not split procedures across tabs.
+**Rules**: Do not nest tabs. Do not split procedures across tabs. Do not use more than 6 tabs. Do not use tabs in dropdowns.
 
 ## Applies-switch
 
@@ -590,6 +592,7 @@ Use `* * *` for horizontal rules.
 | Images outside toc.yml/docset.yml folder | Move images inside the folder tree |
 | Footnote definitions inside directives | Move to document level |
 | `subs=true` on regular inline code | Use `` {subs=true}`code` `` role syntax |
+| Mixing explicit and automatic callouts in a code block | Use only one callout type per block |
 | Explicit callout count mismatch | Number of `<N>` markers must equal the list item count |
 
 ## How to help

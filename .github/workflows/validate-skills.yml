@@ -24,6 +24,9 @@ on:
   pull_request:
     paths: ['skills/**']
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   validate:
     name: Validate skills
@@ -31,29 +34,67 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version: stable
-          cache: false
-
-      - name: Install skill-validator
-        run: go install github.com/agent-ecosystem/skill-validator/cmd/skill-validator@latest
-
       - name: Validate skills
         shell: bash
         run: |
           errors=0
 
-          for dir in skills/*/*/; do
-            if ! skill-validator check --emit-annotations -o markdown "$dir" >> "$GITHUB_STEP_SUMMARY" 2>&1; then
-              exit_code=$?
-              # exit 1 = errors, exit 2 = warnings only
-              if [[ $exit_code -eq 1 ]]; then
-                errors=1
-              fi
-            fi
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-          done
+          # Validate SKILL.md frontmatter (required keys, semver, unique names).
+          if ! python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          root = Path("skills")
+          semver_re = re.compile(r"^\d+\.\d+\.\d+$")
+          kebab_re = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+          errors = []
+          names = {}
+
+          for skill_md in sorted(root.glob("*/*/SKILL.md")):
+              text = skill_md.read_text()
+              match = re.match(r"^---\n(.+?)\n---", text, re.DOTALL)
+              if not match:
+                  errors.append(f"{skill_md}: missing YAML frontmatter")
+                  continue
+
+              fields = {}
+              for line in match.group(1).splitlines():
+                  if ":" not in line or line.startswith("  - "):
+                      continue
+                  key, _, val = line.partition(":")
+                  fields[key.strip()] = val.strip()
+
+              for key in ("name", "description", "version"):
+                  if not fields.get(key):
+                      errors.append(f"{skill_md}: missing required field '{key}'")
+
+              name = fields.get("name", "")
+              if name:
+                  if not kebab_re.match(name):
+                      errors.append(f"{skill_md}: name '{name}' must be kebab-case")
+                  if not name.startswith("docs-"):
+                      errors.append(f"{skill_md}: name '{name}' must start with 'docs-'")
+                  names.setdefault(name, []).append(str(skill_md))
+
+              version = fields.get("version", "")
+              if version and not semver_re.match(version):
+                  errors.append(f"{skill_md}: version '{version}' must be SemVer (MAJOR.MINOR.PATCH)")
+
+          for name, paths in sorted(names.items()):
+              if len(paths) > 1:
+                  errors.append(f"Duplicate skill name '{name}' in: {', '.join(paths)}")
+
+          for e in errors:
+              print(f"::error::{e}")
+
+          print(f"Validated {len(list(root.glob('*/*/SKILL.md')))} skills.")
+          if errors:
+              raise SystemExit(1)
+          PY
+          then
+            ((errors++))
+          fi
 
           # Validate eval files
           while IFS= read -r eval_file; do
@@ -93,6 +134,24 @@ jobs:
             fi
 
           done < <(find skills -name "evals.json" -type f 2>/dev/null | sort)
+
+          if [[ $errors -gt 0 ]]; then
+            echo ""
+            echo "Found $errors validation error(s)"
+            exit 1
+          fi
+
+          # On PRs: require plugin.json version bump when skills change
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_version=$(git show "origin/${{ github.base_ref }}:.claude-plugin/plugin.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('version','0.0.0'))" 2>/dev/null || echo "0.0.0")
+            head_version=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json')).get('version','0.0.0'))" 2>/dev/null || echo "0.0.0")
+            if [[ "$base_version" == "$head_version" ]]; then
+              echo "::error file=.claude-plugin/plugin.json::Skills changed but plugin.json version ($head_version) was not bumped. Please update the version field."
+              ((errors++))
+            else
+              echo "plugin.json version bumped: $base_version → $head_version ✓"
+            fi
+          fi
 
           if [[ $errors -gt 0 ]]; then
             echo ""

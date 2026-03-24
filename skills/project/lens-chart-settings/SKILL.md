@@ -1,6 +1,6 @@
 ---
-name: lens-chart-settings
-version: 1.0.0
+name: docs-lens-chart-settings
+version: 1.0.1
 description: Verify Kibana Lens chart UI settings against the source code. Use when documenting chart types, reviewing chart settings accuracy, or checking UI labels and rendering order for Lens visualizations (bar, line, area, pie, treemap, mosaic, waffle, tag cloud, heat map, gauge, metric, region map, table).
 context: fork
 allowed-tools: Read, Grep, Glob, WebFetch

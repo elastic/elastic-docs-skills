@@ -6,7 +6,78 @@ Browse the catalog, pick the skills you need, and install them with a single com
 
 ## Quick start
 
-Clone the repository and run the interactive installer:
+### Claude Code plugin (recommended)
+
+Install as a Claude Code plugin — no clone required:
+
+```
+/plugin install https://github.com/elastic/elastic-docs-skills
+```
+
+Skills are available immediately as `/elastic-docs-skills:<skill-name>`, for example:
+
+```
+/elastic-docs-skills:docs-check-style
+/elastic-docs-skills:docs-crosslink-validator
+```
+
+### Individual skills via npx
+
+Install all skills with a single command (requires Node.js):
+
+```bash
+npx --yes skills@latest add elastic/elastic-docs-skills -g
+```
+
+This auto-detects your installed agents (Claude Code, Cursor, Codex, etc.) and prompts you to choose which ones to install to.
+
+Update all installed skills to the latest versions:
+
+```bash
+npx --yes skills@latest update -g
+```
+
+Install a single skill by name:
+
+```bash
+npx --yes skills@latest add elastic/elastic-docs-skills --skill docs-check-style -g
+```
+
+Other useful commands:
+
+```bash
+# List installed skills.
+npx --yes skills@latest list -g
+
+# Check for available updates.
+npx --yes skills@latest check -g
+
+# Remove a skill.
+npx --yes skills@latest remove docs-check-style -g
+```
+
+### Alternative: interactive TUI installer
+
+If you prefer an interactive terminal UI (macOS and Linux only, requires Python 3):
+
+```bash
+curl -fsSL https://ela.st/docs-skills-install | bash
+```
+
+Optional flags:
+
+```bash
+# List available skills.
+curl -fsSL https://ela.st/docs-skills-install | bash -s -- --list
+
+# Install all skills.
+curl -fsSL https://ela.st/docs-skills-install | bash -s -- --all
+
+# Update installed skills.
+curl -fsSL https://ela.st/docs-skills-install | bash -s -- --update
+```
+
+If you plan to contribute, clone the repository and run locally:
 
 ```bash
 git clone https://github.com/elastic/elastic-docs-skills.git
@@ -36,7 +107,7 @@ Every skill must have YAML frontmatter with at least these fields:
 
 ```yaml
 ---
-name: my-skill              # Required — kebab-case, must match directory name
+name: docs-my-skill              # Required — kebab-case skill invocation name
 version: 1.0.0              # Required — SemVer (MAJOR.MINOR.PATCH)
 description: What it does    # Required — when to use this skill
 ---
@@ -67,19 +138,23 @@ Bump the `version` field in your `SKILL.md` frontmatter when making changes.
 ## Updating installed skills
 
 ```bash
-./install.sh --update
+npx --yes skills@latest update -g
 ```
 
-This compares your installed skill versions against the catalog and updates any that have newer versions available.
+Or, if using the TUI installer:
+
+```bash
+curl -fsSL https://ela.st/docs-skills-install | bash -s -- --update
+```
 
 ## CI validation
 
-All PRs that touch `skills/**` are validated by GitHub Actions using [`skill-validator`](https://github.com/agent-ecosystem/skill-validator). The workflow (`.github/workflows/validate-skills.yml`) runs the following checks on every skill:
+All PRs that touch `skills/**` are validated by GitHub Actions in `.github/workflows/validate-skills.yml`. The workflow runs the following checks on every skill:
 
 - Every `skills/**/SKILL.md` must have valid YAML frontmatter
 - Required fields: `name`, `description`, `version`
+- `name` must be kebab-case and unique across all skills
 - `version` must be valid SemVer
-- Directory name must match the `name` field
 - `evals/evals.json` (if present) must be valid JSON with required structure
 
 ## Repository structure

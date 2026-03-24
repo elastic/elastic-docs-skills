@@ -21,7 +21,7 @@ Every `skills/**/SKILL.md` must have YAML frontmatter:
 
 ```yaml
 ---
-name: my-skill              # Required — kebab-case, must match directory name
+name: docs-my-skill              # Required — kebab-case skill invocation name
 version: 1.0.0              # Required — SemVer
 description: What it does    # Required — when to trigger this skill
 argument-hint: <args>        # Shown in autocomplete if skill accepts input
@@ -42,7 +42,7 @@ sources:                     # Upstream URLs this skill encodes (for freshness c
 
 ## Conventions
 
-- Skill names are kebab-case and must match their directory name
+- Skill names are kebab-case and must be unique across the catalog
 - Version follows SemVer: bump PATCH for fixes, MINOR for new features, MAJOR for breaking changes
 - Skills that only read/analyze should use `context: fork`
 - Skills that modify files should NOT use `context: fork`
@@ -65,12 +65,12 @@ Available tools:
 
 | Tool | Purpose |
 |------|---------|
-| `SemanticSearch` | Search all published Elastic docs by meaning. Supports product/section filters. |
-| `FindRelatedDocs` | Discover pages related to a topic. |
-| `GetDocumentByUrl` | Fetch a specific page by URL or path. Returns title, summaries, headings, and optionally the full body. |
-| `AnalyzeDocumentStructure` | Analyze heading count, link count, parent pages for a given URL. |
-| `CheckCoherence` | Check how coherently a topic is covered across all docs. |
-| `FindInconsistencies` | Find potential inconsistencies across pages covering the same topic. |
+| `search_docs` | Search all published Elastic docs by meaning. Supports product/section filters. |
+| `find_related_docs` | Discover pages related to a topic. |
+| `get_document_by_url` | Fetch a specific page by URL or path. Returns title, summaries, headings, and optionally the full body. |
+| `analyze_document_structure` | Analyze heading count, link count, parent pages for a given URL. |
+| `check_docs_coherence` | Check how coherently a topic is covered across all docs. |
+| `find_docs_inconsistencies` | Find potential inconsistencies across pages covering the same topic. |
 
 Test with: `npx @modelcontextprotocol/inspector --url https://www.elastic.co/docs/_mcp/`
 

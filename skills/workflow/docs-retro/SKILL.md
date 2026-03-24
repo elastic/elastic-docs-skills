@@ -1,6 +1,6 @@
 ---
 name: docs-retro
-version: 1.0.0
+version: 1.0.1
 description: Analyze session transcripts to identify docs opportunities, evaluate skill usage, and surface missing skills. Use when the user asks for a retro, retrospective, or session analysis.
 disable-model-invocation: true
 argument-hint: <session-id-or-file>

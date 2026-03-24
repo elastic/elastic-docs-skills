@@ -1,6 +1,6 @@
 ---
 name: docs-redirects
-version: 1.0.1
+version: 1.0.3
 description: Create and manage redirects in Elastic documentation when pages are moved, renamed, or deleted. Use when moving docs pages, renaming files, restructuring content, or when the user asks about redirects.
 argument-hint: <old-path> <new-path>
 allowed-tools: Read, Grep, Glob, Edit, Write
@@ -100,19 +100,51 @@ redirects:
 
 ### Complex redirects (many targets)
 
-When different anchors on the old page need to redirect to different targets:
+When different anchors on the old page need to redirect to different targets, use the `many:` key. Setting `to:` at the top level determines the default target for any anchor not matched by a `many:` entry:
 
 ```yaml
 redirects:
+  # Default target stays on the same page; specific anchors redirect elsewhere
   'old-page.md':
+    to: 'old-page.md'
+    many:
+      - to: 'target-two.md'
+        anchors:
+          'anchor-a': 'anchor-b'
+      - to: 'target-three.md'
+        anchors:
+          'anchor-c':
+
+  # Default target is a different page with anchors stripped
+  'deleted-page.md':
     to: 'default-target.md'
     anchors: '!'
     many:
       - to: 'target-two.md'
         anchors:
           'anchor-a': 'anchor-b'
-      - to: 'target-three.md'
+      - to: 'other-repo://path/to/new-page.md'
+        anchors:
+          'anchor-b': 'anchor-c'
 ```
+
+To define a catch-all that matches any anchor not covered by individual entries, use `{}` as the anchor value:
+
+```yaml
+redirects:
+  'old-page.md':
+    many:
+      - to: 'specific-page.md'
+        anchors:
+          'section-one': 'new-section'
+      - to: 'catch-all-page.md'
+        anchors: {}
+```
+
+Notes:
+- Omitting the `anchors` key or setting it to empty are both equivalent.
+- Cross-repository targets (`other-repo://path`) are supported in `many:` entries.
+- `to:`, `anchors:`, and `many:` can be combined to handle complex scenarios.
 
 ## Task execution
 

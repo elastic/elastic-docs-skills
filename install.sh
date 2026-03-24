@@ -23,15 +23,17 @@ set -euo pipefail
 # Zero external dependencies — uses Python 3 curses (ships with macOS/Linux)
 #
 # Usage:
-#   curl -sSL https://raw.githubusercontent.com/elastic/elastic-docs-skills/main/install.sh | bash
-#   curl -sSL https://raw.githubusercontent.com/elastic/elastic-docs-skills/main/install.sh | bash -s -- --list
-#   curl -sSL https://raw.githubusercontent.com/elastic/elastic-docs-skills/main/install.sh | bash -s -- --all
+#   curl -sSL https://ela.st/docs-skills-install | bash
+#   curl -sSL https://ela.st/docs-skills-install | bash -s -- --list
+#   curl -sSL https://ela.st/docs-skills-install | bash -s -- --all
 
 REPO="elastic/elastic-docs-skills"
 BRANCH="main"
 RAW_BASE="https://raw.githubusercontent.com/$REPO/$BRANCH"
 API_BASE="https://api.github.com/repos/$REPO"
+CATALOG_JSON_URL="https://elastic.github.io/elastic-docs-skills/catalog.json"
 INSTALL_DIR="$HOME/.claude/skills"
+TREE_CACHE=""
 
 # Detect if running from a local clone
 LOCAL_MODE=false
@@ -58,6 +60,18 @@ ok()    { echo -e "${GREEN}${BOLD}✓${NC} $1"; }
 warn()  { echo -e "${YELLOW}${BOLD}⚠${NC} $1"; }
 err()   { echo -e "${RED}${BOLD}✗${NC} $1" >&2; }
 
+# Returns 0 (true) if $1 > $2 in SemVer ordering (major.minor.patch)
+semver_gt() {
+  local IFS=.
+  local i a=($1) b=($2)
+  for ((i=0; i<3; i++)); do
+    local va=${a[i]:-0} vb=${b[i]:-0}
+    (( va > vb )) && return 0
+    (( va < vb )) && return 1
+  done
+  return 1
+}
+
 usage() {
   cat <<EOF
 Usage: install.sh [OPTIONS]
@@ -77,16 +91,47 @@ Without options, launches an interactive TUI to select skills.
 EOF
 }
 
+# Attempt to fast-forward the local clone so the catalog reflects the latest
+# upstream versions. Skips silently when not on main or when git is unavailable.
+pull_latest_local() {
+  command -v git &>/dev/null || return 0
+  git -C "$SCRIPT_DIR" rev-parse --git-dir &>/dev/null 2>&1 || return 0
+
+  local current_branch
+  current_branch=$(git -C "$SCRIPT_DIR" symbolic-ref --short HEAD 2>/dev/null) || return 0
+
+  if [[ "$current_branch" == "main" || "$current_branch" == "master" ]]; then
+    info "Pulling latest from origin/$current_branch..."
+    if git -C "$SCRIPT_DIR" pull --ff-only --quiet 2>/dev/null; then
+      ok "Local clone is up to date"
+    else
+      warn "Could not fast-forward; using existing local versions"
+    fi
+  else
+    warn "On branch '$current_branch' — skipping pull (checkout main for latest versions)"
+  fi
+}
+
 # ─── Skill scanning ─────────────────────────────────────────────────────────
 
 parse_field() {
   local file="$1" field="$2"
-  sed -n '/^---$/,/^---$/p' "$file" | grep "^${field}:" | head -1 | sed "s/^${field}: *//"
+  sed -n '/^---$/,/^---$/p' "$file" | grep "^${field}:" | head -1 | sed "s/^${field}: *//" || true
 }
 
 parse_field_from_content() {
   local content="$1" field="$2"
-  echo "$content" | sed -n '/^---$/,/^---$/p' | grep "^${field}:" | head -1 | sed "s/^${field}: *//"
+  echo "$content" | sed -n '/^---$/,/^---$/p' | grep "^${field}:" | head -1 | sed "s/^${field}: *//" || true
+}
+
+pick_python() {
+  for cmd in python3 python; do
+    if command -v "$cmd" &>/dev/null && "$cmd" -c "import sys; assert sys.version_info >= (3, 6)" 2>/dev/null; then
+      echo "$cmd"
+      return 0
+    fi
+  done
+  return 1
 }
 
 # Builds a TSV catalog: name\tversion\tcategory\tdescription\tpath
@@ -103,14 +148,46 @@ build_catalog_local() {
   done < <(find "$SKILLS_DIR" -name "SKILL.md" -type f 2>/dev/null | sort)
 }
 
+build_catalog_remote_from_pages() {
+  local python_cmd catalog_json
+  python_cmd="$(pick_python)" || return 1
+  catalog_json=$(curl -fsSL "$CATALOG_JSON_URL" 2>/dev/null) || return 1
+
+  printf '%s' "$catalog_json" | "$python_cmd" -c '
+import json
+import sys
+
+data = json.load(sys.stdin)
+for skill in data:
+    name = (skill.get("name") or "").strip()
+    if not name:
+        continue
+    version = (skill.get("version") or "0.0.0").strip() or "0.0.0"
+    category = (skill.get("category") or "unknown").strip() or "unknown"
+    description = (skill.get("description") or "No description").replace("\t", " ").replace("\n", " ").strip()
+    path = (skill.get("path") or "").strip()
+    if not path:
+        path = f"skills/{category}/{name}/SKILL.md"
+    print(f"{name}\t{version}\t{category}\t{description}\t{path}")
+'
+}
+
 build_catalog_remote() {
-  info "Fetching skill catalog from GitHub..."
-  local tree_response
-  tree_response=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || {
+  info "Fetching skill catalog index..."
+  local pages_catalog=""
+  pages_catalog=$(build_catalog_remote_from_pages 2>/dev/null || true)
+  if [[ -n "$pages_catalog" ]]; then
+    ok "Loaded catalog from GitHub Pages"
+    printf '%s\n' "$pages_catalog"
+    return 0
+  fi
+
+  info "Falling back to GitHub API catalog scan..."
+  TREE_CACHE=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || {
     err "Failed to fetch repository tree from GitHub"; exit 1
   }
   local skill_paths
-  skill_paths=$(echo "$tree_response" | grep -o '"path":"skills/[^"]*SKILL\.md"' | sed 's/"path":"//;s/"//' | sort)
+  skill_paths=$(echo "$TREE_CACHE" | grep -oE '"path"[[:space:]]*:[[:space:]]*"skills/[^"]*SKILL\.md"' | sed -E 's/"path"[[:space:]]*:[[:space:]]*"//;s/"$//' | sort)
   [[ -z "$skill_paths" ]] && { err "No skills found in the remote catalog"; exit 1; }
 
   while IFS= read -r remote_path; do
@@ -136,30 +213,34 @@ build_catalog() {
 # ─── Installation ────────────────────────────────────────────────────────────
 
 install_one_local() {
-  local name="$1" path="$2" version="$3"
+  local name="$1" path="$2" version="$3" target_name="${4:-$1}"
   local source_dir target
   source_dir="$(dirname "$path")"
-  target="$INSTALL_DIR/$name"
+  target="$INSTALL_DIR/$target_name"
   mkdir -p "$target"
   cp -r "$source_dir"/* "$target"/
   ok "Installed ${BOLD}$name${NC} v$version → $target"
 }
 
 install_one_remote() {
-  local name="$1" remote_path="$2" version="$3"
+  local name="$1" remote_path="$2" version="$3" target_name="${4:-$1}"
   local remote_dir target
   remote_dir="$(dirname "$remote_path")"
-  target="$INSTALL_DIR/$name"
+  target="$INSTALL_DIR/$target_name"
   mkdir -p "$target"
 
   curl -fsSL "${RAW_BASE}/${remote_path}" -o "$target/SKILL.md" 2>/dev/null || {
     err "Failed to download $name"; return 1
   }
 
-  # Fetch supplementary files
+  # Fetch supplementary files (reuse cached tree when available)
   local tree_response extra_files
-  tree_response=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || true
-  extra_files=$(echo "$tree_response" | grep -o "\"path\":\"${remote_dir}/[^\"]*\"" | sed 's/"path":"//;s/"//' | grep -v "SKILL\.md$" || true)
+  if [[ -n "$TREE_CACHE" ]]; then
+    tree_response="$TREE_CACHE"
+  else
+    tree_response=$(curl -fsSL "${API_BASE}/git/trees/${BRANCH}?recursive=1" 2>/dev/null) || true
+  fi
+  extra_files=$(echo "$tree_response" | grep -oE "\"path\"[[:space:]]*:[[:space:]]*\"${remote_dir}/[^\"]*\"" | sed -E 's/"path"[[:space:]]*:[[:space:]]*"//;s/"$//' | grep -v "SKILL\.md$" || true)
   while IFS= read -r extra_path; do
     [[ -z "$extra_path" ]] && continue
     local filename="${extra_path#"$remote_dir/"}"
@@ -244,16 +325,35 @@ cmd_update() {
     while IFS=$'\t' read -r name version category description path; do
       if [[ "$name" == "$skill_name" ]]; then
         found=true
-        if [[ "$version" == "$installed_version" ]]; then
-          ((skipped++))
-        else
+        if semver_gt "$version" "$installed_version"; then
           install_one "$name" "$path" "$version"
-          info "  Updated from v$installed_version"
+          info "  Updated v$installed_version → v$version"
           ((updated++))
+        else
+          ((skipped++))
         fi
         break
       fi
     done <<< "$catalog"
+
+    # Seamless updates when skill frontmatter name changes but folder path stays stable.
+    if [[ "$found" == false ]]; then
+      while IFS=$'\t' read -r name version category description path; do
+        local catalog_dir_name
+        catalog_dir_name="$(basename "$(dirname "$path")")"
+        if [[ "$catalog_dir_name" == "$skill_name" ]]; then
+          found=true
+          if semver_gt "$version" "$installed_version"; then
+            install_one "$name" "$path" "$version" "$skill_name"
+            info "  Updated v$installed_version → v$version (name: $skill_name -> $name)"
+            ((updated++))
+          else
+            ((skipped++))
+          fi
+          break
+        fi
+      done <<< "$catalog"
+    fi
 
     if [[ "$found" == false ]]; then
       warn "Skill '$skill_name' is installed but not found in the catalog"
@@ -274,12 +374,7 @@ cmd_update() {
 cmd_interactive() {
   # Check Python 3 is available
   local python_cmd=""
-  for cmd in python3 python; do
-    if command -v "$cmd" &>/dev/null && "$cmd" -c "import sys; assert sys.version_info >= (3, 6)" 2>/dev/null; then
-      python_cmd="$cmd"
-      break
-    fi
-  done
+  python_cmd="$(pick_python || true)"
   if [[ -z "$python_cmd" ]]; then
     err "Python 3.6+ is required for the interactive installer."
     echo "  Use --list and --all for non-interactive mode."
@@ -287,15 +382,20 @@ cmd_interactive() {
   fi
 
   # Build catalog
+  info "Loading skill catalog..."
   local catalog
   catalog="$(build_catalog)"
   [[ -z "$catalog" ]] && { err "No skills found"; exit 1; }
+  local skill_count
+  skill_count=$(printf '%s\n' "$catalog" | sed '/^$/d' | wc -l | tr -d ' ')
+  ok "Loaded $skill_count skill(s)"
 
   # Get the TUI script (local or fetch from GitHub)
   local tui_script=""
   if [[ "$LOCAL_MODE" == true ]] && [[ -f "$SCRIPT_DIR/tui.py" ]]; then
     tui_script="$SCRIPT_DIR/tui.py"
   else
+    info "Downloading interactive UI component..."
     tui_script=$(mktemp "${TMPDIR:-/tmp}/elastic-tui-XXXXXX.py")
     curl -fsSL "${RAW_BASE}/tui.py" -o "$tui_script" 2>/dev/null || {
       err "Failed to download TUI component"
@@ -307,6 +407,7 @@ cmd_interactive() {
 
   # Run TUI: curses needs /dev/tty for display and input
   # Results are written to a temp file
+  info "Launching interactive selector..."
   local result_file
   result_file=$(mktemp "${TMPDIR:-/tmp}/elastic-result-XXXXXX")
 
@@ -366,6 +467,7 @@ cmd_interactive() {
 main() {
   if [[ "$LOCAL_MODE" == true ]]; then
     info "Running from local clone: $SCRIPT_DIR"
+    pull_latest_local
   else
     info "Running in remote mode — fetching from github.com/$REPO"
   fi
