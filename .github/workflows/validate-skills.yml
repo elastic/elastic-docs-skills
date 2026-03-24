@@ -141,5 +141,23 @@ jobs:
             exit 1
           fi
 
+          # On PRs: require plugin.json version bump when skills change
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_version=$(git show "origin/${{ github.base_ref }}:.claude-plugin/plugin.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('version','0.0.0'))" 2>/dev/null || echo "0.0.0")
+            head_version=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json')).get('version','0.0.0'))" 2>/dev/null || echo "0.0.0")
+            if [[ "$base_version" == "$head_version" ]]; then
+              echo "::error file=.claude-plugin/plugin.json::Skills changed but plugin.json version ($head_version) was not bumped. Please update the version field."
+              ((errors++))
+            else
+              echo "plugin.json version bumped: $base_version → $head_version ✓"
+            fi
+          fi
+
+          if [[ $errors -gt 0 ]]; then
+            echo ""
+            echo "Found $errors validation error(s)"
+            exit 1
+          fi
+
           echo ""
           echo "All skills and evals validated successfully"
