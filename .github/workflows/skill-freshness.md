@@ -64,7 +64,9 @@ Check all skills in `skills/**/SKILL.md` for staleness against their upstream so
    - Compare the fetched content against the rules, syntax, and options encoded in the skill.
    - If the skill is stale (new rules added, syntax changed, options removed, links broken), update the SKILL.md to reflect the current upstream state. If the skill lacked `sources:` and you found relevant upstream pages, add them to the frontmatter.
    - After updating a skill, run its evals to catch regressions (see "Post-update eval check" below).
-3. If any files changed, open a pull request summarizing what drifted, why, and eval results.
+3. If any files changed:
+   - Read `.claude-plugin/plugin.json` and bump its `version` field (patch increment — e.g. `1.0.0` → `1.0.1`).
+   - Open a pull request summarizing what drifted, why, and eval results.
 4. If nothing changed, close this issue with a comment confirming all skills are current.
 
 ## Post-update eval check
