@@ -6,6 +6,23 @@ Browse the catalog, pick the skills you need, and install them with a single com
 
 ## Quick start
 
+### Claude Code plugin (recommended)
+
+Install as a Claude Code plugin — no clone required:
+
+```
+/plugin install https://github.com/elastic/elastic-docs-skills
+```
+
+Skills are available immediately as `/elastic-docs-skills:<skill-name>`, for example:
+
+```
+/elastic-docs-skills:docs-check-style
+/elastic-docs-skills:docs-crosslink-validator
+```
+
+### Individual skills via npx
+
 Install all skills with a single command (requires Node.js):
 
 ```bash
