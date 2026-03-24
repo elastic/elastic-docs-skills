@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.0.3
+version: 1.0.4
 description: Validate and generate applies_to tags in Elastic documentation. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, or when content changes lifecycle state (preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory>
 context: fork
@@ -115,11 +115,17 @@ Avoid using `all` — instead, explicitly list the applicable keys and lifecycle
 
 | Type | Syntax | Example | Badge |
 |------|--------|---------|-------|
-| Greater than or equal | `x.x+` (preferred) or `x.x` | `ga 9.1+` | 9.1+ |
-| Range (inclusive) | `x.x-y.y` | `preview 9.0-9.2` | 9.0-9.2 |
-| Exact | `=x.x` | `beta =9.1` | 9.1 |
+| Greater than or equal | `x.x+` (preferred) or `x.x` or `x.x.x+` or `x.x.x` | `ga 9.1+` | 9.1+ |
+| Range (inclusive) | `x.x-y.y` or `x.x.x-y.y.y` | `preview 9.0-9.2` | 9.0-9.2 |
+| Exact | `=x.x` or `=x.x.x` | `beta =9.1` | 9.1 |
 
 Unversioned products (serverless) use lifecycle only: `serverless: ga`.
+
+**Important version display notes:**
+- Versions always display as **Major.Minor** (e.g., `9.1`) in badges, regardless of whether you specify patch versions in the source.
+- Each version statement corresponds to the **latest patch** of the specified minor version (e.g., `9.1` represents 9.1.0, 9.1.1, 9.1.6, etc.).
+- When critical patch-level differences exist, use plain text descriptions alongside the badge rather than specifying patch versions.
+- Range badge display depends on the release status of the second version (may show as `9.0+` instead of `9.0-9.2` if the end version isn't yet released).
 
 ### Implicit version inference
 
@@ -171,6 +177,7 @@ When validating, check for these errors:
 - Page level: frontmatter only
 - Headings: section annotation on the line after the heading, never inline
 - Lists: badge at beginning of list items
+- Definition lists: badge at end of the term (inline annotation on same line as term) when badge applies to the entire item; follow element-specific placement when badge applies only to part of the definition
 - Tables: badge at end of first column (whole row) or end of cell (single cell)
 - Use `applies-switch` tabs when code blocks or workflows differ entirely between contexts:
 ````markdown
