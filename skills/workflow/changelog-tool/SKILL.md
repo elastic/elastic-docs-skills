@@ -119,6 +119,30 @@ Any plan that touches filter/rule/matching logic **must** include a behavior tab
 
 Reference: "Area matching behavior" and "Per-product rule resolution" tables in `docs/contribute/changelog.md` are the canonical format.
 
+### Critical: Disjoint fallback logic validation
+
+**Context-aware filtering bug pattern**: When implementing intersection-based rules that depend on bundle context, verify disjoint fallback behavior is **logically consistent**:
+
+- **Context-specific bundles** (`--output-products` set): Disjoint changelogs should use **global rules only** to prevent unrelated product-specific rules from applying
+- **Bundle-everything mode** (no `--output-products`): Disjoint changelogs can use their own product-specific rules
+
+**Required disjoint tests**: For any intersection-based filtering logic, add tests that verify:
+1. **Conflicting product-specific rule doesn't apply**: Disjoint changelog with conflicting product rule should use global rules when building context-specific bundle
+2. **Multi-product disjoint**: Multi-product changelog disjoint from bundle context should use global rules, not alphabetically-first product rule  
+3. **Bundle-everything preservation**: Same disjoint scenario with no bundle context should use changelog's own product rules
+
+**Example bug caught**: Before fix, building a `security` bundle with an `elasticsearch` changelog would incorrectly apply `rules.bundle.products.elasticsearch.*` rules. After fix, it correctly applies global `rules.bundle.*` rules.
+
+### Intersection-based logic validation checklist
+
+When implementing or modifying logic that uses set intersection (e.g., bundle context ∩ changelog products):
+
+1. **Empty intersection behavior**: What happens when sets are disjoint? Document and test explicitly.
+2. **Context awareness**: Does disjoint behavior depend on whether bundle context is explicit vs. implicit?
+3. **Rule precedence consistency**: Do all filter types (product, type, area) use the same intersection and fallback logic?
+4. **Multi-value scenario**: Test changelogs with multiple products/areas against both overlapping and disjoint bundle contexts.
+5. **Edge case coverage**: Test empty arrays, single values, and complete overlaps in addition to partial intersections.
+
 ## Invocation modes (bundle and remove)
 
 Two mutually exclusive modes:
@@ -170,6 +194,10 @@ rules.bundle.products.<context>.match_products (per-context)
 **Common bug pattern**: Per-context fields inheriting directly from global instead of bundle level. Always check variable names in inheritance assignments:
 - ✅ `var contextField = bundleLevelField;` (correct)
 - ❌ `var contextField = inheritedMatch;` (skips bundle level)
+
+**Inheritance source validation**: When adding new inheritable fields, verify in code review that the inheritance source is correct by tracing the variable name back to its assignment. Look for these patterns in `ChangelogConfigurationLoader.cs`:
+- Bundle-level fields should inherit from global-level variables
+- Per-context fields should inherit from bundle-level variables (not global-level)
 
 ## Owner/repo precedence
 
@@ -232,6 +260,7 @@ Run with: `dotnet test tests/Elastic.Changelog.Tests/`
 
 - Dedicated test class under `tests/Elastic.Changelog.Tests/Changelogs/`
 - Must cover: happy path, dry-run (where applicable), error cases (missing inputs, mutual exclusivity), config fallback behavior
+- **Use valid product names**: Only use products from the test environment's allowed list: `cloud-hosted, cloud-serverless, elasticsearch, kibana, security`
 
 **Inheritance tests required for any inheritable field:**
 
@@ -252,6 +281,18 @@ public void ParseBundleConfiguration_WithGlobalOnlyField_InheritsCorrectlyToCont
 public void ParseBundleConfiguration_WithBundleOnlyField_InheritsCorrectlyToContext()
 {
     // Set field only at bundle level, verify it appears in per-context rules
+}
+```
+
+**Disjoint logic testing pattern**:
+```csharp
+[Test]
+public void BundleChangelogs_DisjointWithConflictingRule_UsesGlobalRules()
+{
+    // Bundle context: [security]
+    // Changelog products: [elasticsearch] (disjoint)
+    // Config: elasticsearch rule that would exclude the entry
+    // Expected: Entry included via global rules (conflicting elasticsearch rule ignored)
 }
 ```
 
