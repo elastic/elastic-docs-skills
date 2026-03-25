@@ -1,7 +1,7 @@
 ---
 name: validate-code-samples
 version: 1.2.0
-description: Validate code samples in Elastic documentation markdown files. Checks for missing language identifiers, missing subs=true when using {{variables}}, inline comments that should be callouts, invalid JSON in console blocks, invalid ES|QL syntax, and Painless script issues. Use when reviewing documentation PRs, auditing a section of docs, or writing new content with code examples. Trigger with /validate-code-samples.
+description: Validate code samples in Elastic documentation markdown files. Checks language identifiers, substitution attributes, callout usage, JSON validity, ES|QL syntax, and Painless scripts. Use when reviewing docs PRs, auditing content, or writing new examples.
 disable-model-invocation: true
 argument-hint: <file|dir|glob> [--output <path>]
 allowed-tools: Read, Glob, Grep, Write, Bash, mcp__elastic-docs__search_docs, mcp__elastic-docs__get_document_by_url
@@ -67,7 +67,7 @@ Infer the correct identifier from content: HTTP method line → `console`; start
 
 ### Check B — Variable substitution missing `subs=true`
 
-Walk up from the target file to find `docset.yml` and parse its `subs:` section for valid variable names. Flag any block containing `{{var}}` where `var` is a defined substitution key but the fence info lacks `subs=true`. Also flag the inverse: `subs=true` on a block with no `{{...}}` patterns.
+Walk up from the target file to find `docset.yml` and parse its `subs:` section for valid variable names. Stop at the git root (presence of `.git/`) or after 6 directory levels, whichever comes first. Flag any block containing `{{var}}` where `var` is a defined substitution key but the fence info lacks `subs=true`. Also flag the inverse: `subs=true` on a block with no `{{...}}` patterns.
 
 If no `docset.yml` is found, flag any `{{word}}` pattern (single identifier) as a potential substitution variable.
 
@@ -107,7 +107,7 @@ Suggestion: replace with `example.com` or a subdomain like `my-cluster.example.c
 
 ### Check F — API validation for `console` blocks
 
-For each unique `METHOD /path` in `console` blocks, call `mcp__elastic-docs__search_docs` with query `"request body fields <endpoint> elasticsearch API"` (product: `elasticsearch`, section: `api`) to find the matching API reference page (URL starting with `/docs/api/doc/elasticsearch/operation/`). Fetch it with `mcp__elastic-docs__get_document_by_url` (include_body: true).
+Collect all unique `METHOD /path` values across all files first. For each unique endpoint (skip any already validated earlier in this run), call `mcp__elastic-docs__search_docs` with query `"request body fields <endpoint> elasticsearch API"` (product: `elasticsearch`, section: `api`) to find the matching API reference page (URL starting with `/docs/api/doc/elasticsearch/operation/`). Fetch it with `mcp__elastic-docs__get_document_by_url` (include_body: true).
 
 - **No matching page found:** flag the endpoint as potentially removed or renamed.
 - **Deprecated field:** if a top-level request body key appears alongside "deprecated" in the docs, flag it with the replacement.
@@ -142,7 +142,7 @@ Always include the API docs URL in the issue detail.
 
 ### Check H — Painless script validation
 
-Painless appears in two places: standalone `` ```painless `` blocks, and triple-quoted `"""..."""` strings inside `console` blocks. Extract inline Painless from `console` blocks using a multiline perl match before Check D replaces them with placeholders.
+Painless appears in two places: standalone `` ```painless `` blocks, and triple-quoted `"""..."""` strings inside `console` blocks. Extract inline Painless from `console` blocks using a multiline perl match (via Bash) before Check D replaces them with placeholders.
 
 Run these checks on each Painless source:
 
@@ -190,17 +190,17 @@ Output two sections. Omit any table where no files have issues.
 
 **Section 2 — Issue details**, one subsection per file:
 
-```
+````
 #### `path/to/file.md` — Line N — Check X — Short title
 
 > **Issue:** description
 > **Suggestion:** fix
 
-\```
+```
   context lines around the error
       ^
-\```
 ```
+````
 
 For JSON errors include the `jq` error message and up to 2 lines of context around the offending line with a `^` pointer. For Painless inline scripts, note whether the issue is from a standalone block or an embedded triple-quoted string.
 
