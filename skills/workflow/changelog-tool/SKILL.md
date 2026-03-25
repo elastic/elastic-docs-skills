@@ -90,6 +90,11 @@ When an entry belongs to more than one product and per-product overrides are con
 3. Return the rule for the first ID in the sorted intersection that has a configured override.
 4. If the intersection is empty (entry products are disjoint from context), fall back to the entry's own products sorted alphabetically, then the global blocker.
 
+**Inheritance source validation**: When debugging per-context rule issues, verify that each field in `BundlePerProductRule` inherits from the correct config level:
+- Product filters (`include_products`, `exclude_products`, `match_products`) inherit from bundle level (`rules.bundle.*`)
+- Type/area filters (`exclude_types`, `include_areas`, etc.) inherit from bundle level (`rules.bundle.*`)
+- **NOT** from global level (`rules.*`) — this was the source of the `match_products` inheritance bug
+
 The context differs by caller:
 
 | Caller | Context IDs |
@@ -143,6 +148,28 @@ When adding a field to `bundle.*` or `bundle.profiles.<name>`:
 4. `config/changelog.example.yml` — add a commented-out example
 
 Array fields must use `YamlLenientList` to support both comma-separated strings and YAML lists.
+
+### Configuration inheritance hierarchy validation
+
+**CRITICAL**: When adding fields that inherit defaults, verify the inheritance chain is correct in `ChangelogConfigurationLoader.cs`:
+
+```
+rules.match (global)
+  ↓ inheritedMatch
+rules.bundle.match_products (bundle level) 
+  ↓ matchProducts
+rules.bundle.products.<context>.match_products (per-context)
+  ↓ must inherit from matchProducts, NOT inheritedMatch
+```
+
+**Required inheritance tests**: For any new inheritable field, add tests verifying:
+1. **Bundle-level inheritance**: `rules.bundle.<field>` correctly inherits from global `rules.<field>`
+2. **Per-context inheritance**: `rules.bundle.products.<context>.<field>` correctly inherits from bundle-level `rules.bundle.<field>`
+3. **Chain validation**: Global → Bundle → Context produces expected values at each level
+
+**Common bug pattern**: Per-context fields inheriting directly from global instead of bundle level. Always check variable names in inheritance assignments:
+- ✅ `var contextField = bundleLevelField;` (correct)
+- ❌ `var contextField = inheritedMatch;` (skips bundle level)
 
 ## Owner/repo precedence
 
@@ -205,6 +232,28 @@ Run with: `dotnet test tests/Elastic.Changelog.Tests/`
 
 - Dedicated test class under `tests/Elastic.Changelog.Tests/Changelogs/`
 - Must cover: happy path, dry-run (where applicable), error cases (missing inputs, mutual exclusivity), config fallback behavior
+
+**Inheritance tests required for any inheritable field:**
+
+- Test global → bundle inheritance: field set only at global level should propagate to bundle
+- Test bundle → context inheritance: field set only at bundle level should propagate to per-context rules
+- Test override behavior: explicit per-context value should override inherited bundle value
+- Test inheritance chain: global → bundle → context shows correct resolution at each level
+
+Example test pattern:
+```csharp
+[Test]
+public void ParseBundleConfiguration_WithGlobalOnlyField_InheritsCorrectlyToContext()
+{
+    // Set field only at global level, verify it appears in per-context rules
+}
+
+[Test] 
+public void ParseBundleConfiguration_WithBundleOnlyField_InheritsCorrectlyToContext()
+{
+    // Set field only at bundle level, verify it appears in per-context rules
+}
+```
 
 ## Documentation checklist
 
