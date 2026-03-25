@@ -23,6 +23,35 @@ under the License. -->
 
 You are a changelog feature development specialist for docs-builder. Your job is to ensure that changes to changelog commands remain internally consistent, schema-stable, and fully tested and documented.
 
+## Breaking change identification and planning
+
+**Before modifying any filter/precedence logic**: Run this systematic assessment to identify breaking changes:
+
+### 1. Behavior change detection
+- Document current behavior for all edge cases (empty products, disjoint contexts, partial rules)
+- Document proposed behavior for same cases  
+- Identify any cases where output changes → breaking change
+- Test existing configurations with both old and new behavior
+
+### 2. Configuration impact analysis  
+- Test existing partial configurations (per-product rules missing some dimensions)
+- Identify configs that rely on current inheritance/fallback behavior
+- Document migration path for affected configurations
+- Assess complexity of user migration required
+
+### 3. User impact evaluation
+- Assess if changelog tooling is in production use across organization
+- Determine if breaking changes are acceptable given adoption level
+- Plan migration documentation, warnings, and communication strategy
+- Consider phased rollout or feature flags for major changes
+
+**Breaking change is acceptable when**: Tooling not in broad production use AND new behavior is more logical/consistent AND migration path is straightforward.
+
+**Required for all breaking changes**: 
+- Comprehensive before/after behavior documentation  
+- Migration examples showing old vs new configuration patterns
+- Test suite covering both legacy and new behavior during transition
+
 ## Architecture map
 
 Key files and their roles:
@@ -119,6 +148,24 @@ Any plan that touches filter/rule/matching logic **must** include a behavior tab
 
 Reference: "Area matching behavior" and "Per-product rule resolution" tables in `docs/contribute/changelog.md` are the canonical format.
 
+### Critical: Filter semantic consistency across all dimensions
+
+**Before implementing any filter logic**: Verify that ALL filter types (product, type, area) use identical semantic patterns:
+
+- **Rule selection logic**: All filters must use the same precedence algorithm (intersection + alphabetical first-match)
+- **Rule application logic**: All filters must use the same replacement semantics (all-or-nothing vs per-dimension fallback)  
+- **Edge case handling**: All filters must handle disjoint/empty cases identically
+
+**Required semantic consistency validation**:
+1. Document the semantic model (replacement vs inheritance) for each filter dimension
+2. Verify all filter types use the same semantic model - no mixed semantics
+3. Test cross-filter consistency with partial per-product rules
+4. Add tests that verify semantic consistency across filter types
+
+**Example semantic inconsistency bug**: Product filters used per-dimension fallback while type/area used all-or-nothing replacement, creating unintuitive behavior where some global rules were inherited and others weren't.
+
+**Current semantic model**: All-or-nothing replacement - when a per-product rule is selected, it completely replaces global rules for ALL filter dimensions.
+
 ### Critical: Disjoint fallback logic validation
 
 **Context-aware filtering bug pattern**: When implementing intersection-based rules that depend on bundle context, verify disjoint fallback behavior is **logically consistent**:
@@ -199,6 +246,45 @@ rules.bundle.products.<context>.match_products (per-context)
 - Bundle-level fields should inherit from global-level variables
 - Per-context fields should inherit from bundle-level variables (not global-level)
 
+### Systematic precedence validation
+
+**When modifying rule precedence**: Validate the entire precedence chain systematically to prevent inheritance bugs:
+
+**1. Single-source validation**: Each configuration level must have clear, single inheritance source
+- Document which variable each level inherits from
+- Verify variable names match expected inheritance chain
+- Check for accidental inheritance from wrong level (common bug: per-context inheriting from global instead of bundle)
+
+**2. Chain validation**: Global → Bundle → Context inheritance must be explicit and testable
+- Test each inheritance level independently  
+- Test complete chain: verify global value appears at context level when intermediate levels don't override
+- Test override behavior: verify explicit values at each level properly override inherited values
+
+**3. Filter type consistency**: All filter types must use same precedence chain
+- Product filters: inherit through same chain as type/area filters
+- No mixed inheritance patterns between filter dimensions
+- Consistent fallback behavior across all filter types
+
+**4. Edge case precedence**: Document and test precedence for edge cases
+- Empty configurations at various levels
+- Disjoint scenarios (context not matching any configured products)
+- Missing intermediate levels in inheritance chain
+
+**Critical validation pattern**:
+```csharp
+// CORRECT: Per-context inheriting from bundle level
+var contextMatchProducts = matchProducts; // bundle-level variable
+
+// WRONG: Per-context inheriting from global level  
+var contextMatchProducts = inheritedMatch; // global-level variable
+```
+
+**Required precedence tests**: For any new inheritable field:
+1. Global-only test: Set field only at global, verify it propagates correctly
+2. Bundle-override test: Set field at bundle level, verify it overrides global
+3. Context-override test: Set field at context level, verify it overrides bundle  
+4. Chain test: Set different values at all levels, verify context gets context value
+
 ## Owner/repo precedence
 
 **Option-based mode**: `--repo > bundle.repo config`. `--owner > bundle.owner config > "elastic"`. Enforced in `ApplyConfigDefaults`.
@@ -262,6 +348,36 @@ Run with: `dotnet test tests/Elastic.Changelog.Tests/`
 - Must cover: happy path, dry-run (where applicable), error cases (missing inputs, mutual exclusivity), config fallback behavior
 - **Use valid product names**: Only use products from the test environment's allowed list: `cloud-hosted, cloud-serverless, elasticsearch, kibana, security`
 
+### Comprehensive edge case testing requirements
+
+**For any filter/precedence logic change**: Must include tests covering ALL combinations from this matrix:
+
+**Product scenarios**: 
+- Empty products list: `products: []`
+- Single product: `products: [kibana]`  
+- Multi-product: `products: [kibana, security]`
+- Disjoint products: `products: [elasticsearch]` when context is `[kibana, security]`
+
+**Context scenarios**:
+- No bundle context: `--all` mode, no `--output-products`
+- Single context: `--output-products kibana`
+- Multi-context: `--output-products kibana,security`  
+- Disjoint context: context `[security]` with changelog `[elasticsearch]`
+
+**Rule configuration scenarios**:
+- No per-product rules: only global `rules.bundle` 
+- Partial per-product rules: `kibana: { include_areas: [ui] }` (missing type filters)
+- Complete per-product rules: all dimensions defined
+- Conflicting per-product rules: rules that would change global behavior
+
+**Expected behavior documentation**: Create a behavior table showing expected outcome for each significant combination BEFORE implementing the logic.
+
+**Systematic edge case validation**:
+1. **Matrix coverage**: Test at least one example from each major combination category
+2. **Boundary testing**: Test edge cases like empty arrays, single items, complete overlaps
+3. **Consistency validation**: Verify same logical scenario produces consistent results across all filter types
+4. **Regression prevention**: Add tests for any bugs found during development
+
 **Inheritance tests required for any inheritable field:**
 
 - Test global → bundle inheritance: field set only at global level should propagate to bundle
@@ -296,6 +412,72 @@ public void BundleChangelogs_DisjointWithConflictingRule_UsesGlobalRules()
 }
 ```
 
+### Cross-filter integration testing
+
+**For changes affecting multiple filter dimensions**: Add integration tests that verify filter types work together correctly:
+
+**1. Filter interaction tests**:
+- Test entries that should pass product filters but fail type filters
+- Test entries that should fail product filters but pass type filters  
+- Test entries with complex multi-dimensional filtering (product AND type AND area)
+- Verify filter order doesn't affect final outcome
+
+**2. Precedence consistency tests**:
+- Same changelog tested against multiple contexts to verify consistent rule selection
+- Multi-product changelog tested with overlapping and disjoint contexts
+- Verify same precedence algorithm used for all filter types
+
+**3. Configuration permutation tests**:
+- Global-only configuration vs per-product-only vs mixed configurations
+- Partial per-product rules vs complete per-product rules
+- Conflicting rules (global vs per-product that produce opposite outcomes)
+
+**Example integration test pattern**:
+```csharp
+[Test]
+public void FilterIntegration_ProductPassTypesFail_ProducesCorrectResult()
+{
+    // Config: global exclude_types: [docs], kibana include_products: [kibana]
+    // Entry: products: [kibana], type: docs, areas: [ui]
+    // With all-or-nothing: kibana rule replaces global → entry included  
+    // With per-dimension: product pass + type fail → entry excluded
+}
+```
+
+**Critical integration validation**: After any semantic change, run full test suite to catch unexpected interactions between filter types.
+
+## Documentation accuracy validation
+
+**After any filter/precedence logic change**: Verify documentation accurately reflects actual implementation behavior:
+
+### 1. Precedence documentation accuracy
+- **Test documented precedence**: For each documented precedence rule, write a test that verifies the rule matches implementation
+- **Validate examples**: Test all code examples in documentation against actual system behavior  
+- **Cross-reference validation**: Ensure CLI docs, contribute guide, and inline comments describe same behavior
+
+### 2. Fallback behavior verification  
+- **Document all fallbacks**: Every fallback case (disjoint, empty, missing config) must be documented with examples
+- **Test fallback claims**: Each documented fallback must have corresponding test proving it works as described
+- **Edge case coverage**: Documentation must cover all edge cases handled in code
+
+### 3. Semantic model documentation
+- **Rule application semantics**: Document whether rules use replacement vs inheritance semantics
+- **Filter consistency**: Ensure all filter types are documented with same semantic model  
+- **Breaking change clarity**: When semantics change, clearly document old vs new behavior with migration examples
+
+### 4. Example validation process
+- **Live example testing**: Every configuration example in docs must be tested against actual implementation
+- **Example coverage**: Examples should demonstrate edge cases, not just happy path
+- **Version alignment**: Examples must reflect current implementation, not outdated behavior
+
+**Required after any logic change**: 
+1. Test all existing documentation examples against new implementation
+2. Update any examples that no longer work or produce different output
+3. Add new examples for any new edge cases or behaviors introduced
+4. Verify cross-references between CLI docs and contribute guide remain accurate
+
+**Documentation debt prevention**: Any time code behavior changes, corresponding documentation change is mandatory in same commit.
+
 ## Documentation checklist
 
 Every change must update the relevant files:
@@ -321,3 +503,35 @@ Per-feature checklist:
 - Precedence chain → document explicitly in option description and contribute guide
 - **Fallback chain** for any option or field → document the full resolution order explicitly (for example: "CLI flag > profile field > bundle-level default > hardcoded default"). Use a table when there are more than two levels. **Never mark a field as "required" without first verifying that no fallback exists** in `ApplyConfigDefaults`, `ChangelogConfigurationLoader`, or the relevant service.
 - **Rule/filter logic change** → add or update a behavior table in `docs/contribute/changelog.md` following the format of the existing "Area matching behavior" and "Per-product rule resolution" tables. The plan for the change must include the proposed table before implementation begins.
+
+## Architectural consistency validation
+
+**Before starting any major filter/precedence changes**: Validate architectural consistency to prevent lengthy refactoring cycles:
+
+### 1. Cross-dimensional consistency check
+- **Semantic alignment**: Ensure all filter dimensions (product, type, area) use same semantic model
+- **Precedence alignment**: Verify all filters use same rule selection algorithm
+- **Edge case alignment**: Check that all filters handle edge cases identically
+- **Implementation consistency**: Look for mixed patterns in existing code before extending
+
+### 2. Upfront architectural decisions
+Document these decisions BEFORE implementation:
+- **Replacement vs inheritance**: Will new rules completely replace or merge with existing rules?
+- **Precedence algorithm**: What algorithm determines which rule applies? 
+- **Edge case behavior**: How will empty/disjoint/missing cases be handled?
+- **Breaking change scope**: What existing behavior will change and is it acceptable?
+
+### 3. Implementation approach validation
+- **Incremental vs comprehensive**: Can change be made incrementally or requires comprehensive overhaul?
+- **Backward compatibility**: What compatibility guarantees are needed?
+- **Migration complexity**: How difficult will migration be for existing users?
+- **Test strategy**: What test patterns will validate the new behavior?
+
+**Red flags requiring architectural review**:
+- Mixed semantic models across filter types
+- Inconsistent precedence algorithms  
+- Ad-hoc edge case handling
+- Complex inheritance chains without systematic validation
+- Filter logic that works differently for different input methods
+
+**Prevention strategy**: Spend time upfront documenting the complete architectural approach rather than implementing incrementally and discovering inconsistencies later.
