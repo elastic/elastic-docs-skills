@@ -1,6 +1,6 @@
 ---
 name: docs-review-changelog
-version: 1.0.0
+version: 1.0.1
 description: Validate and assess the quality of Elastic changelog YAML files. Reports schema errors, content quality issues, and formatting problems by type. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
@@ -52,6 +52,9 @@ These are hard errors. The source of truth for the schema is `ChangelogEntry.cs`
 - `subtype`: only permitted on `breaking-change` entries; value must be one of: `api`, `behavioral`, `configuration`, `dependency`, `subscription`, `plugin`, `security`, `other`
 - `description` if present: max 600 characters
 - `prs` and `issues`: optional arrays, may be empty or absent — no validation beyond YAML type correctness
+- `areas` if present: optional array of strings denoting affected product areas/components — no validation beyond YAML type correctness
+- `feature-id` if present: optional string for feature flag tracking — no validation beyond YAML type correctness
+- `highlight` if present: must be boolean (`true` or `false`) — flags the entry for inclusion in release highlights
 
 **YAML quoting:** Text field values (`title`, `description`, `impact`, `action`) that contain `: ` (colon followed by a space) MUST be wrapped in quotes — an unquoted value containing `: ` is interpreted as the start of a new mapping key and causes a "While scanning a plain scalar value, found invalid mapping" error at bundle time. Also flag unquoted values containing `#`, `[`, `]`, `{`, or `}` as these can also cause parse failures.
 

@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.0.4
+version: 1.0.5
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 context: fork
@@ -154,6 +154,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 
 ### UI writing
 
+- **Select vs Click**: Use "select" when the user is *choosing* an option, toggling a state, or picking from a set (checkboxes, dropdowns, radio buttons, tabs). Use "click" when the user is *performing an action* (clicking a button, following a link, activating an icon). Do not use "select" for action buttons ("❌ Select **Save** to confirm" → "✅ Click **Save** to confirm") and do not use "click" for options ("❌ Click the checkbox" → "✅ Select the checkbox").
 - **Buttons**: "Click **Save**" — don't add "button" after the label.
 - **Checkboxes/radio buttons**: "Select **Logs**" / "Clear **Metrics**."
 - **Text fields**: "In the **Name** field, enter `value`."
@@ -161,6 +162,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Keys**: "Press Enter" / "Press Command+Alt+L."
 - **Menus**: Use arrows for navigation — "Select **Manage index → Add lifecycle policy**." Do **not** use the verbs "open" or "close" for menus; use "From the menu,..." instead. Refer to the element as "menu" — not "dropdown menu" or "dropdown list."
 - **Icons**: Reference by tooltip text, include inline icon. Avoid parentheses around icons.
+- **App navigation**: When referencing a Kibana app or page, use solution-agnostic patterns rather than prescribing a specific menu path. Preferred patterns: "Find **App** in the main menu or use the [global search field](…)." or "To open **Page**, find **Parent** in the main menu or use the global search field." Flag references that prescribe a fixed navigation sequence (e.g., "Open the hamburger menu, then click Analytics, then click Discover") — these break across deployment types.
 - **Procedures**: 5–9 steps. Focus on use cases, not piece-by-piece UI description. Eliminate obvious steps.
 - **Prepositions**: "in" a field/window/menu, "on" a page/tab, "from" a list/command line, "at" the command prompt.
 
