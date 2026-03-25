@@ -1,5 +1,5 @@
 ---
-name: validate-code-samples
+name: docs-validate-code-samples
 version: 1.2.0
 description: Validate code samples in Elastic documentation markdown files. Checks language identifiers, substitution attributes, callout usage, JSON validity, ES|QL syntax, and Painless scripts. Use when reviewing docs PRs, auditing content, or writing new examples.
 disable-model-invocation: true
