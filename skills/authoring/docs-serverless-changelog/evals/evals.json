@@ -1,0 +1,52 @@
+{
+  "skill_name": "docs-serverless-changelog",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Convert this raw release notes output into Serverless changelog format for March 23, 2026. File is at ./raw-serverless-rn.md. Use gh to fetch PR context and docs-content release-notes/elastic-cloud-serverless for style.",
+      "expected_output": "A single fenced Markdown code block with ## March 23, 2026 [serverless-changelog-03232026], two ### sections (Features and enhancements, Fixes) with correct anchors, asterisk bullets with verb-first phrasing and {{kib-pull}}/{{es-pull}} PR links, plus a Notes (Confidence + Assumptions) section.",
+      "expectations": [
+        "Output contains exactly one ## header and two ### headers in the required order",
+        "Anchors follow serverless-changelog-MMDDYYYY pattern with zero-padded date",
+        "Bullets use asterisks (*) not dashes (-)",
+        "Bullets start with active verbs (Adds, Fixes, Improves, etc.) in present tense",
+        "Notes section explicitly calls out low-confidence bullets or assumptions",
+        "PR links use [#123456]({{kib-pull}}123456) or [#123456]({{es-pull}}123456) format",
+        "No component sub-headings from the tool (e.g. Discover, Management) appear in the output"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Convert this serverless release notes that includes new Azure region announcements (East US 2, Germany West Central) and some items without PR numbers. File at ./raw-rn-regions.md for April 15, 2026.",
+      "expected_output": "Serverless changelog with region announcements using nested bullet lists, items without PR numbers formatted as standalone bullets, and Notes flagging entries without PR context.",
+      "expectations": [
+        "Region announcements use nested asterisk bullet lists",
+        "Entries without PR numbers do not include a [#]({{...}}) link",
+        "Notes section mentions missing PR numbers or reduced confidence where applicable",
+        "Uses {{serverless-full}} variable for Elastic Cloud Serverless references",
+        "Top anchor is serverless-changelog-04152026"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check the formatting of our existing Serverless changelog and suggest improvements.",
+      "expected_output": "Skill does NOT review existing changelog content; it is for converting raw release notes tool output into Serverless changelog format. User asked for review, not conversion.",
+      "expectations": [
+        "Does NOT output a full ## Date [serverless-changelog-MMDDYYYY] block with Features and Fixes",
+        "Either declines or suggests using the correct task; does not treat this as a raw RN conversion request"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The raw tool output has a 'Breaking changes' section and a 'Known issues' section alongside features and fixes. Convert it to Serverless changelog format for May 1, 2026.",
+      "expected_output": "Changelog with only Features and enhancements and Fixes sections; breaking changes and known issues mapped into those two sections, with mapping decisions explained in Notes.",
+      "expectations": [
+        "Output has only two ### sections: Features and enhancements, then Fixes",
+        "No ### Breaking changes or ### Known issues headings appear",
+        "Notes section records how unexpected sections were mapped",
+        "Uses serverless-changelog-05012026 anchor",
+        "Product variables like {{esql}}, {{fleet}}, {{agent}} used where appropriate"
+      ]
+    }
+  ]
+}
