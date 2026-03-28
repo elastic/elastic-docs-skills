@@ -1,5 +1,5 @@
 ---
-name: changelog-config-validator
+name: docs-changelog-config
 version: 1.0.0
 description: Validate, explain, and troubleshoot changelog configuration files. Analyze changelog.yml for correctness, explain how rules affect command behavior, and help diagnose filtering issues.
 allowed-tools: Read, Grep, Glob, SemanticSearch, WebSearch
