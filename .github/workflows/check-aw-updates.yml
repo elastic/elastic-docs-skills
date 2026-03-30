@@ -34,7 +34,7 @@ jobs:
     name: Check for gh-aw updates and recompile lock files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install gh-aw
         run: gh extension install github/gh-aw
@@ -71,6 +71,7 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
+          token: ${{ secrets.GH_PAT }}
           commit-message: |
             Update gh-aw lock files
 
