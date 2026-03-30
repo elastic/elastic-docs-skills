@@ -70,6 +70,8 @@ jobs:
       - name: Create pull request
         if: steps.changes.outputs.changed == 'true'
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           branch="automated/gh-aw-update-$(date +%Y%m%d)"
           git checkout -b "$branch"
           git add .github/workflows/*.lock.yml .github/aw/actions-lock.json
