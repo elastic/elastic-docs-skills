@@ -25,7 +25,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  workflows: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -70,21 +69,16 @@ jobs:
 
       - name: Create pull request
         if: steps.changes.outputs.changed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          branch="automated/gh-aw-update-$(date +%Y%m%d)"
-          git checkout -b "$branch"
-          git add .github/workflows/*.lock.yml .github/aw/actions-lock.json
-          git commit -m "Update gh-aw lock files
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: |
+            Update gh-aw lock files
 
-          Automated recompilation of gh-aw workflow lock files."
-          git push -u origin "$branch"
-          gh pr create \
-            --title "Update gh-aw lock files" \
-            --body "Automated weekly check detected updated gh-aw lock files after recompilation.
+            Automated recompilation of gh-aw workflow lock files.
+          branch: automated/gh-aw-update
+          title: Update gh-aw lock files
+          body: |
+            Automated weekly check detected updated gh-aw lock files after recompilation.
 
-          Review the lock file diffs to verify the changes are expected." \
-            --label "automated"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            Review the lock file diffs to verify the changes are expected.
+          labels: automated
