@@ -1,0 +1,24 @@
+{
+  "name": "elastic-docs-skills",
+  "owner": {
+    "name": "Elastic",
+    "email": "docs@elastic.co"
+  },
+  "metadata": {
+    "description": "Claude Code skills for Elastic documentation workflows — authoring, review, and publishing.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "elastic-docs-skills",
+      "source": ".",
+      "description": "Claude Code skills for Elastic documentation workflows — authoring, review, and publishing.",
+      "author": {
+        "name": "Elastic"
+      },
+      "homepage": "https://elastic.github.io/elastic-docs-skills",
+      "repository": "https://github.com/elastic/elastic-docs-skills",
+      "license": "Apache-2.0"
+    }
+  ]
+}

@@ -8,10 +8,11 @@ Browse the catalog, pick the skills you need, and install them with a single com
 
 ### Claude Code plugin (recommended)
 
-Install as a Claude Code plugin — no clone required:
+Add the marketplace and install — no clone required:
 
 ```
-/plugin install https://github.com/elastic/elastic-docs-skills
+/plugin marketplace add https://github.com/elastic/elastic-docs-skills
+/plugin install elastic-docs-skills@elastic-docs-skills
 ```
 
 Skills are available immediately as `/elastic-docs-skills:<skill-name>`, for example:
