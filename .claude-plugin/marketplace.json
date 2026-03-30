@@ -11,10 +11,7 @@
   "plugins": [
     {
       "name": "elastic-docs-skills",
-      "source": {
-        "source": "github",
-        "repo": "elastic/elastic-docs-skills"
-      },
+      "source": "./",
       "description": "Claude Code skills for Elastic documentation workflows — authoring, review, and publishing.",
       "author": {
         "name": "Elastic"
