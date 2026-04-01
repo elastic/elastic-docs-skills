@@ -1,6 +1,6 @@
 ---
 name: docs-review-changelog
-version: 1.0.0
+version: 1.0.1
 description: Validate and assess the quality of Elastic changelog YAML files. Reports schema errors, content quality issues, and formatting problems by type. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
@@ -47,11 +47,17 @@ These are hard errors. The source of truth for the schema is `ChangelogEntry.cs`
 
 **Product ID validation:** Fetch `https://raw.githubusercontent.com/elastic/docs-builder/main/config/products.yml` to get the canonical list — valid IDs are the top-level keys under `products:`. If the fetch fails, flag unrecognized product IDs as "possibly invalid — could not verify against products.yml" rather than as errors.
 
-**Optional field constraints:**
-- `lifecycle` if present: must be `preview`, `beta`, or `ga`
+**Optional field constraints (top level):**
 - `subtype`: only permitted on `breaking-change` entries; value must be one of: `api`, `behavioral`, `configuration`, `dependency`, `subscription`, `plugin`, `security`, `other`
 - `description` if present: max 600 characters
+- `areas` if present: optional array of strings denoting affected components or product areas (e.g. `[ES|QL, Machine Learning]`) — no validation beyond YAML type correctness
+- `feature-id` if present: optional string for associating the entry with a feature flag — no validation beyond YAML type correctness
+- `highlight` if present: optional boolean (`true` or `false`) — flag non-boolean values as schema errors
 - `prs` and `issues`: optional arrays, may be empty or absent — no validation beyond YAML type correctness
+
+**Optional field constraints within each `products` entry:**
+- `target` if present: optional string (target version number or release date) — no validation beyond YAML type correctness
+- `lifecycle` if present: must be `preview`, `beta`, or `ga`
 
 **YAML quoting:** Text field values (`title`, `description`, `impact`, `action`) that contain `: ` (colon followed by a space) MUST be wrapped in quotes — an unquoted value containing `: ` is interpreted as the start of a new mapping key and causes a "While scanning a plain scalar value, found invalid mapping" error at bundle time. Also flag unquoted values containing `#`, `[`, `]`, `{`, or `}` as these can also cause parse failures.
 

@@ -1,6 +1,6 @@
 ---
 name: docs-fix-changelog
-version: 1.0.0
+version: 1.0.1
 description: Suggest improved text for weak or missing fields in Elastic changelog YAML files. Accepts optional PR or issue context (title, description, diff, linked issues) to produce better suggestions. Use after docs-review-changelog identifies quality issues, or when drafting a new changelog from a PR or issue.
 argument-hint: "[changelog-file] [pr/issue-context]"
 allowed-tools: Read, Grep, Glob
@@ -57,6 +57,7 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 
 - `title`: too vague, implementation-focused, wrong tense, missing action verb, or over 80 characters
 - `description`: absent but would add value, or present but low quality (repeats title, says "See PR", says "Internal refactoring")
+- `areas`: absent on `feature` or `enhancement` entries where the affected component or product area is clearly identifiable from context — flag as a low-priority improvement opportunity
 - `impact` / `action`: absent on `breaking-change`, `deprecation`, or `known-issue`
 
 Also check for formatting anti-patterns in existing `description`, `impact`, and `action` values:
@@ -66,7 +67,7 @@ Also check for formatting anti-patterns in existing `description`, `impact`, and
 - Unquoted values containing `: ` (colon + space), `#`, `[`, `]`, `{`, or `}` — these cause YAML parse errors
 
 **Mode B** — determine which fields to suggest based on `type` (ask if unknown):
-- All types: `title` (required), `description` (recommended)
+- All types: `title` (required), `description` (recommended), `areas` (optional — suggest when the affected component or product area is clear from context)
 - `breaking-change`, `deprecation`, `known-issue`: also `impact` and `action`
 
 ## Step 4: Generate suggestions
@@ -91,7 +92,7 @@ docs-builder changelog add \
 
 Omit `--impact` and `--action` when not applicable to the type. Note that inside shell-quoted values, backticks must be escaped with a backslash (`` \` ``) and double quotes must be escaped (`\"`).
 
-Remind the user that `--products`, `--prs`, `--issues`, and other non-text options must be provided separately. Refer them to `docs-builder changelog add --help` for the full list.
+Remind the user that `--products`, `--prs`, `--issues`, `--areas`, and other non-text options must be provided separately. Refer them to `docs-builder changelog add --help` for the full list.
 
 ### Type-specific guidance
 
