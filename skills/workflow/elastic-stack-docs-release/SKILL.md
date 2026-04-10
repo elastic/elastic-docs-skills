@@ -1,5 +1,5 @@
 ---
-name: elastic-stack-docs-release
+name: docs-stack-release
 version: 1.0.0
 description: >-
   Executable runbook: classify Stack versions, route 8.x vs 9.x, open draft PRs,
