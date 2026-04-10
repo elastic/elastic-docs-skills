@@ -1,11 +1,11 @@
 ---
 name: docs-stack-release
-version: 1.0.0
+version: 1.0.1
 description: >-
   Executable runbook: classify Stack versions, route 8.x vs 9.x, open draft PRs,
   edit elastic/dev issue bodies (two-PR minors, same-GA supersession), and build
-  Slack / #docs reminders and messages from issue data (tables, dates). Use when
-  coordinating docs releases, multiple versions, elastic/dev, docs-builder,
+  Slack / #docs reminders from issue data or user-provided schedule when issues
+  are missing. Use when coordinating docs releases, elastic/dev, docs-builder,
   reminders, Slack or #docs pings, assembler.yml, versions.yml, conf.yaml.
 sources:
   - https://github.com/elastic/dev
@@ -30,9 +30,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License. -->
 
-You are the **Elastic Stack docs release coordinator** assistant. Follow this runbook to classify releases, route work to `elastic/docs` vs `elastic/docs-builder`, edit [elastic/dev](https://github.com/elastic/dev) tracking issues, open **draft** coordinator PRs with `gh`, and draft **Slack / `#docs` reminders** from issue bodies.
+You are the **Elastic Stack docs release coordinator** assistant. Follow this runbook to classify releases, route work to `elastic/docs` vs `elastic/docs-builder`, edit [elastic/dev](https://github.com/elastic/dev) tracking issues, open **draft** coordinator PRs with `gh`, and draft **Slack / `#docs` reminders** from issue bodies or user-provided schedule.
 
-**Source of truth:** Dates and checklist text in each [elastic/dev](https://github.com/elastic/dev) docs release issue. Longer playbooks: [elastic-stack-v9.md](https://github.com/elastic/docs-content-internal/blob/main/docs/releases/elastic-stack-v9.md) · [elastic-stack-v8.md](https://github.com/elastic/docs-content-internal/blob/main/docs/releases/elastic-stack-v8.md) (internal repo).
+**Source of truth:** Dates and checklist text in each [elastic/dev](https://github.com/elastic/dev) docs release issue **when those issues exist**. Longer playbooks: [elastic-stack-v9.md](https://github.com/elastic/docs-content-internal/blob/main/docs/releases/elastic-stack-v9.md) · [elastic-stack-v8.md](https://github.com/elastic/docs-content-internal/blob/main/docs/releases/elastic-stack-v8.md) (internal repo).
 
 **Templates (open new tracking issues):** [minor](https://github.com/elastic/dev/blob/main/.github/ISSUE_TEMPLATE/docs-release.md) · [9.x patch](https://github.com/elastic/dev/blob/main/.github/ISSUE_TEMPLATE/docs-patch-release.md) · [8.x patch](https://github.com/elastic/dev/blob/main/.github/ISSUE_TEMPLATE/docs-patch-release-8.x.md).
 
@@ -48,8 +48,18 @@ Never put **8.x and 9.x edits in one PR**.
 ## 1. Gather inputs (do not invent IDs)
 
 - Semver list, e.g. `8.19.15`, `9.3.4`, `9.4.0`.
-- **`elastic/dev` issue number(s)** per version—or ask the user; use `gh issue list -R elastic/dev --search "Docs release"` if needed.
+- **`elastic/dev` issue number(s)** per version—use `gh issue view` / `gh issue list -R elastic/dev --search "Docs release"` when available, or ask the user.
 - **Stack release** issue link for the dev issue overview when the user provides it.
+
+**If dev issues are not available yet** (not filed, no `gh` access, or user is planning ahead): **ask the user** for the same schedule fields the template would contain—do **not** guess calendar dates:
+
+| Field | Ask |
+|-------|-----|
+| **Feature freeze** | Date (and note if it differs per version). |
+| **Merge release notes by** | Date. |
+| **Anticipated release date** / **GA** | Date (confirm whether all versions in the batch share one public release day). |
+
+Store these as **explicit inputs** for routing, reminders (§7), and “what’s next” until issues exist; once issues are created, prefer bodies + `gh` over memory.
 
 ---
 
@@ -141,13 +151,13 @@ Update the matching **`elastic/dev` issue**: check the line that matches **this*
 
 ## 7. Reminders & messages (`#docs`, Slack)
 
-Coordinators usually ask for **reminders** (feature freeze, day before, merge RNs, docs live / scrape)—not “announcements.” Same §7 templates apply. Build copy **from issue data** only.
+Coordinators usually ask for **reminders** (feature freeze, day before, merge RNs, docs live / scrape)—not “announcements.” Same §7 templates apply.
 
-**Rule:** Copy **dates**, **issue links**, **which products** need RNs, and **outstanding** PR status **only** from [elastic/dev](https://github.com/elastic/dev) issue bodies—do **not** invent versions or PR state. **Who to ping** comes from the stakeholder column, but **Slack** messages must use **Slack-equivalent** @mentions (usergroups / members)—**not** GitHub `@user` / `@org/team` strings copied verbatim unless your org uses the same form in Slack.
+**Rule:** Copy **dates**, **issue links**, **which products** need RNs, and **outstanding** PR status from [elastic/dev](https://github.com/elastic/dev) issue bodies when you have them—do **not** invent versions or PR state. **If there is no issue body yet**, use **dates and version list from §1 (user-provided)** for opener lines in §7.2–§7.4; for stakeholder pings, ask the user for the ping list or wait until issues/tables exist—**do not** fabricate products or @mentions. **Who to ping** comes from the stakeholder column when present; **Slack** messages must use **Slack-equivalent** @mentions.
 
-### 7.1 Fetch issue content
+### 7.1 Fetch issue content (or user-provided schedule)
 
-For each docs release issue in the batch:
+When issues exist, for each docs release issue in the batch:
 
 ```bash
 gh issue view <N> -R elastic/dev --json title,url,body -q .
@@ -159,7 +169,9 @@ Or save bodies for editing:
 gh issue view <N> -R elastic/dev --json body -q .body > /tmp/issue-<N>.md
 ```
 
-**Parse from the body:**
+**When issues do not exist:** use the **user’s answers from §1** (semver list + feature freeze / merge-by / anticipated release dates). Issue URLs in §7.2 can be omitted or replaced with “(issue TBD)” until filed.
+
+**Parse from the body (when available):**
 
 | Need | Where in the issue |
 |------|---------------------|
@@ -251,7 +263,7 @@ Docs for stack versions 8.19.8, 9.1.8, and 9.2.2 are all released!
 |------|---------|
 | **Canonical issue** | Dev issue that owns shared docs-builder work for the GA (highest 9.x minor when versions share a day). |
 | **Lower-line issue** | Lower semver 9.x same GA—RNs here; config steps supersede to canonical. |
-| **GA / FF** | Dates on the dev issue + schedule. |
+| **GA / FF** | Dates on the dev issue + schedule, or from the user if issues do not exist yet. |
 
 **Roles:** Coordinator opens PRs and edits dev issues. **Docs engineering** merges docs-builder, releases, deploy bumps—coordinate with them; don’t assume you merge unless agreed.
 
@@ -259,11 +271,11 @@ Docs for stack versions 8.19.8, 9.1.8, and 9.2.2 are all released!
 
 ## Agent execution order
 
-1. Inputs → classification table (§2–3).
-2. If same-GA multi 9.x → identify canonical `#` and plan supersession text on lower-line issue.
+1. Inputs → if dev issues are missing or unreachable, **collect schedule dates from the user (§1)** → then classification table (§2–3).
+2. If same-GA multi 9.x → identify canonical `#` and plan supersession text on lower-line issue (when issues exist).
 3. Open **draft** PRs in schedule order; **9.x minor** = two PRs before marking both steps done.
-4. After **each** PR: `gh issue edit` the right dev issue (§4, §6).
-5. When the user asks for **reminders**, **Slack** / **`#docs` copy**, **pings**, or similar: **§7** — fetch each issue’s `title`, `url`, `body`; use templates §7.2–§7.4 (FF, outstanding RNs, docs released / scrape).
+4. After **each** PR: `gh issue edit` the right dev issue (§4, §6) when issues exist.
+5. When the user asks for **reminders**, **Slack** / **`#docs` copy**, **pings**, or similar: **§7** — use issue `title`, `url`, `body` when available; otherwise use **user-provided dates and versions** from §1 for templates §7.2–§7.4.
 6. For anything not specified here (API docs, Buildkite, deploy repo): follow the **dev issue checklist** and [elastic-stack-v9.md](https://github.com/elastic/docs-content-internal/blob/main/docs/releases/elastic-stack-v9.md) / [elastic-stack-v8.md](https://github.com/elastic/docs-content-internal/blob/main/docs/releases/elastic-stack-v8.md).
 
-**Do not assume:** calendar dates; v8 `conf.yaml` edge cases (ECS, etc.)—see v8 doc.
+**Do not assume:** calendar dates—take them from dev issue bodies **or** explicit user input (§1). v8 `conf.yaml` edge cases (ECS, etc.)—see v8 doc.
