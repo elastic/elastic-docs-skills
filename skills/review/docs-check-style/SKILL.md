@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.0.4
+version: 1.0.5
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 context: fork
@@ -147,7 +147,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Alt text**: Required for all images, icons, and media. No backticks in alt text.
 - **Link text**: Descriptive — never "click here" or bare URLs.
 - **No directional language**: Avoid "above," "below," "left," "right" for positional references.
-- **Device-neutral verbs**: Use "select" instead of "click" for general actions. "Click" is acceptable only for explicit mouse actions.
+- **Device-neutral verbs**: Prefer device-neutral language. Use "select" for choices — tabs, checkboxes, dropdowns, and radio buttons. Use "click" for button actions, icons, and following links. Avoid "click" when the user is making a selection rather than triggering an action.
 - **Plain language**: Short sentences. Expand acronyms on first use. Parallel structures in lists.
 - **Gender-neutral**: Use they/their. Replace gendered defaults (use "folks" not "guys").
 - **Avoid**: Buzzwords, superhero terms, violent imagery, ableist language, non-specific superlatives.
@@ -156,6 +156,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 
 - **Buttons**: "Click **Save**" — don't add "button" after the label.
 - **Checkboxes/radio buttons**: "Select **Logs**" / "Clear **Metrics**."
+- **Select vs. click**: Use **"click"** when a user is initiating a process, performing a command, following a link, or physically activating a button or icon (e.g., "Click **Save**", "Click the **Help** icon"). Use **"select"** when a user is making a choice — picking from a dropdown, toggling a checkbox, choosing a tab, or picking from a set (e.g., "Select the **Logs** tab", "Select the **Enforce HTTPS** checkbox"). ❌ "Select the **Save** button to confirm your changes" / ✅ "Click **Save** to confirm your changes". ❌ "Click **Logs**" [for a tab] / ✅ "Select the **Logs** tab to view events".
 - **Text fields**: "In the **Name** field, enter `value`."
 - **Toggles**: "Turn on **Feature**" / "Turn off **Feature**" — not "enable/disable" as verbs. Use "toggle" as a **noun** to refer to the UI element (e.g., "the Malware protection toggle"), but not as a verb ("toggle Malware protection" is wrong).
 - **Keys**: "Press Enter" / "Press Command+Alt+L."
