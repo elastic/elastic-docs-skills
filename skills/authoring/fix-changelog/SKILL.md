@@ -1,6 +1,6 @@
 ---
 name: docs-fix-changelog
-version: 1.0.0
+version: 1.0.1
 description: Suggest improved text for weak or missing fields in Elastic changelog YAML files. Accepts optional PR or issue context (title, description, diff, linked issues) to produce better suggestions. Use after docs-review-changelog identifies quality issues, or when drafting a new changelog from a PR or issue.
 argument-hint: "[changelog-file] [pr/issue-context]"
 allowed-tools: Read, Grep, Glob
@@ -58,6 +58,8 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 - `title`: too vague, implementation-focused, wrong tense, missing action verb, or over 80 characters
 - `description`: absent but would add value, or present but low quality (repeats title, says "See PR", says "Internal refactoring")
 - `impact` / `action`: absent on `breaking-change`, `deprecation`, or `known-issue`
+- `areas` if present: must be an array of strings; flag if it contains values that don't look like valid product area names
+- `feature-id` if present: must be a string; no content quality check needed, just YAML type correctness
 
 Also check for formatting anti-patterns in existing `description`, `impact`, and `action` values:
 - Bare URLs used as link text

@@ -1,6 +1,6 @@
 ---
 name: docs-review-changelog
-version: 1.0.0
+version: 1.0.1
 description: Validate and assess the quality of Elastic changelog YAML files. Reports schema errors, content quality issues, and formatting problems by type. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
@@ -48,10 +48,13 @@ These are hard errors. The source of truth for the schema is `ChangelogEntry.cs`
 **Product ID validation:** Fetch `https://raw.githubusercontent.com/elastic/docs-builder/main/config/products.yml` to get the canonical list — valid IDs are the top-level keys under `products:`. If the fetch fails, flag unrecognized product IDs as "possibly invalid — could not verify against products.yml" rather than as errors.
 
 **Optional field constraints:**
-- `lifecycle` if present: must be `preview`, `beta`, or `ga`
+- `products[n].lifecycle` if present on any product entry: must be `preview`, `beta`, or `ga`
 - `subtype`: only permitted on `breaking-change` entries; value must be one of: `api`, `behavioral`, `configuration`, `dependency`, `subscription`, `plugin`, `security`, `other`
 - `description` if present: max 600 characters
 - `prs` and `issues`: optional arrays, may be empty or absent — no validation beyond YAML type correctness
+- `areas` if present: must be an array of strings — denotes the parts/components/services of the product specifically affected
+- `feature-id` if present: must be a string — used to associate a change with a unique feature flag
+- `highlight` if present: must be a boolean — marks entries for inclusion in release highlights
 
 **YAML quoting:** Text field values (`title`, `description`, `impact`, `action`) that contain `: ` (colon followed by a space) MUST be wrapped in quotes — an unquoted value containing `: ` is interpreted as the start of a new mapping key and causes a "While scanning a plain scalar value, found invalid mapping" error at bundle time. Also flag unquoted values containing `#`, `[`, `]`, `{`, or `}` as these can also cause parse failures.
 
