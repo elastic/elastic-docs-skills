@@ -1,11 +1,12 @@
 ---
 name: docs-frontmatter-audit
-version: 1.0.1
+version: 1.1.0
 description: Audit Elastic documentation files for frontmatter completeness and correctness. Checks applies_to, products, description, and navigation_title fields across a directory. Use when auditing docs metadata, checking frontmatter quality before publishing, or validating a batch of files.
 argument-hint: <file-or-directory>
 context: fork
-allowed-tools: Read, Grep, Glob
+allowed-tools: Read, Grep, Glob, CallMcpTool, WebFetch
 sources:
+  - https://elastic.github.io/docs-builder/syntax/frontmatter/
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/reference
   - https://developers.google.com/search/docs/appearance/snippet
 ---
@@ -32,7 +33,7 @@ You are a frontmatter auditor for Elastic documentation. Your job is to check al
 
 `$ARGUMENTS` is a file path or directory to audit. If empty, ask the user what to audit.
 
-Before starting, ask the user to confirm these configuration defaults or provide overrides:
+Use these configuration defaults unless the user provides overrides. Ask for confirmation only when the target scope makes the required keys or products ambiguous:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
@@ -49,7 +50,7 @@ Check each file for the following elements:
 Every page must have `applies_to` in its frontmatter. Verify:
 - Presence of all configured required keys
 - Valid lifecycle values: `preview`, `beta`, `ga`, `deprecated`, `removed`, `unavailable`
-- Valid version syntax if present (e.g., `ga 9.1`, `preview 9.0, ga 9.2`)
+- Valid version syntax if present (for example, `ga 9.1+`, `preview =9.0`, `beta 9.1-9.2`, `preview =9.0, ga 9.2+`)
 - No mixed dimensions (stack/serverless keys should not be combined with deployment keys)
 
 ```yaml
@@ -62,7 +63,7 @@ Flag files missing this element or missing required keys. Preserve existing vers
 
 ### 2. `products` (mandatory)
 
-Must include the configured required product IDs. May include additional products.
+Must include the configured required product IDs. May include additional products. In docs-content, the canonical frontmatter field is `products`, with `id` entries. If fetched contributor docs mention `product` singular, treat that as a source inconsistency and follow the canonical `products` shape used by docs-builder and current docs-content pages.
 
 ```yaml
 products:
@@ -70,6 +71,7 @@ products:
 ```
 
 Flag files missing this element or missing required products. Don't remove existing additional products.
+Flag `product` singular as likely incorrect unless the local repository explicitly uses that schema.
 
 ### 3. `description` (mandatory)
 
@@ -79,8 +81,8 @@ Validate against these rules:
 - Complete sentence (not a fragment or label)
 - No Jinja2 substitution variables (`{{kib}}`, `{{es}}`, `{{esql}}` — these aren't parsed in frontmatter)
 - No label prefixes ("Reference -", "Tutorial -", "Guide -")
-- Action-oriented (starts with a verb or content-type indicator)
-- No colons that could break YAML parsing
+- Clear, user-facing summary of the page content
+- Quoted if it contains punctuation or characters that could be misread by YAML, including colons
 
 ### 4. `navigation_title` (recommended)
 

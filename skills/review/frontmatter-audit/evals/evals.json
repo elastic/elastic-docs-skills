@@ -57,6 +57,28 @@
         "Flags the missing 'products' element",
         "Produces a structured report with these issues"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Audit this file's frontmatter:\n\n---\napplies_to:\n  stack: ga\nproducts:\n  - id: elasticsearch\ndescription: Index lifecycle management automates index transitions through phases to optimize storage and performance.\n---\n\n# Index lifecycle management [index-lifecycle-management]",
+      "expected_output": "Report that the description is acceptable even though it does not start with an action verb, and does not flag product singular because the file uses canonical products frontmatter",
+      "expectations": [
+        "Does NOT require the description to start with an action verb",
+        "Recognizes products with id entries as the canonical docs-content shape",
+        "Does NOT suggest changing products to product singular",
+        "Only flags applies_to keys or products if they conflict with the configured audit requirements"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Audit this file's frontmatter:\n\n---\napplies_to:\n  stack: ga\nproduct: elasticsearch\ndescription: \"Troubleshoot shard allocation: identify common causes and resolve them.\"\n---\n\n# Troubleshoot shard allocation [troubleshoot-shard-allocation]",
+      "expected_output": "Report flagging product singular as likely incorrect for docs-content and accepting the quoted description with a colon",
+      "expectations": [
+        "Flags product singular as likely incorrect unless the local repo schema requires it",
+        "Accepts the description because the colon is safely quoted",
+        "Does NOT flag the description solely because it contains a colon",
+        "Produces a structured report"
+      ]
     }
   ]
 }

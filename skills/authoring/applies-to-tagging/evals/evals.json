@@ -4,10 +4,10 @@
     {
       "id": 1,
       "prompt": "I just added a new page about machine learning anomaly detection that's available in both stack (since 8.15) and serverless elasticsearch. Can you add the right applies_to frontmatter?",
-      "expected_output": "Correct YAML frontmatter with applies_to containing stack: ga 8.15 and serverless with elasticsearch subkey set to ga",
+      "expected_output": "Correct YAML frontmatter with applies_to containing stack: ga 8.15+ and serverless with elasticsearch subkey set to ga",
       "expectations": [
         "The output includes applies_to in YAML frontmatter format",
-        "stack is set to ga with version 8.15",
+        "stack is set to ga with version 8.15+ to show open-ended availability",
         "serverless uses the elasticsearch subkey set to ga",
         "No mixed dimensions are used (stack/serverless only)"
       ]
@@ -15,10 +15,11 @@
     {
       "id": 2,
       "prompt": "Can you check the applies_to tags in this file? The frontmatter says:\n---\napplies_to:\n  stack: ga 9.2, ga 9.3\n  serverless: ga\n  deployment:\n    ess: ga\n---",
-      "expected_output": "Report identifying two validation errors: duplicate lifecycle for same key (ga 9.2, ga 9.3) and mixed dimensions (stack/serverless mixed with deployment)",
+      "expected_output": "Report identifying duplicate lifecycle for the same key, mixed dimensions, and deprecated ess usage",
       "expectations": [
         "Flags the duplicate ga lifecycle as invalid (one version per lifecycle rule)",
         "Flags mixed dimensions (stack/serverless cannot be combined with deployment at page level)",
+        "Flags 'ess' as deprecated and suggests 'ech' for Elastic Cloud Hosted",
         "Does not flag serverless: ga as an error"
       ]
     },
@@ -42,6 +43,17 @@
         "Does NOT flag the serverless subkeys as errors — elasticsearch and observability are valid project types",
         "Does NOT suggest changes to a correctly formed applies_to block",
         "Confirms the frontmatter is valid or produces a clean report with no issues"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Check these applies_to tags:\n---\napplies_to:\n  deployment:\n    ess: ga\n    eck: ga 3.0+\n  stack: beta 9.3-9.1\n---",
+      "expected_output": "Report identifying mixed dimensions, deprecated ess key with suggestion to use ech, and invalid range order for beta 9.3-9.1",
+      "expectations": [
+        "Flags mixed dimensions because deployment and stack keys are combined at page level",
+        "Flags 'ess' as deprecated and suggests 'ech' for Elastic Cloud Hosted",
+        "Flags the range '9.3-9.1' because the start version is greater than the end version",
+        "Does NOT flag 'eck: ga 3.0+' as invalid because open-ended version syntax is valid"
       ]
     }
   ]
