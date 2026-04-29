@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.0.4
+version: 1.0.5
 description: Validate and generate applies_to tags in Elastic documentation. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, or when content changes lifecycle state (preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory>
 context: fork
@@ -109,7 +109,7 @@ Use only **one dimension** at page level:
 
 `preview`, `beta`, `ga`, `deprecated`, `removed`, `unavailable`
 
-Avoid using `all` — instead, explicitly list the applicable keys and lifecycles.
+There is no `all` lifecycle state; do not write `stack: all` or `serverless: all`. However, `deployment: all` is valid syntax as a page-level shorthand meaning the content applies to all deployment subtypes (equivalent to explicitly listing each subkey with a lifecycle).
 
 ### Version formats (versioned products only)
 
@@ -155,7 +155,7 @@ When validating, check for these errors:
 1. **Missing page-level tag** — every page must have `applies_to` in frontmatter
 2. **Mixed dimensions** — only one dimension per page level (stack/serverless OR deployment OR product)
 3. **One version per lifecycle** — `ga 9.2, ga 9.3` is invalid
-4. **One open-ended per key** — only one `+` lifecycle allowed per key
+4. **One open-ended per key** — only one explicit `+` per key is allowed; `ga 9.3+, removed 9.5+` (two explicit `+`) is **invalid**. The encouraged notation for expressing a lifecycle that ends and another that begins is `ga 9.3-9.4, removed 9.5+` (use a range for the non-final lifecycle, `+` only on the last one). Legacy notation `ga 9.3, removed 9.5` (without explicit `+`) is still supported for backward compatibility but the explicit range form is preferred.
 5. **Invalid range order** — first version must be less than or equal to second
 6. **No overlapping ranges** — `ga 9.2+, beta 9.0-9.2` is invalid (9.2 overlaps)
 7. **Heading annotations** — section-level only, never use inline annotations with headings
