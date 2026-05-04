@@ -15,11 +15,11 @@
     {
       "id": 2,
       "prompt": "Can you check the applies_to tags in this file? The frontmatter says:\n---\napplies_to:\n  stack: ga 9.2, ga 9.3\n  serverless: ga\n  deployment:\n    ess: ga\n---",
-      "expected_output": "Report identifying duplicate lifecycle for the same key, mixed dimensions, and deprecated ess usage",
+      "expected_output": "Report identifying duplicate lifecycle for the same key and mixed dimensions",
       "expectations": [
         "Flags the duplicate ga lifecycle as invalid (one version per lifecycle rule)",
         "Flags mixed dimensions (stack/serverless cannot be combined with deployment at page level)",
-        "Flags 'ess' as deprecated and suggests 'ech' for Elastic Cloud Hosted",
+        "Does NOT flag 'ess' as an invalid or deprecated key",
         "Does not flag serverless: ga as an error"
       ]
     },
@@ -48,10 +48,10 @@
     {
       "id": 5,
       "prompt": "Check these applies_to tags:\n---\napplies_to:\n  deployment:\n    ess: ga\n    eck: ga 3.0+\n  stack: beta 9.3-9.1\n---",
-      "expected_output": "Report identifying mixed dimensions, deprecated ess key with suggestion to use ech, and invalid range order for beta 9.3-9.1",
+      "expected_output": "Report identifying mixed dimensions and invalid range order for beta 9.3-9.1",
       "expectations": [
         "Flags mixed dimensions because deployment and stack keys are combined at page level",
-        "Flags 'ess' as deprecated and suggests 'ech' for Elastic Cloud Hosted",
+        "Does NOT flag 'ess' as deprecated or suggest replacing it",
         "Flags the range '9.3-9.1' because the start version is greater than the end version",
         "Does NOT flag 'eck: ga 3.0+' as invalid because open-ended version syntax is valid"
       ]
