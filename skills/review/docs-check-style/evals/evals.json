@@ -39,6 +39,18 @@
         "Does NOT flag 'enter' as a word choice issue (it's the preferred verb for text input)",
         "Reports the paragraph as clean or flags only minor issues"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Check this docs snippet for style:\n\n\"Recently, the API started returning errors at 16:30 PST. Use 10.1.2.3 and https://internal.example.com/token in the example below. The screenshot has no alt text.\"",
+      "expected_output": "Flags relative time wording, time zone/time format issues, sensitive placeholder data, directional language, and missing alt text",
+      "expectations": [
+        "Flags 'Recently' as a relative time reference",
+        "Flags 24-hour time and seasonal time zone usage, and suggests a 12-hour time with UTC context",
+        "Flags IP address, internal URL, and token-like example as sensitive information needing redaction or documentation-safe placeholders",
+        "Flags 'below' as directional language",
+        "Flags missing alt text for the screenshot"
+      ]
     }
   ]
 }

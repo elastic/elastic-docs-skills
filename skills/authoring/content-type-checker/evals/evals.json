@@ -15,11 +15,12 @@
     {
       "id": 2,
       "prompt": "I wrote a troubleshooting page for common Kibana dashboard errors. Can you check if it follows the right structure? The file is at docs/troubleshooting/kibana-dashboards.md",
-      "expected_output": "Evaluation against troubleshooting content type guidelines, checking for problem/cause/solution structure, symptoms, and prerequisites",
+      "expected_output": "Evaluation against troubleshooting content type guidelines, checking for a problem-focused title, Symptoms section, Resolution section, and whether diagnosis or prerequisites are only included when needed",
       "expectations": [
         "Attempts to read the file or asks for its content",
         "References the troubleshooting content type guidelines",
-        "Checks for problem-cause-solution structure",
+        "Checks for required Symptoms and Resolution sections",
+        "Flags generic wayfinding titles if the page is meant to resolve one dedicated problem",
         "Generates a report with required elements checklist"
       ]
     },
@@ -32,6 +33,28 @@
         "Recognizes the prerequisite section as correct structure",
         "Recognizes the numbered steps as proper how-to format",
         "Does NOT recommend converting it to a different content type"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Check this overview page against the content type guidelines:\n\n---\ntype: overview\nproducts:\n  - id: elasticsearch\ndescription: Learn how index lifecycle management automates index transitions to optimize storage and performance.\napplies_to:\n  stack: ga\n---\n\n# Index lifecycle management\n\nIndex lifecycle management automates transitions through lifecycle phases.\n\n## Create a policy\n\n1. Open **Stack Management**.\n2. Click **Create policy**.",
+      "expected_output": "Report that the declared overview contains how-to content and should move step-by-step instructions to a how-to guide or link to one",
+      "expectations": [
+        "Recognizes the declared type as overview",
+        "Flags numbered procedural steps as an overview anti-pattern",
+        "Checks shared frontmatter using products, not product singular",
+        "Suggests keeping the overview conceptual and linking to a how-to guide"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Check this changelog YAML against the content type guidelines:\n\ntitle: Bug fixes\ntype: breaking-change\nproducts:\n  - product: elasticsearch\n    target: 9.2.0\ndescription: Refactored internals. See PR #123.\n",
+      "expected_output": "Report that the changelog title is too vague, the description focuses on implementation/internal references, and breaking changes need impact and action fields",
+      "expectations": [
+        "Checks required changelog fields: title, type, and products",
+        "Flags the vague title and recommends a user-impact-focused present-tense action verb",
+        "Flags implementation-focused description and internal PR-only context",
+        "Flags missing impact and action fields for a breaking change"
       ]
     }
   ]
