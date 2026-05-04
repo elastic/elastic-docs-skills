@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.1.0
+version: 1.1.1
 description: Validate and generate applies_to tags in Elastic documentation. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, or when content changes lifecycle state (preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory>
 context: fork
@@ -102,10 +102,10 @@ Use only **one dimension** at page level:
 | Dimension | Keys |
 |-----------|------|
 | Stack/Serverless | `stack`, `serverless` (subkeys: `security`, `elasticsearch`, `observability`) |
-| Deployment | `deployment` (subkeys: `ech`, `ece`, `eck`, `self`), `serverless` |
+| Deployment | `deployment` (subkeys: `ess`, `ece`, `eck`, `self`), `serverless` |
 | Product | `product` (subkeys: APM agents, EDOT SDKs, tools — see [full key reference](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/reference)) |
 
-Use `ech` for Elastic Cloud Hosted. `ess` is a deprecated alias and should not be generated in new tags. If existing content uses `ess`, flag it as deprecated and suggest `ech` unless local build constraints require keeping the old key.
+Use `ess` for Elastic Cloud Hosted deployments.
 
 ### Lifecycle states
 
@@ -167,9 +167,8 @@ When validating, check for these errors:
 6. **Invalid range order** — the first version in `x.x-y.y` must be less than or equal to the second
 7. **Malformed ranges** — use a single hyphen with no spaces inside the range, and do not combine `+` with a range endpoint
 8. **No overlapping ranges** — `ga 9.2+, beta 9.0-9.2` is invalid because 9.2 overlaps
-9. **Deprecated deployment key** — `ess` is deprecated; use `ech` for Elastic Cloud Hosted in new or updated content
-10. **Heading annotations** — section-level only, never use inline annotations with headings
-11. **Version numbers in prose** — never write versions in text next to applies_to badges
+9. **Heading annotations** — section-level only, never use inline annotations with headings
+10. **Version numbers in prose** — never write versions in text next to applies_to badges
 
 ## Guidelines for tagging
 
@@ -232,7 +231,7 @@ applies_to:
   deployment:
     ece: ga 4.0
     eck: ga 3.0
-    ech: ga
+    ess: ga
     self: ga
 ```
 
