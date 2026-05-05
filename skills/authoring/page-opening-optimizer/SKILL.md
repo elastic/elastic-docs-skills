@@ -1,6 +1,6 @@
 ---
 name: docs-page-opening-optimizer
-version: 1.0.2
+version: 1.0.3
 description: Optimize the opening of an Elastic documentation page — H1 title, opening paragraph, and requirements section — following doc type conventions. Use when writing or improving page intros, optimizing titles for discoverability, adding requirements sections, or when the user asks to improve the first lines of a doc page.
 argument-hint: <file-or-directory>
 context: fork
