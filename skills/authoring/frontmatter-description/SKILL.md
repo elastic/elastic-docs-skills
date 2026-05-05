@@ -3,6 +3,7 @@ name: docs-frontmatter-description
 version: 1.0.1
 description: Generate or improve meta descriptions in Elastic documentation frontmatter following SEO best practices. Use when adding description fields to doc pages, auditing missing descriptions, or improving metadata for search discoverability.
 argument-hint: <file-or-directory>
+context: fork
 allowed-tools: Read, Grep, Glob, Edit
 sources:
   - https://developers.google.com/search/docs/appearance/snippet
