@@ -1,6 +1,6 @@
 ---
 name: docs-page-opening-optimizer
-version: 1.0.3
+version: 1.0.4
 description: Optimize the opening of an Elastic documentation page — H1 title, opening paragraph, and requirements section — following doc type conventions. Use when writing or improving page intros, optimizing titles for discoverability, adding requirements sections, or when the user asks to improve the first lines of a doc page.
 argument-hint: <file-or-directory>
 context: fork
@@ -87,20 +87,20 @@ making it easier to identify common patterns and focus on anomalous messages.
 **Reference** — Define the subject, state its purpose:
 ```markdown
 API keys provide secure, token-based authentication for applications accessing
-{{product.elasticsearch}}. Use API keys instead of usernames and passwords when
+{{es}}. Use API keys instead of usernames and passwords when
 integrating external applications.
 ```
 
 **Explanation** — Establish context, state what concepts are covered:
 ```markdown
-{{product.elasticsearch}} distributes search requests across multiple shards
+{{es}} distributes search requests across multiple shards
 and nodes. Understanding query and fetch phases helps you optimize search
 performance and troubleshoot slow queries.
 ```
 
 **Overview** — State what the feature is, its value, and key capabilities:
 ```markdown
-**Discover** is the primary tool for exploring your data in {{product.kibana}}.
+**Discover** is the primary tool for exploring your data in {{kib}}.
 Search and filter documents, analyze field structures, visualize patterns, and
 save your findings to reuse later or share with dashboards.
 ```
@@ -141,8 +141,8 @@ Use an H2 with a descriptive anchor:
 
 To create dashboards, you need:
 
-* [Data indexed into {{product.elasticsearch}}](/manage-data/ingest.md) and a [data view](../data-views.md).
-* **All** privilege for the **Dashboard** feature in {{product.kibana}}.
+* [Data indexed into {{es}}](/manage-data/ingest.md) and a [data view](../data-views.md).
+* **All** privilege for the **Dashboard** feature in {{kib}}.
 ```
 
 For pages with few H2 sections and a single simple requirement, use a paragraph instead:
@@ -153,7 +153,7 @@ You need the **All** privilege for the **Dashboard** feature.
 ## Step 5: Enforce substitutions
 
 Replace hardcoded product names with Jinja2 substitutes:
-- `{{product.kibana}}`, `{{product.elasticsearch}}`
+- `{{kib}}`, `{{es}}`
 - `{{esql}}`, `{{data-source}}`, `{{data-sources}}`
 - `{{ece}}`, `{{eck}}`, `{{ech}}`
 
