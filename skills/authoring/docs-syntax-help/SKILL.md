@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.0.5
+version: 1.0.6
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 allowed-tools: Read, Grep, Glob, Edit, WebFetch
@@ -130,7 +130,7 @@ This note applies only to Stack 9.1+.
 :::
 ```
 
-Object notation for multiple keys: `:applies_to: { ece:, ess: }` or JSON: `:applies_to: {"stack": "ga 9.2", "serverless": "ga"}`.
+Object notation for multiple keys: `:applies_to: { ece:, ech: }` or JSON: `:applies_to: {"stack": "ga 9.2", "serverless": "ga"}`.
 
 **Rules**: Do not stack admonitions. Do not place code blocks inside admonitions (use dropdowns or tabs instead if code is long).
 
@@ -270,7 +270,7 @@ Serverless-specific content
 ::::
 ```
 
-Multiple conditions: `:::{applies-item} { ece: ga 4.0+, ess: ga }`
+Multiple conditions: `:::{applies-item} { ece: ga 4.0+, ech: ga }`
 
 All applies switches on a page auto-synchronize.
 
