@@ -21,7 +21,7 @@
         "Identifies the page as an overview type (has children in toc.yml)",
         "Does NOT keep or add a requirements section for an overview page",
         "Expands the opening paragraph to include value proposition and key capabilities",
-        "Uses {{product.kibana}} substitution instead of hardcoded 'Kibana'"
+        "Uses {{kib}} substitution instead of hardcoded 'Kibana'"
       ]
     },
     {
@@ -33,7 +33,7 @@
         "Adds an anchor to the H1",
         "Spells out the acronym on first use: 'Elasticsearch Query Language ({{esql}})'",
         "Removes the pre-9.0 version reference ('version 8.0 or later')",
-        "Replaces hardcoded 'Kibana' with {{product.kibana}} substitution"
+        "Replaces hardcoded 'Kibana' with {{kib}} substitution"
       ]
     },
     {
@@ -54,7 +54,7 @@
       "expectations": [
         "Recognizes this as a reference page type",
         "Does NOT recommend adding a requirements section to a reference page",
-        "Suggests replacing hardcoded 'Kibana' with {{product.kibana}} substitution",
+        "Suggests replacing hardcoded 'Kibana' with {{kib}} substitution",
         "Does not recommend major restructuring since the opening is already functional"
       ]
     }
