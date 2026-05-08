@@ -189,23 +189,29 @@ When validating, check for these errors:
 
 ## Guidelines for tagging
 
-**DO tag when:**
-- Functionality is added in a specific release
-- A feature changes lifecycle state
-- Availability differs across products or deployment types
+### Decide whether `applies_to` is needed
 
-**DO NOT tag when:**
-- Fixing typos, formatting, or information architecture (no feature change)
-- The section's applicability is already established by a parent tag
-- Adding GA features to unversioned products where the page-level lifecycle already covers the content
+**Don't tag when:**
 
-**Badge placement:**
-- Page level: frontmatter only
-- Headings: section annotation on the line after the heading, never inline
-- Lists: badge at beginning of list items
-- Definition lists: badge at end of the term (inline annotation on same line as term) when badge applies to the entire item; follow element-specific placement when badge applies only to part of the definition
-- Tables: badge at end of first column (whole row) or end of cell (single cell)
-- Use `applies-switch` tabs when code blocks or workflows differ entirely between contexts:
+- The edit is valid for all versions (rewording, typo fixes, restructuring) — it's not version-scoped at all.
+- A parent page or parent section already has the correct `applies_to` — repeating it is redundant.
+- The change *is* version-scoped but a small inline pattern carries the meaning without `applies_to`. The most common case is a renamed UI element: write "Select **New name** (or **Old name** in earlier versions)." rather than splitting the step with `applies_to`. Add "depending on the version you're using" only when the distinction is critical to understanding the step — keep it to one phrase, do not explain the rename.
+- Adding GA features to unversioned products where the page-level lifecycle already covers the content.
+
+**Tag when:**
+
+- Content is genuinely version- or deployment-scoped, isn't already covered by a parent tag, and isn't better expressed inline.
+- Functionality is added in a specific release, lifecycle state changes (preview → GA, deprecated, removed), or availability differs across products or deployment types.
+
+### Place `applies_to` where the change applies
+
+Pick the form that matches what the change is scoped to:
+
+- **Section level** — fenced `{applies_to}` block immediately after the heading, when the change is relevant to a section.
+- **Page level** — YAML frontmatter, when the change scopes the whole page.
+- **Inline** — only at start of a list item, end of a definition term, or inside a table cell. Never mid-sentence in running prose, and never floating between sentences in a paragraph (scope becomes ambiguous).
+- **Admonition or dropdown** — use the `:applies_to:` directive option when prose needs version scoping but doesn't fit any of the inline positions above. Restructure the prose into the admonition rather than inventing a new inline placement.
+- **`applies-switch` tabs** — only when content truly diverges between contexts (a stack-only step that has no serverless equivalent, with materially different code):
 ````markdown
 ::::{applies-switch}
 :::{applies-item} stack: ga
@@ -216,6 +222,10 @@ Serverless-specific content here.
 :::
 ::::
 ````
+
+### Scope must be unambiguous
+
+Before committing an `applies_to` block, verify that any reader — human or automated tooling — can tell exactly what content the tag covers from the heading and block position alone. If there is any doubt, restructure the section.
 
 ## Common patterns
 
@@ -279,7 +289,7 @@ Elastic docs (V3, elastic.co/docs) are cumulative — a single page stays valid 
 Before suggesting any change involving version-scoped content, ask:
 
 1. **Do users on previous versions still need the old information?** Usually yes — docs serve all currently-supported versions. Prefer adding tagged new content alongside the old, not replacing it.
-2. **What is the simplest format that works?** Choose the lightest annotation that scopes correctly (see below).
+2. **Is the change actually scoped to a specific version or deployment?** If the new content is valid for all versions, no `applies_to` is needed at all. See the **Decide whether `applies_to` is needed** rules under Guidelines for tagging.
 
 ### Lifecycle changes
 
@@ -291,16 +301,6 @@ Before suggesting any change involving version-scoped content, ask:
 - **GA or deprecated feature removed from a versioned product** → keep the content; add `stack: removed 9.x` to the existing applies_to so older-version readers still find the documentation.
 - **Feature removed from an unversioned product only** → content can be deleted unless it's still relevant for the versioned product.
 - **Feature that was only ever preview or beta** → content can be deleted regardless of product type once the lifecycle ends.
-
-### Lightest-format preference
-
-When tagging a section or paragraph, prefer the lightest form that scopes correctly. In order of preference:
-
-1. **Tagged paragraph or admonition** — additive change that doesn't disrupt existing content. Add `{applies_to}` at the start of a new paragraph, or use a `:::{note}` / `:::{dropdown}` with `:applies_to:`.
-2. **Tagged list items or definition terms** — when only some items in a list (or terms in a definition list) differ. Add an inline `{applies_to}` at the start or end of the affected item.
-3. **`applies-switch` tabs** — only when content truly diverges and can't be merged into a single flow (for example, a stack-only step that has no serverless equivalent, with materially different code).
-
-Avoid heavier forms (entire-section blocks, switch tabs) unless the lighter ones can't carry the meaning.
 
 ### Version display reminders
 
@@ -332,9 +332,17 @@ Apply the cumulative-docs rules:
 - For unversioned-product lifecycle changes, replace the old state.
 - For removals from versioned products, keep the content and add `removed`.
 
-### Step 3: Pick the lightest format that scopes correctly
+### Step 3: Pick the form that matches what the change is scoped to
 
-Use the **Lightest-format preference** order under Cumulative documentation rules. Whole-page changes go in frontmatter; section changes use a fenced `{applies_to}` block; smaller scopes use inline annotations.
+Use the **Place `applies_to` where the change applies** rules under Guidelines for tagging:
+
+- Whole page → frontmatter.
+- A section → fenced `{applies_to}` block after the heading.
+- A list item, definition term, or table cell → inline at the allowed position.
+- Prose that doesn't fit those inline positions → restructure into an admonition with `:applies_to:`.
+- Content that truly diverges between contexts → `applies-switch` tabs.
+
+Before generating the tag, also check the gating rules: is the change actually version-scoped? Is a parent tag already covering it? Could a small inline pattern (e.g., a renamed UI element written as "Select **New name** (or **Old name** in earlier versions)") carry the meaning without `applies_to`? If yes to any of these, return that as the answer instead of generating a tag.
 
 ### Step 4: Generate the canonical syntax
 

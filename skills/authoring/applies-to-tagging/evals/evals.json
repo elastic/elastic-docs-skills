@@ -104,6 +104,18 @@
         "Distinguishes this from the case where a feature was only ever preview or beta (which can be deleted)",
         "Does NOT recommend deleting the page"
       ]
+    },
+    {
+      "id": 10,
+      "prompt": "A button in Stack Management was renamed from 'Save' to 'Save and apply' in 9.4. The procedure step currently says 'Click **Save** to confirm.' I need to update it to cover both versions. Should I split the step with applies_to, or is there a better approach?",
+      "expected_output": "Recommendation to NOT use applies_to here — handle the rename inline with the parenthetical pattern, since the version distinction is not load-bearing for the procedure",
+      "expectations": [
+        "Recommends NOT adding applies_to for this change",
+        "Suggests the inline rename pattern: 'Click **Save and apply** (or **Save** in earlier versions) to confirm.' (or equivalent wording)",
+        "Mentions that some version-scoped changes are best expressed inline rather than via applies_to",
+        "Does NOT generate a fenced applies_to block that splits the step by version",
+        "Does NOT recommend an applies-switch tab for a simple label rename"
+      ]
     }
   ]
 }
