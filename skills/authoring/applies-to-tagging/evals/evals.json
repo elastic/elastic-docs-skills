@@ -55,6 +55,67 @@
         "Flags the range '9.3-9.1' because the start version is greater than the end version",
         "Does NOT flag 'eck: ga 3.0+' as invalid because open-ended version syntax is valid"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "I'm adding a new search-relevance evaluation feature to 9.5 in stack and to serverless elasticsearch. Generate the applies_to for the page.",
+      "expected_output": "Page-level applies_to YAML frontmatter using the stack/serverless dimension with stack: ga 9.5+ and the elasticsearch serverless subkey set to ga",
+      "expectations": [
+        "Returns a page-level applies_to in YAML frontmatter form",
+        "Uses stack: ga 9.5+ to express open-ended availability from 9.5 onward",
+        "Uses the serverless.elasticsearch subkey set to ga (not bare serverless: ga, since the user specified the elasticsearch sub-project)",
+        "Does not mix stack/serverless with deployment or product dimensions",
+        "Includes a brief rationale explaining the version syntax choice (open-ended + for unbounded availability)"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Generate applies_to for a stack-only feature. It was preview in 9.4 and went GA in 9.5. We don't ship it on serverless.",
+      "expected_output": "Page-level applies_to with stack listing both lifecycle states newest-first: ga 9.5+, preview =9.4. No serverless entry. Brief rationale covering the use of =9.4 for an exact version and 9.5+ for the current open-ended GA.",
+      "expectations": [
+        "Lists both lifecycle states under stack: ga 9.5+, preview =9.4",
+        "Orders the lifecycles newest-first in the source (ga before preview)",
+        "Uses =9.4 for the exact preview version (not bare 9.4)",
+        "Uses 9.5+ for the current open-ended GA",
+        "Does NOT include a serverless entry, since the feature isn't shipped there",
+        "Notes that older readers still see the preview badge — appending preserves history"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "A configuration option's default value changed in 9.4. The page currently describes the old default as a single paragraph. Should I replace that paragraph with the new default, or is there a better approach for cumulative docs?",
+      "expected_output": "Recommendation to preserve the original paragraph and add a new tagged paragraph (or admonition) describing the new default, citing the cumulative-docs rule that older readers still need the old information",
+      "expectations": [
+        "Recommends preserving the existing description rather than replacing it",
+        "Suggests adding a tagged paragraph or admonition for the new default, scoped with stack: ga 9.4+ (or equivalent)",
+        "Cites the cumulative-docs principle that docs serve all currently-supported versions",
+        "Mentions the lightest-format preference: tagged paragraph or admonition first, before considering applies-switch tabs",
+        "Does NOT recommend deleting the original paragraph"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "A feature was GA in stack until 9.3 and is removed in 9.4. We don't have it on serverless. Should I delete the page?",
+      "expected_output": "Recommendation to keep the content and add stack: removed 9.4 to the existing applies_to so older-version readers still find the documentation, since the feature was GA on a versioned product",
+      "expectations": [
+        "Recommends keeping the page rather than deleting it",
+        "Suggests adding stack: removed 9.4 to the existing applies_to (appended, not replacing)",
+        "Explains that older-version readers (9.3 and earlier) still need the documentation",
+        "Distinguishes this from the case where a feature was only ever preview or beta (which can be deleted)",
+        "Does NOT recommend deleting the page"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "A button in Stack Management was renamed from 'Save' to 'Save and apply' in 9.4. The procedure step currently says 'Click **Save** to confirm.' I need to update it to cover both versions. Should I split the step with applies_to, or is there a better approach?",
+      "expected_output": "Recommendation to NOT use applies_to here — handle the rename inline with the parenthetical pattern, since the version distinction is not load-bearing for the procedure",
+      "expectations": [
+        "Recommends NOT adding applies_to for this change",
+        "Suggests the inline rename pattern: 'Click **Save and apply** (or **Save** in earlier versions) to confirm.' (or equivalent wording)",
+        "Mentions that some version-scoped changes are best expressed inline rather than via applies_to",
+        "Does NOT generate a fenced applies_to block that splits the step by version",
+        "Does NOT recommend an applies-switch tab for a simple label rename"
+      ]
     }
   ]
 }
