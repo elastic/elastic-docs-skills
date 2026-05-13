@@ -72,14 +72,14 @@ These are hard errors. The source of truth for the schema is `ChangelogEntry.cs`
 
 **Required fields:**
 
-- `title`: must be present, max 80 characters
+- `title`: must be present, preferrably under 80 characters
 - `type`: must be present, value must be one of: `feature`, `enhancement`, `security`, `bug-fix`, `breaking-change`, `deprecation`, `known-issue`, `docs`, `regression`, `other`
 - `products`: must be present, non-empty array; each entry must have a `product` key
 
 **Product ID validation:** Fetch `https://raw.githubusercontent.com/elastic/docs-builder/main/config/products.yml` to get the canonical list — valid IDs are the top-level keys under `products:`. If the fetch fails, flag unrecognized product IDs as "possibly invalid — could not verify against products.yml" rather than as errors.
 
 **Optional field constraints:**
-- `products[n].lifecycle` if present on any product entry: must be `preview`, `beta`, or `ga`
+- `products[n].lifecycle` if present on any product entry, fetch `https://github.com/elastic/docs-builder/blob/main/src/Elastic.Documentation/Lifecycle.cs` to get canonical list (such as `ga`)
 - `subtype`: only permitted on `breaking-change` entries; value must be one of: `api`, `behavioral`, `configuration`, `dependency`, `subscription`, `plugin`, `security`, `other`
 - `description` if present: max 600 characters
 - `prs` and `issues`: optional arrays, may be empty or absent — no validation beyond YAML type correctness
@@ -97,6 +97,7 @@ Correct form: `description: "The tool no longer accepts the flag: -c"`
 These are warnings. The source of truth is the changelogs style guidance linked in `sources`.
 
 **All types:**
+
 - Title starts with base-form action verb (`Add`, `Fix`, `Improve`, `Remove`, `Update`…) — not third-person forms (`Adds`, `Fixes`)
 - Title is specific, not vague ("Bug fixes" or "Performance improvements" are too vague)
 - Title avoids bare internal references ("PR #123", "bug #456") — these don't help users
@@ -112,28 +113,28 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 - **No buried lede:** If title is vague, fold in concrete detail from description so release notes stand alone
 - **Base-form verb requirement:** Use `Fix`, `Add`, `Remove` (not third-person `Fixes`, `Adds`, `Removes`)
 - **Sentence case:** Follow standard sentence capitalization
+- Feature prefixes in titles: `ESQL: Fix nullify` should be contextual like `Fix nullify in ES|QL`
 
-**2. ES|QL contextual integration issues:**
-- Naked ES|QL or ESQL prefixes in titles: `ESQL: Fix nullify` should be contextual like `Fix nullify in ES|QL`
-- Inconsistent ES|QL format: `ESQL` should be standardized to `ES|QL`
-- When `areas` field already specifies "ES|QL", redundant ES|QL in title
+**2. Technical term enhancement issues:**
 
-**3. Technical term enhancement issues:**
 - Missing backticks around class/method names, config keys, API endpoints, or code identifiers
 - British spelling that should use US English: `serialise` → `serialize`, `colour` → `color`
 - Unexpanded abbreviations where full form would be clearer: `params` → `parameters`
+- Inconsistent terminology: `ESQL` should be standardized to `ES|QL`
 
-**4. Content quality issues:**
+**3. Content quality issues:**
+
 - Vague titles that could be more specific based on description content
 - Redundant descriptions that just repeat the title without adding context
-- `UX` terminology that should be `UI` for interface changes
 - Implementation-focused phrasing instead of user-visible outcomes
 
-**5. YAML formatting issues (cross-reference with Step 3):**
-- Unquoted text containing special characters (see Step 3 for details)
+**4. YAML formatting issues (cross-reference with Step 2):**
+
+- Unquoted text containing special characters (see Step 2 for details)
 - Inconsistent formatting across text fields
 
 **Type-specific:**
+
 - `breaking-change`: `impact` and `action` are REQUIRED — flag as errors if absent; `subtype` is strongly recommended
 - `deprecation` and `known-issue`: `impact` and/or `action` are recommended — flag as warnings if absent
 - `feature` / `enhancement`: title/description should explain what users can now do, not how it was built
@@ -147,17 +148,20 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 These are warnings. Check `description`, `impact`, and `action` field values for formatting consistency.
 
 **Link formatting:**
+
 - Bare URLs used as link text — should use `[descriptive text](url)` instead
 - Generic link text like "click here" or "read more" — should be descriptive of the destination
 
 **Code formatting:**
+
 - Code fences without a language identifier — e.g. ` ``` ` with no language tag (use `yaml`, `json`, `bash`, `console`, etc.)
 - Field names, config keys, commands, class names, or API endpoints written as plain text — should use inline backticks
 - Missing backticks around obvious code identifiers like method names, parameter names, or specific values
 
 **Text formatting:**
+
 - Inconsistent spelling (should follow US English conventions)
-- Inconsistent terminology (`UX` vs `UI` — prefer `UI` for interface changes)
+- Inconsistent terminology
 
 ## Step 6: Report
 
