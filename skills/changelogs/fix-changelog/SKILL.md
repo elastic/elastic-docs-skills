@@ -1,7 +1,7 @@
 ---
 name: docs-fix-changelog
-version: 2.0.0
-description: Suggest improved text for changelog YAML files against current Elastic standards. Mirrors the pattern catalog from docs-review-changelog to provide consistent fixes. Supports single files or directories. Fetches canonical guidance to stay in sync. Use after review identifies quality issues, or when drafting new changelogs.
+version: 2.1.0
+description: Suggest improved text for changelog YAML files against current Elastic standards. Mirrors the pattern catalog from docs-review-changelog to provide consistent fixes. Includes confidence scoring and assumption tracking for suggestion transparency. Supports single files or directories. Fetches canonical guidance to stay in sync. Use after review identifies quality issues, or when drafting new changelogs.
 argument-hint: "[changelog-file-or-directory] [pr/issue-context]"
 context: fork
 allowed-tools: Read, Grep, Glob, WebFetch
@@ -56,6 +56,8 @@ To ensure fix suggestions align with the latest Elastic changelog standards, att
 
 **Purpose:** This ensures fix suggestions match the most current writer guidance. If successful, cross-check key patterns (title cleanup checklist, technical terms guidance, anti-patterns) against what's embedded in this skill. If there are significant discrepancies, note this in the final output.
 
+**Track for confidence:** Document whether canonical guidance was successfully fetched and which source was used. Failed fetches or fallback to embedded patterns should be noted as factors affecting suggestion confidence.
+
 ## Operating modes
 
 **Mode A — Improve an existing file.** The first argument is a path to a changelog YAML file that already exists. Read it, assess weak or missing fields, and suggest improvements.
@@ -81,6 +83,8 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 3. If `prs` or `issues` fields in the existing file (Mode A) contain URLs, use those as implicit context — they identify the PR or issue the changelog describes
 4. If none of the above is available, ask once: "Do you have context from a PR or issue (title, description, diff, or linked references) to share? Richer context produces better suggestions." Skip this ask if the user has already declined.
 
+**Track for confidence:** Document what context was available (full PR details, partial info, URLs only, or none) and any fetch failures. This will inform confidence scoring in Step 7.
+
 ## Step 4: Apply post-edit checklist
 
 **Before field-level assessment**, apply the systematic pattern checklist that mirrors the warnings from `docs-review-changelog`. This ensures consistent improvement patterns across both tools.
@@ -95,27 +99,22 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 - **No buried lede:** If title is vague, fold in concrete detail from description so release notes stand alone
 - **Base-form verb requirement:** Use `Fix`, `Add`, `Remove` (not third-person `Fixes`, `Adds`, `Removes`)
 - **Sentence case:** Follow standard sentence capitalization
+- Feature prefixes in titles: `ESQL: Fix nullify` should be contextual like `Fix nullify in ES|QL`
 
-**2. ES|QL contextual integration fixes:**
-
-- Avoid naked ES|QL or ESQL prefixes in titles: `ESQL: Fix nullify` should be contextual like `Fix nullify in ES|QL`
-- Standardize format: `ESQL` → `ES|QL`
-- When `areas` field already specifies "ES|QL", avoid redundant ES|QL in title
-
-**3. Technical term enhancement fixes:**
+**2. Technical term enhancement fixes:**
 
 - Add backticks around class/method names, config keys, API endpoints, or code identifiers where missing
 - Convert British spelling to US English: `serialise` → `serialize`, `colour` → `color`
 - Expand abbreviations where full form would be clearer: `params` → `parameters`
+- Standardize format: `ESQL` → `ES|QL`
 
-**4. Content quality fixes:**
+**3. Content quality fixes:**
 
 - Make vague titles more specific based on description content
 - Remove redundant descriptions that just repeat the title without adding context
-- Replace `UX` terminology with `UI` for interface changes
 - Focus on user-visible outcomes instead of implementation details
 
-**5. YAML formatting fixes:**
+**4. YAML formatting fixes:**
 
 - Quote text containing special characters (backticks, colons, brackets) to prevent parse errors
 - Ensure consistent formatting across text fields
@@ -145,6 +144,12 @@ Also check for formatting anti-patterns in existing `description`, `impact`, and
 ## Step 6: Generate suggestions
 
 **Character limits:** Title max 80 characters. Description max 600 characters. If a suggestion is too long, shorten it or split across title and description.
+
+**Confidence tracking:** During suggestion generation, note factors that affect confidence:
+
+- **High confidence:** Routine pattern fixes (development prefixes, obvious YAML quoting), standard terminology, good PR context
+- **Medium confidence:** Technical terms with contextual clues, partial PR context, common Elastic terminology
+- **Low confidence:** Domain-specific terms without context, missing PR details, ambiguous phrasing that could have multiple interpretations, novel or uncommon technical concepts
 
 **Mode A & B** — for each weak or malformed field, show:
 
@@ -213,6 +218,36 @@ Use backticks for field names, parameter names, config keys, API endpoints, comm
 
 **Mode C:** Present the suggested field text, followed by the ready-to-copy `docs-builder changelog add` command. Invite the user to confirm or adjust before running the command. Make clear that the skill does not create the file — `changelog add` does.
 
-**All modes:** Default behavior is suggest-only. Only apply changes to disk after explicit user confirmation. After writing changes, re-parse YAML to validate the result.
+### Confidence and assumptions section
+
+**All modes:** After presenting suggestions but before requesting confirmation, include a structured "Confidence + Assumptions" section that helps writers evaluate suggestion quality:
+
+```markdown
+## Confidence + Assumptions
+
+### Least confident suggestions:
+- [Field]: [Specific suggestion] — [Reason for uncertainty, e.g., "Limited PR context", "Ambiguous technical term", "Multiple interpretation options"]
+
+### Terminology uncertainties:
+- [Term/phrase]: Assumed [interpretation] — [Why uncertain, e.g., "Could be UI element vs feature name", "Missing domain context"]
+
+### Assumptions made:
+- [Assumption]: [Rationale, e.g., "Normalized technical term based on common Elastic usage", "Inferred user impact from limited PR description"]
+
+### Input limitations:
+- [Issue]: [Impact on suggestions, e.g., "Couldn't fetch PR #1234 - title suggestions based on changelog content only", "No issue links - impact/action suggestions may be incomplete"]
+
+### Resources referenced:
+- [✓/✗] Canonical guidance: [Source used or fetch failure reason]
+- [✓/✗] PR/Issue context: [What was available or missing]
+```
+
+**Confidence scoring guidance:**
+
+- **Low confidence triggers:** Missing PR context, ambiguous technical terms, conflicting pattern interpretations, failed resource fetches, domain-specific terminology without clear context
+- **Medium confidence:** Partial PR context, standard technical terms, routine pattern fixes with good guidance
+- **High confidence:** Full context available, canonical guidance loaded, routine formatting/structural fixes
+
+**Default behavior:** Default behavior is suggest-only. Only apply changes to disk after explicit user confirmation. After writing changes, re-parse YAML to validate the result.
 
 **Sync awareness:** If Step 1 successfully loaded canonical guidance and you detected significant discrepancies between the live documentation and this skill's embedded patterns, flag this in your output. Note which patterns may need updating and suggest checking the canonical source directly at <https://www.elastic.co/docs/contribute-docs/content-types/changelogs>.
