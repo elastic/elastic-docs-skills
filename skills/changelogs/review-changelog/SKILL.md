@@ -1,6 +1,6 @@
 ---
 name: docs-review-changelog
-version: 1.2.0
+version: 1.1.0
 description: Validate and assess the quality of Elastic changelog YAML files against current Elastic standards. Reports schema errors, content quality issues, and systematic pattern violations. Fetches canonical guidance to stay in sync. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
