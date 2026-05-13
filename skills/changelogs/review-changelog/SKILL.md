@@ -1,6 +1,6 @@
 ---
 name: docs-review-changelog
-version: 1.0.2
+version: 1.0.3
 description: Validate and assess the quality of Elastic changelog YAML files. Reports schema errors, content quality issues, and formatting problems by type. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
@@ -70,6 +70,11 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 - Title is specific, not vague ("Bug fixes" or "Performance improvements" are too vague)
 - Title avoids bare internal references ("PR #123", "bug #456") — these don't help users
 - Title and description avoid implementation-focused language (describe user impact, not code changes)
+- **Title cleanup**: Flag the following common PR-style title anti-patterns:
+  - Development label prefixes: `feat:`, `fix:`, `Fix:`, `auto-implement:`, `chore:`, and trailing fragments like `Bugfix -` — remove them
+  - Bracket-only team tags: `[Security Solution]`, `[Query Rules]`, `[ML]` and similar — rewrite as user-facing wording
+  - Weak verbs: prefer strong imperative verbs like "Improve validation for…" over alternatives like "Better validation for…"
+  - Buried lede: if the title is vague or generic, concrete details from the description should be folded in so the release note stands alone
 
 **Type-specific:**
 - `breaking-change`: `impact` and `action` are REQUIRED — flag as errors if absent; `subtype` is strongly recommended

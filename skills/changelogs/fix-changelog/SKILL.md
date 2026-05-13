@@ -1,6 +1,6 @@
 ---
 name: docs-fix-changelog
-version: 1.0.2
+version: 1.0.3
 description: Suggest improved text for weak or missing fields in Elastic changelog YAML files. Accepts optional PR or issue context (title, description, diff, linked issues) to produce better suggestions. Use after docs-review-changelog identifies quality issues, or when drafting a new changelog from a PR or issue.
 argument-hint: "[changelog-file] [pr/issue-context]"
 context: fork
@@ -56,7 +56,11 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 
 **Mode A** — identify fields that need improvement:
 
-- `title`: too vague, implementation-focused, wrong tense, missing action verb, or over 80 characters
+- `title`: too vague, implementation-focused, wrong tense, missing action verb, or over 80 characters; also flag these common PR-style title anti-patterns:
+  - Development label prefixes: `feat:`, `fix:`, `Fix:`, `auto-implement:`, trailing fragments like `Bugfix -` — suggest removing them
+  - Bracket-only team tags: `[Security Solution]`, `[Query Rules]`, `[ML]` — suggest rewriting as user-facing wording
+  - Weak verbs: suggest strong imperative verbs ("Improve validation for…" over "Better validation for…")
+  - Buried lede: if the title is vague, suggest folding concrete detail from the description into the title
 - `description`: absent but would add value, or present but low quality (repeats title, says "See PR", says "Internal refactoring")
 - `impact` / `action`: absent on `breaking-change`, `deprecation`, or `known-issue`
 - `areas` if present: must be an array of strings; flag if it contains values that don't look like valid product area names
@@ -125,7 +129,9 @@ Bad: `description: Removes the --path.home flag: it had no effect`
 
 ### Inline code
 
-Use backticks for field names, parameter names, config keys, API endpoints, commands, and specific values — e.g. `` `index.refresh_interval` ``, `` `POST /_reindex` ``.
+Use backticks for field names, parameter names, config keys, API endpoints, commands, and specific values — e.g. `` `index.refresh_interval` ``, `` `POST /_reindex` ``. This applies in `title`, `description`, `impact`, and `action` fields.
+
+**Important**: Titles that contain backticks, colons, `#`, or brackets must be quoted as valid YAML scalars — wrap the entire `title` value in double quotes and escape internal `"` as `\"`.
 
 ### Code blocks
 

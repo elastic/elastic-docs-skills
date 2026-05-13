@@ -1,6 +1,6 @@
 ---
 name: docs-redirects
-version: 1.0.4
+version: 1.0.5
 description: Create and manage redirects in Elastic documentation when pages are moved, renamed, or deleted. Use when moving docs pages, renaming files, restructuring content, or when the user asks about redirects.
 argument-hint: <old-path> <new-path>
 context: fork
@@ -38,7 +38,10 @@ Trigger this skill when:
 
 Redirects are configured in `redirects.yml` (or `_redirects.yml`), located next to the `docset.yml` (or `_docset.yml`) file in each content set. All paths are **relative to the `redirects.yml` file location**.
 
-Redirects only work within Elastic Docs V3 content sets. They cannot target external URLs.
+Redirects only work within Elastic Docs V3 content sets. They cannot target external destinations:
+
+- **API docs** (`https://www.elastic.co/docs/api/`): Contact the documentation engineering team on Slack (#elastic-docs-v3) for API redirects.
+- **elastic.co/guide**: Open a [web team request](http://ela.st/web-request) for redirects on the legacy docs site.
 
 ## Syntax reference
 
@@ -162,7 +165,7 @@ Notes:
 
 4. **Add the redirect entry**: Edit `redirects.yml` to add the new entry under the `redirects:` key. If the file is new, create it with the `redirects:` top-level key.
 
-5. **Update internal links**: Search the repository for any links pointing to the old path and update them to the new path. Use Grep to find references:
+5. **Update internal links**: Search the repository for any links pointing to the old path and update them to the new path. **This is mandatory** — PRs fail CI validation if existing links to the old path are left unupdated. Use Grep to find references:
    - Markdown links: `](old/path/page.md`
    - Cross-links from other repos: `repo-name://old/path/page.md`
    - Toctree entries referencing the old path
