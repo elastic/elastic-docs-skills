@@ -1,7 +1,7 @@
 ---
 name: docs-review-changelog
-version: 1.1.0
-description: Validate and assess the quality of Elastic changelog YAML files against current Elastic standards. Reports schema errors, content quality issues, systematic pattern violations, and type-title alignment mismatches. Fetches canonical guidance to stay in sync. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
+version: 1.4.0
+description: Validate and assess the quality of Elastic changelog YAML files against current Elastic standards. Reports schema errors, content quality issues, systematic pattern violations, type-title alignment mismatches, and overly technical content that needs user-focused rewrites. Features repository-aware area validation. Fetches canonical guidance to stay in sync. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
 allowed-tools: Read, Grep, Glob, WebFetch
@@ -52,15 +52,21 @@ You are a changelog reviewer for Elastic documentation. Your job is to check cha
 
 `$ARGUMENTS` is a file path or directory to review. If empty, ask the user what to review.
 
-## Step 1: Load canonical guidance (optional but recommended)
+## Step 1: Load canonical guidance and repository configuration
 
-To ensure this review aligns with the latest Elastic changelog standards, attempt to fetch the current guidance:
+To ensure review warnings align with current standards and repository-specific rules:
 
+### Canonical Guidance Loading
 1. **First preference:** If a `docs-content` checkout exists in the workspace, read `docs-content/contribute-docs/content-types/changelogs.md`
 2. **Second preference:** Fetch the published guide at <https://www.elastic.co/docs/contribute-docs/content-types/changelogs>
-3. **Fallback:** Use the embedded patterns in this skill (Steps 3-4) if the above sources are unavailable
+3. **Fallback:** Use the embedded patterns in this skill if the above sources are unavailable
 
-**Purpose:** This ensures the review warnings match the most current writer guidance. If successful, cross-check key patterns (title cleanup checklist, technical terms guidance, anti-patterns) against what's embedded in this skill. If there are significant discrepancies, note this in the final summary.
+### Repository Configuration Loading
+1. **Area validation:** Look for `docs/changelog.yml` in the workspace to extract valid area values from the `pivot.areas` section
+2. **Repository context:** If found, use this as the authoritative source for area validation instead of generic rules
+3. **Fallback:** If no repository config found, note this limitation in the final summary
+
+**Purpose:** This ensures review warnings match both current writer guidance and repository-specific validation rules. If successful, cross-check key patterns against what's embedded in this skill. If there are significant discrepancies, note this in the final summary.
 
 ## Step 2: Discover and parse files
 
@@ -84,7 +90,7 @@ These are hard errors. The source of truth for the schema is `ChangelogEntry.cs`
 - `subtype`: only permitted on `breaking-change` entries; value must be one of: `api`, `behavioral`, `configuration`, `dependency`, `subscription`, `plugin`, `security`, `other`
 - `description` if present: max 600 characters
 - `prs` and `issues`: optional arrays, may be empty or absent — no validation beyond YAML type correctness
-- `areas` if present: must be an array of strings — denotes the parts/components/services of the product specifically affected
+- `areas` if present: must be an array of strings — validate against repository configuration from Step 1 if available (only flag areas not in `docs/changelog.yml` pivot.areas section), otherwise use generic validation
 - `feature-id` if present: must be a string — used to associate a change with a unique feature flag
 - `highlight` if present: must be a boolean — marks entries for inclusion in release highlights
 
@@ -159,6 +165,23 @@ Flag when changelog `type` and `title` verb patterns don't align, indicating pot
 - Type `enhancement` + "Fix Painless score scripts..." → **Flag alignment mismatch**  
 - Type `enhancement` + "Fix ES|QL performance issues..." → **Flag alignment mismatch**
 
+**6. Technical content issues:**
+
+Flag overly technical titles that focus on implementation details rather than user impact:
+
+- **Implementation-focused titles:** Class names, method names, or internal processes without user context
+  - **Warning:** Title focuses on code changes rather than user-visible symptoms
+  - **Example:** "Fix splitValue nullability coercion when constructing ColorSeries" → Flag as too technical
+  - **Suggest:** Rewrite to describe user-visible impact like "Fix inline charts with grey time series for ES|QL queries"
+
+- **Technical jargon without context:** Multiple technical terms that don't explain user experience
+  - **Warning:** Title requires deep technical knowledge to understand user impact
+  - **Suggest:** Focus on what users see, not how code works
+
+- **Missing user symptoms:** Describes internal fixes without explaining external effects
+  - **Warning:** Users can't determine if this change affects them
+  - **Suggest:** Include user-facing symptoms or feature areas affected
+
 **Type-specific:**
 
 - `breaking-change`: `impact` and `action` are REQUIRED — flag as errors if absent; `subtype` is strongly recommended
@@ -211,6 +234,6 @@ Produce one section per file reviewed. Omit empty sections. Use this format:
 
 If a file has no issues, say so explicitly.
 
-End with a one-line overall summary across all files reviewed. If any files have quality warnings (including systematic pattern issues and type-title alignment mismatches) or formatting warnings, suggest running `docs-fix-changelog` to get specific improvement suggestions that address the same patterns this review identified.
+End with a one-line overall summary across all files reviewed. If any files have quality warnings (including systematic pattern issues, type-title alignment mismatches, and technical content issues) or formatting warnings, suggest running `docs-fix-changelog` to get specific improvement suggestions that address the same patterns this review identified.
 
 **Sync awareness:** If Step 1 successfully loaded canonical guidance and you detected significant discrepancies between the live documentation and this skill's embedded patterns, flag this in your summary. Note which patterns may need updating and suggest checking the canonical source directly at <https://www.elastic.co/docs/contribute-docs/content-types/changelogs>.

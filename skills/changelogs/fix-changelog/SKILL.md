@@ -1,7 +1,7 @@
 ---
 name: docs-fix-changelog
-version: 2.0.0
-description: Suggest improved text for changelog YAML files against current Elastic standards. Mirrors the pattern catalog from docs-review-changelog to provide consistent fixes. Includes type-title alignment checking to catch systematic misclassifications. Features confidence scoring and assumption tracking for suggestion transparency. Supports single files or directories. Fetches canonical guidance to stay in sync. Use after review identifies quality issues, or when drafting new changelogs.
+version: 2.3.0
+description: Suggest improved text for changelog YAML files against current Elastic standards. Mirrors the pattern catalog from docs-review-changelog to provide consistent fixes. Includes type-title alignment checking and technical content assessment to catch overly technical titles that need user-focused rewrites. Features repository-aware area validation and enhanced confidence scoring. Supports single files or directories. Fetches canonical guidance to stay in sync. Use after review identifies quality issues, or when drafting new changelogs.
 argument-hint: "[changelog-file-or-directory] [pr/issue-context]"
 context: fork
 allowed-tools: Read, Grep, Glob, WebFetch
@@ -31,17 +31,23 @@ This skill pairs with `docs-review-changelog` as part of a systematic changelog 
 
 **Default behavior:** Suggest-only mode. Changes are only applied to disk after explicit user confirmation.
 
-## Step 1: Load canonical guidance (recommended)
+## Step 1: Load canonical guidance and repository configuration
 
-To ensure fix suggestions align with the latest Elastic changelog standards, attempt to fetch current guidance:
+To ensure fix suggestions align with current standards and repository-specific rules:
 
+### Canonical Guidance Loading
 1. **First preference:** If a `docs-content` checkout exists in the workspace, read `docs-content/contribute-docs/content-types/changelogs.md`
 2. **Second preference:** Fetch the published guide at [https://www.elastic.co/docs/contribute-docs/content-types/changelogs](https://www.elastic.co/docs/contribute-docs/content-types/changelogs)
-3. **Fallback:** Use the embedded post-edit checklist in this skill (Steps 3-4) if the above sources are unavailable
+3. **Fallback:** Use the embedded post-edit checklist in this skill if the above sources are unavailable
 
-**Purpose:** This ensures fix suggestions match the most current writer guidance. If successful, cross-check key patterns (title cleanup checklist, technical terms guidance, anti-patterns) against what's embedded in this skill. If there are significant discrepancies, note this in the final output.
+### Repository Configuration Loading
+1. **Area validation:** Look for `docs/changelog.yml` in the workspace to extract valid area values from the `pivot.areas` section
+2. **Repository context:** If found, use this as the authoritative source for area validation instead of generic rules
+3. **Fallback:** If no repository config found, note this limitation in confidence tracking
 
-**Track for confidence:** Document whether canonical guidance was successfully fetched and which source was used. Failed fetches or fallback to embedded patterns should be noted as factors affecting suggestion confidence.
+**Purpose:** This ensures fix suggestions match both current writer guidance and repository-specific validation rules. 
+
+**Track for confidence:** Document whether canonical guidance and repository config were successfully loaded. Failed fetches or fallbacks affect suggestion confidence and should be noted in the final output.
 
 ## Operating modes
 
@@ -152,6 +158,39 @@ For each changelog:
    - **Option B:** Keep title, suggest more appropriate type
 4. **Include confidence note** explaining which option is more likely correct based on PR context
 
+## Step 4.6: Technical Content Assessment
+
+**Before field-level assessment**, evaluate titles for overly technical language that focuses on implementation rather than user impact.
+
+### Technical Jargon Detection
+
+**Flag titles that prioritize implementation over user symptoms:**
+
+- **Class/method references without context**: "constructing ColorSeries", "splitValue nullability", "when building QueryNode"
+- **Internal process descriptions**: "coercion logic", "serialization handling", "initialization sequence"  
+- **Implementation-focused terminology**: Technical terms that don't explain what users experience
+- **Missing user-visible symptoms**: Titles describing code changes without explaining user impact
+
+### User Impact Assessment
+
+**Recognize titles that already focus on user experience:**
+- Clear symptom descriptions: "Fix inline charts with grey time series"
+- User-facing feature names: "ES|QL queries", "dashboard widgets", "alert notifications"
+- Observable behaviors: "slow loading", "incorrect results", "missing data"
+
+### Technical Content Scoring
+
+**High priority for user-focused rewrite:**
+- Title contains multiple technical terms without user context
+- Implementation details dominate over user symptoms  
+- Class names, method names, or internal concepts without explanation
+- Example: "Fix splitValue nullability coercion when constructing ColorSeries" → Should suggest user-focused alternative
+
+**Low priority for rewrite (formatting only):**
+- Title already describes user-visible symptoms clearly
+- Technical terms support rather than obscure user understanding
+- Example: "Fix inline charts with grey time series for ES|QL queries" → Minor formatting only
+
 ## Step 5: Assess fields
 
 **Mode A & B** — identify fields that need improvement (apply to each file processed):
@@ -159,7 +198,7 @@ For each changelog:
 - `title`: too vague, implementation-focused, wrong tense, missing action verb, or over 80 characters
 - `description`: absent but would add value, or present but low quality (repeats title, says "See PR", says "Internal refactoring")
 - `impact` / `action`: absent on `breaking-change`, `deprecation`, or `known-issue`
-- `areas` if present: must be an array of strings; flag if it contains values that don't look like valid product area names
+- `areas` if present: must be an array of strings; validate against repository configuration from Step 1 if available (only flag areas not in `docs/changelog.yml` pivot.areas section), otherwise use generic validation
 - `feature-id` if present: must be a string; no content quality check needed, just YAML type correctness
 
 Also check for formatting anti-patterns in existing `description`, `impact`, and `action` values:
@@ -198,6 +237,28 @@ Also check for formatting anti-patterns in existing `description`, `impact`, and
 - **Low confidence - provide both options:**
   - Ambiguous PR context about whether behavior was broken or just suboptimal
   - Edge cases between types (e.g., "fixing" by adding a missing capability)
+
+**Technical Content Assessment Confidence:**
+
+- **High confidence user-impact rewrites:**
+  - Titles heavy in class names, method names, or implementation details without user context
+  - Multiple technical terms that don't explain user symptoms
+  - Clear implementation focus over user experience (e.g., "Fix splitValue nullability coercion when constructing ColorSeries")
+
+- **Medium confidence:**
+  - Technical terms mixed with some user-facing language
+  - Partial user context but still implementation-heavy
+
+- **Low priority formatting-only suggestions:**
+  - Titles already focused on user symptoms and impact
+  - Technical terms support rather than obscure user understanding
+  - Clear user-facing language with minimal technical jargon
+
+**Repository Validation Confidence:**
+
+- **High confidence:** Repository configuration loaded successfully, using authoritative area validation
+- **Medium confidence:** Repository config partially available or unclear
+- **Low confidence:** No repository configuration found, using generic validation rules
 
 **Mode A & B** — for each weak or malformed field, show:
 
@@ -318,6 +379,12 @@ Use backticks for field names, parameter names, config keys, API endpoints, comm
   - **Option A:** Keep type, suggested title: "[new-title]"
   - **Option B:** Keep title, suggested type: `[new-type]`
   - **Recommendation:** [Which option with reasoning]
+
+### Technical content assessment:
+- [File]: Title "[current-title]" — [Technical assessment]
+  - **Issue:** [Implementation-focused vs user-focused description]
+  - **Suggested user-focused rewrite:** "[user-impact-focused title]"
+  - **Reasoning:** [Why the rewrite better serves users]
 
 ### Terminology uncertainties:
 - [Term/phrase]: Assumed [interpretation] — [Why uncertain, e.g., "Could be UI element vs feature name", "Missing domain context"]
