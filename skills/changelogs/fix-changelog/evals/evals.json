@@ -3,35 +3,123 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Fix this changelog title that has UI formatting issues: 'Update Service Inventory page for better Machine Learning display'",
-      "expected_output": "Suggestion showing proper UI element formatting with **Service Inventory** bolded (UI label) but Machine Learning capitalized (feature name), not bolded",
+      "prompt": "Review this changelog file for improvements: ./perfect-changelog.yaml. It's a feature addition for Kibana with clear title and description.",
+      "expected_output": "No significant improvements needed; changelog already follows best practices with clear user-focused title, appropriate type alignment, proper YAML formatting, and comprehensive description.",
       "expectations": [
-        "Suggests bolding 'Service Inventory' as UI element: **Service Inventory**",
-        "Suggests capitalizing 'Machine Learning' as feature name (not bolding)",
-        "Includes article: 'the **Service Inventory** page'", 
-        "Explains UI vs feature name formatting distinction"
+        "Recognizes the changelog is already well-written",
+        "Either reports no issues found or only minor stylistic suggestions",
+        "Does not suggest unnecessary changes to good content",
+        "Maintains proper confidence scoring for high-quality input"
       ]
     },
     {
-      "id": 2, 
-      "prompt": "Fix this changelog where accuracy conflicts with style: Title 'Improve dashboard performance' but PR shows it actually fixes a memory leak bug that was causing crashes",
-      "expected_output": "Suggestion prioritizes accuracy over style, recommending title change to reflect bug fix nature and possibly changing type to bug-fix",
+      "id": 2,
+      "prompt": "Fix this changelog with multiple schema errors: missing type field, invalid product ID 'invalid-product', and unquoted title containing colons: Fix API endpoint: authentication now required",
+      "expected_output": "Comprehensive fix suggestions addressing schema violations: adds required type field, corrects product ID to valid value, properly quotes title to prevent YAML parsing errors, plus a docs-builder changelog add command.",
       "expectations": [
-        "Prioritizes factual accuracy over stylistic preference",
-        "Suggests title reflecting actual fix (memory leak/crashes) not generic improvement",
-        "May suggest type change to bug-fix if behavior was broken",
-        "Explains correctness priority principle in reasoning"
+        "Identifies and fixes all schema violations",
+        "Suggests valid product ID from canonical list",
+        "Properly quotes title containing colons to prevent parse errors",
+        "Provides ready-to-copy docs-builder command with proper escaping",
+        "High confidence for schema fixes, medium/low confidence for field content suggestions"
       ]
     },
     {
       "id": 3,
-      "prompt": "Fix changelog with uncertain formatting: 'Enable Advanced Settings in Kibana for index.refresh_interval configuration'",
-      "expected_output": "Confidence tracking documents uncertainty about 'Advanced Settings' (UI vs feature) and properly formats index.refresh_interval with backticks",
+      "prompt": "This breaking-change changelog is missing required impact and action fields. Type: breaking-change, Title: Remove deprecated API endpoints, Description: Several legacy endpoints are no longer available.",
+      "expected_output": "Identifies missing required fields for breaking-change type and suggests comprehensive impact and action content that explains who is affected and provides migration steps.",
       "expectations": [
-        "Uses backticks for config parameter: `index.refresh_interval`",
-        "Documents uncertainty about 'Advanced Settings' formatting in confidence section",
-        "Provides rationale for formatting choice made",
-        "Shows enhanced confidence methodology with assumption tracking"
+        "Flags missing impact and action fields as required for breaking-change type",
+        "Suggests meaningful impact describing affected users and use cases",
+        "Provides actionable migration steps in the action field",
+        "Recommends adding subtype field for better categorization",
+        "Medium confidence noting limited context for migration details"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Fix type-title alignment: Type is 'bug-fix' but title says 'Improve query performance in Elasticsearch'. The change optimized existing functionality that was working but slow.",
+      "expected_output": "Type-title alignment mismatch detected with two options: Option A keeps bug-fix type and rewrites title to focus on what was broken, Option B changes type to enhancement and keeps performance-focused title.",
+      "expectations": [
+        "Identifies type-title alignment mismatch clearly",
+        "Provides Option A: bug-fix type with title like 'Fix slow query performance'",
+        "Provides Option B: enhancement type with title like 'Improve query performance'", 
+        "Includes recommendation explaining which option fits better based on context",
+        "Medium confidence due to ambiguous nature of performance improvements"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Rewrite this overly technical title for user impact: 'Fix splitValue nullability coercion when constructing ColorSeries for ES|QL visualization rendering'",
+      "expected_output": "Technical content assessment identifies implementation-focused title and suggests user-focused rewrite emphasizing visible symptoms like 'Fix chart display issues in ES|QL query visualizations' with explanation of the improvement.",
+      "expectations": [
+        "Flags title as too technical and implementation-focused",
+        "Suggests user-focused alternative describing visible symptoms", 
+        "Maintains ES|QL context but explains user impact",
+        "Explains why the rewrite better serves users",
+        "High confidence for technical content rewrite recommendation"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Fix quality issues in this changelog: Title: 'feat: Bug fixes', Description: 'See PR for details', Type: feature, with development prefix and vague content.",
+      "expected_output": "Multiple content quality fixes: strips 'feat:' development prefix, makes title specific and actionable, replaces generic description with meaningful user impact, suggests aligning type with actual content.",
+      "expectations": [
+        "Strips development label 'feat:' from title",
+        "Identifies 'Bug fixes' as too vague for feature type",
+        "Flags 'See PR for details' as low-value description", 
+        "Suggests specific title and meaningful description",
+        "Notes type-content mismatch (bug fixes vs feature type)",
+        "Low confidence due to lack of PR context for specific improvements"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Fix YAML formatting in changelog with unquoted title containing special characters: Fix auth header: Bearer token format, and description with code identifiers written as plain text: Updates the validateToken method behavior.",
+      "expected_output": "YAML formatting fixes including proper quoting for special characters and backticks around code identifiers, plus improved technical terminology for user clarity.",
+      "expectations": [
+        "Quotes title properly due to colon followed by space",
+        "Adds backticks around 'validateToken' method name",  
+        "Explains YAML quoting requirements to prevent parse errors",
+        "Suggests more user-focused description of method behavior impact",
+        "High confidence for formatting fixes, medium for content improvements"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Review changelog with invalid area 'Dashboards' (note: this area doesn't exist in the current repository's docs/changelog.yml areas list).",
+      "expected_output": "Repository-aware validation flags invalid area name and suggests correct area from the repository's canonical list, noting the difference between repository-specific and generic validation.",
+      "expectations": [
+        "Identifies area as invalid based on repository configuration",
+        "Suggests valid area alternatives from docs/changelog.yml",
+        "Notes successful repository config loading in confidence section",
+        "High confidence for area validation when repository config available"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Process this directory of changelog files: ./mixed-changelogs/ containing mixed quality files from different products (Kibana cloud-serverless, Elasticsearch, docs-builder).",
+      "expected_output": "Directory processing mode with individual file assessments, summary of files needing improvements, and recognition of different product types and area taxonomies across the mixed repository examples.",
+      "expectations": [
+        "Processes multiple files in directory mode", 
+        "Provides individual assessments for each file",
+        "Summarizes count of files processed and files needing improvements",
+        "Handles different product types (cloud-serverless, elasticsearch, docs-builder)",
+        "Recognizes different area taxonomies (Kibana UX vs ES|QL vs API/CLI)",
+        "Does not apply changes without user confirmation"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Create new changelog for: 'Added support for custom authentication providers in Elasticsearch Serverless, allowing users to configure SAML and OIDC integration with enhanced security options including role mapping.'",
+      "expected_output": "Mode C operation providing suggested field content and ready-to-copy docs-builder changelog add command with proper escaping for shell execution.",
+      "expectations": [
+        "Suggests appropriate type (likely 'feature' for new capability)",
+        "Creates clear, user-focused title under 80 characters",
+        "Provides comprehensive description under 600 characters",
+        "Outputs properly formatted docs-builder changelog add command",
+        "Escapes backticks and quotes correctly for shell execution",
+        "Notes that products, PRs, issues must be provided separately"
       ]
     }
   ]
