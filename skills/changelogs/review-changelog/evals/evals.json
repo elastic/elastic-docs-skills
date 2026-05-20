@@ -1,0 +1,71 @@
+{
+  "skill_name": "docs-review-changelog", 
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this changelog with UI formatting issues: title: 'Update Service Inventory to improve **Machine Learning** display' description: 'Changes to Advanced Settings panel'",
+      "expected_output": "Flags UI formatting issues: Service Inventory should be quoted, Machine Learning shouldn't be bolded or quoted (feature name), Advanced Settings panel formatting unclear",
+      "expectations": [
+        "Flags missing quotes on 'Service Inventory' (UI element)",
+        "Flags incorrect quoting of 'Machine Learning' (should be feature name, not quoted)",
+        "Notes uncertainty about 'Advanced Settings panel' formatting",
+        "Includes UI element formatting issues in warnings"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review changelog with Elastic context issues: title: 'Add support for ESQL queries in Observability' description: 'Enables ESQL functionality for monitoring use cases'", 
+      "expected_output": "Applies Elastic software context to validate ES|QL terminology and Observability product reference",
+      "expectations": [
+        "Notes inconsistent 'ESQL' format (should be 'ES|QL')",
+        "Validates 'Observability' as legitimate Elastic product context", 
+        "Shows software context awareness in terminology checking",
+        "Does not flag legitimate Elastic product references as marketing"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review changelog when canonical guidance fails to load: title: 'Fix dashboard loading' with repository config not found",
+      "expected_output": "Includes confidence assessment showing failed resource loading and its impact on review accuracy", 
+      "expectations": [
+        "Includes 'Confidence Assessment' section in output",
+        "Shows '✗ Failed' status for canonical guidance or repository config", 
+        "Notes 'Medium' or 'Low' validation confidence due to missing resources",
+        "Explains review limitations due to resource loading failures"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Review changelog with feature prefix pattern: title: 'File upload: Fixes disabling data view creation based on user capabilities'",
+      "expected_output": "Flags feature/app prefix pattern as title standardization issue requiring contextual integration",
+      "expectations": [
+        "Flags 'File upload:' prefix pattern as title standardization issue",
+        "Categorizes under 'Feature/app prefix patterns' warning",
+        "Explains pattern needs contextual integration",
+        "Notes pattern should be handled by fix-changelog skill for solutions"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review changelog with technical colon usage: title: 'Fix bug with Auth header needing \"Authorization: Bearer <token>\"'",
+      "expected_output": "Correctly does NOT flag technical term as feature prefix, focuses on other potential issues",
+      "expectations": [
+        "Does NOT flag 'Authorization: Bearer' as feature prefix pattern",
+        "Correctly identifies as legitimate technical/API reference",
+        "May flag other issues (YAML quoting, formatting) if present",
+        "Shows understanding of technical vs feature prefix distinction"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Review changelog with multiple title issues including feature prefix: title: 'Dashboard: fixes widget loading bugs'",
+      "expected_output": "Flags both feature prefix pattern AND other title issues (verb form, capitalization)",
+      "expectations": [
+        "Flags 'Dashboard:' as feature/app prefix pattern requiring integration",
+        "Flags verb form issue: 'fixes' should be 'Fix' (base form)",
+        "Notes title standardization issues in systematic order",
+        "Demonstrates comprehensive title pattern checking"
+      ]
+    }
+  ]
+}
