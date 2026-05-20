@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.1.1
+version: 1.1.2
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 context: fork
@@ -173,6 +173,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Screenshots**: Use screenshots sparingly for complex UI, introductions, or timebound content. Check that screenshots use a consistent aspect ratio, 100% zoom, only essential UI, a screenshot border when appropriate, accessible alt text, and no sensitive information.
 - **Procedures**: 5–9 steps. Focus on use cases, not piece-by-piece UI description. Eliminate obvious steps.
 - **Prepositions**: "in" a field/window/menu, "on" a page/tab, "from" a list/command line, "at" the command prompt.
+- **Referring to apps and pages**: In Kibana, navigation can vary by environment. Use solution-agnostic patterns when directing users to apps or pages: "Find **APP** in the main menu or use the [global search field]." When the app is only reachable via search: "To open **APP**, find **PARENT** in the main menu or use the global search field." Flag instructions that assume a fixed navigation path without offering the search alternative.
 
 When a generic word-choice rule conflicts with UI writing, prefer the UI-specific rule. For example, `click` is correct for action buttons and icons, while `select` is correct for choices such as tabs, checkboxes, radio buttons, and dropdown options.
 
