@@ -1,6 +1,6 @@
 ---
 name: docs-fix-changelog
-version: 2.3.0
+version: 2.3.1
 description: Suggest improved text for changelog YAML files against current Elastic standards. Mirrors the pattern catalog from docs-review-changelog to provide consistent fixes. Includes type-title alignment checking and technical content assessment to catch overly technical titles that need user-focused rewrites. Features repository-aware area validation and enhanced confidence scoring. Supports single files or directories. Fetches canonical guidance to stay in sync. Use after review identifies quality issues, or when drafting new changelogs.
 argument-hint: "[changelog-file-or-directory] [pr/issue-context]"
 context: fork
@@ -212,7 +212,7 @@ For each changelog:
 **Mode A & B** — identify fields that need improvement (apply to each file processed):
 
 - `title`: too vague, implementation-focused, wrong tense, missing action verb, or over 80 characters
-- `description`: absent but would add value, or present but low quality (repeats title, says "See PR", says "Internal refactoring")
+- `description`: only suggest when title is vague; do not suggest when title is self-explanatory; flag present low-quality content (repeats title, "See PR", "Internal refactoring")
 - `impact` / `action`: absent on `breaking-change`, `deprecation`, or `known-issue`
 - `areas` if present: must be an array of strings; validate against repository configuration from Step 1 if available (only flag areas not in `docs/changelog.yml` pivot.areas section), otherwise use generic validation
 - `feature-id` if present: must be a string; no content quality check needed, just YAML type correctness
@@ -231,7 +231,7 @@ Also check for formatting anti-patterns in existing `description`, `impact`, and
 
 ## Step 6: Generate suggestions
 
-**Character limits:** Title max 80 characters. Description max 600 characters. If a suggestion is too long, shorten it or split across title and description.
+**Character limits:** Target 80/600 characters; prefer clarity over trimming; split excess detail into `description` rather than shortening accurate titles.
 
 **Confidence tracking:** During suggestion generation, note factors that affect confidence:
 
