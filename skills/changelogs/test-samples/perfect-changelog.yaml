@@ -1,0 +1,13 @@
+prs:
+- https://github.com/elastic/kibana/pull/266184
+type: feature
+products:
+- product: cloud-serverless
+  target: 2026-05-12
+areas:
+- Dashboards and visualizations
+title: "Add custom visualization builder for advanced chart configurations"
+description: >-
+  Users can now create custom visualizations using the new advanced chart builder. 
+  This feature provides drag-and-drop interface for complex data relationships, 
+  custom color schemes, and interactive filtering options that enhance dashboard functionality.

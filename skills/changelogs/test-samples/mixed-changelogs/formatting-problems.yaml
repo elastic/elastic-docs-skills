@@ -1,0 +1,10 @@
+prs:
+- https://github.com/elastic/logstash/pull/18045
+type: enhancement
+products:
+- product: logstash
+  target: 9.2.0
+areas:
+- Input plugins
+title: Update input configuration: now supports SSL parameters
+description: The configureSSL method now handles certificate validation better and the parseConnectionString function supports new options.

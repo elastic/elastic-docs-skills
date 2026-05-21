@@ -1,0 +1,9 @@
+prs:
+- https://github.com/elastic/elasticsearch/pull/130089
+# Missing type field - schema error
+products:
+- product: elasticsearch
+  target: 9.2.0
+areas: "ES|QL and Search"  # Should be array, not string - schema error
+title: fix: Performance improvements  # Development prefix + vague title - quality issues
+description: Various optimizations  # Vague description - quality issue
