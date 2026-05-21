@@ -1,10 +1,10 @@
 ---
 name: docs-check-style
-version: 1.0.4
+version: 1.1.2
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 context: fork
-allowed-tools: Read, Grep, Glob, Bash(vale *), WebFetch
+allowed-tools: Read, Grep, Glob, Bash(vale *), CallMcpTool, WebFetch
 sources:
   - https://www.elastic.co/docs/contribute-docs/style-guide
   - https://www.elastic.co/docs/contribute-docs/style-guide/voice-tone
@@ -37,9 +37,13 @@ You are a style reviewer for Elastic documentation. Your job is to check docs ag
 
 `$ARGUMENTS` is the file or directory to check. If empty, ask the user what to review.
 
-## Step 1: Run Vale
+## Step 1: Refresh style guidance
 
-Try the Vale MCP tool first (`vale_lint`). If unavailable, fall back to the CLI:
+Use the Elastic docs MCP `get_document_by_url` tool with `includeBody: true` to fetch the style guide pages listed in `sources`. If the MCP is unavailable, fetch the `.md` page URLs directly. Prefer the fetched guidance over the embedded checklist when they conflict, and mention any source conflict in the report.
+
+## Step 2: Run Vale
+
+Run the Vale CLI:
 
 ```
 vale --output=line $ARGUMENTS
@@ -47,11 +51,11 @@ vale --output=line $ARGUMENTS
 
 If Vale is not installed, skip this step and note it in your report. Proceed with manual review.
 
-## Step 2: Read the document(s)
+## Step 3: Read the document(s)
 
 Glob for `.md` files in `$ARGUMENTS` (or read the single file). Read each file fully.
 
-## Step 3: Review against style rules
+## Step 4: Review against style rules
 
 Check every document against the rules below. Categorize each issue by area.
 
@@ -138,16 +142,20 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Italic**: New terms and concepts, Elastic documentation resource titles.
 - **Monospace**: API endpoints, class names, code, commands, config settings, data types, directories, env vars, error messages, field names, function names, index names, parameters, process names, property names, role names, variables.
 - **Numbers**: Write out 1–9 in prose, numerals for 10+. Use numerals in tables, for decimals, dimensions, percentages. Separate large numbers with commas (1,234,567).
+- **Dates and times**: Use `Month DD, YYYY` for dates. Use 12-hour time with uppercase `AM`/`PM`. Use UTC as the primary time zone, or include UTC with local time when needed. Avoid relative terms such as "last month," "recently," and "currently."
 - **Lists**: Minimum two items. Parallel structure. Capitalize first letter. No periods unless complete sentences. Introduce with a heading, sentence, or fragment ending with a colon.
 - **Paragraphs**: Keep under seven lines.
 - **Line spacing**: Single line break between elements.
+- **Admonitions**: Use notes, tips, warnings, important blocks, and plain admonitions for their documented purpose. Do not stack admonitions, overuse them, or use regular admonitions for prerequisites when a plain requirements admonition fits better.
+- **Code samples**: Use consistent indentation, syntax highlighting, runnable examples when possible, and short comments before the code they explain. For JSON, use footnotes only when needed because footnotes are less accessible.
+- **Sensitive information**: Flag screenshots, examples, logs, tokens, hostnames, IPs, internal links, customer data, and secrets that need redaction or replacement with documentation-safe placeholders.
 
 ### Accessibility
 
 - **Alt text**: Required for all images, icons, and media. No backticks in alt text.
 - **Link text**: Descriptive — never "click here" or bare URLs.
 - **No directional language**: Avoid "above," "below," "left," "right" for positional references.
-- **Device-neutral verbs**: Use "select" instead of "click" for general actions. "Click" is acceptable only for explicit mouse actions.
+- **Device-neutral verbs**: Prefer device-neutral language. Use "select" for choices — tabs, checkboxes, dropdowns, and radio buttons. Use "click" for button actions, icons, and following links. Avoid "click" when the user is making a selection rather than triggering an action.
 - **Plain language**: Short sentences. Expand acronyms on first use. Parallel structures in lists.
 - **Gender-neutral**: Use they/their. Replace gendered defaults (use "folks" not "guys").
 - **Avoid**: Buzzwords, superhero terms, violent imagery, ableist language, non-specific superlatives.
@@ -156,17 +164,22 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 
 - **Buttons**: "Click **Save**" — don't add "button" after the label.
 - **Checkboxes/radio buttons**: "Select **Logs**" / "Clear **Metrics**."
+- **Select vs. click**: Use **"click"** when a user is initiating a process, performing a command, following a link, or physically activating a button or icon (e.g., "Click **Save**", "Click the **Help** icon"). Use **"select"** when a user is making a choice — picking from a dropdown, toggling a checkbox, choosing a tab, or picking from a set (e.g., "Select the **Logs** tab", "Select the **Enforce HTTPS** checkbox"). ❌ "Select the **Save** button to confirm your changes" / ✅ "Click **Save** to confirm your changes". ❌ "Click **Logs**" [for a tab] / ✅ "Select the **Logs** tab to view events".
 - **Text fields**: "In the **Name** field, enter `value`."
 - **Toggles**: "Turn on **Feature**" / "Turn off **Feature**" — not "enable/disable" as verbs. Use "toggle" as a **noun** to refer to the UI element (e.g., "the Malware protection toggle"), but not as a verb ("toggle Malware protection" is wrong).
 - **Keys**: "Press Enter" / "Press Command+Alt+L."
 - **Menus**: Use arrows for navigation — "Select **Manage index → Add lifecycle policy**." Do **not** use the verbs "open" or "close" for menus; use "From the menu,..." instead. Refer to the element as "menu" — not "dropdown menu" or "dropdown list."
 - **Icons**: Reference by tooltip text, include inline icon. Avoid parentheses around icons.
+- **Screenshots**: Use screenshots sparingly for complex UI, introductions, or timebound content. Check that screenshots use a consistent aspect ratio, 100% zoom, only essential UI, a screenshot border when appropriate, accessible alt text, and no sensitive information.
 - **Procedures**: 5–9 steps. Focus on use cases, not piece-by-piece UI description. Eliminate obvious steps.
 - **Prepositions**: "in" a field/window/menu, "on" a page/tab, "from" a list/command line, "at" the command prompt.
+- **Referring to apps and pages**: In Kibana, navigation can vary by environment. Use solution-agnostic patterns when directing users to apps or pages: "Find **APP** in the main menu or use the [global search field]." When the app is only reachable via search: "To open **APP**, find **PARENT** in the main menu or use the global search field." Flag instructions that assume a fixed navigation path without offering the search alternative.
+
+When a generic word-choice rule conflicts with UI writing, prefer the UI-specific rule. For example, `click` is correct for action buttons and icons, while `select` is correct for choices such as tabs, checkboxes, radio buttons, and dropdown options.
 
 ---
 
-## Step 4: Generate the report
+## Step 5: Generate the report
 
 Present findings as a structured report. Group issues by area. For each issue:
 

@@ -60,7 +60,8 @@ Review skills changed in this PR for quality issues and post a comment with find
 
 - File starts with valid YAML frontmatter between `---` delimiters.
 - Required frontmatter fields: `name`, `description`, `version`.
-- `name` is kebab-case and matches the directory name.
+- `name` is kebab-case, starts with `docs-`, and is unique across the catalog.
+- The skill directory name is kebab-case.
 - `version` is valid SemVer.
 - No unclosed code fences in the markdown body.
 - No broken internal links (references to files that don't exist in the skill directory).
@@ -82,7 +83,7 @@ Review skills changed in this PR for quality issues and post a comment with find
 
 ### Contamination awareness
 
-- Code examples should be in the language relevant to the skill's domain. Mixing unrelated languages (e.g., Python examples in a markup-focused skill) can confuse the agent.
+- Code examples should be in the language relevant to the skill's domain. Mixing unrelated languages, such as Python examples in a markup-focused skill, can confuse the agent.
 - If multiple languages are necessary, they should be clearly scoped to specific sections.
 
 ## Comment format

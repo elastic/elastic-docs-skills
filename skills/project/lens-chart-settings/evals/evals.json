@@ -14,11 +14,11 @@
     {
       "id": 2,
       "prompt": "Where in the Kibana source code should I look to find what Style panel options are available for a pie chart?",
-      "expected_output": "Directs to partition_charts_meta.ts for the chart config, then toolbar/style_settings.tsx for the panel structure, and toolbar/titles_and_text_setttings.tsx for slice labels and values",
+      "expected_output": "Directs to partition_charts_meta.ts for the chart config, then toolbar/style_settings.tsx for the panel structure, and toolbar/titles_and_text_settings.tsx for slice labels and values",
       "expectations": [
         "Points to partition_charts_meta.ts as the starting point for per-chart configuration",
         "Mentions toolbar/style_settings.tsx for the Style panel structure",
-        "Mentions toolbar/titles_and_text_setttings.tsx for slice labels and values options",
+        "Mentions toolbar/titles_and_text_settings.tsx for slice labels and values options",
         "References the path x-pack/platform/plugins/shared/lens/public/visualizations/partition/"
       ]
     },

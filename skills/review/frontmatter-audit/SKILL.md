@@ -1,12 +1,12 @@
 ---
 name: docs-frontmatter-audit
-version: 1.0.1
-description: Audit Elastic documentation files for frontmatter completeness and correctness. Checks applies_to, products, description, and navigation_title fields across a directory. Use when auditing docs metadata, checking frontmatter quality before publishing, or validating a batch of files.
+version: 1.1.1
+description: Audit Elastic documentation files for frontmatter completeness and correctness. Checks products, description, and navigation_title fields across a directory. Use when auditing docs metadata, checking frontmatter quality before publishing, or validating a batch of files.
 argument-hint: <file-or-directory>
 context: fork
-allowed-tools: Read, Grep, Glob
+allowed-tools: Read, Grep, Glob, CallMcpTool, WebFetch
 sources:
-  - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/reference
+  - https://elastic.github.io/docs-builder/syntax/frontmatter/
   - https://developers.google.com/search/docs/appearance/snippet
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
@@ -32,11 +32,10 @@ You are a frontmatter auditor for Elastic documentation. Your job is to check al
 
 `$ARGUMENTS` is a file path or directory to audit. If empty, ask the user what to audit.
 
-Before starting, ask the user to confirm these configuration defaults or provide overrides:
+Use these configuration defaults unless the user provides overrides. Ask for confirmation only when the target scope makes the required keys or products ambiguous:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| **Required `applies_to` keys** | `stack`, `serverless` | Which keys must be present |
 | **Required `products`** | *(none)* | Which product IDs must appear (e.g., `kibana`) |
 | **Additional products allowed** | yes | Whether extra product IDs beyond the required ones are acceptable |
 
@@ -44,25 +43,9 @@ Before starting, ask the user to confirm these configuration defaults or provide
 
 Check each file for the following elements:
 
-### 1. `applies_to` (mandatory)
+### 1. `products` (mandatory)
 
-Every page must have `applies_to` in its frontmatter. Verify:
-- Presence of all configured required keys
-- Valid lifecycle values: `preview`, `beta`, `ga`, `deprecated`, `removed`, `unavailable`
-- Valid version syntax if present (e.g., `ga 9.1`, `preview 9.0, ga 9.2`)
-- No mixed dimensions (stack/serverless keys should not be combined with deployment keys)
-
-```yaml
-applies_to:
-  stack: ga
-  serverless: ga
-```
-
-Flag files missing this element or missing required keys. Preserve existing version-specific values — don't normalize `ga 9.1` to just `ga`.
-
-### 2. `products` (mandatory)
-
-Must include the configured required product IDs. May include additional products.
+Must include the configured required product IDs. May include additional products. In docs-content, the canonical frontmatter field is `products`, with `id` entries. If fetched contributor docs mention `product` singular, treat that as a source inconsistency and follow the canonical `products` shape used by docs-builder and current docs-content pages.
 
 ```yaml
 products:
@@ -70,8 +53,9 @@ products:
 ```
 
 Flag files missing this element or missing required products. Don't remove existing additional products.
+Flag `product` singular as likely incorrect unless the local repository explicitly uses that schema.
 
-### 3. `description` (mandatory)
+### 2. `description` (mandatory)
 
 Validate against these rules:
 - Present and non-empty
@@ -79,10 +63,10 @@ Validate against these rules:
 - Complete sentence (not a fragment or label)
 - No Jinja2 substitution variables (`{{kib}}`, `{{es}}`, `{{esql}}` — these aren't parsed in frontmatter)
 - No label prefixes ("Reference -", "Tutorial -", "Guide -")
-- Action-oriented (starts with a verb or content-type indicator)
-- No colons that could break YAML parsing
+- Clear, user-facing summary of the page content
+- Quoted if it contains punctuation or characters that could be misread by YAML, including colons
 
-### 4. `navigation_title` (recommended)
+### 3. `navigation_title` (recommended)
 
 Check if the H1 title exceeds ~50 characters. If so, flag that a `navigation_title` should be added.
 
@@ -90,7 +74,7 @@ Check if the H1 title exceeds ~50 characters. If so, flag that a `navigation_tit
 navigation_title: "Configure ML alerts"
 ```
 
-### 5. `mapped_pages` (preserve)
+### 4. `mapped_pages` (preserve)
 
 If present, don't flag or suggest changes. If absent, don't suggest adding it.
 
@@ -108,17 +92,10 @@ If present, don't flag or suggest changes. If absent, don't suggest adding it.
 ## Frontmatter audit: <scope>
 
 **Configuration:**
-- Required applies_to keys: stack, serverless
 - Required products: kibana
 - Files scanned: N
 
 ### Issues found
-
-#### Missing `applies_to`
-| File | Issue |
-|------|-------|
-| path/to/file.md | Missing entirely |
-| path/to/other.md | Missing `serverless` key |
 
 #### Missing `products`
 | File | Issue |
@@ -141,7 +118,6 @@ If present, don't flag or suggest changes. If absent, don't suggest adding it.
 
 - ✅ N files passed all checks
 - ❌ N files have issues
-  - N missing applies_to
   - N missing products
   - N invalid/missing description
   - N missing navigation_title (recommended)

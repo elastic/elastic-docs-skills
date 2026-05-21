@@ -40,6 +40,12 @@ CATEGORY_META = {
         "label": "Authoring",
         "description": "Skills that help write or edit documentation content",
     },
+    "changelogs": {
+        "icon": "file-text",
+        "color": "#FEC514",
+        "label": "Changelogs",
+        "description": "Skills for changelog YAML, release notes, and changelog tooling",
+    },
     "project": {
         "icon": "layers",
         "color": "#1BA9F5",
@@ -56,7 +62,7 @@ CATEGORY_META = {
         "icon": "git-branch",
         "color": "#FEC514",
         "label": "Workflow",
-        "description": "Skills for meta-tasks like retros, session analysis, and project management",
+        "description": "Skills for repository workflow automation",
     },
 }
 
@@ -137,7 +143,7 @@ def render_html(categories: dict[str, list[dict]]) -> str:
 
             tags_html = ""
             if context == "fork":
-                tags_html += '<span class="tag tag-readonly">read-only</span>'
+                tags_html += '<span class="tag tag-context">fork</span>'
             if auto:
                 tags_html += '<span class="tag tag-auto">auto-trigger</span>'
             else:
@@ -488,7 +494,7 @@ def render_html(categories: dict[str, list[dict]]) -> str:
       letter-spacing: 0.03em;
     }}
 
-    .tag-readonly {{
+    .tag-context {{
       background: rgba(0, 191, 179, 0.12);
       color: #00BFB3;
     }}

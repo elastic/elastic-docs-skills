@@ -8,17 +8,18 @@ Browse the catalog, pick the skills you need, and install them with a single com
 
 ### Claude Code plugin (recommended)
 
-Install as a Claude Code plugin — no clone required:
+Add the marketplace and install — no clone required:
 
 ```
-/plugin install https://github.com/elastic/elastic-docs-skills
+/plugin marketplace add https://github.com/elastic/elastic-docs-skills
+/plugin install elastic-docs-skills@elastic-docs-skills
 ```
 
 Skills are available immediately as `/elastic-docs-skills:<skill-name>`, for example:
 
 ```
 /elastic-docs-skills:docs-check-style
-/elastic-docs-skills:docs-crosslink-validator
+/elastic-docs-skills:docs-applies-to-tagging
 ```
 
 ### Individual skills via npx
@@ -120,7 +121,6 @@ disable-model-invocation: true   # Only runs via /my-skill, not auto-triggered
 argument-hint: [args]            # Hint shown in autocomplete
 allowed-tools: Read, Grep        # Tools the skill can use without asking
 context: fork                    # Run in isolated subagent
-agent: Explore                   # Subagent type
 sources:                         # Upstream URLs for freshness checks
   - https://www.elastic.co/docs/...
 ```

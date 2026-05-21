@@ -1,8 +1,9 @@
 ---
 name: docs-redirects
-version: 1.0.3
+version: 1.0.4
 description: Create and manage redirects in Elastic documentation when pages are moved, renamed, or deleted. Use when moving docs pages, renaming files, restructuring content, or when the user asks about redirects.
 argument-hint: <old-path> <new-path>
+context: fork
 allowed-tools: Read, Grep, Glob, Edit, Write
 sources:
   - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/contribute/redirects

@@ -34,8 +34,9 @@ This walks you through the process interactively and can open a PR for you.
 | Category | Purpose | Examples |
 |----------|---------|---------|
 | `authoring` | Help write or edit documentation content | syntax help, redirects, tagging |
-| `review` | Validate, lint, or check existing content | style checks, link validation |
-| `workflow` | Meta-tasks and process automation | retros, session analysis |
+| `changelogs` | Work with changelog YAML, release notes, and changelog tooling | changelog review, changelog fixes, release notes |
+| `project` | Support a specific documentation area or product workflow | Lens chart pages, Lens chart settings |
+| `review` | Validate, lint, or check existing content | style checks, frontmatter audits, skill reviews |
 
 If your skill doesn't fit an existing category, propose a new one in your PR description.
 
@@ -46,7 +47,7 @@ skills/<category>/<skill-name>/
   SKILL.md
 ```
 
-The directory name must be kebab-case and will become the skill's name.
+The directory name must be kebab-case. Skill names must also be kebab-case, start with `docs-`, and be unique across the catalog.
 
 ### 3. Write the SKILL.md
 
@@ -56,7 +57,7 @@ Every skill needs YAML frontmatter followed by markdown instructions.
 
 ```yaml
 ---
-name: my-skill
+name: docs-my-skill
 version: 1.0.0
 description: One-line description of what the skill does and when to trigger it.
 ---
@@ -67,7 +68,7 @@ description: One-line description of what the skill does and when to trigger it.
 ```yaml
 argument-hint: <file-or-directory>    # Autocomplete hint (add if skill accepts input)
 disable-model-invocation: true        # Only runs via /my-skill, not auto-triggered
-context: fork                         # Run in isolated subagent (use for read-only skills)
+context: fork                         # Run in an isolated subagent context
 allowed-tools: Read, Grep, Glob       # Tools available without asking for permission
 sources:                              # Upstream URLs this skill encodes
   - https://www.elastic.co/docs/...
@@ -75,7 +76,7 @@ sources:                              # Upstream URLs this skill encodes
 
 #### Frontmatter guidelines
 
-- **`context: fork`**: Use for skills that only read and report (style checks, validators, retros). Do NOT use for skills that edit files.
+- **`context: fork`**: Use for catalog skills so they run in an isolated subagent context.
 - **`allowed-tools`**: List only the tools the skill actually needs. Include `Edit` or `Write` only if the skill modifies files.
 - **`sources`**: List every upstream documentation URL that the skill's rules are derived from. The weekly freshness checker uses these to detect drift.
 - **`argument-hint`**: Add this whenever the skill accepts `$ARGUMENTS`. Use angle brackets for placeholders: `<file-or-directory>`.
@@ -125,7 +126,7 @@ Create `evals/evals.json` in your skill directory:
 CI will validate:
 
 - SKILL.md has valid YAML frontmatter with required fields
-- `name` matches the directory name
+- `name` is kebab-case, starts with `docs-`, and is unique across all skills
 - `version` is valid SemVer
 - `evals.json` (if present) has valid structure
 

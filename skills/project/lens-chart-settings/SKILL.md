@@ -1,6 +1,6 @@
 ---
 name: docs-lens-chart-settings
-version: 1.0.1
+version: 1.0.2
 description: Verify Kibana Lens chart UI settings against the source code. Use when documenting chart types, reviewing chart settings accuracy, or checking UI labels and rendering order for Lens visualizations (bar, line, area, pie, treemap, mosaic, waffle, tag cloud, heat map, gauge, metric, region map, table).
 context: fork
 allowed-tools: Read, Grep, Glob, WebFetch
@@ -46,7 +46,7 @@ x-pack/platform/plugins/shared/lens/public/visualizations/partition/
 ├── partition_charts_meta.ts          # Per-chart config (toolbar options, legend config)
 ├── toolbar/
 │   ├── style_settings.tsx            # Orchestrates Style panel sections
-│   ├── titles_and_text_setttings.tsx # Slice labels + Slice values options
+│   ├── titles_and_text_settings.tsx  # Slice labels + Slice values options
 │   ├── appearance_settings.tsx       # Donut hole (pie/donut only)
 │   └── legend_settings.tsx           # Partition-specific legend wrapper
 ```
@@ -90,7 +90,7 @@ Read `toolbar/style_settings.tsx` to understand the Style panel structure:
 - If `emptySizeRatioOptions` exists → renders **Appearance** accordion + **Titles and text** accordion
 - If not → renders only `PartitionTitlesAndTextSettings` directly (no sub-headers)
 
-Then read `toolbar/titles_and_text_setttings.tsx`:
+Then read `toolbar/titles_and_text_settings.tsx`:
 - `categoryOptions` renders as the first button group (label: check i18n key `xpack.lens.pieChart.labelSliceLabels`)
 - `numberOptions` renders as the second button group (label: check i18n key `xpack.lens.pieChart.sliceValues`)
 - If `numberDisplay === 'percent'`, a **Decimal places** input appears

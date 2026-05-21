@@ -34,7 +34,7 @@ jobs:
     name: Check for gh-aw updates and recompile lock files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install gh-aw
         run: gh extension install github/gh-aw
@@ -69,19 +69,17 @@ jobs:
 
       - name: Create pull request
         if: steps.changes.outputs.changed == 'true'
-        run: |
-          branch="automated/gh-aw-update-$(date +%Y%m%d)"
-          git checkout -b "$branch"
-          git add .github/workflows/*.lock.yml .github/aw/actions-lock.json
-          git commit -m "Update gh-aw lock files
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GH_PAT }}
+          commit-message: |
+            Update gh-aw lock files
 
-          Automated recompilation of gh-aw workflow lock files."
-          git push -u origin "$branch"
-          gh pr create \
-            --title "Update gh-aw lock files" \
-            --body "Automated weekly check detected updated gh-aw lock files after recompilation.
+            Automated recompilation of gh-aw workflow lock files.
+          branch: automated/gh-aw-update
+          title: Update gh-aw lock files
+          body: |
+            Automated weekly check detected updated gh-aw lock files after recompilation.
 
-          Review the lock file diffs to verify the changes are expected." \
-            --label "automated"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            Review the lock file diffs to verify the changes are expected.
+          labels: automated

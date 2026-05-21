@@ -36,16 +36,16 @@ sources:                     # Upstream URLs this skill encodes (for freshness c
 ## Categories
 
 - **authoring** — Skills that help write or edit documentation content
+- **changelogs** — Skills for changelog YAML, release notes, and changelog tooling
 - **review** — Skills that validate, lint, or check existing content
-- **workflow** — Skills for meta-tasks (retros, session analysis, project management)
 - **project** — Skills scoped to specific documentation areas (e.g., Kibana Lens charts)
 
 ## Conventions
 
 - Skill names are kebab-case and must be unique across the catalog
 - Version follows SemVer: bump PATCH for fixes, MINOR for new features, MAJOR for breaking changes
-- Skills that only read/analyze should use `context: fork`
-- Skills that modify files should NOT use `context: fork`
+- Use `context: fork` for catalog skills so they run in an isolated subagent context
+- Skills that modify files should include `Edit` or `Write` in `allowed-tools`
 - All skills that accept `$ARGUMENTS` should have `argument-hint`
 - Skills derived from upstream docs should list URLs in `sources:` frontmatter
 

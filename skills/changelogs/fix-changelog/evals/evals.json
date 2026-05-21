@@ -1,0 +1,86 @@
+{
+  "skill_name": "docs-fix-changelog",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Fix this changelog title that has UI formatting issues: 'Update Service Inventory page for better Machine Learning display'",
+      "expected_output": "Suggestion showing proper UI element formatting with \"Service Inventory\" quoted (UI label) but Machine Learning capitalized (feature name), not quoted",
+      "expectations": [
+        "Suggests quoting 'Service Inventory' as UI element: \"Service Inventory\"",
+        "Suggests capitalizing 'Machine Learning' as feature name (not quoting)",
+        "Includes article: 'the \"Service Inventory\" page'", 
+        "Explains UI vs feature name formatting distinction"
+      ]
+    },
+    {
+      "id": 2, 
+      "prompt": "Fix this changelog where accuracy conflicts with style: Title 'Improve dashboard performance' but PR shows it actually fixes a memory leak bug that was causing crashes",
+      "expected_output": "Suggestion prioritizes accuracy over style, recommending title change to reflect bug fix nature and possibly changing type to bug-fix",
+      "expectations": [
+        "Prioritizes factual accuracy over stylistic preference",
+        "Suggests title reflecting actual fix (memory leak/crashes) not generic improvement",
+        "May suggest type change to bug-fix if behavior was broken",
+        "Explains correctness priority principle in reasoning"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Fix changelog with uncertain formatting: 'Enable Advanced Settings in Kibana for index.refresh_interval configuration'",
+      "expected_output": "Confidence tracking documents uncertainty about 'Advanced Settings' (UI vs feature) and properly formats index.refresh_interval with backticks",
+      "expectations": [
+        "Uses backticks for config parameter: `index.refresh_interval`",
+        "Documents uncertainty about 'Advanced Settings' formatting in confidence section",
+        "Provides rationale for formatting choice made",
+        "Shows enhanced confidence methodology with assumption tracking"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Fix changelog title with ambiguous acronym: 'fix: KI details flyout pushes page content in dark mode'. No PR context provided.",
+      "expected_output": "Flags 'KI' acronym expansion as uncertain, asks for clarification, and documents acronym uncertainty in confidence section rather than guessing the expansion",
+      "expectations": [
+        "Strips development prefix 'fix:' from title",
+        "Flags 'KI' acronym as requiring clarification rather than expanding to 'knowledge item'",
+        "Documents acronym uncertainty in 'Terminology uncertainties' confidence section",
+        "Asks user to clarify what 'KI' stands for in context request",
+        "References checking docs-flag-jargon-skill patterns for common acronyms",
+        "Shows medium/low confidence for acronym-related suggestions"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Fix changelog with feature prefix: 'File upload: Fixes disabling data view creation based on user capabilities'",
+      "expected_output": "Detects feature/app prefix pattern and suggests contextual integration alternatives using integration templates",
+      "expectations": [
+        "Detects 'File upload:' as feature/app prefix pattern",
+        "Suggests integrated alternative: 'Prevent data view creation in file upload tool without sufficient privileges'",
+        "Uses integration template: '[Feature]: Fix [issue]' → 'Fix [issue] in [feature]'",
+        "Shows high confidence for clear UI component name",
+        "Documents feature prefix suggestion in confidence section"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Fix changelog with technical colon usage: 'Fix bug with Auth header needing \"Authorization: Bearer <token>\"'",
+      "expected_output": "Correctly skips technical term and does NOT flag as feature prefix, focusing on other improvements",
+      "expectations": [
+        "Does NOT flag 'Authorization: Bearer' as feature prefix (correctly classified as API/technical term)",
+        "Focuses on other potential improvements (YAML quoting, formatting)",
+        "Shows understanding of legitimate colon usage patterns",
+        "Does not suggest prefix integration for technical content"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Fix changelog with ambiguous prefix: 'Security: Enable new authentication method'",
+      "expected_output": "Detects potential feature prefix but shows medium confidence due to ambiguous context",
+      "expectations": [
+        "Detects 'Security:' as potential feature prefix",
+        "Suggests integration: 'Enable new authentication method for security'",
+        "Shows medium confidence due to ambiguous feature name",
+        "Documents ambiguity in feature prefix confidence section",
+        "Uses integration template: '[Feature]: Enable [capability]' → 'Enable [capability] for [feature]'"
+      ]
+    }
+  ]
+}

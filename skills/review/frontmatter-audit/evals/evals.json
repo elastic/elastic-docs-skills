@@ -3,10 +3,9 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Audit this file's frontmatter:\n\n---\napplies_to:\n  stack: ga\n---\n\n# Configure machine learning anomaly detection alerts in Kibana [configure-ml-alerts]\n\nSet up alerting rules for anomaly detection jobs.",
-      "expected_output": "Report flagging missing serverless key in applies_to, missing products, missing description, and recommending navigation_title due to long H1",
+      "prompt": "Audit this file's frontmatter:\n\n---\n---\n\n# Configure machine learning anomaly detection alerts in Kibana [configure-ml-alerts]\n\nSet up alerting rules for anomaly detection jobs.",
+      "expected_output": "Report flagging missing products, missing description, and recommending navigation_title due to long H1",
       "expectations": [
-        "Flags the missing 'serverless' key in applies_to",
         "Flags the missing 'products' element",
         "Flags the missing 'description' field",
         "Recommends adding navigation_title because the H1 exceeds ~50 characters",
@@ -15,10 +14,9 @@
     },
     {
       "id": 2,
-      "prompt": "Audit this file's frontmatter. Configuration: required applies_to keys are stack and serverless, required product is kibana.\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\nproducts:\n  - id: kibana\ndescription: Create dashboards with visualizations, controls, and content. Configure settings, organize panels, and save custom analytics views.\n---\n\n# Create a dashboard [create-dashboard]\n\nCreate dashboards to visualize your data.",
+      "prompt": "Audit this file's frontmatter. Configuration: required product is kibana.\n\n---\nproducts:\n  - id: kibana\ndescription: Create dashboards with visualizations, controls, and content. Configure settings, organize panels, and save custom analytics views.\n---\n\n# Create a dashboard [create-dashboard]\n\nCreate dashboards to visualize your data.",
       "expected_output": "Report showing the file passes all checks",
       "expectations": [
-        "Reports that applies_to has both required keys",
         "Reports that products includes the required 'kibana'",
         "Reports that description is present and valid",
         "Does NOT flag navigation_title since the H1 is short enough",
@@ -27,35 +25,54 @@
     },
     {
       "id": 3,
-      "prompt": "Audit frontmatter for this file:\n\n---\napplies_to:\n  stack: ga\n  serverless: ga\nproducts:\n  - id: kibana\ndescription: Reference - Kibana settings list. You can use these to configure {{product.kibana}} behavior and customize the UI for your needs and preferences.\n---\n\n# Advanced settings [advanced-settings]\n\nKibana advanced settings.",
+      "prompt": "Audit frontmatter for this file:\n\n---\nproducts:\n  - id: kibana\ndescription: Reference - Kibana settings list. You can use these to configure {{product.kibana}} behavior and customize the UI for your needs and preferences.\n---\n\n# Advanced settings [advanced-settings]\n\nKibana advanced settings.",
       "expected_output": "Report flagging the description for having a label prefix, containing Jinja2 variables, and possibly exceeding 200 characters",
       "expectations": [
         "Flags the 'Reference -' label prefix in the description",
         "Flags the Jinja2 variable '{{product.kibana}}' in the description",
         "Checks and reports whether the description exceeds 200 characters",
-        "Does NOT flag applies_to or products since they are correct"
+        "Does NOT flag products since they are correct"
       ]
     },
     {
       "id": 4,
-      "prompt": "Audit this file. It has a mapped_pages field:\n\n---\nmapped_pages:\n  - old-page.md\napplies_to:\n  stack: preview 9.0, ga 9.2\n  serverless: ga\nproducts:\n  - id: elasticsearch\ndescription: Index lifecycle management automates index transitions through phases to optimize storage and performance.\n---\n\n# ILM overview [ilm-overview]",
-      "expected_output": "Report that does NOT flag or modify mapped_pages, preserves the version-specific applies_to values, and passes most checks",
+      "prompt": "Audit this file. It has a mapped_pages field:\n\n---\nmapped_pages:\n  - old-page.md\nproducts:\n  - id: elasticsearch\ndescription: Index lifecycle management automates index transitions through phases to optimize storage and performance.\n---\n\n# ILM overview [ilm-overview]",
+      "expected_output": "Report that does NOT flag or modify mapped_pages and passes most checks",
       "expectations": [
         "Does NOT flag or suggest changes to mapped_pages",
-        "Preserves the version-specific applies_to value 'preview 9.0, ga 9.2' without normalizing it",
-        "Validates the description as acceptable",
-        "Does NOT suggest the file has issues with applies_to syntax"
+        "Validates the description as acceptable"
       ]
     },
     {
       "id": 5,
-      "prompt": "Audit this file's frontmatter:\n\n---\napplies_to:\n  stack: ga\n  deployment:\n    ece: ga\n---\n\n# Deploy Elasticsearch [deploy-es]\n\nDeploy Elasticsearch on your infrastructure.",
-      "expected_output": "Report flagging mixed dimensions in applies_to (stack and deployment keys combined)",
+      "prompt": "Audit this file's frontmatter:\n\n---\nproducts: []\n---\n\n# Deploy Elasticsearch [deploy-es]\n\nDeploy Elasticsearch on your infrastructure.",
+      "expected_output": "Report flagging missing description and missing required products if configured",
       "expectations": [
-        "Flags the mixed dimensions: 'stack' and 'deployment' should not be combined at page level",
         "Flags the missing 'description' field",
-        "Flags the missing 'products' element",
+        "Flags missing required products if the audit configuration requires any",
         "Produces a structured report with these issues"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Audit this file's frontmatter:\n\n---\nproducts:\n  - id: elasticsearch\ndescription: Index lifecycle management automates index transitions through phases to optimize storage and performance.\n---\n\n# Index lifecycle management [index-lifecycle-management]",
+      "expected_output": "Report that the description is acceptable even though it does not start with an action verb, and does not flag product singular because the file uses canonical products frontmatter",
+      "expectations": [
+        "Does NOT require the description to start with an action verb",
+        "Recognizes products with id entries as the canonical docs-content shape",
+        "Does NOT suggest changing products to product singular",
+        "Only flags products if they conflict with the configured audit requirements"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Audit this file's frontmatter:\n\n---\nproduct: elasticsearch\ndescription: \"Troubleshoot shard allocation: identify common causes and resolve them.\"\n---\n\n# Troubleshoot shard allocation [troubleshoot-shard-allocation]",
+      "expected_output": "Report flagging product singular as likely incorrect for docs-content and accepting the quoted description with a colon",
+      "expectations": [
+        "Flags product singular as likely incorrect unless the local repo schema requires it",
+        "Accepts the description because the colon is safely quoted",
+        "Does NOT flag the description solely because it contains a colon",
+        "Produces a structured report"
       ]
     }
   ]

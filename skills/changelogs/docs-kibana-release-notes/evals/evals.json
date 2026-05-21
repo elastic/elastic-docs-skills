@@ -31,7 +31,7 @@
       "expected_output": "Skill does NOT generate full Stack release notes from scratch; it is for converting raw Kibana RN tool output. User asked for link checking, not RN conversion.",
       "expectations": [
         "Does NOT output a full ## 9.2.1 [elastic-observability-9.2.1-release-notes] block with Features and Fixes",
-        "Either declines or suggests using crosslink-validator / the correct task; does not treat this as a Kibana RN conversion request"
+        "Either declines or suggests using a link-checking workflow; does not treat this as a Kibana RN conversion request"
       ]
     },
     {

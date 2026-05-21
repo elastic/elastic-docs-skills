@@ -1,7 +1,8 @@
 ---
 name: docs-lens-chart-page
-version: 1.0.1
+version: 1.0.2
 description: Create or update a Lens chart documentation page following Elastic docs conventions. Use when writing a new chart type page (pie, bar, metric, gauge, heat map, etc.) or updating an existing one in explore-analyze/visualize/charts/. Relies on lens-chart-settings for verifying UI labels against source code.
+context: fork
 allowed-tools: Read, Grep, Glob, Edit, WebFetch
 sources:
   - https://github.com/elastic/kibana/tree/main/x-pack/platform/plugins/shared/lens/public/visualizations
@@ -77,9 +78,6 @@ Place the file at `explore-analyze/visualize/charts/<chart-type>.md` with this f
 ```yaml
 ---
 navigation_title: <Chart type> charts
-applies_to:
-  stack: ga
-  serverless: ga
 description: Instructions and best practices for building <chart type> charts with Kibana Lens in Elastic.
 ---
 ```
@@ -248,15 +246,6 @@ For general syntax, refer to the **docs-syntax-help** skill. These conventions a
 
 For the legend icon, use: `![Legend icon](/explore-analyze/images/kibana-legend-icon.svg "")`
 
-### Version-specific UI patterns
-
-When UI differs between versions:
-
-```
-* {applies_to}`serverless: ga` {applies_to}`stack: ga 9.3` Select {icon}`app_management` **Layer settings**.
-* {applies_to}`stack: ga 9.0-9.2` Select {icon}`boxes_horizontal`, then select **Layer settings**.
-```
-
 ### Cross-references
 
 - Other chart types: `[bar charts](bar-charts.md)`
@@ -281,7 +270,7 @@ Use `{{kib}}` (Kibana), `{{es}}` (Elasticsearch), `{{data-source}}` (data view /
 
 ## Checklist
 
-- [ ] Frontmatter has `navigation_title`, `applies_to`, and `description`
+- [ ] Frontmatter has `navigation_title` and `description`
 - [ ] Hero image exists and is referenced
 - [ ] "Build a chart" stepper uses standard Access Lens / Save steps
 - [ ] Prerequisites snippet included before the stepper

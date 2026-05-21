@@ -1,8 +1,9 @@
 ---
 name: docs-syntax-help
-version: 1.0.5
+version: 1.0.7
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
+context: fork
 allowed-tools: Read, Grep, Glob, Edit, WebFetch
 sources:
   - https://www.elastic.co/docs/contribute-docs/syntax-quick-reference
@@ -75,7 +76,7 @@ Content
 
 ### Literal blocks inside directives
 
-Code blocks and `applies_to` blocks use **backtick fences** (not colons) to prevent Markdown processing:
+Code blocks use **backtick fences** (not colons) to prevent Markdown processing:
 
 ````
 :::{note}
@@ -83,16 +84,6 @@ Code blocks and `applies_to` blocks use **backtick fences** (not colons) to prev
 key: value
 ```
 :::
-````
-
-Section-level `applies_to` uses backtick fences:
-
-````
-## Heading
-
-```{applies_to}
-stack: ga 9.1
-```
 ````
 
 ## Admonitions
@@ -120,17 +111,6 @@ Users could permanently lose data or leak sensitive information.
 Plain callout with a custom title and no severity styling.
 :::
 ```
-
-Admonitions support `applies_to`:
-
-```
-:::{note}
-:applies_to: stack: ga 9.1
-This note applies only to Stack 9.1+.
-:::
-```
-
-Object notation for multiple keys: `:applies_to: { ece:, ess: }` or JSON: `:applies_to: {"stack": "ga 9.2", "serverless": "ga"}`.
 
 **Rules**: Do not stack admonitions. Do not place code blocks inside admonitions (use dropdowns or tabs instead if code is long).
 
@@ -255,24 +235,39 @@ Tabs with matching `group` and `sync` values synchronize selection across tab se
 
 **Rules**: Do not nest tabs. Do not split procedures across tabs. Do not use more than 6 tabs. Do not use tabs in dropdowns.
 
-## Applies-switch
+## Applies switch
 
-Badge-based tabs for deployment/version variants:
+Creates tabbed content where each tab displays an `applies_to` badge instead of a text title. Use when content varies by deployment type or version. All applies switches on a page automatically sync together.
 
 ```
 ::::{applies-switch}
 :::{applies-item} stack: ga 9.0+
-Stack-specific content
+Content for Stack
 :::
 :::{applies-item} serverless: ga
-Serverless-specific content
+Content for Serverless
 :::
 ::::
 ```
 
-Multiple conditions: `:::{applies-item} { ece: ga 4.0+, ess: ga }`
+### Multiple applies_to definitions in one item
 
-All applies switches on a page auto-synchronize.
+Use YAML object notation with curly braces `{}` to specify multiple `applies_to` definitions in a single `applies-item`:
+
+```
+::::{applies-switch}
+:::{applies-item} { ece: ga 4.0+, ech: ga }
+Content for ECE and ECH
+:::
+:::{applies-item} serverless: ga
+Content for Serverless
+:::
+::::
+```
+
+**Automatic syncing**: When a user selects an `applies_to` definition in one switch, all other applies-switch instances on the same page update to the same selection. The format of the definition doesn't matter for sync matching — `stack: ga 9.1+`, `{ "stack": "ga 9.1+" }`, and `{ stack: "ga 9.1+" }` all identify the same content.
+
+**When to use**: Use `applies-switch` instead of generic `tab-set` when content differs by deployment type or version and you want to show `applies_to` badges as tab titles.
 
 ## Stepper
 
@@ -304,8 +299,6 @@ Collapsed content.
 Expanded content.
 :::
 ```
-
-Supports `:applies_to:` option: `:::{dropdown} Title` + `:applies_to: stack: ga 9.0`.
 
 ## Images
 
@@ -435,7 +428,7 @@ Multi-line: `<!-- ... -->`. Content after `-->` on the same line is not rendered
 
 ## Substitutions
 
-Defined in `docset.yml` or page frontmatter under `sub:`:
+Defined in `docset.yml` under `sub:`:
 
 ```yaml
 sub:
@@ -450,8 +443,6 @@ Usage: `{{product-name}}`
 
 **In code blocks**: Use `subs=true` flag. **Inline code**: Use `` {subs=true}`text {{var}}` `` role.
 
-Global substitutions cannot be redefined in frontmatter (build error).
-
 ## Version variables
 
 Syntax: `{{version.<scheme>}}` (e.g., `{{version.stack}}` → `9.3.0`)
@@ -459,45 +450,6 @@ Syntax: `{{version.<scheme>}}` (e.g., `{{version.stack}}` → `9.3.0`)
 Base version: `{{version.stack.base}}` → first version on V3 docs.
 
 Schemes: `stack`, `ece`, `eck`, `ess`, `esf`, `ecctl`, `curator`, plus APM agents and EDOT variants.
-
-## Navigation title
-
-An optional frontmatter field that sets a shorter label for the left navigation, breadcrumbs, and previous/next links — separate from the full H1 page title.
-
-```yaml
----
-navigation_title: "Short nav label"
----
-# Full Descriptive Page Title with Product Context [anchor]
-```
-
-**DOs**:
-- Use active phrasing and shorter forms
-- Make sure the nav title still clearly identifies the page topic
-- Omit product names already present in the full H1
-
-**DON'Ts**:
-- Don't duplicate the H1 page title exactly
-- Don't use a long nav title or lots of punctuation
-- Don't abbreviate with periods or ellipses
-
-## Frontmatter
-
-```yaml
----
-navigation_title: Short nav label
-description: Page description for SEO (~150 chars)
-applies_to:
-  stack: ga
-  serverless: ga
-products:
-  - id: elasticsearch
-sub:
-  my-var: value
----
-```
-
-All fields are optional. Every page must start with a level-1 heading after frontmatter.
 
 ## File inclusion
 
@@ -606,9 +558,8 @@ Use `* * *` for horizontal rules.
 |---------|-----|
 | Mismatched colon count on nested directives | Outer directive needs more colons than inner |
 | Code block inside admonition uses colons | Use backtick fences for code blocks inside directives |
-| `applies_to` block uses colon fences | Section-level `applies_to` must use backtick fences |
 | Missing space after `%` in comments | Always write `% comment` with a space |
-| Nesting tabs inside tabs | Not supported — flatten or use applies-switch |
+| Nesting tabs inside tabs | Not supported — flatten them |
 | Lists indented 2 spaces | Indent 4 spaces for nesting and content under list items |
 | Images outside toc.yml/docset.yml folder | Move images inside the folder tree |
 | Footnote definitions inside directives | Move to document level |
