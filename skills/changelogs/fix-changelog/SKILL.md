@@ -1,6 +1,6 @@
 ---
 name: docs-fix-changelog
-version: 2.3.0
+version: 2.3.1
 description: Suggest improved text for changelog YAML files against current Elastic standards. Mirrors the pattern catalog from docs-review-changelog to provide consistent fixes. Includes type-title alignment checking and technical content assessment to catch overly technical titles that need user-focused rewrites. Features repository-aware area validation and enhanced confidence scoring. Supports single files or directories. Fetches canonical guidance to stay in sync. Use after review identifies quality issues, or when drafting new changelogs.
 argument-hint: "[changelog-file-or-directory] [pr/issue-context]"
 context: fork
@@ -74,7 +74,12 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 1. If the user passed a second argument or quoted text in `$ARGUMENTS`, treat it as context
 2. If the conversation already contains PR or issue title, description, diff, or linked references, use that
 3. If `prs` or `issues` fields in the existing file (Mode A) contain URLs, use those as implicit context — they identify the PR or issue the changelog describes
-4. If none of the above is available, ask once: "Do you have context from a PR or issue (title, description, diff, or linked references) to share? Richer context produces better suggestions." Skip this ask if the user has already declined.
+4. If none of the above is available, ask once: "Do you have context from a PR or issue (title, description, diff, or linked references) to share? **If there are acronyms in the title (like 'KI'), please clarify what they stand for.** Richer context produces better suggestions." Skip this ask if the user has already declined.
+
+**Enhanced context utilization for acronyms:**
+
+- **Scan for acronym definitions:** In PR titles/descriptions, look for patterns like "KI (Knowledge Indicator)" or context clues that define abbreviations
+- **Cross-reference expansions:** Before expanding acronyms, check if PR context contradicts assumed meaning
 
 **Track for confidence:** Document what context was available (full PR details, partial info, URLs only, or none) and any fetch failures. This will inform confidence scoring in Step 7.
 
@@ -92,13 +97,15 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 - **No buried lede:** If title is vague, fold in concrete detail from description so release notes stand alone
 - **Base-form verb requirement:** Use `Fix`, `Add`, `Remove` (not third-person `Fixes`, `Adds`, `Removes`)
 - **Sentence case:** Follow standard sentence capitalization
-- Feature prefixes in titles: `ESQL: Fix nullify` should be contextual like `Fix nullify in ES|QL`
+- **Feature/app prefix integration:** Detect `[Feature/App]: [Action]` patterns and suggest contextual alternatives (e.g., "File upload: Fix bug" → "Fix bug in file upload tool"). Target UI components, feature names, 1-4 word capitalized phrases. Skip technical terms (e.g., "Authorization: Bearer"), API references, code identifiers.
 
 **2. Technical term enhancement fixes:**
 
 - Add backticks around class/method names, config keys, API endpoints, or code identifiers where missing
 - Convert British spelling to US English: `serialise` → `serialize`, `colour` → `color`
 - Expand abbreviations where full form would be clearer: `params` → `parameters`
+- **Acronym expansion caution:** When expanding abbreviations/acronyms (2-4 uppercase letters), flag as uncertain unless clearly defined in PR context or covered in `docs-flag-jargon-skill` patterns
+- **Elastic acronym validation:** For common Elastic acronyms, cross-reference with patterns from `docs-flag-jargon-skill` if uncertain about expansion
 - Standardize format: `ESQL` → `ES|QL`
 
 **3. Content quality fixes:**
@@ -114,9 +121,8 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 
 **5. UI element formatting fixes:**
 
-- **Bold UI labels:** Button names, page titles, tabs, dropdown names, column names (e.g., **Save**, **Service Inventory**)
-- **Include articles:** Use "the **Overview** tab" not "**Overview** tab"  
-- **Capitalize feature names:** Don't bold feature names — capitalize them (Machine Learning, Elastic Security)
+- **Quote UI labels if unclear:** Button names, page titles, tabs, dropdown names, column names (e.g., "Service Inventory") 
+- **Capitalize feature names:** Don't quote feature names — capitalize them (Machine Learning, Elastic Security)
 - **Code identifiers:** Use backticks for field names, parameters, API endpoints (`index.refresh_interval`)
 - **When uncertain:** Note formatting uncertainty if UI label vs feature name is unclear
 
@@ -206,7 +212,7 @@ For each changelog:
 **Mode A & B** — identify fields that need improvement (apply to each file processed):
 
 - `title`: too vague, implementation-focused, wrong tense, missing action verb, or over 80 characters
-- `description`: absent but would add value, or present but low quality (repeats title, says "See PR", says "Internal refactoring")
+- `description`: only suggest when title is vague; do not suggest when title is self-explanatory; flag present low-quality content (repeats title, "See PR", "Internal refactoring")
 - `impact` / `action`: absent on `breaking-change`, `deprecation`, or `known-issue`
 - `areas` if present: must be an array of strings; validate against repository configuration from Step 1 if available (only flag areas not in `docs/changelog.yml` pivot.areas section), otherwise use generic validation
 - `feature-id` if present: must be a string; no content quality check needed, just YAML type correctness
@@ -225,7 +231,7 @@ Also check for formatting anti-patterns in existing `description`, `impact`, and
 
 ## Step 6: Generate suggestions
 
-**Character limits:** Title max 80 characters. Description max 600 characters. If a suggestion is too long, shorten it or split across title and description.
+**Character limits:** Target 80/600 characters; prefer clarity over trimming; split excess detail into `description` rather than shortening accurate titles.
 
 **Confidence tracking:** During suggestion generation, note factors that affect confidence:
 
@@ -269,6 +275,18 @@ Also check for formatting anti-patterns in existing `description`, `impact`, and
 - **High confidence:** Repository configuration loaded successfully, using authoritative area validation
 - **Medium confidence:** Repository config partially available or unclear
 - **Low confidence:** No repository configuration found, using generic validation rules
+
+**Feature/app prefix integration patterns:**
+
+- `"[Feature]: Fix [issue]"` → `"Fix [issue] in [feature]"`
+- `"[Feature]: Enable [capability]"` → `"Enable [capability] for [feature]"`  
+- `"[Feature]: Add [functionality]"` → `"Add [functionality] to [feature]"`
+
+**Feature prefix suggestion confidence:**
+
+- **High confidence:** Clear UI component names, known Elastic features, good PR context
+- **Medium confidence:** Ambiguous feature names, partial context
+- **Low confidence:** Could be technical term vs feature name, missing PR details
 
 **Mode A & B** — for each weak or malformed field, show:
 
@@ -398,6 +416,7 @@ Use backticks for field names, parameter names, config keys, API endpoints, comm
 
 ### Terminology uncertainties:
 - [Term/phrase]: Assumed [interpretation] — [Why uncertain, e.g., "Could be UI element vs feature name", "Missing domain context"]
+- [Acronym]: Expanded to "[expansion]" — [Confidence level: High/Medium/Low based on PR context, jargon-skill patterns, or domain knowledge]
 
 ### Assumptions made:
 - [Assumption]: [Rationale, e.g., "Normalized technical term based on common Elastic usage", "Inferred user impact from limited PR description"]

@@ -1,6 +1,6 @@
 ---
 name: docs-review-changelog
-version: 1.4.0
+version: 1.4.1
 description: Validate and assess the quality of Elastic changelog YAML files against current Elastic standards. Reports schema errors, content quality issues, systematic pattern violations, type-title alignment mismatches, and overly technical content that needs user-focused rewrites. Features repository-aware area validation. Fetches canonical guidance to stay in sync. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
@@ -78,11 +78,11 @@ Glob for `*.yaml` and `*.yml` in `$ARGUMENTS`, or read a single file if given a 
 
 ## Step 3: Schema checks
 
-These are hard errors. The source of truth for the schema is `ChangelogEntry.cs` linked in `sources`.
+These are hard errors — structural/parse failures only (missing required fields, invalid enums, YAML types, unquoted scalars, required `impact`/`action` on `breaking-change`). Not style guidelines. The source of truth for the schema is `ChangelogEntry.cs` linked in `sources`.
 
 **Required fields:**
 
-- `title`: must be present, preferrably under 80 characters
+- `title`: must be present
 - `type`: must be present, value must be one of: `feature`, `enhancement`, `security`, `bug-fix`, `breaking-change`, `deprecation`, `known-issue`, `docs`, `regression`, `other`
 - `products`: must be present, non-empty array; each entry must have a `product` key
 
@@ -92,7 +92,6 @@ These are hard errors. The source of truth for the schema is `ChangelogEntry.cs`
 
 - `products[n].lifecycle` if present on any product entry, fetch `https://github.com/elastic/docs-builder/blob/main/src/Elastic.Documentation/Lifecycle.cs` to get canonical list (such as `ga`)
 - `subtype`: only permitted on `breaking-change` entries; value must be one of: `api`, `behavioral`, `configuration`, `dependency`, `subscription`, `plugin`, `security`, `other`
-- `description` if present: max 600 characters
 - `prs` and `issues`: optional arrays, may be empty or absent — no validation beyond YAML type correctness
 - `areas` if present: must be an array of strings — validate against repository configuration from Step 1 if available (only flag areas not in `docs/changelog.yml` pivot.areas section), otherwise use generic validation
 - `feature-id` if present: must be a string — used to associate a change with a unique feature flag
@@ -113,6 +112,7 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 - Title is specific, not vague ("Bug fixes" or "Performance improvements" are too vague)
 - Title avoids bare internal references ("PR #123", "bug #456") — these don't help users
 - Title and description avoid implementation-focused language (describe user impact, not code changes)
+- Title over 80 or description over 600 characters → quality warning (guideline; low priority if ≤20 over; never a merge blocker)
 
 **Systematic pattern warnings:**
 
@@ -124,7 +124,7 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 - **No buried lede:** If title is vague, fold in concrete detail from description so release notes stand alone
 - **Base-form verb requirement:** Use `Fix`, `Add`, `Remove` (not third-person `Fixes`, `Adds`, `Removes`)
 - **Sentence case:** Follow standard sentence capitalization
-- Feature prefixes in titles: `ESQL: Fix nullify` should be contextual like `Fix nullify in ES|QL`
+- **Feature/app prefix patterns:** Flag titles with `[Feature/App]: [Action]` patterns that need contextual integration (e.g., "File upload: Fix bug" should integrate the feature contextually). Skip technical terms, API references, code identifiers.
 
 **2. Technical term enhancement issues:**
 
@@ -136,7 +136,7 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 **3. Content quality issues:**
 
 - Vague titles that could be more specific based on description content
-- Redundant descriptions that just repeat the title without adding context
+- Absent `description` when title is self-explanatory is fine; only flag **present** descriptions that repeat the title, say "See PR", or add no context
 - Implementation-focused phrasing instead of user-visible outcomes
 
 **4. YAML formatting issues (cross-reference with Step 2):**
@@ -146,9 +146,8 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 
 **5. UI element formatting issues:**
 
-- **Missing bold on UI labels:** Button names, page titles, tabs should be **bolded**
-- **Missing articles:** Use "the **Overview** tab" not "**Overview** tab"
-- **Incorrectly bolded feature names:** Feature names should be capitalized, not bolded (Machine Learning, not **Machine Learning**)
+- **Unclear UI labels:** Button names, page titles, tabs should be in "quotation marks" if the phrase is unclear. For example: 'Fix "View in AI Assistant" button availability'
+- **Incorrectly quoted feature names:** Feature names should be capitalized, not quoted (Machine Learning, not "Machine Learning")
 - **Missing backticks:** Field names, parameters, API endpoints should use `backticks`
 - **UI vs feature uncertainty:** Flag when formatting choice between UI label and feature name is unclear
 
@@ -200,7 +199,7 @@ Flag overly technical titles that focus on implementation details rather than us
 - `deprecation` and `known-issue`: `impact` and/or `action` are recommended — flag as warnings if absent
 - `feature` / `enhancement`: title/description should explain what users can now do, not how it was built
 - `bug-fix` / `regression`: title/description should explain what was wrong and what is now correct
-- `description` if present: must add context beyond repeating the title; flagging "See PR" or "Internal refactoring" as low-value
+- When present, `description` must add context beyond repeating the title; flagging "See PR" or "Internal refactoring" as low-value
 - `impact` if present: should explain scope and who is affected
 - `action` if present: should provide clear, prescriptive steps
 

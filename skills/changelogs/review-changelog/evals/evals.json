@@ -7,40 +7,73 @@
       "expected_output": "Clean review report stating no issues found, proper markdown structure with Summary section showing 0 schema errors, 0 quality warnings, 0 formatting warnings.",
       "expectations": [
         "Reports no schema errors for valid required fields",
-        "Reports no quality warnings for well-written content", 
+        "Reports no quality warnings for well-written content",
         "Reports no formatting warnings for proper YAML structure",
         "Uses proper markdown report format with Summary section",
         "Explicitly states the file has no issues rather than omitting sections"
       ]
     },
     {
-      "id": 2,  
+      "id": 2,
+      "prompt": "Review this changelog with UI formatting issues: title: 'Update Service Inventory to improve **Machine Learning** display' description: 'Changes to Advanced Settings panel'",
+      "expected_output": "Flags UI formatting issues: Service Inventory should be quoted, Machine Learning shouldn't be bolded or quoted (feature name), Advanced Settings panel formatting unclear",
+      "expectations": [
+        "Flags missing quotes on 'Service Inventory' (UI element)",
+        "Flags incorrect quoting of 'Machine Learning' (should be feature name, not quoted)",
+        "Notes uncertainty about 'Advanced Settings panel' formatting",
+        "Includes UI element formatting issues in warnings"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review changelog with Elastic context issues: title: 'Add support for ESQL queries in Observability' description: 'Enables ESQL functionality for monitoring use cases'",
+      "expected_output": "Applies Elastic software context to validate ES|QL terminology and Observability product reference",
+      "expectations": [
+        "Notes inconsistent 'ESQL' format (should be 'ES|QL')",
+        "Validates 'Observability' as legitimate Elastic product context",
+        "Shows software context awareness in terminology checking",
+        "Does not flag legitimate Elastic product references as marketing"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Review changelog when canonical guidance fails to load: title: 'Fix dashboard loading' with repository config not found",
+      "expected_output": "Includes confidence assessment showing failed resource loading and its impact on review accuracy",
+      "expectations": [
+        "Includes 'Confidence Assessment' section in output",
+        "Shows '✗ Failed' status for canonical guidance or repository config",
+        "Notes 'Medium' or 'Low' validation confidence due to missing resources",
+        "Explains review limitations due to resource loading failures"
+      ]
+    },
+    {
+      "id": 5,
       "prompt": "Review changelog with multiple schema errors: missing type field, unknown product 'invalid-product-id', invalid type 'bugfix', and unquoted title with colons causing YAML parse issues.",
       "expected_output": "Schema errors section listing each violation: missing required type field, unknown product ID, invalid type value, and YAML quoting requirements for special characters.",
       "expectations": [
         "Identifies missing type as schema error",
         "Flags unknown product ID against canonical products.yml",
-        "Catches invalid type 'bugfix' (should be 'bug-fix')", 
+        "Catches invalid type 'bugfix' (should be 'bug-fix')",
         "Reports YAML quoting issue for unquoted colons",
         "Uses proper markdown structure with Schema errors section",
         "Summary shows multiple schema errors count"
       ]
     },
     {
-      "id": 3,
+      "id": 6,
       "prompt": "Review breaking-change changelog missing required impact and action fields: Type: breaking-change, Title: Remove legacy API, Description: Removes old endpoints.",
       "expected_output": "Schema errors section flagging missing required impact and action fields for breaking-change type, plus recommendation for subtype field.",
       "expectations": [
         "Flags missing impact field as schema error for breaking-change",
-        "Flags missing action field as schema error for breaking-change", 
+        "Flags missing action field as schema error for breaking-change",
         "Notes subtype field is strongly recommended for breaking-change",
         "Does not suggest content (review only reports issues)",
         "Proper markdown format with clear error descriptions"
       ]
     },
     {
-      "id": 4,
-      "prompt": "Review changelog with type-title alignment issues: Type 'bug-fix' but title 'Improve dashboard loading performance' suggesting enhancement rather than bug fix.", 
+      "id": 7,
+      "prompt": "Review changelog with type-title alignment issues: Type 'bug-fix' but title 'Improve dashboard loading performance' suggesting enhancement rather than bug fix.",
       "expected_output": "Quality warnings section identifying type-title alignment mismatch with explanation of why bug-fix type doesn't match improvement-focused title.",
       "expectations": [
         "Detects type-title alignment mismatch in Quality warnings",
@@ -51,7 +84,7 @@
       ]
     },
     {
-      "id": 5,
+      "id": 8,
       "prompt": "Review changelog with overly technical title: 'Fix splitValue nullability coercion when constructing ColorSeries objects in ES|QL chart renderer'",
       "expected_output": "Quality warnings section flagging technical content issues: implementation-focused title with class names and technical jargon without user context.",
       "expectations": [
@@ -63,7 +96,7 @@
       ]
     },
     {
-      "id": 6,
+      "id": 9,
       "prompt": "Review changelog with content quality issues: Title 'feat: Bug fixes', Description 'See PR', areas field as string instead of array.",
       "expected_output": "Quality warnings section identifying development prefixes, vague title, low-value description, and schema error for incorrect areas field type.",
       "expectations": [
@@ -75,7 +108,7 @@
       ]
     },
     {
-      "id": 7,
+      "id": 10,
       "prompt": "Review changelog with YAML formatting issues: unquoted description containing colons, brackets, and plain text code identifiers like validateToken method without backticks.",
       "expected_output": "Formatting warnings section identifying YAML quoting needs and missing code formatting with specific examples of what needs backticks.",
       "expectations": [
@@ -87,21 +120,21 @@
       ]
     },
     {
-      "id": 8,
+      "id": 11,
       "prompt": "Review changelog with invalid area 'Dashboards' when repository config shows valid areas are 'Dashboards and visualizations' (repository-aware validation).",
       "expected_output": "Quality warnings section showing area validation against repository configuration, noting the area doesn't match canonical list from docs/changelog.yml.",
       "expectations": [
         "Validates areas against repository-specific configuration",
-        "Flags area mismatch in Quality warnings section", 
+        "Flags area mismatch in Quality warnings section",
         "References successful repository config loading",
         "Notes case sensitivity in area validation",
         "Distinguishes repository-aware vs generic validation"
       ]
     },
     {
-      "id": 9,
+      "id": 12,
       "prompt": "Review directory ./mixed-changelogs/ containing files with various issues: perfect changelog, schema errors, quality problems, and formatting issues from different product types.",
-      "expected_output": "Multiple file reviews with individual sections per file, overall summary showing counts of files processed and files with issues, handling diverse product contexts.", 
+      "expected_output": "Multiple file reviews with individual sections per file, overall summary showing counts of files processed and files with issues, handling diverse product contexts.",
       "expectations": [
         "Processes all yaml/yml files in directory",
         "Provides individual review section for each file",
@@ -109,6 +142,39 @@
         "Summarizes total files processed and files needing attention",
         "Handles different product types and area taxonomies",
         "Recommends docs-fix-changelog for files with warnings"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Review changelog with feature prefix pattern: title: 'File upload: Fixes disabling data view creation based on user capabilities'",
+      "expected_output": "Flags feature/app prefix pattern as title standardization issue requiring contextual integration",
+      "expectations": [
+        "Flags 'File upload:' prefix pattern as title standardization issue",
+        "Categorizes under 'Feature/app prefix patterns' warning",
+        "Explains pattern needs contextual integration",
+        "Notes pattern should be handled by fix-changelog skill for solutions"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Review changelog with technical colon usage: title: 'Fix bug with Auth header needing \"Authorization: Bearer <token>\"'",
+      "expected_output": "Correctly does NOT flag technical term as feature prefix, focuses on other potential issues",
+      "expectations": [
+        "Does NOT flag 'Authorization: Bearer' as feature prefix pattern",
+        "Correctly identifies as legitimate technical/API reference",
+        "May flag other issues (YAML quoting, formatting) if present",
+        "Shows understanding of technical vs feature prefix distinction"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Review changelog with multiple title issues including feature prefix: title: 'Dashboard: fixes widget loading bugs'",
+      "expected_output": "Flags both feature prefix pattern AND other title issues (verb form, capitalization)",
+      "expectations": [
+        "Flags 'Dashboard:' as feature/app prefix pattern requiring integration",
+        "Flags verb form issue: 'fixes' should be 'Fix' (base form)",
+        "Notes title standardization issues in systematic order",
+        "Demonstrates comprehensive title pattern checking"
       ]
     }
   ]
