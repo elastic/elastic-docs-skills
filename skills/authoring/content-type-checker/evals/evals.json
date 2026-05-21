@@ -56,6 +56,53 @@
         "Flags implementation-focused description and internal PR-only context",
         "Flags missing impact and action fields for a breaking change"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Classify this idea: a new page documenting how to configure cross-cluster search step by step, including the prerequisites needed and how to verify the connection works.",
+      "expected_output": "Classification report selecting how-to as the best fit with high confidence, citing the sequential steps and prerequisites as the basis, and listing the required elements (Before you begin, numbered steps, success checkpoints) the user still needs to draft",
+      "expectations": [
+        "Identifies the proposal as a how-to with high confidence",
+        "Cites sequential steps and the prerequisite mention as the basis for the classification",
+        "Lists required elements the user still needs to draft (such as a Before you begin section, numbered steps, and a success checkpoint)",
+        "Does NOT classify the proposal as overview, tutorial, or troubleshooting",
+        "Produces output structured under the Classify-mode report sections (Best fit, Why, Required elements, Alternatives, Recommendation)"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Would a page titled 'an introduction to index lifecycle management — what it is, why it matters, and how phases work' best fit as an overview, how-to, or tutorial?",
+      "expected_output": "Classification report selecting overview as the best fit with high confidence, citing the concept-led framing (what/why/how it works) and warning that procedural steps would be an anti-pattern in an overview",
+      "expectations": [
+        "Identifies overview as the best fit",
+        "Cites the concept-led framing (what it is, why it matters, how it works) as the basis",
+        "Notes that long procedural steps would be an overview anti-pattern and should live in a how-to instead",
+        "Does NOT recommend how-to or tutorial as the best fit",
+        "Lists required overview elements still to draft (such as use cases or examples, next steps)"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I want to write a page about fixing the 'index_not_found_exception' error. Should it be a how-to or troubleshooting page?",
+      "expected_output": "Classification report selecting troubleshooting as the best fit, distinguishing it from how-to because the proposal is problem-first, and listing the required Symptoms + Resolution sections",
+      "expectations": [
+        "Selects troubleshooting (NOT how-to) as the best fit",
+        "Explains that troubleshooting is problem-first and how-to is task-first",
+        "Lists Symptoms and Resolution as required sections still to draft",
+        "Cautions against using a generic wayfinding title like 'Troubleshooting errors'",
+        "Suggests the title should be problem-focused and reference the actual error name"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Classify this page idea: a short page documenting the new --reindex-on-startup CLI flag, what it does, when to use it, and a one-line example.",
+      "expected_output": "Classification report indicating the proposal does not fit any single content type cleanly with high confidence, recommending the content be added as a section of an existing CLI reference page (assembly check) rather than treated as a new standalone page",
+      "expectations": [
+        "Does NOT confidently classify the proposal as how-to, tutorial, or troubleshooting",
+        "Notes that the content is reference-flavored and may belong inside an existing CLI page",
+        "Recommends doing an assembly check (looking for an existing page where this could be a new section) before creating a new page",
+        "Does not invent a fit for a content type that doesn't match"
+      ]
     }
   ]
 }
