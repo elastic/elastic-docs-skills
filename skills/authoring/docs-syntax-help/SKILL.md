@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.0.6
+version: 1.0.7
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 context: fork
@@ -234,6 +234,40 @@ Python content
 Tabs with matching `group` and `sync` values synchronize selection across tab sets on the same page.
 
 **Rules**: Do not nest tabs. Do not split procedures across tabs. Do not use more than 6 tabs. Do not use tabs in dropdowns.
+
+## Applies switch
+
+Creates tabbed content where each tab displays an `applies_to` badge instead of a text title. Use when content varies by deployment type or version. All applies switches on a page automatically sync together.
+
+```
+::::{applies-switch}
+:::{applies-item} stack: ga 9.0+
+Content for Stack
+:::
+:::{applies-item} serverless: ga
+Content for Serverless
+:::
+::::
+```
+
+### Multiple applies_to definitions in one item
+
+Use YAML object notation with curly braces `{}` to specify multiple `applies_to` definitions in a single `applies-item`:
+
+```
+::::{applies-switch}
+:::{applies-item} { ece: ga 4.0+, ech: ga }
+Content for ECE and ECH
+:::
+:::{applies-item} serverless: ga
+Content for Serverless
+:::
+::::
+```
+
+**Automatic syncing**: When a user selects an `applies_to` definition in one switch, all other applies-switch instances on the same page update to the same selection. The format of the definition doesn't matter for sync matching — `stack: ga 9.1+`, `{ "stack": "ga 9.1+" }`, and `{ stack: "ga 9.1+" }` all identify the same content.
+
+**When to use**: Use `applies-switch` instead of generic `tab-set` when content differs by deployment type or version and you want to show `applies_to` badges as tab titles.
 
 ## Stepper
 
