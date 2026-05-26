@@ -1,6 +1,6 @@
 ---
 name: docs-validate-code-samples
-version: 1.0.0
+version: 1.0.1
 description: Validate code samples in Elastic documentation markdown files. Checks language identifiers, substitution attributes, callout usage, JSON validity, ES|QL syntax, and Painless scripts. Use when reviewing docs PRs, auditing content, or writing new examples.
 disable-model-invocation: true
 argument-hint: <file|dir|glob> [--output <path>]
@@ -121,7 +121,7 @@ Always include the API docs URL in the issue detail.
 
 **G-1 — Source command:** the first non-blank, non-comment line must be `FROM`, `ROW`, `SHOW INFO`, or `METRICS`. Flag blocks that start with a processing command (missing source), or with `SELECT` (SQL syntax).
 
-**G-2 — Pipe command names:** every line beginning with `|` must use a recognized command: `DISSECT`, `DROP`, `ENRICH`, `EVAL`, `GROK`, `KEEP`, `LIMIT`, `MV_EXPAND`, `RENAME`, `SORT`, `STATS`, `WHERE`, `LOOKUP`, `INLINESTATS`, `CHANGE_POINT`, `MATCH`, `QSTR`, `RERANK`. Flag unrecognized names.
+**G-2 — Pipe command names:** every line beginning with `|` must use a recognized command: `DISSECT`, `DROP`, `ENRICH`, `EVAL`, `FORK`, `GROK`, `KEEP`, `LIMIT`, `MV_EXPAND`, `RENAME`, `SAMPLE`, `SORT`, `STATS`, `WHERE`, `LOOKUP`, `INLINESTATS`, `CHANGE_POINT`, `MATCH`, `QSTR`, `RERANK`. Flag unrecognized names.
 
 **G-2a — Incomplete pipe commands:** recognizing the command name is not enough — flag any pipe command that is present but has no arguments following it on the same line. Required arguments:
 
