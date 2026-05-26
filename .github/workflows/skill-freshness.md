@@ -66,8 +66,18 @@ Check all skills in `skills/**/SKILL.md` for staleness against their upstream so
    - After updating a skill, run its evals to catch regressions (see "Post-update eval check" below).
 3. If any files changed:
    - Read `.claude-plugin/plugin.json` and bump its `version` field (patch increment — e.g. `1.0.0` → `1.0.1`).
-   - Open a pull request summarizing what drifted, why, and eval results.
+   - Request a pull request using the `create-pull-request` safe output exactly once, summarizing what drifted, why, and eval results.
 4. If nothing changed, close this issue with a comment confirming all skills are current.
+
+## Pull request creation rules
+
+When files change, the `create-pull-request` safe output is the only mechanism for opening the pull request.
+
+- Emit exactly one `create-pull-request` safe output.
+- Do not run `gh pr create` or any other pull request creation command.
+- Do not write additional pull request JSON files manually.
+- Do not emit `report_incomplete` after emitting `create-pull-request`.
+- After emitting the `create-pull-request` safe output, stop and provide only a brief summary.
 
 ## Post-update eval check
 
