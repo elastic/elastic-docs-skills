@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.2.0
+version: 1.2.1
 description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
@@ -170,6 +170,8 @@ stack: preview =9.0, beta =9.1, ga 9.2+
 Always renders as: GA since 9.2, Beta in 9.1, Preview in 9.0 — newest to oldest.
 
 Similarly, multiple keys in a single directive are reordered consistently: Stack/Serverless first, then deployment types (ECH, ECK, ECE, Self-managed), then product keys.
+
+> **Important:** Key auto-ordering only applies when all keys are declared **in the same directive**. Keys declared in separate directives (for example, two separate inline `{applies_to}` tags on the same element) will not be reordered by docs-builder.
 
 ## Validation rules
 
