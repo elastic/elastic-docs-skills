@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.1.2
+version: 1.2.0
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 context: fork
@@ -173,7 +173,20 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Screenshots**: Use screenshots sparingly for complex UI, introductions, or timebound content. Check that screenshots use a consistent aspect ratio, 100% zoom, only essential UI, a screenshot border when appropriate, accessible alt text, and no sensitive information.
 - **Procedures**: 5–9 steps. Focus on use cases, not piece-by-piece UI description. Eliminate obvious steps.
 - **Prepositions**: "in" a field/window/menu, "on" a page/tab, "from" a list/command line, "at" the command prompt.
-- **Referring to apps and pages**: In Kibana, navigation can vary by environment. Use solution-agnostic patterns when directing users to apps or pages: "Find **APP** in the main menu or use the [global search field]." When the app is only reachable via search: "To open **APP**, find **PARENT** in the main menu or use the global search field." Flag instructions that assume a fixed navigation path without offering the search alternative.
+- **Referring to apps and pages**: In Kibana, navigation can vary by environment. Use solution-agnostic patterns when directing users to apps or pages: "Find **APP** in the navigation menu or use the [global search field]." When the app is only reachable via search: "To open **APP**, find **PARENT** in the navigation menu or use the global search field." Flag instructions that assume a fixed navigation path without offering the search alternative.
+- **Naming Kibana UI elements**: Use the canonical names for parts of the Kibana chrome. Flag any other variants you see.
+
+  | Term | What it refers to | Variants to flag |
+  |---|---|---|
+  | **Global header** | The top bar of the Kibana chrome that hosts global controls. | "Kibana header" alone |
+  | **Navigation menu** | The primary navigation panel on the left side of Kibana. | "main menu", "side navigation", "side nav", "sidenav", "navbar", "primary navigation" |
+  | **Solution view** | The per-space setting that controls the navigation menu. | — |
+  | **Classic view** | The non-solution option in the **Solution view** setting. | "Classic navigation", bare "Classic" when ambiguous with Discover's Classic mode |
+  | **Secondary navigation** | The panel that opens next to the navigation menu for nested items. | "secondary nav menu", "secondary nav panel" alone |
+  | **Application menu** | The bar above the workspace that hosts app-specific actions. | "App menu bar", "app menu" |
+  | **Workspace** | The main content area of the current app. | "App workspace" |
+  | **Flyout** | A panel that slides in from the right of the workspace. | "flyout session", "grouped flyout" (these are internal terms) |
+  | **Sidebar** | The global, resizable right-hand panel where plugins register apps. | — |
 
 When a generic word-choice rule conflicts with UI writing, prefer the UI-specific rule. For example, `click` is correct for action buttons and icons, while `select` is correct for choices such as tabs, checkboxes, radio buttons, and dropdown options.
 
