@@ -1,6 +1,6 @@
 ---
 name: docs-validate-code-samples
-version: 1.0.1
+version: 1.0.2
 description: Validate code samples in Elastic documentation markdown files. Checks language identifiers, substitution attributes, callout usage, JSON validity, ES|QL syntax, and Painless scripts. Use when reviewing docs PRs, auditing content, or writing new examples.
 disable-model-invocation: true
 argument-hint: <file|dir|glob> [--output <path>]
@@ -121,7 +121,7 @@ Always include the API docs URL in the issue detail.
 
 **G-1 — Source command:** the first non-blank, non-comment line must be `FROM`, `ROW`, `SHOW INFO`, or `METRICS`. Flag blocks that start with a processing command (missing source), or with `SELECT` (SQL syntax).
 
-**G-2 — Pipe command names:** every line beginning with `|` must use a recognized command: `DISSECT`, `DROP`, `ENRICH`, `EVAL`, `FORK`, `GROK`, `KEEP`, `LIMIT`, `MV_EXPAND`, `RENAME`, `SAMPLE`, `SORT`, `STATS`, `WHERE`, `LOOKUP`, `INLINESTATS`, `CHANGE_POINT`, `MATCH`, `QSTR`, `RERANK`. Flag unrecognized names.
+**G-2 — Pipe command names:** every line beginning with `|` must use a recognized command: `CHANGE_POINT`, `COMPLETION`, `DISSECT`, `DROP`, `ENRICH`, `EVAL`, `FORK`, `FUSE`, `GROK`, `INLINESTATS`, `KEEP`, `LIMIT`, `LOOKUP JOIN`, `METRICS_INFO`, `MMR`, `MV_EXPAND`, `REGISTERED_DOMAIN`, `RENAME`, `RERANK`, `SAMPLE`, `SORT`, `STATS`, `TS_COLLAPSE`, `TS_INFO`, `URI_PARTS`, `USER_AGENT`, `WHERE`. Flag unrecognized names.
 
 **G-2a — Incomplete pipe commands:** recognizing the command name is not enough — flag any pipe command that is present but has no arguments following it on the same line. Required arguments:
 
