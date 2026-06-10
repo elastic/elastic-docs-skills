@@ -1,7 +1,7 @@
 ---
 name: docs-applies-to-tagging
-version: 1.2.0
-description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (preview, beta, GA, deprecated, removed).
+version: 1.2.1
+description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (experimental, preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
 allowed-tools: Read, Grep, Glob, Edit, CallMcpTool, WebFetch
@@ -125,7 +125,7 @@ Use `ech` for Elastic Cloud Hosted. `ess` is a deprecated alias and should not b
 
 ### Lifecycle states
 
-`preview`, `beta`, `ga`, `deprecated`, `removed`, `unavailable`
+`experimental`, `preview`, `beta`, `ga`, `deprecated`, `removed`, `unavailable`
 
 ### Version formats (versioned products only)
 
@@ -317,7 +317,7 @@ Use this flow when the user describes a change and asks for the correct `applies
 From the user's prompt, pull the following. Ask **one** focused clarifying question if any are missing and material:
 
 - **Dimension** — stack/serverless, deployment, or product. If both stack and serverless apply, use stack/serverless. Use only one dimension at page level.
-- **Lifecycle per key** — preview, beta, ga, deprecated, removed, or unavailable.
+- **Lifecycle per key** — experimental, preview, beta, ga, deprecated, removed, or unavailable.
 - **Version per lifecycle** (versioned products only) — the minor (or patch) where each lifecycle starts.
 - **Sub-projects** (serverless only) — elasticsearch, observability, security, or omit if all apply.
 - **Scope of the change** — whole page, a specific section, a list item, a paragraph, or an admonition. Determines which level of annotation to generate.
