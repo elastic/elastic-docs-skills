@@ -1,6 +1,6 @@
 ---
 name: docs-review-changelog
-version: 1.4.1
+version: 1.5.1
 description: Validate and assess the quality of Elastic changelog YAML files against current Elastic standards. Reports schema errors, content quality issues, systematic pattern violations, type-title alignment mismatches, and overly technical content that needs user-focused rewrites. Features repository-aware area validation. Fetches canonical guidance to stay in sync. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
@@ -109,6 +109,10 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 **All types:**
 
 - Title starts with base-form action verb (`Add`, `Fix`, `Improve`, `Remove`, `Update`…) — not third-person forms (`Adds`, `Fixes`)
+- Flag: title does not start with an approved base-form verb for the declared `type` (noun-phrase titles)
+- Flag titles starting with negative imperatives: `Don't`, `Do not` — these are not approved leading verbs for any type
+- Flag noun-phrase or gerund-led titles: `Ability to`, `Adding`, `Changing`, `Using`, `Shutdown`
+- Flag: slash-separated enumerations in titles (`foo/bar/baz`)
 - Title is specific, not vague ("Bug fixes" or "Performance improvements" are too vague)
 - Title avoids bare internal references ("PR #123", "bug #456") — these don't help users
 - Title and description avoid implementation-focused language (describe user impact, not code changes)
@@ -118,7 +122,7 @@ These are warnings. The source of truth is the changelogs style guidance linked 
 
 **1. Title standardization issues (from canonical Title cleanup checklist):**
 
-- **Strip development labels:** Remove prefixes such as `feat:`, `fix:`, `Fix:`, `auto-implement:`, and trailing tracker fragments like `Bugfix -`
+- **Strip development labels:** Remove prefixes such as `feat:`, `fix:`, `Fix:`, `auto-implement:`, `ES|QL|DS`, `Aggs:`, `GPU codec:`, `DiskBBQ -`, and trailing tracker fragments like `Bugfix -`
 - **No bracket-only team tags:** Replace `[Security Solution]`, `[Query Rules]`, `[Inference]`, and similar with plain, user-facing wording
 - **Strong verbs:** Prefer *Improve validation for...* over *Better validation for...* (use present tense imperative: Fix, Add, Remove)
 - **No buried lede:** If title is vague, fold in concrete detail from description so release notes stand alone
@@ -158,6 +162,12 @@ Flag when changelog `type` and `title` verb patterns don't align, indicating pot
 - **`bug-fix`/`regression` misalignment:** Title uses `Improve`, `Enable`, `Update`, `Enhance` instead of expected `Fix`, `Resolve`, `Correct`
   - **Warning:** Type suggests fixing broken behavior, but title implies improvement/addition
   - **Suggest:** Review whether behavior was actually broken or if this should be `enhancement`
+- **`bug-fix`/`regression` enhancement verbs:** On `bug-fix`, flag titles starting with `Default`, `Reserve`, `Ensure`, or `Close` without `Fix`
+- **`bug-fix`/`regression` preventive/restrictive framing:** Flag titles that describe a new restriction or validation rather than the user-visible failure, especially when the title does NOT start with `Fix`, `Resolve`, or `Correct`
+  - **Leading patterns to flag:** `Don't`, `Do not`, `Disallow`, `Prevent`, `Reject`, `Block`, `Forbid`, `Prohibit`, `Restrict`, `No longer allow`
+  - **Warning:** Title explains what is now blocked, not what was broken (recovery failure, query error, cluster red, etc.)
+  - **Suggest:** Rewrite as `Fix [symptom] when [condition]` — e.g. "Don't allow runtime fields to shadow index sort fields" → "Fix shard recovery failures when runtime fields shadow index sort fields"
+  - **Type note:** If the change only adds validation with no prior user-visible failure, consider `enhancement` instead of `bug-fix`
 
 - **`enhancement` misalignment:** Title uses `Fix`, `Resolve`, `Correct` instead of expected `Improve`, `Update`, `Optimize`, `Enable`, `Expand`, `Enhance`
   - **Warning:** Type suggests improving working functionality, but title implies fixing broken behavior
@@ -173,6 +183,7 @@ Flag when changelog `type` and `title` verb patterns don't align, indicating pot
 **Example patterns to flag:**
 
 - Type `bug-fix` + "Improve query approximation accuracy..." → **Flag alignment mismatch**
+- Type `bug-fix` + "Don't allow runtime fields to shadow fields used in index sort" → **Flag preventive framing + verb mismatch**
 - Type `enhancement` + "Fix Painless score scripts..." → **Flag alignment mismatch**  
 - Type `enhancement` + "Fix ES|QL performance issues..." → **Flag alignment mismatch**
 
@@ -192,6 +203,16 @@ Flag overly technical titles that focus on implementation details rather than us
 - **Missing user symptoms:** Describes internal fixes without explaining external effects
   - **Warning:** Users can't determine if this change affects them
   - **Suggest:** Include user-facing symptoms or feature areas affected
+- **Preventive vs corrective:** On `bug-fix`/`regression`, if the title lacks symptom words (fail, error, crash, leak, hang, timeout, incorrect, missing, red, unallocated) and instead uses restriction words (allow, disallow, prevent, reject, validate, block), flag as likely preventive framing — soft heuristic for human review, not auto-fail
+- **Dev/test language:** Flag `Repro and fix` phrasing and PR-title passthrough with class/method names
+- **Unexpanded dev acronyms:** Flag `NPE`, `UOE` — expand per `docs-fix-changelog` acronym table
+- **ES|QL function tokens:** When `areas` includes `ES|QL`, flag unbackticked function names (`UNION_BY_NAME`, `JSON_EXTRACT`, etc.)
+
+**Eligibility (report only — never delete files):**
+
+- Recommend removal when linked PR/issue is test-only, refactor-only, or internal plumbing with no user-visible change
+- Without PR context: flag title/description mentioning test-only work or internal refactor
+- Report under `### Recommend removal`; do not modify or delete files
 
 **Type-specific:**
 
@@ -241,6 +262,9 @@ Produce one section per file reviewed. Omit empty sections. Use this format:
 
 ### Formatting warnings
 - `field`: description of the problem
+
+### Recommend removal
+- Optional; include only when eligibility checks fire — reason and PR/issue reference if available
 ```
 
 If a file has no issues, say so explicitly.

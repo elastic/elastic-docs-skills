@@ -81,6 +81,95 @@
         "Documents ambiguity in feature prefix confidence section",
         "Uses integration template: '[Feature]: Enable [capability]' → 'Enable [capability] for [feature]'"
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "Fix changelog title: 'Fix routing/serialization/coercion errors in ES|QL queries'",
+      "expected_output": "Replace slash-separated enumeration with Oxford comma list in suggested title",
+      "expectations": [
+        "Suggests title with Oxford comma list instead of routing/serialization/coercion",
+        "Preserves user-visible meaning (ES|QL query errors)",
+        "Shows high confidence for structural slash-list fix",
+        "Does not over-trim accurate technical context in description if needed"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Fix changelog title: 'Repro and fix UOE in PIT search after upgrade'. PR confirms UnsupportedOperationException on point-in-time searches.",
+      "expected_output": "Strip dev phrasing, expand UOE and PIT per acronym table, user-focused rewrite",
+      "expectations": [
+        "Strips 'Repro and fix' dev language",
+        "Expands UOE to UnsupportedOperationException and PIT to point-in-time per acronym table",
+        "Rewrites to user-visible symptom, not class/method passthrough",
+        "Documents PR-confirmed expansions in confidence section"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Fix changelog: type bug-fix, title 'Default timeout for cross-cluster search requests'",
+      "expected_output": "Rewrite as Fix [what was wrong] for bug-fix type-title alignment",
+      "expectations": [
+        "Flags Default without Fix as bug-fix misalignment",
+        "Suggests rewrite like 'Fix incorrect default timeout for cross-cluster search requests'",
+        "Keeps type bug-fix when PR confirms broken behavior",
+        "Includes type-title alignment in confidence section"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Fix changelog: title 'Fix splitValue nullability coercion when constructing ColorSeries'. PR describes grey inline charts for ES|QL time series.",
+      "expected_output": "User-symptom rewrite using Fix [outcome] [in context] template; optional description for stripped detail",
+      "expectations": [
+        "Suggests user-focused title e.g. grey inline charts for ES|QL queries",
+        "Uses [Fix|Improve|Add] [user-visible outcome] [in context] template",
+        "Suggests optional description when technical detail moved out of title",
+        "High confidence when PR context confirms user symptom"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Fix changelog file with prs: [https://github.com/elastic/elasticsearch/pull/12345]. Fetched PR is test-only Mockito refactor, no user-visible change.",
+      "expected_output": "Recommend delete file, not cosmetic rewrite; required PR fetch before suggesting",
+      "expectations": [
+        "Fetches PR from prs URL before suggesting (required)",
+        "Recommends deleting changelog file for test-only/refactor-only/no user impact",
+        "Does not suggest cosmetic title polish when entry should be removed",
+        "Notes low confidence skip for directory mode auto-apply when applicable"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Fix changelog: areas: [ES|QL], title 'Add JSON_EXTRACT and UNION_BY_NAME functions for nested data'",
+      "expected_output": "Backtick ES|QL function tokens; standardize ES|QL product form",
+      "expectations": [
+        "Adds backticks around JSON_EXTRACT and UNION_BY_NAME when areas includes ES|QL",
+        "Uses ES|QL not ESQL in suggested text",
+        "Keeps GPU, API, HTTP, OTLP uppercase per acronym table",
+        "High confidence for function identifier formatting"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Fix changelog: type bug-fix, title 'Don't allow runtime fields to shadow fields used in index sort'. Issue #149500 title: 'Adding a runtime field that shadows a sorted field causes recovery to fail'.",
+      "expected_output": "Symptom-first rewrite using issue title language; flags preventive framing",
+      "expectations": [
+        "Suggests rewrite like 'Fix shard recovery failures when runtime fields shadow index sort fields'",
+        "Uses issue-title cross-check: recovery failure from issue, not restriction from changelog",
+        "Flags preventive/restrictive framing on bug-fix type",
+        "Keeps type bug-fix when issue confirms prior user-visible failure",
+        "Documents issue context in confidence section"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Fix changelog: type bug-fix, title 'Prevent invalid mappings from being applied during index creation'",
+      "expected_output": "Flags preventive framing; suggests Fix [symptom] when [condition] or type change if no prior failure",
+      "expectations": [
+        "Flags Prevent as preventive/restrictive framing without Fix/Resolve/Correct",
+        "Suggests symptom-first rewrite or enhancement type if no prior user-visible failure",
+        "Includes type-title alignment in confidence section",
+        "Does not false-positive on titles already starting with Fix and including symptoms"
+      ]
     }
   ]
 }

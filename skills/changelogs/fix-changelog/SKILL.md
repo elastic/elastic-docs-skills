@@ -1,6 +1,6 @@
 ---
 name: docs-fix-changelog
-version: 2.3.1
+version: 2.4.1
 description: Suggest improved text for changelog YAML files against current Elastic standards. Mirrors the pattern catalog from docs-review-changelog to provide consistent fixes. Includes type-title alignment checking and technical content assessment to catch overly technical titles that need user-focused rewrites. Features repository-aware area validation and enhanced confidence scoring. Supports single files or directories. Fetches canonical guidance to stay in sync. Use after review identifies quality issues, or when drafting new changelogs.
 argument-hint: "[changelog-file-or-directory] [pr/issue-context]"
 context: fork
@@ -82,15 +82,26 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 
 **Track for confidence:** Document what context was available (full PR details, partial info, URLs only, or none) and any fetch failures. This will inform confidence scoring in Step 7.
 
+**PR fetch and eligibility:**
+
+- When `prs` or `issues` URLs exist in the file, fetch them before suggesting — required, not optional
+- If PR/issue is test-only, refactor-only, or has no user-visible impact → recommend **delete file**, not a cosmetic rewrite
+- Directory mode: fetch PR context per file; skip auto-apply on low-confidence rewrites
+
+**Issue-title cross-check (when `issues` URLs are present and fetched successfully):**
+
+- Compare issue title tone to changelog title
+- If the issue title describes a **failure/symptom** (e.g. "causes recovery to fail", "cluster health became red") but the changelog title uses **preventive/restrictive** language (`Don't allow`, `Disallow`, `Prevent`), suggest a symptom-first rewrite using language from the issue title
+- Example: issue *"Adding a runtime field that shadows a sorted field causes recovery to fail"* + changelog "Don't allow runtime fields to shadow fields used in index sort" → suggest "Fix shard recovery failures when runtime fields shadow index sort fields"
+
 ## Step 4: Apply post-edit checklist
 
-**Before field-level assessment**, apply the systematic pattern checklist that mirrors the warnings from `docs-review-changelog`. This ensures consistent improvement patterns across both tools.
-
-**Systematic pattern fixes (apply to all text fields where relevant):**
+Apply the systematic pattern checklist from `docs-review-changelog` (Step 4). Add fix-specific deltas below — do not re-derive the full catalog here.
 
 **1. Title standardization fixes (from canonical Title cleanup checklist):**
 
-- **Strip development labels:** Remove prefixes such as `feat:`, `fix:`, `Fix:`, `auto-implement:`, and trailing tracker fragments like `Bugfix -`
+- **Strip development labels:** Remove prefixes such as `feat:`, `fix:`, `Fix:`, `auto-implement:`, and trailing tracker fragments like `Bugfix -` — also strip `ES|QL|DS`, `Aggs:`, `GPU codec:`, `DiskBBQ -` (see review skill Step 4.1)
+- **Replace slash lists:** Convert `/` enumerations to Oxford comma lists in titles (e.g., `foo/bar/baz` → `foo, bar, and baz`)
 - **No bracket-only team tags:** Replace `[Security Solution]`, `[Query Rules]`, `[Inference]`, and similar with plain, user-facing wording
 - **Strong verbs:** Prefer *Improve validation for...* over *Better validation for...* (use present tense imperative: Fix, Add, Remove)
 - **No buried lede:** If title is vague, fold in concrete detail from description so release notes stand alone
@@ -100,11 +111,19 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 
 **2. Technical term enhancement fixes:**
 
+| Acronym | Action |
+|---|---|
+| `NPE` | Expand to NullPointerException |
+| `UOE` | Expand to UnsupportedOperationException |
+| `PIT` | Expand to point-in-time |
+| `GPU`, `API`, `HTTP`, `OTLP` | Keep uppercase |
+| `ESQL` | Standardize to `ES|QL` |
+| `OSQ` and other domain acronyms | Expand only with PR confirmation |
+
 - Add backticks around class/method names, config keys, API endpoints, or code identifiers where missing
 - Convert British spelling to US English: `serialise` → `serialize`, `colour` → `color`
 - Expand abbreviations where full form would be clearer: `params` → `parameters`
-- **Acronym expansion caution:** When expanding abbreviations/acronyms (2-4 uppercase letters), flag as uncertain unless clearly defined in PR context or covered in `docs-flag-jargon-skill` patterns
-- **Elastic acronym validation:** For common Elastic acronyms, cross-reference with patterns from `docs-flag-jargon-skill` if uncertain about expansion
+- **Acronym expansion:** Follow the table above; flag domain acronyms as uncertain without PR context
 - Standardize format: `ESQL` → `ES|QL`
 
 **3. Content quality fixes:**
@@ -127,15 +146,19 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 
 ## Step 4.5: Type-Title Alignment Check
 
-**Before generating suggestions**, validate that `type` and `title` verb patterns align. This catches systematic misclassifications where the content doesn't match the declared type.
-
-### Type-Verb Alignment Rules
+Validate that `type` and `title` verb patterns align (same rules as review Step 4.5). When mismatch detected, provide both options: keep type and rewrite title, or keep title and suggest type change.
 
 **`bug-fix` / `regression`:**
 
 - **Expected verbs:** `Fix`, `Resolve`, `Correct`
 - **Expected pattern:** "Fix [symptom] in [context]"
 - **Flag if title uses:** `Improve`, `Enable`, `Update`, `Enhance`
+- **Also flag:** `Default`, `Reserve`, `Ensure` without `Fix` — rewrite as **Fix [what was wrong]**
+- **Preventive/restrictive framing:** Flag titles that describe a new restriction or validation rather than the user-visible failure, especially when the title does NOT start with `Fix`, `Resolve`, or `Correct`
+  - **Leading patterns to flag:** `Don't`, `Do not`, `Disallow`, `Prevent`, `Reject`, `Block`, `Forbid`, `Prohibit`, `Restrict`, `No longer allow`
+  - **Warning:** Title explains what is now blocked, not what was broken (recovery failure, query error, cluster red, etc.)
+  - **Suggest:** Rewrite as `Fix [symptom] when [condition]` — e.g. "Don't allow runtime fields to shadow index sort fields" → "Fix shard recovery failures when runtime fields shadow index sort fields"
+  - **Type note:** If the change only adds validation with no prior user-visible failure, consider `enhancement` instead of `bug-fix`
 - **Action:** Suggest either changing type to `enhancement` OR rewriting title to describe what was broken
 
 **`enhancement`:**
@@ -175,9 +198,7 @@ For each changelog:
 
 ## Step 4.6: Technical Content Assessment
 
-**Before field-level assessment**, evaluate titles for overly technical language that focuses on implementation rather than user impact.
-
-### Technical Jargon Detection
+Evaluate titles for implementation-focused language. Rewrite using `[Fix|Improve|Add] [user-visible outcome] [in context]` — e.g., "Fix splitValue nullability coercion when constructing ColorSeries" → "Fix inline charts with grey time series for ES|QL queries".
 
 **Flag titles that prioritize implementation over user symptoms:**
 
@@ -185,6 +206,7 @@ For each changelog:
 - **Internal process descriptions**: "coercion logic", "serialization handling", "initialization sequence"  
 - **Implementation-focused terminology**: Technical terms that don't explain what users experience
 - **Missing user-visible symptoms**: Titles describing code changes without explaining user impact
+- **Preventive vs corrective:** On `bug-fix`/`regression`, if the title lacks symptom words (fail, error, crash, leak, hang, timeout, incorrect, missing, red, unallocated) and instead uses restriction words (allow, disallow, prevent, reject, validate, block), flag as likely preventive framing — soft heuristic for human review, not auto-fail
 
 ### User Impact Assessment
 
@@ -199,12 +221,10 @@ For each changelog:
 - Title contains multiple technical terms without user context
 - Implementation details dominate over user symptoms  
 - Class names, method names, or internal concepts without explanation
-- Example: "Fix splitValue nullability coercion when constructing ColorSeries" → Should suggest user-focused alternative
 
 **Low priority for rewrite (formatting only):**
 - Title already describes user-visible symptoms clearly
 - Technical terms support rather than obscure user understanding
-- Example: "Fix inline charts with grey time series for ES|QL queries" → Minor formatting only
 
 ## Step 5: Assess fields
 
@@ -230,7 +250,7 @@ Also check for formatting anti-patterns in existing `description`, `impact`, and
 
 ## Step 6: Generate suggestions
 
-**Character limits:** Target 80/600 characters; prefer clarity over trimming; split excess detail into `description` rather than shortening accurate titles.
+**Character limits:** Target 80/600 characters; prefer clarity over trimming; split excess detail into `description` rather than shortening accurate titles. Suggest optional `description` when technical detail is stripped from the title.
 
 **Confidence tracking:** During suggestion generation, note factors that affect confidence:
 
@@ -313,8 +333,8 @@ Remind the user that `--products`, `--prs`, `--issues`, and other non-text optio
 **`bug-fix` / `regression`:**
 
 - **Title pattern:** "Fix [symptom] in [context]" (base-form verb)
-- **Common misalignment:** Titles that say "Improve" when fixing broken behavior
-- **Resolution:** If behavior was broken → keep `bug-fix`, rewrite title. If adding new capability → change to `enhancement`
+- **Common misalignment:** Titles that say "Improve" when fixing broken behavior; preventive framing (`Don't allow`, `Disallow`, `Prevent`) instead of symptom-first `Fix [symptom] when [condition]`
+- **Resolution:** If behavior was broken → keep `bug-fix`, rewrite title. If adding new capability → change to `enhancement`. Use issue title language when available (Step 3 cross-check)
 - **Description should explain:** What was wrong, what's now correct
 - **Required fields:** `impact` and `action` recommended for regressions
 

@@ -66,8 +66,9 @@ applies_to:
 ---
 ```
 
-**Section-level** (after a heading — applies to everything between that heading and the next heading of the same or higher level):
+**Section-level** (after a heading — applies to everything between that heading and the next heading of the same or higher level). Place the block on the line directly below the heading, with **no blank line** between the heading and the block:
 ````markdown
+## Section heading
 ```{applies_to}
 stack: ga 9.1+
 serverless: unavailable
@@ -185,7 +186,7 @@ When validating, check for these errors:
 7. **Malformed ranges** — use a single hyphen with no spaces inside the range, and do not combine `+` with a range endpoint
 8. **No overlapping ranges** — `ga 9.2+, beta 9.0-9.2` is invalid because 9.2 overlaps
 9. **Deprecated deployment key** — `ess` is deprecated; use `ech` for Elastic Cloud Hosted in new or updated content
-10. **Heading annotations** — section-level only, never use inline annotations with headings
+10. **Heading annotations** — section-level only, never use inline annotations with headings; the block goes on the line directly below the heading, with no blank line between them
 11. **Version numbers in prose** — never write versions in text next to applies_to badges
 12. **Patch-level tags** — tags should be at the minor (`stack: ga 9.4`), not the patch (`stack: ga 9.4.2`); flag patch-level tags and the redundant same-minor bullets they often create
 

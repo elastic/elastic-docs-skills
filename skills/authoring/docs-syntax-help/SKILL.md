@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.0.7
+version: 1.0.8
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 context: fork
@@ -437,9 +437,9 @@ sub:
 
 Usage: `{{product-name}}`
 
-**Operators** (pipe-separated): `{{var | lc}}`, `{{var | uc}}`, `{{var | tc}}`, `{{var | kc}}`, `{{var | trim}}`
+**Operators** (pipe-separated): `{{var | lc}}`, `{{var | uc}}`, `{{var | tc}}`, `{{var | c}}`, `{{var | kc}}`, `{{var | sc}}`, `{{var | cc}}`, `{{var | pc}}`, `{{var | trim}}`
 
-**Version operators**: `{{version.stack | M.M}}` (major.minor), `{{version.stack | M+1}}` (next major)
+**Version operators**: `{{version.stack | M}}` (major only), `{{version.stack | M.x}}` (major.x), `{{version.stack | M.M}}` (major.minor), `{{version.stack | M+1}}` (next major), `{{version.stack | M.M+1}}` (next minor)
 
 **In code blocks**: Use `subs=true` flag. **Inline code**: Use `` {subs=true}`text {{var}}` `` role.
 
