@@ -116,6 +116,18 @@
         "Does NOT generate a fenced applies_to block that splits the step by version",
         "Does NOT recommend an applies-switch tab for a simple label rename"
       ]
+    },
+    {
+      "id": 11,
+      "prompt": "A capability shipped in the 9.4.2 patch release. The list already has this bullet:\n- {applies_to}`stack: ga 9.4` Open the menu and select **Inspect**.\nI want to add that you can also select **Inspect tab** from the application menu. Should I add a new bullet tagged stack: ga 9.4.2?",
+      "expected_output": "Recommendation to tag at the minor (stack: ga 9.4, not 9.4.2) and to fold the new sentence into the existing 9.4 bullet rather than adding a parallel same-minor bullet",
+      "expectations": [
+        "Recommends tagging at the minor level (stack: ga 9.4), not the patch (stack: ga 9.4.2)",
+        "Explains that badges only display Major.Minor, so a patch-level tag adds no reader-visible precision",
+        "Recommends folding the new sentence into the existing stack: ga 9.4 bullet rather than creating a second bullet",
+        "Notes that a separate same-minor bullet is redundant and fragments the version's content",
+        "Does NOT recommend a new stack: ga 9.4.2 bullet"
+      ]
     }
   ]
 }
