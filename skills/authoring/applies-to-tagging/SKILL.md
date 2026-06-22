@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.2.1
+version: 1.3.0
 description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (experimental, preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
@@ -139,6 +139,7 @@ Use `ech` for Elastic Cloud Hosted. `ess` is a deprecated alias and should not b
 Unversioned products (serverless) use lifecycle only: `serverless: ga`.
 
 When generating new tags, make version intent explicit:
+- **Tag at the minor level by default.** Even when a feature ships in a patch release (for example 9.4.2), tag it at the minor: `stack: ga 9.4`, not `stack: ga 9.4.2`. Badges only ever display Major.Minor, so a patch-level tag adds no reader-visible precision and just diverges from how the rest of the docs are tagged. Reserve patch versions for plain-text prose, and only when the patch distinction is genuinely critical (see version display notes).
 - Use `x.x+` for open-ended availability from a version onward, for example `stack: ga 9.1+`.
 - Use `=x.x` for exactly one minor version, for example `stack: preview =9.0`.
 - Use `x.x-y.y` for an inclusive range, for example `stack: beta 9.1-9.2`.
@@ -187,6 +188,7 @@ When validating, check for these errors:
 9. **Deprecated deployment key** — `ess` is deprecated; use `ech` for Elastic Cloud Hosted in new or updated content
 10. **Heading annotations** — section-level only, never use inline annotations with headings; the block goes on the line directly below the heading, with no blank line between them
 11. **Version numbers in prose** — never write versions in text next to applies_to badges
+12. **Patch-level tags** — tags should be at the minor (`stack: ga 9.4`), not the patch (`stack: ga 9.4.2`); flag patch-level tags and the redundant same-minor bullets they often create
 
 ## Guidelines for tagging
 
@@ -203,6 +205,14 @@ When validating, check for these errors:
 
 - Content is genuinely version- or deployment-scoped, isn't already covered by a parent tag, and isn't better expressed inline.
 - Functionality is added in a specific release, lifecycle state changes (preview → GA, deprecated, removed), or availability differs across products or deployment types.
+
+### Consolidate with content that already covers the version
+
+Before adding a new tagged bullet, section, or block, check whether the page already has a structure covering the **same minor**. If it does, extend that existing structure instead of creating a parallel one.
+
+Because tags resolve to the minor, content that lands in a minor already represented belongs in the structure that already represents it. For example, if a list already has a `{applies_to}`stack: ga 9.4`` bullet and you're documenting a related detail that shipped in 9.4.2, fold it into that same 9.4 bullet — a second `stack: ga 9.4.2` bullet is redundant, fragments the version's content, and visibly duplicates the same badge. Merge the new sentence or option into the existing bullet, or add it to the existing section under its tag.
+
+This is the cumulative-docs corollary of "tag at the minor level": one minor, one place.
 
 ### Place `applies_to` where the change applies
 
