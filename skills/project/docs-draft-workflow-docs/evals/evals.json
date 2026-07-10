@@ -1,0 +1,68 @@
+{
+  "skill_name": "docs-draft-workflow-docs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft docs for elastic/docs-content#7089 — add the missing cases.removeTags workflow step to the Cases action steps reference. The issue links Kibana PR #268465 and says it belongs in the Tags and assignees section beside cases.addTags.",
+      "expected_output": "Runs doc-issue intake, classifies as an update to explore-analyze/workflows/steps/cases.md (not a new page), researches cases.removeTags from Kibana source, and drafts a cases.removeTags section following the cases.addTags pattern with parameter table and YAML example.",
+      "expectations": [
+        "Targets explore-analyze/workflows/steps/cases.md under the Workflows docset",
+        "Inserts cases.removeTags in the Tags and assignees section following cases.addTags structure",
+        "Documents case_id and tags parameters using snake_case in the with block",
+        "Includes a YAML usage example for cases.removeTags",
+        "Notes follow-up to update the step catalog line and step type index",
+        "Does NOT create a new standalone Cases feature doc outside explore-analyze/workflows/"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "elastic/docs-content-internal#1454 — Workflow visualization diagram (DAG) view behind an experimental advanced setting in 9.5. The suggested documentation work table splits ship-now MVP content from post-9.5 deferred items, and there are four open items to confirm before publishing.",
+      "expected_output": "Fetches the internal issue, extracts suggested documentation work with ship-now vs defer scope, presents unresolved open questions before drafting, and drafts only MVP content for a new authoring-techniques page plus follow-up edits for use-yaml-editor.md and toc.yml.",
+      "expectations": [
+        "Parses ## Suggested documentation work (for the writer) including ship now vs defer rows",
+        "Treats open items to confirm before publishing as unresolved questions requiring user input",
+        "Proposes explore-analyze/workflows/authoring-techniques/visualize-workflows.md for MVP scope",
+        "Drafts only ship-now items and lists deferred post-9.5 content as follow-up",
+        "Includes experimental/preview enablement for the workflows:experimentalFeatures advanced setting",
+        "Lists inbound link and toc.yml updates as follow-up edits rather than skipping them"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have this workflow YAML and need a step reference entry for elasticsearch.esql.query. The step runs an ES|QL query and passes results to the next step via steps.run_esql.output.\n\nsteps:\n  - name: run_esql\n    type: elasticsearch.esql.query\n    with:\n      query: \"FROM logs-* | WHERE severity == \\\"critical\\\" | LIMIT 10\"",
+      "expected_output": "Classifies as a step reference update or addition, researches elasticsearch.esql.query in kbn-workflows/spec and Kibana source, applies Workflows YAML conventions, and drafts parameter documentation with a realistic example showing output chaining.",
+      "expectations": [
+        "Researches elasticsearch.esql.query in Kibana source rather than inventing parameters",
+        "Documents the with.query parameter and steps.<name>.output data flow",
+        "Places content under explore-analyze/workflows/steps/ not outside the Workflows docset",
+        "Applies Workflows authoring rules such as descriptive step names and copy-pasteable YAML",
+        "Suggests cross-links to the step type index and choose-the-right-step page"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Write documentation explaining how analysts create and manage cases in the Elastic Security UI — case statuses, assignees, connectors, and the case details flyout. Put it in the Security docs section.",
+      "expected_output": "Does NOT draft Security Cases UI documentation. Recognizes the request is outside the Workflows docset scope and declines or redirects to Workflows-only work under explore-analyze/workflows/.",
+      "expectations": [
+        "Does NOT draft general Elastic Security Cases UI documentation",
+        "Does NOT place content outside explore-analyze/workflows/",
+        "Recognizes this is outside the docs-draft-workflow-docs skill scope",
+        "Does NOT reframe the Security Cases UI request as a Workflows use-case page",
+        "Declines with a scope explanation instead of running Steps 0–6"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "elastic/docs-content#7222 — Document the six security.* alert and attack triage workflow steps for 9.5. The issue has a ## Docs work section with four deliverables: new security.md modeled on cases.md, updates to action-steps.md, a cross-ref on kibana.md preferring security.* over kibana.SetAlertsStatus, and step-types.md plus cheat-sheet.md updates. All six steps are GA in 9.5.",
+      "expected_output": "Parses ## Docs work as the writer brief, mirrors cases.md structure for a new security.md page with Shared conventions and per-step parameter tables, lists multi-file follow-up edits, and uses GA applies_to from the authoritative issue rather than absorbed preview notes.",
+      "expectations": [
+        "Parses ## Docs work (not only Suggested documentation work) as the writer brief",
+        "Proposes explore-analyze/workflows/steps/security.md modeled on cases.md",
+        "Documents Shared conventions including alert_ids vs ids and add/remove semantics",
+        "Lists follow-up edits for action-steps.md, kibana.md, step-types.md, and cheat-sheet.md",
+        "Recommends security.* as preferred over overlapping kibana.SetAlertsStatus steps",
+        "Uses stack: ga 9.5+ and serverless: ga applies_to per the authoritative issue"
+      ]
+    }
+  ]
+}
