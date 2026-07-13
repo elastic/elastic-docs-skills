@@ -3,7 +3,7 @@ name: create-skill
 version: 1.0.0
 description: Interactively create a new Claude Code skill and add it to the elastic-docs-skills catalog. Use when the user wants to generate a new skill, scaffold a slash command, or build automation for docs tasks.
 disable-model-invocation: true
-argument-hint: [skill-name (optional)]
+argument-hint: "[skill-name (optional)]"
 allowed-tools: Read, Write, Bash(mkdir *), Bash(ls *), Bash(git *), Bash(gh *), Glob, Grep, AskUserQuestion
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
