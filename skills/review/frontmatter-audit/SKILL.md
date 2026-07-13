@@ -1,6 +1,6 @@
 ---
 name: docs-frontmatter-audit
-version: 1.1.1
+version: 1.1.2
 description: Audit Elastic documentation files for frontmatter completeness and correctness. Checks products, description, and navigation_title fields across a directory. Use when auditing docs metadata, checking frontmatter quality before publishing, or validating a batch of files.
 argument-hint: <file-or-directory>
 context: fork
@@ -59,7 +59,7 @@ Flag `product` singular as likely incorrect unless the local repository explicit
 
 Validate against these rules:
 - Present and non-empty
-- Maximum 200 characters
+- Around 150 characters (recommended by docs-builder); flag anything over 200 characters as too long
 - Complete sentence (not a fragment or label)
 - No Jinja2 substitution variables (`{{kib}}`, `{{es}}`, `{{esql}}` — these aren't parsed in frontmatter)
 - No label prefixes ("Reference -", "Tutorial -", "Guide -")
@@ -107,7 +107,7 @@ If present, don't flag or suggest changes. If absent, don't suggest adding it.
 |------|-------|
 | path/to/file.md | Missing description |
 | path/to/other.md | Contains Jinja2 variables |
-| path/to/third.md | Exceeds 200 characters (247 chars) |
+| path/to/third.md | Exceeds 200 characters (247 chars); descriptions should usually be around 150 characters |
 
 #### Missing `navigation_title`
 | File | H1 length |
