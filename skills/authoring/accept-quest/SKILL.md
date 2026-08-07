@@ -1,8 +1,8 @@
 ---
 name: docs-accept-quest
-version: 1.0.0
-description: Turn an Elastic documentation GitHub issue into a drafted docs-content PR. Triangulates linked product PRs, finds the canonical docs home, drafts with cumulative applies_to, verifies claims against source at HEAD, sweeps a local pitfalls checklist, and opens a draft PR. Use when assigned a docs issue, asked to draft docs for a GitHub issue, or told to accept a docs quest.
-argument-hint: <docs-content-issue-url-or-number>
+version: 1.0.1
+description: Turn an Elastic documentation GitHub issue into a drafted docs PR. Triangulates linked product PRs, finds the canonical docs home (docs-content or in-product docs repos such as kibana and elasticsearch), drafts with cumulative applies_to, verifies claims against source at HEAD, sweeps a local pitfalls checklist, and opens a draft PR in the correct repo. Use when assigned a docs issue, asked to draft docs for a GitHub issue, or told to accept a docs quest.
+argument-hint: <docs-issue-url-or-number>
 context: fork
 allowed-tools: Read, Grep, Glob, Edit, Write, CallMcpTool, WebFetch, Bash, AskUserQuestion, Agent
 sources:
@@ -32,15 +32,16 @@ under the License. -->
 
 # Docs accept quest
 
-End-to-end workflow for turning a GitHub documentation issue into a drafted PR on `elastic/docs-content`. Runs Phase 0 once per machine to locate the writer's docs-content clone, pitfalls checklist, and editorial preferences.
+End-to-end workflow for turning a GitHub documentation issue into a drafted PR in the repo that owns the target pages. Most quests start from an `elastic/docs-content` issue, but the docs change may belong in `docs-content`, `kibana`, `elasticsearch`, or another product docs tree — confirm ownership before branching (see Phase 1 product-repo routing). Runs Phase 0 once per machine to locate the writer's docs-content clone (for corpus search and docs-content worktrees), pitfalls checklist, and editorial preferences.
 
 We are professional documentation writers. Every factual claim must be traceable to a line of code or an authoritative source. Nothing is invented, assumed, or copied from issue body prose alone.
 
 ## Inputs
 
 `$ARGUMENTS` is the issue reference. Accept any of:
-- `elastic/docs-content#123` — repo-qualified
-- `#123` — issue number (assume `elastic/docs-content`)
+- `elastic/docs-content#123` — repo-qualified (typical)
+- `elastic/<other-docs-repo>#123` — when the quest issue lives elsewhere
+- `#123` — issue number (assume `elastic/docs-content` unless the user names another repo)
 - A full GitHub issue URL
 
 ---
@@ -54,7 +55,7 @@ Before Phase 1, resolve three local paths. Writers who already keep these files 
 
 | Variable | Purpose |
 |----------|---------|
-| `$DOCS_CONTENT_ROOT` | Local clone of `elastic/docs-content` (worktrees branch from here) |
+| `$DOCS_CONTENT_ROOT` | Local clone of `elastic/docs-content` (corpus search + docs-content worktrees; still required when the PR opens in another repo) |
 | `$DOCS_PITFALLS_PATH` | Pitfalls checklist markdown file |
 | `$EDITORIAL_PREFERENCES_PATH` | Editorial preferences markdown file |
 
@@ -341,12 +342,16 @@ Apply the cumulative docs model — docs serve all active versions simultaneousl
 
 ### Branch setup
 
+When the target pages live in `docs-content`:
+
 ```bash
 cd "$DOCS_CONTENT_ROOT"
 git fetch origin
 git worktree add "$DOCS_CONTENT_ROOT/../docs-content-<short-slug>" -b docs-issue-<N>-<short-slug> origin/main
 cd "$DOCS_CONTENT_ROOT/../docs-content-<short-slug>"
 ```
+
+When product-repo routing puts the change in another repo (for example `elastic/kibana` or `elastic/elasticsearch`), use that repo's local clone the same way: fetch, worktree from `origin/main`, branch `docs-issue-<N>-<short-slug>`. Ask the user for the clone path if it is not already known. Keep using `$DOCS_CONTENT_ROOT` for corpus grep and published-page mapping even when the PR opens elsewhere.
 
 ### Writing rules — always apply
 
@@ -569,7 +574,7 @@ Return exactly: Questions, Blocking gaps, Optional improvements, Verdict: pass |
 
 ## Phase 8: Open the PR
 
-Use the GitHub MCP `create_pull_request` tool on `elastic/docs-content`. Always set `draft: true`.
+Use the GitHub MCP `create_pull_request` tool on the **target docs repo** (the one that owns the edited files — often `elastic/docs-content`, sometimes `elastic/kibana`, `elastic/elasticsearch`, or another product docs tree). Always set `draft: true`. If the quest needs both a docs-content PR and a companion PR elsewhere, open each in its owning repo.
 
 **PR title:** `docs: <what changed, present tense> (#<issue-number>)`
 
