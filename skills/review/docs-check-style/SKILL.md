@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.2.1
+version: 1.3.0
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
 argument-hint: <file-or-directory>
 disable-model-invocation: true
@@ -147,7 +147,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Lists**: Minimum two items. Parallel structure. Capitalize first letter. No periods unless complete sentences. Introduce with a heading, sentence, or fragment ending with a colon.
 - **Paragraphs**: Keep under seven lines.
 - **Line spacing**: Single line break between elements.
-- **Admonitions**: Use notes, tips, warnings, important blocks, and plain admonitions for their documented purpose. Do not stack admonitions, overuse them, or use regular admonitions for prerequisites when a plain requirements admonition fits better.
+- **Admonitions**: Use notes, tips, warnings, important blocks, and plain admonitions for their documented purpose. Do not stack admonitions or overuse them. Prefer a plain admonition titled **Requirements** for prerequisites instead of a regular admonition.
 - **Code samples**: Use consistent indentation, syntax highlighting, runnable examples when possible, and short comments before the code they explain. For JSON, use footnotes only when needed because footnotes are less accessible.
 - **Sensitive information**: Flag screenshots, examples, logs, tokens, hostnames, IPs, internal links, customer data, and secrets that need redaction or replacement with documentation-safe placeholders.
 
@@ -168,9 +168,9 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Select vs. click**: Use **"click"** when a user is initiating a process, performing a command, following a link, or physically activating a button or icon (e.g., "Click **Save**", "Click the **Help** icon"). Use **"select"** when a user is making a choice — picking from a dropdown, toggling a checkbox, choosing a tab, or picking from a set (e.g., "Select the **Logs** tab", "Select the **Enforce HTTPS** checkbox"). ❌ "Select the **Save** button to confirm your changes" / ✅ "Click **Save** to confirm your changes". ❌ "Click **Logs**" [for a tab] / ✅ "Select the **Logs** tab to view events".
 - **Text fields**: "In the **Name** field, enter `value`."
 - **Toggles**: "Turn on **Feature**" / "Turn off **Feature**" — not "enable/disable" as verbs. Use "toggle" as a **noun** to refer to the UI element (e.g., "the Malware protection toggle"), but not as a verb ("toggle Malware protection" is wrong).
-- **Keys**: "Press Enter" / "Press Command+Alt+L."
+- **Keys**: "Press **Enter**" / "Press **Command+Alt+L**."
 - **Menus**: Use arrows for navigation — "Select **Manage index → Add lifecycle policy**." Do **not** use the verbs "open" or "close" for menus; use "From the menu,..." instead. Refer to the element as "menu" — not "dropdown menu" or "dropdown list."
-- **Icons**: Reference by tooltip text, include inline icon. Avoid parentheses around icons.
+- **Icons**: Reference icons by tooltip text and include the inline icon when possible. Avoid parentheses around icons.
 - **Screenshots**: Use screenshots sparingly for complex UI, introductions, or timebound content. Check that screenshots use a consistent aspect ratio, 100% zoom, only essential UI, a screenshot border when appropriate, accessible alt text, and no sensitive information.
 - **Procedures**: 5–9 steps. Focus on use cases, not piece-by-piece UI description. Eliminate obvious steps.
 - **Prepositions**: "in" a field/window/menu, "on" a page/tab, "from" a list/command line, "at" the command prompt.

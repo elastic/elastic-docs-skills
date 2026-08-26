@@ -1,6 +1,6 @@
 ---
 name: docs-fix-changelog
-version: 2.5.0
+version: 2.6.0
 description: Suggest improved text for changelog YAML files against current Elastic standards. Mirrors the pattern catalog from docs-review-changelog to provide consistent fixes. Includes type-title alignment, product/surface context for titles, description verb-tense (third-person present), and technical content assessment. Features repository-aware area validation and enhanced confidence scoring. Supports single files or directories. Fetches canonical guidance to stay in sync. Use after review identifies quality issues, or when drafting new changelogs.
 argument-hint: "[changelog-file-or-directory] [pr/issue-context]"
 context: fork
@@ -60,7 +60,7 @@ Detect mode automatically: if the first argument resolves to a readable file, us
 
 ## Step 2: Determine mode and read input
 
-- **Mode A**: Read and parse the changelog file. If YAML parsing fails, report the error and stop.
+- **Mode A**: Read and parse the changelog file. If YAML parsing fails, report the error and stop. If reserved pipeline fields such as `link` or `sourceRedirect` appear in a hand-authored file, call them out and avoid treating them as normal writer-facing fields.
 - **Mode B**: Glob for `*.yaml` and `*.yml` files in the directory. Parse each file as YAML. If parsing fails for any file, report the error for that file but continue processing others.
 - **Mode C**: No file to read. Proceed to Step 3.
 
@@ -202,7 +202,7 @@ Evaluate titles for implementation-focused language. Rewrite using `[Fix|Improve
 - `title`: too vague, implementation-focused, wrong tense, missing action verb, missing product/surface context, or over 80 characters
 - `description`: only suggest when title is vague **or** tense/quality fails; do not suggest when title is self-explanatory and description tense is fine; flag present low-quality content (repeats title, "See PR", "Internal refactoring")
 - `description` tense: follow review Step 4 verb-form split — third-person present (`Fixes`, `Adds`); flag past tense (`Fixed`, `Added`) and base-form openings; rewrite accordingly
-- `impact` / `action`: absent on `breaking-change`, `deprecation`, or `known-issue`; when present, use third-person present (same verb-form split as description)
+- `impact` / `action`: absent on `breaking-change`, `deprecation`, or `known-issue`; for `breaking-change` they are required, and for `deprecation` / `known-issue` canonical guidance strongly encourages both when users need migration or workaround steps; when present, use third-person present (same verb-form split as description)
 - `areas` if present: must be an array of strings; validate against repository configuration from Step 1 if available (only flag areas not in `docs/changelog.yml` pivot.areas section), otherwise use generic validation
 - `feature-id` if present: must be a string; no content quality check needed, just YAML type correctness
 
@@ -296,7 +296,7 @@ docs-builder changelog add \
 
 Omit `--impact` and `--action` when not applicable to the type. Note that inside shell-quoted values, backticks must be escaped with a backslash (`\``) and double quotes must be escaped (`\"`).
 
-Remind the user that `--products`, `--prs`, `--issues`, and other non-text options must be provided separately. Refer them to `docs-builder changelog add --help` for the full list.
+Remind the user that `--products`, `--prs`, `--issues`, and other non-text options must be provided separately. If lifecycle guidance is relevant, valid values are `preview`, `beta`, `ga`, and `experimental`. Refer them to `docs-builder changelog add --help` for the full list.
 
 ### Enhanced Type-specific guidance
 
@@ -345,7 +345,7 @@ Remind the user that `--products`, `--prs`, `--issues`, and other non-text optio
 
 ## Formatting rules for suggested text
 
-All suggested `title`, `description`, `impact`, and `action` content must follow these rules.
+All suggested `title`, `description`, `impact`, and `action` content must follow these rules. Do not suggest writer-authored values for reserved pipeline fields such as `link` or `sourceRedirect`.
 
 ### YAML quoting
 

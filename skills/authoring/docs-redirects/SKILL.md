@@ -1,12 +1,12 @@
 ---
 name: docs-redirects
-version: 1.0.4
+version: 1.1.0
 description: Create and manage redirects in Elastic documentation when pages are moved, renamed, or deleted. Use when moving docs pages, renaming files, restructuring content, or when the user asks about redirects.
 argument-hint: <old-path> <new-path>
 context: fork
 allowed-tools: Read, Grep, Glob, Edit, Write
 sources:
-  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/contribute/redirects
+  - https://elastic.github.io/docs-builder/redirects/
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. See the NOTICE file distributed with
@@ -36,7 +36,7 @@ Trigger this skill when:
 
 ## How redirects work
 
-Redirects are configured in `redirects.yml` (or `_redirects.yml`), located next to the `docset.yml` (or `_docset.yml`) file in each content set. All paths are **relative to the `redirects.yml` file location**.
+Redirects are configured in `redirects.yml` (or `_redirects.yml`), located next to the `docset.yml` (or `_docset.yml`) file in each content set. All paths are **relative to the redirects file location**.
 
 Redirects only work within Elastic Docs V3 content sets. They cannot target external URLs.
 
@@ -79,16 +79,19 @@ redirects:
       'removed-anchor':
 ```
 
-### Remove anchors on a page that still exists
+### Remove anchors on a redirecting page
 
-When a page hasn't moved but specific anchors were removed, omit the `to:` field:
+When a page redirects but specific anchors should be dropped instead of carried to the target, set those anchors to empty under `anchors:`:
 
 ```yaml
 redirects:
-  'existing-page.md':
+  'old-page.md':
+    to: 'new-page.md'
     anchors:
       'removed-anchor':
 ```
+
+If the page itself did not move and only same-page anchors changed, don't add a redirect entry. Update inbound links to the old anchor or add a custom heading anchor in the page content instead.
 
 ### Cross-repository redirects
 
@@ -179,4 +182,5 @@ Run `docs-builder diff validate` locally to verify all necessary redirect rules 
 - Keep entries sorted alphabetically by old path for readability.
 - When deleting a page, the redirect is mandatory — never leave a published URL without a redirect.
 - When moving multiple pages (e.g., restructuring a folder), add a redirect for each moved page.
+- For same-page anchor renames, do not create a redirect rule; fix links or restore the old anchor in the page.
 - If unsure whether a redirect is needed, it's safer to add one.

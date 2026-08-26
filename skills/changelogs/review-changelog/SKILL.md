@@ -1,6 +1,6 @@
 ---
 name: docs-review-changelog
-version: 1.6.0
+version: 1.7.0
 description: Validate and assess the quality of Elastic changelog YAML files against current Elastic standards. Reports schema errors, content quality issues, systematic pattern violations, type-title alignment mismatches, missing product/surface context in titles, description verb-tense issues, and overly technical content that needs user-focused rewrites. Features repository-aware area validation. Fetches canonical guidance to stay in sync. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
@@ -78,7 +78,7 @@ Glob for `*.yaml` and `*.yml` in `$ARGUMENTS`, or read a single file if given a 
 
 ## Step 3: Schema checks
 
-These are hard errors — structural/parse failures only (missing required fields, invalid enums, YAML types, unquoted scalars, required `impact`/`action` on `breaking-change`). Not style guidelines. The source of truth for the schema is `ChangelogEntry.cs` linked in `sources`.
+These are hard errors — structural/parse failures only (missing required fields, invalid enums, YAML types, unquoted scalars, required `impact`/`action` on `breaking-change`; note that canonical guidance also recommends `impact`/`action` for `deprecation` and `known-issue`). Not style guidelines. The source of truth for the schema is `ChangelogEntry.cs` linked in `sources`.
 
 **Required fields:**
 
@@ -90,9 +90,11 @@ These are hard errors — structural/parse failures only (missing required field
 
 **Optional field constraints:**
 
-- `products[n].lifecycle` if present on any product entry, fetch `https://github.com/elastic/docs-builder/blob/main/src/Elastic.Documentation/Lifecycle.cs` to get canonical list (such as `ga`)
+- `products[n].lifecycle` if present on any product entry, fetch `https://github.com/elastic/docs-builder/blob/main/src/Elastic.Documentation/Lifecycle.cs` to get canonical list (`preview`, `beta`, `ga`, `experimental`)
 - `subtype`: only permitted on `breaking-change` entries; value must be one of: `api`, `behavioral`, `configuration`, `dependency`, `subscription`, `plugin`, `security`, `other`
 - `prs` and `issues`: optional arrays, may be empty or absent — no validation beyond YAML type correctness
+- `link`: reserved for machine-written marker entries in docs-builder output; if present in hand-authored changelogs, flag for human review rather than treating it as a normal writer field
+- `sourceRedirect`: reserved pipeline boolean; if present in hand-authored changelogs, flag for human review
 - `areas` if present: must be an array of strings — validate against repository configuration from Step 1 if available (only flag areas not in `docs/changelog.yml` pivot.areas section), otherwise use generic validation
 - `feature-id` if present: must be a string — used to associate a change with a unique feature flag
 - `highlight` if present: must be a boolean — marks entries for inclusion in release highlights
@@ -220,7 +222,7 @@ Flag overly technical titles that focus on implementation details rather than us
 **Type-specific:**
 
 - `breaking-change`: `impact` and `action` are REQUIRED — flag as errors if absent; `subtype` is strongly recommended
-- `deprecation` and `known-issue`: `impact` and/or `action` are recommended — flag as warnings if absent
+- `deprecation` and `known-issue`: canonical guidance recommends both `impact` and `action` when they add value, especially when a workaround or migration step exists — flag as warnings when omitted for user-impacting entries
 - `feature` / `enhancement`: title/description should explain what users can now do, not how it was built
 - `bug-fix` / `regression`: title/description should explain what was wrong and what is now correct
 - When present, `description` must add context beyond repeating the title; flagging "See PR" or "Internal refactoring" as low-value
