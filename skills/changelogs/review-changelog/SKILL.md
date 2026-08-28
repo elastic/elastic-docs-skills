@@ -1,12 +1,13 @@
 ---
 name: docs-review-changelog
-version: 1.6.0
+version: 1.7.1
 description: Validate and assess the quality of Elastic changelog YAML files against current Elastic standards. Reports schema errors, content quality issues, systematic pattern violations, type-title alignment mismatches, missing product/surface context in titles, description verb-tense issues, and overly technical content that needs user-focused rewrites. Features repository-aware area validation. Fetches canonical guidance to stay in sync. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
 allowed-tools: Read, Grep, Glob, WebFetch
 sources:
   - https://github.com/elastic/docs-builder/blob/main/src/Elastic.Documentation/ReleaseNotes/ChangelogEntry.cs
+  - https://github.com/elastic/docs-builder/blob/main/src/Elastic.Documentation/ReleaseNotes/ProductReference.cs
   - https://www.elastic.co/docs/contribute-docs/content-types/changelogs
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
@@ -78,21 +79,30 @@ Glob for `*.yaml` and `*.yml` in `$ARGUMENTS`, or read a single file if given a 
 
 ## Step 3: Schema checks
 
-These are hard errors — structural/parse failures only (missing required fields, invalid enums, YAML types, unquoted scalars, required `impact`/`action` on `breaking-change`). Not style guidelines. The source of truth for the schema is `ChangelogEntry.cs` linked in `sources`.
+These are hard errors — structural/parse failures only (missing required fields, invalid enums, YAML types, unquoted scalars, required `impact`/`action` on `breaking-change`). Not style guidelines. The source of truth for the schema is `ChangelogEntry.cs` and `ProductReference.cs` linked in `sources`.
+
+One schema for all changelog YAML. Ask: **is this tied to a pull request?** A `note-*.yml` / `note-*.yaml` filename is only a hint that the file was written with `docs-builder changelog note`, not a second content type.
 
 **Required fields:**
 
 - `title`: must be present
 - `type`: must be present, value must be one of: `feature`, `enhancement`, `security`, `bug-fix`, `breaking-change`, `deprecation`, `known-issue`, `docs`, `regression`, `other`
-- `products`: must be present, non-empty array; each entry must have a `product` key
+- `products`: must be present, non-empty array; each product object must have a `product` key
 
 **Product ID validation:** Fetch `https://raw.githubusercontent.com/elastic/docs-builder/main/config/products.yml` to get the canonical list — valid IDs are the top-level keys under `products:`. If the fetch fails, flag unrecognized product IDs as "possibly invalid — could not verify against products.yml" rather than as errors.
 
+**Applicability (`prs` / `versions` / `target`):**
+
+- **PR-linked:** `prs` required (non-empty); `products[].versions` and `products[].target` forbidden
+- **Version-listed** (no PR, or `note-*.yml` filename hint): `products[].versions` required — YAML sequence of concrete versions/dates, not `*` or a `|` string; missing `prs`/`issues` is **not** an error; `products[].target` still forbidden
+- `products[].target` is obsolete on every file — schema error if present
+- File with `versions` and no `prs` on a PR-number filename: schema error — point writers to `docs-builder changelog note`
+
 **Optional field constraints:**
 
-- `products[n].lifecycle` if present on any product entry, fetch `https://github.com/elastic/docs-builder/blob/main/src/Elastic.Documentation/Lifecycle.cs` to get canonical list (such as `ga`)
-- `subtype`: only permitted on `breaking-change` entries; value must be one of: `api`, `behavioral`, `configuration`, `dependency`, `subscription`, `plugin`, `security`, `other`
-- `prs` and `issues`: optional arrays, may be empty or absent — no validation beyond YAML type correctness
+- `products[n].lifecycle` if present on any product object, fetch `https://github.com/elastic/docs-builder/blob/main/src/Elastic.Documentation/Lifecycle.cs` to get canonical list (such as `ga`)
+- `subtype`: only permitted on `breaking-change` changelogs; value must be one of: `api`, `behavioral`, `configuration`, `dependency`, `subscription`, `plugin`, `security`, `other`
+- `prs` and `issues`: arrays of strings when present (see applicability rules above for required vs optional)
 - `areas` if present: must be an array of strings — validate against repository configuration from Step 1 if available (only flag areas not in `docs/changelog.yml` pivot.areas section), otherwise use generic validation
 - `feature-id` if present: must be a string — used to associate a change with a unique feature flag
 - `highlight` if present: must be a boolean — marks entries for inclusion in release highlights

@@ -1,5 +1,5 @@
 {
-  "skill_name": "docs-review-changelog", 
+  "skill_name": "docs-review-changelog",
   "evals": [
     {
       "id": 1,
@@ -14,11 +14,11 @@
     },
     {
       "id": 2,
-      "prompt": "Review changelog with Elastic context issues: title: 'Add support for ESQL queries in Observability' description: 'Enables ESQL functionality for monitoring use cases'", 
+      "prompt": "Review changelog with Elastic context issues: title: 'Add support for ESQL queries in Observability' description: 'Enables ESQL functionality for monitoring use cases'",
       "expected_output": "Applies Elastic software context to validate ES|QL terminology and Observability product reference",
       "expectations": [
         "Notes inconsistent 'ESQL' format (should be 'ES|QL')",
-        "Validates 'Observability' as legitimate Elastic product context", 
+        "Validates 'Observability' as legitimate Elastic product context",
         "Shows software context awareness in terminology checking",
         "Does not flag legitimate Elastic product references as marketing"
       ]
@@ -26,10 +26,10 @@
     {
       "id": 3,
       "prompt": "Review changelog when canonical guidance fails to load: title: 'Fix dashboard loading' with repository config not found",
-      "expected_output": "Includes confidence assessment showing failed resource loading and its impact on review accuracy", 
+      "expected_output": "Includes confidence assessment showing failed resource loading and its impact on review accuracy",
       "expectations": [
         "Includes 'Confidence Assessment' section in output",
-        "Shows '✗ Failed' status for canonical guidance or repository config", 
+        "Shows '\u2717 Failed' status for canonical guidance or repository config",
         "Notes 'Medium' or 'Low' validation confidence due to missing resources",
         "Explains review limitations due to resource loading failures"
       ]
@@ -75,7 +75,7 @@
         "Flags title does not start with approved base-form verb (noun phrase)",
         "Notes expected verbs for enhancement type (Improve, Update, Enable, etc.)",
         "Categorizes under quality warnings, not schema errors",
-        "Does not auto-fix — report only"
+        "Does not auto-fix \u2014 report only"
       ]
     },
     {
@@ -129,7 +129,7 @@
       "expectations": [
         "When areas includes ES|QL, flags unbackticked function token UNION_BY_NAME",
         "Includes Recommend removal subsection when PR is test-only/refactor-only",
-        "States review never deletes files — report only",
+        "States review never deletes files \u2014 report only",
         "Heuristic fires on test-only/internal refactor signals from PR or description"
       ]
     },
@@ -138,7 +138,7 @@
       "prompt": "Review changelog: type bug-fix, title 'Don't allow runtime fields to shadow fields used in index sort'",
       "expected_output": "Flags preventive/restrictive framing and negative imperative verb mismatch on bug-fix",
       "expectations": [
-        "Flags Don't as negative imperative — not an approved leading verb",
+        "Flags Don't as negative imperative \u2014 not an approved leading verb",
         "Flags preventive/restrictive framing: describes restriction not user-visible failure",
         "Suggests symptom-first rewrite pattern Fix [symptom] when [condition]",
         "Notes type-title alignment mismatch for bug-fix without Fix/Resolve/Correct",
@@ -153,7 +153,7 @@
         "Flags 'Ability to' as noun-phrase or gerund-led title pattern",
         "Notes title does not start with approved base-form verb for bug-fix (Fix, Resolve, Correct)",
         "Categorizes under quality warnings",
-        "Does not auto-fix — report only"
+        "Does not auto-fix \u2014 report only"
       ]
     },
     {
@@ -170,12 +170,34 @@
     {
       "id": 16,
       "prompt": "Review changelog: type bug-fix, title 'Fix Fleet secrets stored inline during package policy bulk create', description: 'Fixed Fleet package policy bulk creation so that secrets are stored in the secrets index (respecting the secrets storage setting) instead of inline on the package policy saved object.'",
-      "expected_output": "Flags past-tense description; notes third-person present standard (Fixes…)",
+      "expected_output": "Flags past-tense description; notes third-person present standard (Fixes\u2026)",
       "expectations": [
         "Flags past tense Fixed in description",
         "Notes verb-form split: titles use base-form (Fix); descriptions use third-person present (Fixes)",
-        "Expects Fixes Fleet package policy bulk creation…",
+        "Expects Fixes Fleet package policy bulk creation\u2026",
         "Reports under content quality / quality warnings"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "Review PR-linked changelog 12345.yaml: products: [{product: elasticsearch, target: '9.3.0', versions: ['9.3.0']}], type: bug-fix, title: 'Fix query timeout', no prs field",
+      "expected_output": "Schema errors for obsolete target, forbidden versions on a PR-linked changelog, and missing required prs",
+      "expectations": [
+        "Flags products[].target as obsolete schema error (forbidden whether PR-linked or version-listed)",
+        "Flags products[].versions as forbidden on PR-linked changelogs",
+        "Flags missing/empty prs as schema error when tied to a PR",
+        "Does not treat target as a valid optional field"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Review note-aggregations-timeout.yml: type known-issue, title: 'Aggregations may time out on large clusters', products: [{product: elasticsearch, lifecycle: ga}], no prs, no versions",
+      "expected_output": "Schema error for missing products[].versions when not tied to a PR; missing prs is not an error",
+      "expectations": [
+        "Treats note-*.yml as a filename hint that the changelog is version-listed (not a second content type)",
+        "Flags missing/empty products[].versions as schema error when not tied to a PR",
+        "Does NOT flag absent prs as a schema error on version-listed changelogs",
+        "Reports under schema errors for versions only"
       ]
     }
   ]
