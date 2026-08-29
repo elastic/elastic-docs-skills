@@ -1,6 +1,6 @@
 ---
 name: docs-fix-changelog
-version: 2.6.1
+version: 2.6.2
 description: Suggest improved text for changelog YAML files against current Elastic standards. Mirrors the pattern catalog from docs-review-changelog to provide consistent fixes. Includes type-title alignment, product/surface context for titles, description verb-tense (third-person present), and technical content assessment. Features repository-aware area validation and enhanced confidence scoring. Supports single files or directories. Fetches canonical guidance to stay in sync. Use after review identifies quality issues, or when drafting new changelogs.
 argument-hint: "[changelog-file-or-directory] [pr/issue-context]"
 context: fork
@@ -78,6 +78,7 @@ Context from a PR or issue produces better suggestions. Use it in this order:
 
 - **Scan for acronym definitions:** In PR titles/descriptions, look for patterns like "KI (Knowledge Indicator)" or context clues that define abbreviations
 - **Cross-reference expansions:** Before expanding acronyms, check if PR context contradicts assumed meaning
+- **Unknown shorthand:** For domain or Elastic-internal terms not in the Step 4 item 2 table, check `docs-flag-jargon-skill` patterns — flag and ask; do not guess expansions
 
 **Track for confidence:** Document what context was available (full PR details, partial info, URLs only, or none) and any fetch failures. This will inform confidence scoring in Step 7.
 
@@ -130,7 +131,7 @@ Apply the systematic pattern checklist from `docs-review-changelog` (Step 4). Ad
 - Add backticks around class/method names, config keys, API endpoints, or code identifiers where missing
 - Convert British spelling to US English: `serialise` → `serialize`, `colour` → `color`
 - Expand abbreviations where full form would be clearer: `params` → `parameters`
-- **Acronym expansion:** Follow the table above; flag domain acronyms as uncertain without PR context
+- **Acronym expansion:** Follow the table above; flag domain acronyms as uncertain without PR context. For internal shorthand not in this table, check `docs-flag-jargon-skill` patterns — flag and ask, do not guess
 - Standardize format: `ESQL` → `ES|QL`
 
 **3. Content quality fixes:**
@@ -226,60 +227,24 @@ Also check for formatting anti-patterns in existing `description`, `impact`, and
 
 **Character limits:** Target 80/600 characters; prefer clarity over trimming; split excess detail into `description` rather than shortening accurate titles. Suggest optional `description` when technical detail is stripped from the title.
 
-**Confidence tracking:** During suggestion generation, note factors that affect confidence:
+**Confidence rubric:** Apply High / Medium / Low to every suggestion.
 
-- **High confidence:** Routine pattern fixes (development prefixes, obvious YAML quoting), standard terminology, good PR context
-- **Medium confidence:** Technical terms with contextual clues, partial PR context, common Elastic terminology
-- **Low confidence:** Domain-specific terms without context, missing PR details, ambiguous phrasing that could have multiple interpretations, novel or uncommon technical concepts
+- **High:** Routine pattern (prefixes, YAML quoting), standard terms, full PR context, canonical guidance loaded
+- **Medium:** Partial PR context, mixed technical/user language, common Elastic terminology
+- **Low:** Missing PR details, domain terms without context, multiple valid interpretations — document both options
 
-**Type-Title Alignment Confidence:**
+**Topic mappings (use the rubric; do not restack High/Medium/Low lists):**
 
-- **High confidence type corrections:**
-  - Clear functional behavior (Fix broken → `bug-fix`)
-  - Clear new capability (Add substantial → `feature`)  
-  - PR context confirms the classification
-
-- **Medium confidence:**
-  - Performance improvements (could be `enhancement` or `bug-fix` depending on whether previous performance was "broken")
-  - Minor additions (could be `enhancement` or `feature` depending on scope)
-
-- **Low confidence - provide both options:**
-  - Ambiguous PR context about whether behavior was broken or just suboptimal
-  - Edge cases between types (e.g., "fixing" by adding a missing capability)
-
-**Technical Content Assessment Confidence:**
-
-- **High confidence user-impact rewrites:**
-  - Titles heavy in class names, method names, or implementation details without user context
-  - Multiple technical terms that don't explain user symptoms
-  - Clear implementation focus over user experience (e.g., "Fix splitValue nullability coercion when constructing ColorSeries")
-
-- **Medium confidence:**
-  - Technical terms mixed with some user-facing language
-  - Partial user context but still implementation-heavy
-
-- **Low priority formatting-only suggestions:**
-  - Titles already focused on user symptoms and impact
-  - Technical terms support rather than obscure user understanding
-  - Clear user-facing language with minimal technical jargon
-
-**Repository Validation Confidence:**
-
-- **High confidence:** Repository configuration loaded successfully, using authoritative area validation
-- **Medium confidence:** Repository config partially available or unclear
-- **Low confidence:** No repository configuration found, using generic validation rules
+- **Type-title:** High when PR confirms broken vs new capability; medium for performance or minor-add; low when both type and title could be right → emit Option A/B
+- **Technical content:** High for class/method-heavy titles; medium mixed; skip rewrite (formatting only) when the title is already user-facing
+- **Repository areas:** High if `docs/changelog.yml` loaded; low if not
+- **Feature prefix:** High for known UI/feature names; low if the colon phrase could be a technical term
 
 **Feature/app prefix integration patterns:**
 
 - `"[Feature]: Fix [issue]"` → `"Fix [issue] in [feature]"`
 - `"[Feature]: Enable [capability]"` → `"Enable [capability] for [feature]"`  
 - `"[Feature]: Add [functionality]"` → `"Add [functionality] to [feature]"`
-
-**Feature prefix suggestion confidence:**
-
-- **High confidence:** Clear UI component names, known Elastic features, good PR context
-- **Medium confidence:** Ambiguous feature names, partial context
-- **Low confidence:** Could be technical term vs feature name, missing PR details
 
 **Mode A & B** — for each weak or malformed field, show:
 
@@ -408,7 +373,7 @@ Use backticks for field names, parameter names, config keys, API endpoints, comm
 
 ### Terminology uncertainties:
 - [Term/phrase]: Assumed [interpretation] — [Why uncertain, e.g., "Could be UI element vs feature name", "Missing domain context"]
-- [Acronym]: Expanded to "[expansion]" — [Confidence level: High/Medium/Low based on PR context, jargon-skill patterns, or domain knowledge]
+- [Acronym]: Expanded to "[expansion]" — [Confidence level: High/Medium/Low based on PR context, `docs-flag-jargon-skill` patterns, or domain knowledge]
 
 ### Assumptions made:
 - [Assumption]: [Rationale, e.g., "Normalized technical term based on common Elastic usage", "Inferred user impact from limited PR description"]
@@ -421,17 +386,7 @@ Use backticks for field names, parameter names, config keys, API endpoints, comm
 - [✓/✗] PR/Issue context: [What was available or missing]
 ```
 
-**Confidence scoring guidance:**
-
-- **Low confidence triggers:** Missing PR context, ambiguous technical terms, conflicting pattern interpretations, failed resource fetches, domain-specific terminology without clear context
-- **Medium confidence:** Partial PR context, standard technical terms, routine pattern fixes with good guidance
-- **High confidence:** Full context available, canonical guidance loaded, routine formatting/structural fixes
-
-**Enhanced confidence methodology:**
-
-- **Document all uncertainties:** Explicitly flag each suggestion where multiple interpretations are possible
-- **Track assumption rationales:** Always explain why you chose one interpretation over another
-- **Resource dependency transparency:** Clearly indicate which suggestions depend on successfully loaded canonical guidance vs fallback patterns
+**Confidence scoring:** Use the Step 6 rubric. Document uncertainties, assumption rationales, and whether a suggestion depended on loaded canonical guidance vs fallback patterns.
 
 **Default behavior:** Default behavior is suggest-only. Only apply changes to disk after explicit user confirmation. After writing changes, re-parse YAML to validate the result.
 

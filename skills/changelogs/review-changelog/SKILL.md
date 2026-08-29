@@ -1,6 +1,6 @@
 ---
 name: docs-review-changelog
-version: 1.7.1
+version: 1.7.2
 description: Validate and assess the quality of Elastic changelog YAML files against current Elastic standards. Reports schema errors, content quality issues, systematic pattern violations, type-title alignment mismatches, missing product/surface context in titles, description verb-tense issues, and overly technical content that needs user-focused rewrites. Features repository-aware area validation. Fetches canonical guidance to stay in sync. Use when checking or reviewing changelog files before merging — pairs with docs-fix-changelog to get suggested fixes.
 argument-hint: <file-or-directory>
 context: fork
@@ -218,7 +218,7 @@ Flag overly technical titles that focus on implementation details rather than us
   - **Suggest:** Include user-facing symptoms or feature areas affected
 - **Preventive vs corrective:** On `bug-fix`/`regression`, if the title lacks symptom words (fail, error, crash, leak, hang, timeout, incorrect, missing, red, unallocated) and instead uses restriction words (allow, disallow, prevent, reject, validate, block), flag as likely preventive framing — soft heuristic for human review, not auto-fail
 - **Dev/test language:** Flag `Repro and fix` phrasing and PR-title passthrough with class/method names
-- **Unexpanded dev acronyms:** Flag `NPE`, `UOE` — expand per `docs-fix-changelog` acronym table
+- **Unexpanded dev acronyms:** Flag and expand per the `docs-fix-changelog` Step 4 item **2** table (do not copy the table here)
 - **ES|QL function tokens:** When `areas` includes `ES|QL`, flag unbackticked function names (`UNION_BY_NAME`, `JSON_EXTRACT`, etc.)
 
 **Eligibility (report only — never delete files):**
