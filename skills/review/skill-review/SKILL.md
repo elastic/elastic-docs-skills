@@ -8,7 +8,7 @@ context: fork
 allowed-tools: Read, Grep, Glob, CallMcpTool, WebFetch
 sources:
   - https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
-  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/mcp
+  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/data/mcp
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. See the NOTICE file distributed with
