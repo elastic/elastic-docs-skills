@@ -8,12 +8,12 @@
       "expectations": [
         "Suggests quoting 'Service Inventory' as UI element: \"Service Inventory\"",
         "Suggests capitalizing 'Machine Learning' as feature name (not quoting)",
-        "Includes article: 'the \"Service Inventory\" page'", 
+        "Includes article: 'the \"Service Inventory\" page'",
         "Explains UI vs feature name formatting distinction"
       ]
     },
     {
-      "id": 2, 
+      "id": 2,
       "prompt": "Fix this changelog where accuracy conflicts with style: Title 'Improve dashboard performance' but PR shows it actually fixes a memory leak bug that was causing crashes",
       "expected_output": "Suggestion prioritizes accuracy over style, recommending title change to reflect bug fix nature and possibly changing type to bug-fix",
       "expectations": [
@@ -54,7 +54,7 @@
       "expectations": [
         "Detects 'File upload:' as feature/app prefix pattern",
         "Suggests integrated alternative: 'Prevent data view creation in file upload tool without sufficient privileges'",
-        "Uses integration template: '[Feature]: Fix [issue]' → 'Fix [issue] in [feature]'",
+        "Uses integration template: '[Feature]: Fix [issue]' \u2192 'Fix [issue] in [feature]'",
         "Shows high confidence for clear UI component name",
         "Documents feature prefix suggestion in confidence section"
       ]
@@ -79,7 +79,7 @@
         "Suggests integration: 'Enable new authentication method for security'",
         "Shows medium confidence due to ambiguous feature name",
         "Documents ambiguity in feature prefix confidence section",
-        "Uses integration template: '[Feature]: Enable [capability]' → 'Enable [capability] for [feature]'"
+        "Uses integration template: '[Feature]: Enable [capability]' \u2192 'Enable [capability] for [feature]'"
       ]
     },
     {
@@ -185,12 +185,34 @@
     {
       "id": 17,
       "prompt": "Fix changelog: type bug-fix, title 'Fix Fleet secrets stored inline during package policy bulk create', description: 'Fixed Fleet package policy bulk creation so that secrets are stored in the secrets index (respecting the secrets storage setting) instead of inline on the package policy saved object.'",
-      "expected_output": "Rewrites description to third-person present Fixes…; explains title vs description verb-form split",
+      "expected_output": "Rewrites description to third-person present Fixes\u2026; explains title vs description verb-form split",
       "expectations": [
         "Suggests description starting with Fixes (not Fixed)",
         "References verb-form split: title base-form Fix; description third-person present Fixes",
         "Does not change title verb from Fix to Fixes",
         "High confidence for routine tense correction"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Mode C: Create a known-issue changelog for a post-release aggregations timeout affecting Elasticsearch 9.3.0 and 9.4.0. No associated PR.",
+      "expected_output": "Suggests docs-builder changelog note with pipe-separated versions in --products, not changelog add",
+      "expectations": [
+        "Emits changelog note command (not changelog add)",
+        "Uses | versions in --products middle slot (e.g. elasticsearch 9.3.0|9.4.0 ga)",
+        "Does not put a version in a changelog add --products flag",
+        "Type known-issue with title and optional issues citation guidance"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "Fix existing PR-linked changelog 12345.yaml that still has products: [{product: elasticsearch, target: '9.3.0'}], prs present, title fine",
+      "expected_output": "Suggests removing obsolete products[].target; does not rewrite target to a new value",
+      "expectations": [
+        "Suggests removing products[].target (obsolete)",
+        "Does not suggest rewriting or replacing the target value",
+        "Does not suggest adding products[].versions on a PR-linked changelog",
+        "References review schema / never suggest target"
       ]
     }
   ]
