@@ -6,7 +6,7 @@ argument-hint: <old-path> <new-path>
 context: fork
 allowed-tools: Read, Grep, Glob, Edit, Write
 sources:
-  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/contribute/redirects
+  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/documentation/redirects
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. See the NOTICE file distributed with
