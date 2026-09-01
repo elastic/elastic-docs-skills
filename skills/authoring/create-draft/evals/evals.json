@@ -1,0 +1,75 @@
+{
+  "skill_name": "docs-create-draft",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft a new page about configuring Fleet server TLS. Audience: operators with Elastic Stack experience. Purpose: walk through generating certs and applying them to Fleet server. Stack 9.0+, no serverless.",
+      "expected_output": "A how-to page with frontmatter (type: how-to, applies_to stack: ga 9.0+, serverless: unavailable), action-verb H1, Before you begin section, numbered steps, and a Related section.",
+      "expectations": [
+        "Classifies as how-to (not overview) because task is procedural",
+        "Frontmatter includes type: how-to",
+        "applies_to sets serverless: unavailable because Fleet Server is Stack-only",
+        "H1 uses action-verb pattern: 'Configure Fleet server TLS'",
+        "Includes a Before you begin section listing cert prerequisites",
+        "Steps are numbered, each step contains one instruction",
+        "Related section links to Fleet enrollment, TLS reference, or similar pages",
+        "Reading test subagent is invoked and its report is presented"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to write a page explaining what ES|QL is for a developer who has never used it. No issue, no target path yet.",
+      "expected_output": "Skill asks intake questions (audience, purpose, context, target location), classifies as overview, searches related docs, drafts with applies_to for both stack and serverless, runs reading test.",
+      "expectations": [
+        "Uses AskUserQuestion to gather audience, purpose, context, and target location before drafting",
+        "Classifies as overview (not how-to) because topic is conceptual",
+        "Frontmatter includes type: overview",
+        "applies_to covers both stack and serverless (ES|QL is available on both)",
+        "Searches Elastic docs MCP for existing ES|QL pages and reports duplication risk",
+        "Draft includes what ES|QL is, how it works, and why it matters",
+        "Related section links to ES|QL tutorials, how-tos, and reference pages",
+        "Reading test report flags any jargon that would confuse a new developer"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Draft a troubleshooting page for the error 'index_not_found_exception' in Elasticsearch. Audience: developers. Stack and serverless.",
+      "expected_output": "A troubleshooting page with a Symptoms section, a Resolution section, applies_to for both stack and serverless, and a problem-focused H1.",
+      "expectations": [
+        "Classifies as troubleshooting",
+        "H1 is problem-focused: 'index_not_found_exception errors' or similar",
+        "Includes Symptoms section with exact error message in monospace",
+        "Includes Resolution section with steps ordered most-common-fix first",
+        "Frontmatter type: troubleshooting",
+        "applies_to covers stack and serverless",
+        "Does not include a long conceptual explanation before the fix",
+        "Reading test subagent checks whether a reader in production crisis can find the fix quickly"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "There is already a page about Kibana alerting at https://www.elastic.co/docs/explore-analyze/alerts-cases/alerts. I want to add a new page about alert suppression. Should I create a new page or extend the existing one?",
+      "expected_output": "Skill checks docs coherence for alerting suppression, surfaces the existing alerts page, and surfaces the question to the user before drafting.",
+      "expectations": [
+        "Uses elastic-docs MCP search_docs or find_related_docs to discover existing alert suppression content",
+        "Surfaces any existing alert suppression coverage to the user",
+        "Asks the user whether to create a new page or extend the existing one before drafting",
+        "Does not draft without user confirmation when duplication risk is present"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I have a GitHub issue at elastic/docs-content#9999 that asks to document the new --reindex-on-startup CLI flag for Elasticsearch. The feature ships in 9.5.",
+      "expected_output": "Skill fetches the issue, classifies the page as a how-to or reference, sets applies_to stack: ga 9.5+, serverless: unavailable (CLI flag is Stack-only), drafts the page, and runs the reading test.",
+      "expectations": [
+        "Runs gh issue view 9999 --repo elastic/docs-content",
+        "Extracts scope, audience, and applies_to hints from the issue",
+        "Classifies as how-to (procedural flag usage) or reference",
+        "applies_to sets stack: ga 9.5+",
+        "applies_to sets serverless: unavailable because CLI flags are Stack-only",
+        "Draft includes the flag name in monospace, its purpose, and a usage example",
+        "Reading test subagent is invoked with the classified audience from the issue"
+      ]
+    }
+  ]
+}
