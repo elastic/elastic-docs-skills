@@ -1,6 +1,6 @@
 ---
 name: docs-stack-release
-version: 1.6.5
+version: 1.6.7
 description: >-
   Coordinate Elastic Stack docs releases: classify versions, route 8.x vs 9.x
   PRs, edit elastic/dev tracking issues, handle same-GA supersession, draft
@@ -340,9 +340,9 @@ Read [slack-templates.md](./slack-templates.md) for templates, handle lookup, an
 
 **Send (do this even if you skip the templates file):**
 
-1. Rendered preview and send rules: [slack-templates.md](./slack-templates.md). Then "Send?"
+1. Preview in a fenced code block (slack-templates.md) so line breaks are preserved. Then "Send?"
 2. Wait for confirmation. "Send it" / "looks good" counts. "Update the thread" / "check the boxes" does **not**.
-3. Payload mentions: `<@USER_ID>`. Never guess a `U…`.
+3. Payload mentions: people `<@U…>`; user groups `<!subteam^S…>`. Never guess an ID.
 4. Follow-ups: thread on the FF announcement (`docsFfThreadTs`) **and** `reply_broadcast: true`.
 5. After send: check the matching docs-issue item (§4).
 

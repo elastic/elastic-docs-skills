@@ -7,13 +7,13 @@ Read this file before drafting or sending any Slack for the docs-stack-release s
 GitHub ≠ Slack. Never invent IDs. Appendix maps GitHub → Slack name (`@wajiha`), not a `U…`.
 
 - Look up every ping with `slack_search_users`. Cache in `slack.handles`. Ask only if search is empty or ambiguous.
-- User groups: copy `<@S…>` from the latest `#docs` freeze ping. Search will miss.
-- Placeholder row (`` `Beats point person` ``): ping the footnote GitHub person. RN: `please update the table to confirm who's responsible`. API docs / docs-eng: `who can assist with this release?`. Match the latest `#docs` freeze ping if it differs.
+- User groups: copy the `S…` ID from the latest `#docs` freeze ping. Search will miss. Send as `<!subteam^S…>` -- `<@S…>` is how search displays a group and will not ping.
+- Placeholder row (`` `Beats point person` ``): ping **only** the footnote GitHub person on the current issue. Do not add extra people from an older freeze ping. RN: `please update the table to confirm who's responsible`. API docs / docs-eng: `who can assist with this release?`. Match the latest `#docs` freeze ping for **phrasing** only.
 - OOO: `slack_read_user_profile`. Flag palm_tree / OOO / PTO / sick. Not "in a meeting" or "outside of working hours".
 
-**Preview:** rendered Slack. `@slack-name` from the appendix or profile (`@wajiha`, not `@Wajiha Parvez`). Links may be aliased (`<URL|text>`). Mentions must not: no `<@U…|Name>`, no full real names.
+**Preview:** the exact Slack draft in a fenced code block so every line break is visible. Do not render it as chat markdown -- that collapses the message onto one line. `@slack-name` from the appendix or profile (`@wajiha`, not `@Wajiha Parvez`). Links may be aliased (`<URL|text>`). Mentions must not: no `<@U…|Name>`, no full real names.
 
-**Send:** `<@U…>` / `<@S…>` with no `|name` fallback. Confirm first ("send it" / "looks good"). Not on "update the thread". Follow-ups: thread on the FF ts + `reply_broadcast`. Then check the issue box.
+**Send:** people `<@U…>`; user groups `<!subteam^S…>`. No `|name` fallback. Confirm first ("send it" / "looks good"). Not on "update the thread". Follow-ups: thread on the FF ts + `reply_broadcast`. Then check the issue box.
 
 Format: `*bold*` `_italic_` `~strike~`. One `•` per product.
 
