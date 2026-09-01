@@ -2,35 +2,38 @@
 
 Read this file before drafting or sending any Slack for the docs-stack-release skill. Fill placeholders from the docs issue (§6.1).
 
-## Handle resolution
+## Mentions, preview, send
 
-GitHub handle ≠ Slack handle. Never assume they are the same. Never invent people or Slack IDs.
+GitHub ≠ Slack. Never invent IDs. Appendix maps GitHub → Slack name (`@wajiha`), not a `U…`.
 
-1. Issue template / appendix lookup table first.
-2. Unmapped: `slack_search_users` (server: `user-slack`) by display name or real name.
-3. Confident match (exact display name or single result): use it. Uncertain: `[@handle]` and ask.
-4. **Always resolve to user IDs.** Messages must use `<@USER_ID>` (e.g. `<@U07EN8ZFRTL>`). Display names like `@wajiha` render as plain text and do not ping.
-5. **OOO before pinging.** For each resolved user, `slack_read_user_profile`. If status suggests unavailable (`:palm_tree:`, "OOO", "On vacation", "PTO", `:face_with_thermometer:`, `:no_entry:`): "Heads up: [name] appears to be out ([status]). Who should cover for them?" -- before drafting.
+- Look up every ping with `slack_search_users`. Cache in `slack.handles`. Ask only if search is empty or ambiguous.
+- User groups: copy `<@S…>` from the latest `#docs` freeze ping. Search will miss.
+- Placeholder row (`` `Beats point person` ``): ping the footnote GitHub person. RN: `please update the table to confirm who's responsible`. API docs / docs-eng: `who can assist with this release?`. Match the latest `#docs` freeze ping if it differs.
+- OOO: `slack_read_user_profile`. Flag palm_tree / OOO / PTO / sick. Not "in a meeting" or "outside of working hours".
 
-Batch-ask for any still-missing: "I need Slack equivalents for these handles: ..."
+**Preview:** rendered Slack. `@slack-name` from the appendix or profile (`@wajiha`, not `@Wajiha Parvez`). Links may be aliased (`<URL|text>`). Mentions must not: no `<@U…|Name>`, no full real names.
 
-## Formatting
+**Send:** `<@U…>` / `<@S…>` with no `|name` fallback. Confirm first ("send it" / "looks good"). Not on "update the thread". Follow-ups: thread on the FF ts + `reply_broadcast`. Then check the issue box.
 
-- **Mentions:** `<@USER_ID>`. Display names do not resolve.
-- **Links:** `<URL|display text>` (e.g. `<https://github.com/elastic/dev/issues/3600|tracking issue>`). Markdown `[text](url)` does not render.
-- **Bold / italic / strike:** `*bold*`, `_italic_`, `~text~` -- not `**bold**`.
+Format: `*bold*` `_italic_` `~strike~`. One `•` per product.
 
-## Send (always)
+## Feature freeze
 
-1. Draft from a template below.
-2. Show the user: "Here's what I'll post to `#docs`:\n[preview]\nSend?"
-3. Send only on confirmation ("send it" / "looks good" counts). Never send on "update the thread" or checkbox catch-up without a preview.
-4. Follow-ups (outstanding RNs, day-before, docs released): thread reply on the FF announcement **and** post to channel (`reply_broadcast: true`). Use `docsFfThreadTs` from session state if present; otherwise `slack_search_public` for the version in `#docs`, then persist the ts.
-5. After send: check the matching docs-issue checklist item (§4). Report: "Sent to #docs (threaded on the FF announcement). Checked [line] on #[issue]."
+**One version:** no `:bell: Ping for` line. Schedule line is `<VERSION> is scheduled to release <ANTICIPATED_DATE>.`
 
-## Feature freeze (multi-release)
+```markdown
+Hi everyone! :wave: Today is the feature freeze for <VERSION>.
 
-If all issues share one anticipated release date, use one date; otherwise list per version.
+<VERSION> is scheduled to release <ANTICIPATED_DATE>.
+
+Please add your release note PRs to the issue linked below:
+
+• <ISSUE_SLACK_LINK>
+
+(One `•` per product. Named: `@slack-name`. Placeholder: footnote person + assign phrasing above.)
+```
+
+**Multiple versions:** if they share one GA date, use one date; otherwise list per version. Keep a `:bell: Ping for` heading per group (8.x vs 9.x when tables differ).
 
 ```markdown
 Hi everyone! :wave: Today is the feature freeze for multiple releases.
@@ -39,20 +42,20 @@ The following releases are scheduled to release <ANTICIPATED_DATE>: <VERSION_LIS
 
 Please add your release note PRs to the issues linked below:
 
-**Releases & related issues**
+*Releases & related issues*
 
 (Repeat for each issue in the batch:)
 <VERSION> -- <ISSUE_SLACK_LINK>
 
 ---
 
-:bell: **Ping for <VERSION_OR_GROUP_A>**
+:bell: *Ping for <VERSION_OR_GROUP_A>*
 
-(One line per product with `<@USER_ID>` for stakeholders in the issue.)
+(One `•` per product.)
 
 ---
 
-:bell: **Ping for <VERSION_OR_GROUP_B>** *(repeat when 8.x vs 9.x tables differ)*
+:bell: *Ping for <VERSION_OR_GROUP_B>*
 ```
 
 ## Outstanding release notes (day before)
@@ -61,7 +64,7 @@ Please add your release note PRs to the issues linked below:
 The <VERSION_LIST> release is scheduled for tomorrow. The following release note PRs are still outstanding:
 
 (Repeat for each outstanding row:)
-• <Product> <@USER_ID>
+• <Product> @slack-name
 
 Please file and/or get approval on your PRs today. Tracking issue: <ISSUE_SLACK_LINK>
 ```

@@ -1,6 +1,6 @@
 ---
 name: docs-stack-release
-version: 1.6.1
+version: 1.6.5
 description: >-
   Coordinate Elastic Stack docs releases: classify versions, route 8.x vs 9.x
   PRs, edit elastic/dev tracking issues, handle same-GA supersession, draft
@@ -38,7 +38,7 @@ allowed-tools: Read, Write, Glob, Bash(gh *), Bash(git *), CallMcpTool
 - Checklist is the step index. Live-fetch only open work. RN merge is not a checkbox -- always `gh pr view` blocking RN URLs.
 - A PR URL in the RN table is blocking until merged. Skip only `No changes` / `N/A`. Do not exempt Fleet, Agent, or any product by name.
 - Check boxes this skill just completed. Do not check anyone else's work (including docs-eng). Do not wait to be asked.
-- Slack: `<@USER_ID>` only; show a preview and confirm before send; thread follow-ups on the FF announcement. Read [slack-templates.md](./slack-templates.md) before drafting or sending.
+- Slack: read [slack-templates.md](./slack-templates.md) before drafting or sending. Confirm before send; thread follow-ups on the FF announcement.
 - Live/released Slack only after the **gate** (§0.3) and a user eyeball of the site. Do not draft before the gate.
 - Empty args / "how's my release": session state → active docs issue. Do not ask which version if one is in flight. After closed-issue cleanup leaves none, stop -- do not rediscover.
 - Cleanup = docs issue `CLOSED` only. 404 = drop that ID and rediscover. No TTL.
@@ -330,7 +330,7 @@ If the body is not already in context from §0, `gh issue view <N> -R elastic/de
 
 **Grouping:** 8.x and 9.x tables often differ -- separate "Ping for ..." sections when they do; merge duplicate product lines when the same stakeholders apply to multiple versions.
 
-Unresolved stakeholders: resolved in §0. If any remain at draft time, `[@handle]` and ask.
+Unresolved stakeholders and Slack send/preview: [slack-templates.md](./slack-templates.md).
 
 ### Templates, mentions, send
 
@@ -340,9 +340,9 @@ Read [slack-templates.md](./slack-templates.md) for templates, handle lookup, an
 
 **Send (do this even if you skip the templates file):**
 
-1. Show the exact message: "Here's what I'll post to `#docs`:\n[preview]\nSend?"
+1. Rendered preview and send rules: [slack-templates.md](./slack-templates.md). Then "Send?"
 2. Wait for confirmation. "Send it" / "looks good" counts. "Update the thread" / "check the boxes" does **not**.
-3. Mentions: `<@USER_ID>` only -- `@display` does not ping. Links: `<URL|text>` -- markdown `[text](url)` does not render.
+3. Payload mentions: `<@USER_ID>`. Never guess a `U…`.
 4. Follow-ups: thread on the FF announcement (`docsFfThreadTs`) **and** `reply_broadcast: true`.
 5. After send: check the matching docs-issue item (§4).
 
