@@ -1,0 +1,77 @@
+{
+  "skill_name": "docs-draft-ad-docs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft the docs for elastic/docs-content#6949 — it's 9.5 only, features 1-6 are already live in Serverless and item 7 (GA promotion) is pending.",
+      "expected_output": "Runs doc-issue intake via gh, classifies this as an update to attacks-page.md (not attack-discovery.md), addresses the six ready features as new sections/callouts without rewriting existing Prerequisites/filter/bulk-action sections, and explicitly defers item 7 as Deferred rather than drafting it.",
+      "expectations": [
+        "Fetches the issue via `gh issue view 6949 --repo elastic/docs-content`, not WebFetch alone",
+        "Targets solutions/security/ai/attacks-page.md, not attack-discovery.md",
+        "Presents an intake summary with a suggested-documentation-work table marking items 1-6 Addressed and item 7 Deferred (not yet implemented)",
+        "Adds the six ready features as new sections/callouts without rewriting the existing Prerequisites, filter table, or Take actions sections",
+        "Uses applies_to tagging (with a 9.5 version and a lifecycle consistent with the page's existing frontmatter, e.g. carrying forward preview if the page hasn't reached GA) for the new content rather than a bare version mention in prose",
+        "Verifies the issue's 'Recommended documentation targets' AI-scoping table against the actual current page content before trusting it"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "elastic/docs-content-internal#1448 — the Attack Discovery 2.0 skill-based architecture work for 9.5. Scope and start drafting.",
+      "expected_output": "Fetches the private issue via gh (not WebFetch), never writes 'Attack Discovery 2.0'/'2.0'/'1.0' anywhere in drafted content, classifies this as in-place updates to attack-discovery.md plus one new child page for automation content, and flags items marked 'to be confirmed' as open questions rather than drafting them as settled.",
+      "expectations": [
+        "Fetches the issue via `gh issue view 1448 --repo elastic/docs-content-internal` since the repo is private and WebFetch cannot authenticate to it",
+        "Never uses the strings 'Attack Discovery 2.0', 'AD 2.0', or a bare '2.0'/'1.0' version label in any drafted heading or prose — uses applies_to: stack: ga 9.5 or an applies-switch block instead",
+        "Proposes a new child page for the automation/workflows content nested under attack-discovery.md in toc.yml, rather than folding it into attack-discovery.md",
+        "Does not substantively edit attacks-page.md, per the issue's own note to hold those edits pending the Detections tab scope",
+        "Presents items marked 'to be confirmed' (e.g. detection gap closure, exact connector list) as unresolved open questions before drafting",
+        "Notes the cross-link/coordination needed with Agent Builder and Workflows docs rather than re-documenting those primitives"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Both #6949 and #1448 are 9.5-only, and the new 'Attacks' page just surfaces the existing 9.4 'Attack Discovery' functionality in one place — no need to rewrite those docs, just add what's new.",
+      "expected_output": "Treats this as a scope-narrowing instruction: documents only the 9.5 delta on each target page, and does not restate or rewrite existing attack-discovery.md content describing manual generation, RBAC, or schedules.",
+      "expectations": [
+        "Does not rewrite or restate existing attack-discovery.md sections (RBAC, manual generation, schedules) unaffected by either issue",
+        "Adds only new/changed content to attacks-page.md and attack-discovery.md (plus any new child page), cross-linking instead of duplicating",
+        "Keeps the two issues' changes on their correct respective target pages rather than merging them into one page",
+        "Records the scope-narrowing instruction in the intake summary rather than silently applying it"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Can you document the new scheduler options for our Anomaly Detection ML jobs?",
+      "expected_output": "Declines immediately per the scope check — recognizes this is Anomaly Detection (an unrelated ML feature), not Attack Discovery, and does not run Steps 0-6.",
+      "expectations": [
+        "Declines before running intake, research, or drafting steps",
+        "States that 'Anomaly Detection' is a different feature from 'Attack Discovery' and is out of scope for this skill",
+        "Does not edit or add content to any Attack Discovery, Attacks page, or triage-findings file",
+        "Does not fabricate Attack Discovery RBAC, indices, or UI content for an unrelated ML feature"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Write up how the attack-discovery-generator skill and Agent Builder chat work in general, for the Agent Builder docs section.",
+      "expected_output": "Declines to author Agent Builder's core documentation. Recognizes the deliverable belongs in the Agent Builder docset, not an Attack Discovery page, and offers only to cross-link from Attack Discovery docs to that content.",
+      "expectations": [
+        "Does NOT draft general Agent Builder or skills-framework documentation",
+        "Does NOT place Agent Builder content under solutions/security/ai/",
+        "Recognizes this is outside the docs-draft-ad-docs skill scope and declines rather than reframing it as Attack Discovery content",
+        "Offers, at most, to add a cross-link from an Attack Discovery page to the (separately authored) Agent Builder docs"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "elastic/docs-content#7296 — the Attack flyout v2 Visualizations/Attack Chain and Insights sections. The issue was originally created with a hold note, but the AI scoping section says both PRs have since merged.",
+      "expected_output": "Verifies the hold has actually been lifted by checking the linked Kibana PRs' merge status directly rather than trusting the scoping note alone, drafts a new applies_to: stack: ga 9.5+, serverless: ga block in attack-discovery.md's 'What information does each discovery include?' section covering the confirmed Visualizations/Attack Chain accordion and Insights entities/correlations, but does not document the Insights 'see all' links since the issue flags them as TODO stubs, and reads the target section fresh instead of trusting the issue's cited line numbers.",
+      "expectations": [
+        "Recognizes the issue's hold note ('Hold documentation until... confirmed as the shipped UI') and checks it before drafting",
+        "Verifies PR merge status independently (e.g. via gh pr view on kibana#273080 and kibana#273081) rather than treating the AI scoping section's claim as sufficient on its own",
+        "Targets the existing 'What information does each discovery include?' section in attack-discovery.md, located by heading rather than by trusting the issue's cited line numbers (146-158)",
+        "Adds a new applies_to: stack: ga 9.5+, serverless: ga block describing the Visualizations/Attack Chain accordion and the Insights section, while retaining the existing pre-9.5 bullet list",
+        "Does NOT document the Insights 'see all' navigation links as functional, since the issue states they are TODO stubs with no shipped destination yet",
+        "Does not separately fetch the absorbed/closed elastic/docs-content#7298, since #7296 states it already consolidates that issue"
+      ]
+    }
+  ]
+}
