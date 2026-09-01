@@ -26,9 +26,7 @@ Hi everyone! :wave: Today is the feature freeze for <VERSION>.
 
 <VERSION> is scheduled to release <ANTICIPATED_DATE>.
 
-Please add your release note PRs to the issue linked below:
-
-• <ISSUE_SLACK_LINK>
+Please add your release note PRs to the <ISSUE_URL|tracking issue>.
 
 (One `•` per product. Named: `@slack-name`. Placeholder: footnote person + assign phrasing above.)
 ```

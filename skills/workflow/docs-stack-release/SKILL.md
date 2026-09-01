@@ -1,6 +1,6 @@
 ---
 name: docs-stack-release
-version: 1.6.7
+version: 1.6.10
 description: >-
   Coordinate Elastic Stack docs releases: classify versions, route 8.x vs 9.x
   PRs, edit elastic/dev tracking issues, handle same-GA supersession, draft
@@ -212,13 +212,13 @@ Summarize the §0.2 stage, what is still blocking, and the **single** next actio
 
 - Semver list.
 - **Docs release issue(s)** -- `[Docs release] X.Y.Z`, not the eng release issue. `gh issue list -R elastic/dev --search "[Docs release] <version>" --json number,title,url`.
-- **Eng release issue** -- RC's parent (`[Release] X.Y.Z`, `X.Y.Z release`, etc.). Canonical schedule (FF, code freeze, GA), often links to docs issues, identifies the RC. Use for dates when the docs issue does not exist yet, which versions share a GA, and RC name.
+- **Eng release issue** -- RC's parent (`[Release] X.Y.Z`, `X.Y.Z release`, etc.). Canonical schedule (FF, GA), often links to docs issues, identifies the RC. Use for dates when the docs issue does not exist yet, which versions share a GA, and RC name.
 - If docs issues don't exist yet, §1.1.
 
 ### 1.1 Create docs release issues (when they don't exist)
 
 1. Template: 9.x minor → `docs-release.md`; 9.x patch → `docs-patch-release.md`; 8.x → `docs-patch-release-8.x.md`.
-2. Dates from the **eng release issue** (FF, code freeze, anticipated GA). If none, ask the user.
+2. Dates from the **eng release issue** (feature freeze, anticipated GA). If none, ask the user for those two only. **Merge release notes by** = the calendar day before anticipated GA (`[DAY_BEFORE_RELEASE_DATE]`). Do not ask for merge-by or code freeze.
 3. `gh issue create -R elastic/dev --template <template-file> --title "[Docs release] <version>"`
 4. Fill Overview (version, dates) and the **release coordinator** from the eng issue if listed. **Leave the rest of the template as-is** -- do not copy stakeholders from a previous release.
 5. Report: "Created #NNNN for X.Y.Z. Filled in dates from eng issue #MMMM. Please review."
