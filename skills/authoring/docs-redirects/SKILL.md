@@ -1,6 +1,6 @@
 ---
 name: docs-redirects
-version: 1.0.4
+version: 1.0.5
 description: Create and manage redirects in Elastic documentation when pages are moved, renamed, or deleted. Use when moving docs pages, renaming files, restructuring content, or when the user asks about redirects.
 argument-hint: <old-path> <new-path>
 context: fork
@@ -79,16 +79,19 @@ redirects:
       'removed-anchor':
 ```
 
-### Remove anchors on a page that still exists
+### Remove anchors after moving a page
 
-When a page hasn't moved but specific anchors were removed, omit the `to:` field:
+When a page moved and specific anchors were removed, keep the page redirect and drop only those anchors:
 
 ```yaml
 redirects:
   'existing-page.md':
+    to: 'new-page.md'
     anchors:
       'removed-anchor':
 ```
+
+If the page itself did not move and only a same-page anchor changed, do **not** add a redirect entry. Instead, update internal links that still point to the old anchor. Redirects are for moved or removed pages, not same-page anchor renames.
 
 ### Cross-repository redirects
 
