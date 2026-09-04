@@ -1,12 +1,13 @@
 ---
 name: docs-applies-to-tagging
-version: 1.3.5
+version: 1.4.0
 description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (experimental, preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
 allowed-tools: Read, Grep, Glob, Edit, CallMcpTool, WebFetch
 sources:
   - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/applies
+  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/automated_settings
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/reference
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/guidelines
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/badge-placement
@@ -43,6 +44,7 @@ Detect generate-from-intent mode when the user describes a change rather than pr
 - "I'm adding feature X to 9.5 in stack only — generate the applies_to."
 - "What's the right tag for a serverless-only GA feature in observability?"
 - "A feature went from preview in 9.4 to GA in 9.5. What should I write?"
+- "What's the right applies_to map for a new kibana.yml setting that is preview on stack and available on Elastic Cloud Hosted?"
 - Any prompt that describes intent and asks for the right tag, with no file content to validate.
 
 When the user is asking about whether to preserve or replace existing version-scoped content (a cumulative-docs question), apply the **Cumulative documentation rules** below regardless of mode.
@@ -173,12 +175,27 @@ Always renders as: GA since 9.2, Beta in 9.1, Preview in 9.0 — newest to oldes
 
 Similarly, multiple keys in a single directive are reordered consistently: Stack/Serverless first, then deployment types (ECH, ECK, ECE, Self-managed), then product keys.
 
+## Settings YAML
+
+`{settings}` YAML (for example `advanced-settings-*.yml` and `docs/reference/configuration-reference/*.yml`) uses the same `applies_to` keys with a different authoring contract. Fetch [applies_to in settings YAML](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/automated_settings#settings-yaml) and follow that page.
+
+On each setting entry:
+
+- `stack` carries lifecycle and version.
+- `ech`, `ece`, `eck`, `self`, and `serverless` are support flags: `ga` or `unavailable`. Always list all five.
+- `ga` on a deployment key means the setting is supported there. It does not mean the setting is generally available.
+- `stack: preview` plus `ech: ga` is correct.
+
+Do not apply these body-Markdown rules to that YAML: mixed dimensions, lifecycle symmetry between `stack` and deployment keys, or missing page-level frontmatter.
+
+If the task is adding or changing a Kibana `kibana.yml` or Advanced Settings key, use `kibana-settings-docs` when that skill is available.
+
 ## Validation rules
 
 When validating, check for these errors:
 
 1. **Missing page-level tag** — every page must have `applies_to` in frontmatter
-2. **Mixed dimensions** — only one dimension per page level (stack/serverless OR deployment OR product)
+2. **Mixed dimensions** — only one dimension per page level (stack/serverless OR deployment OR product). Does not apply to `{settings}` YAML. See **Settings YAML**.
 3. **One version per lifecycle** — `ga 9.2, ga 9.3` is invalid
 4. **One open-ended per key** — only one `+` lifecycle allowed per key
 5. **Invalid exact syntax** — exact versions must use `=x.x` or `=x.x.x`, not a bare version that is meant to be exact
@@ -366,6 +383,7 @@ From the user's prompt, pull the following. Ask **one** focused clarifying quest
 - **Sub-projects** (serverless only) — elasticsearch, observability, security, or omit if all apply.
 - **Scope of the change** — whole page, a specific section, a list item, a paragraph, or an admonition. Determines which level of annotation to generate.
 - **Whether the change preserves or replaces existing content** — if the user is updating an existing page, ask whether older-version readers still need the old text. Apply the **Cumulative documentation rules** above.
+- **Settings YAML** — if the change is a `{settings}` YAML entry, follow **Settings YAML** instead of the page-level mixed-dimensions rule.
 
 ### Step 2: Decide preservation vs. replacement
 
@@ -412,6 +430,7 @@ Produce the right form based on scope:
   Some text {applies_to}`stack: ga 9.5+` more text.
   ```
 - **Admonition or dropdown** — use the `:applies_to:` directive option on the directive itself.
+- **Settings YAML entry** — the map form in **Settings YAML**. List `stack` plus all five support keys.
 
 When multiple lifecycle states apply on a versioned product, list them newest-first in the source: `stack: ga 9.5+, preview =9.4`. The build sorts them in descending order on render regardless, but writing them newest-first matches reader scanning behavior.
 
@@ -427,18 +446,20 @@ Return:
 
 Use this flow for **validate** mode (file path, directory, or pasted page content).
 
-1. **Glob** for all `.md` files in scope
-2. **Read** each file and check for correct frontmatter `applies_to`
-3. **Validate** existing tags against the **Validation rules** above
-4. **Report** issues found (missing tags, invalid syntax, wrong placement)
-5. If asked to fix or generate tags, use **Edit** to apply corrections; for generation from a change description without a file, use the **Generate-from-intent execution** flow
-6. Summarize all changes made or issues found
+1. **Detect settings YAML.** If the path is `.yml`/`.yaml`, or the content has `groups:` with `setting:` entries, follow **Settings YAML**. Skip the body-Markdown rules listed there.
+2. **Glob** for `.md` files in scope, and for settings YAML when the scope is a directory
+3. **Read** each Markdown file and check for correct frontmatter `applies_to`
+4. **Validate** Markdown tags against the **Validation rules** above. Validate settings YAML against **Settings YAML**.
+5. **Report** issues found (missing tags, invalid syntax, wrong placement)
+6. If asked to fix or generate tags, use **Edit** to apply corrections; for generation from a change description without a file, use the **Generate-from-intent execution** flow
+7. Summarize all changes made or issues found
 
 ## Reference
 
 For exhaustive key lists, advanced scenarios, and badge placement details, fetch these URLs:
 
-- [Syntax reference](https://elastic.github.io/docs-builder/syntax/applies/)
+- [Syntax reference](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/applies)
+- [applies_to in settings YAML](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/automated_settings#settings-yaml)
 - [Full key reference](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/reference)
 - [Guidelines](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/guidelines)
 - [Badge placement](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/badge-placement)
