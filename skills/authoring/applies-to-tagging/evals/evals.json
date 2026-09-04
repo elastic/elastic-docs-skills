@@ -128,6 +128,18 @@
         "Notes that a separate same-minor bullet is redundant and fragments the version's content",
         "Does NOT recommend a new stack: ga 9.4.2 bullet"
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "Check the applies_to on this Advanced Settings YAML entry:\n\n      - setting: xpack.example.enabled\n        description: |\n          Enables the example feature.\n        applies_to:\n          stack: preview 9.2\n          ech: ga\n          ece: ga\n          eck: ga\n          self: ga\n          serverless: ga\n",
+      "expected_output": "Report that the map is valid for settings YAML. stack: preview plus ech: ga is correct. Do not flag mixed dimensions or rewrite deployment keys to preview.",
+      "expectations": [
+        "Identifies the input as settings YAML (a setting: entry), not page frontmatter",
+        "Does NOT flag mixed dimensions for combining stack with ech/ece/eck/self/serverless",
+        "Does NOT rewrite ech, ece, eck, self, or serverless to preview to match stack",
+        "Treats ga on deployment keys as a support flag, not a GA claim for the setting",
+        "Confirms stack: preview 9.2 with ech: ga (and the other support keys listed) is correct"
+      ]
     }
   ]
 }
