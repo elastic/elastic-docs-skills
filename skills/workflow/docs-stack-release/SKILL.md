@@ -1,6 +1,6 @@
 ---
 name: docs-stack-release
-version: 1.6.1
+version: 1.6.10
 description: >-
   Coordinate Elastic Stack docs releases: classify versions, route 8.x vs 9.x
   PRs, edit elastic/dev tracking issues, handle same-GA supersession, draft
@@ -38,7 +38,7 @@ allowed-tools: Read, Write, Glob, Bash(gh *), Bash(git *), CallMcpTool
 - Checklist is the step index. Live-fetch only open work. RN merge is not a checkbox -- always `gh pr view` blocking RN URLs.
 - A PR URL in the RN table is blocking until merged. Skip only `No changes` / `N/A`. Do not exempt Fleet, Agent, or any product by name.
 - Check boxes this skill just completed. Do not check anyone else's work (including docs-eng). Do not wait to be asked.
-- Slack: `<@USER_ID>` only; show a preview and confirm before send; thread follow-ups on the FF announcement. Read [slack-templates.md](./slack-templates.md) before drafting or sending.
+- Slack: read [slack-templates.md](./slack-templates.md) before drafting or sending. Confirm before send; thread follow-ups on the FF announcement.
 - Live/released Slack only after the **gate** (§0.3) and a user eyeball of the site. Do not draft before the gate.
 - Empty args / "how's my release": session state → active docs issue. Do not ask which version if one is in flight. After closed-issue cleanup leaves none, stop -- do not rediscover.
 - Cleanup = docs issue `CLOSED` only. 404 = drop that ID and rediscover. No TTL.
@@ -212,13 +212,13 @@ Summarize the §0.2 stage, what is still blocking, and the **single** next actio
 
 - Semver list.
 - **Docs release issue(s)** -- `[Docs release] X.Y.Z`, not the eng release issue. `gh issue list -R elastic/dev --search "[Docs release] <version>" --json number,title,url`.
-- **Eng release issue** -- RC's parent (`[Release] X.Y.Z`, `X.Y.Z release`, etc.). Canonical schedule (FF, code freeze, GA), often links to docs issues, identifies the RC. Use for dates when the docs issue does not exist yet, which versions share a GA, and RC name.
+- **Eng release issue** -- RC's parent (`[Release] X.Y.Z`, `X.Y.Z release`, etc.). Canonical schedule (FF, GA), often links to docs issues, identifies the RC. Use for dates when the docs issue does not exist yet, which versions share a GA, and RC name.
 - If docs issues don't exist yet, §1.1.
 
 ### 1.1 Create docs release issues (when they don't exist)
 
 1. Template: 9.x minor → `docs-release.md`; 9.x patch → `docs-patch-release.md`; 8.x → `docs-patch-release-8.x.md`.
-2. Dates from the **eng release issue** (FF, code freeze, anticipated GA). If none, ask the user.
+2. Dates from the **eng release issue** (feature freeze, anticipated GA). If none, ask the user for those two only. **Merge release notes by** = the calendar day before anticipated GA (`[DAY_BEFORE_RELEASE_DATE]`). Do not ask for merge-by or code freeze.
 3. `gh issue create -R elastic/dev --template <template-file> --title "[Docs release] <version>"`
 4. Fill Overview (version, dates) and the **release coordinator** from the eng issue if listed. **Leave the rest of the template as-is** -- do not copy stakeholders from a previous release.
 5. Report: "Created #NNNN for X.Y.Z. Filled in dates from eng issue #MMMM. Please review."
@@ -330,7 +330,7 @@ If the body is not already in context from §0, `gh issue view <N> -R elastic/de
 
 **Grouping:** 8.x and 9.x tables often differ -- separate "Ping for ..." sections when they do; merge duplicate product lines when the same stakeholders apply to multiple versions.
 
-Unresolved stakeholders: resolved in §0. If any remain at draft time, `[@handle]` and ask.
+Unresolved stakeholders and Slack send/preview: [slack-templates.md](./slack-templates.md).
 
 ### Templates, mentions, send
 
@@ -340,9 +340,9 @@ Read [slack-templates.md](./slack-templates.md) for templates, handle lookup, an
 
 **Send (do this even if you skip the templates file):**
 
-1. Show the exact message: "Here's what I'll post to `#docs`:\n[preview]\nSend?"
+1. Preview in a fenced code block (slack-templates.md) so line breaks are preserved. Then "Send?"
 2. Wait for confirmation. "Send it" / "looks good" counts. "Update the thread" / "check the boxes" does **not**.
-3. Mentions: `<@USER_ID>` only -- `@display` does not ping. Links: `<URL|text>` -- markdown `[text](url)` does not render.
+3. Payload mentions: people `<@U…>`; user groups `<!subteam^S…>`. Never guess an ID.
 4. Follow-ups: thread on the FF announcement (`docsFfThreadTs`) **and** `reply_broadcast: true`.
 5. After send: check the matching docs-issue item (§4).
 
