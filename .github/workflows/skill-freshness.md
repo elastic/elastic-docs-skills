@@ -19,6 +19,8 @@ network:
     - defaults
     - "www.elastic.co"
     - "docs-v3-preview.elastic.dev"
+    - "platform.claude.com"
+    - "developers.google.com"
 
 tools:
   github:
@@ -67,7 +69,7 @@ Check all skills in `skills/**/SKILL.md` for staleness against their upstream so
 2. For each skill:
    - Read the SKILL.md file.
    - Parse the `sources:` list from its YAML frontmatter.
-   - **If `sources:` exists**: fetch each source URL (append `.md` for the LLM-friendly variant, e.g. `https://www.elastic.co/docs/contribute-docs/style-guide.md`).
+   - **If `sources:` exists**: fetch each source URL (append `.md` for the LLM-friendly variant, e.g. `https://www.elastic.co/docs/contribute-docs/style-guide.md`). **If a fetch fails or times out for any reason (network error, firewall block, HTTP error), skip that URL immediately — do not retry.**
    - **If no `sources:` field**: use the Elastic Docs MCP server (`https://www.elastic.co/docs/_mcp/`) to find relevant upstream content. Call `SemanticSearch` with the skill's name and description to discover related documentation pages. Then fetch the top results with `GetDocumentByUrl` (with `includeBody: true`) and compare them against the skill.
    - Compare the fetched content against the rules, syntax, and options encoded in the skill.
    - If the skill is stale (new rules added, syntax changed, options removed, links broken), update the SKILL.md to reflect the current upstream state. If the skill lacked `sources:` and you found relevant upstream pages, add them to the frontmatter.
