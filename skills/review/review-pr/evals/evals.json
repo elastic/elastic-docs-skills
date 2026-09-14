@@ -26,7 +26,7 @@
         "Dispatches docs-applies-to-tagging through a subagent rather than the Skill tool, because it declares Edit",
         "No applies_to tag is written into any file; git status is unchanged after the review",
         "Waits for every dispatched companion to return before writing the report, and does NOT invent findings for one still pending",
-        "Resolves the branch base explicitly from the upstream tracking branch or repo default, not by assuming origin/main"
+        "Resolves the branch base from the PR's baseRefName or the repository default branch, and does NOT use the upstream tracking branch (@{u}), which is the branch's own remote copy and yields an empty diff"
       ]
     },
     {
@@ -85,7 +85,20 @@
         "Does NOT use git rev-parse --abbrev-ref @{u} or the upstream tracking branch as the diff base",
         "Finds the three changed files rather than reporting an empty diff",
         "If the diff does come back empty, stops and reports a base-resolution problem instead of reporting a clean review",
-        "Captures line ranges, not only changed paths, so findings can be scoped in Step 5"
+        "Captures line ranges, not only changed paths, so findings can be scoped in Step 5",
+        "Fetches the base branch from the base repository rather than assuming origin/<base> is correct"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Review PR 4120 in elastic/docs-content. It was opened from a contributor's fork (isCrossRepository is true) and changes two pages. The working directory is a clone of elastic/docs-content, currently on main.",
+      "expected_output": "Recognizes the fork PR as reviewable from the base-repo clone, offers gh pr checkout, and does not reject the repository as unrelated.",
+      "expectations": [
+        "Does NOT reject the repository as wrong or unrelated because headRepository is the contributor's fork",
+        "Compares the local repository against the PR's base repository, not headRepository",
+        "Detects the ref mismatch and offers gh pr checkout, which fetches the fork's head into a local branch",
+        "Fetches the base branch from the base repository, not from origin, when reading base versions of deleted files",
+        "Completes the review rather than stopping at target resolution"
       ]
     }
   ]

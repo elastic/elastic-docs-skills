@@ -76,7 +76,7 @@ The fetched pages take precedence where they differ, and any conflict goes in th
 
 | `$ARGUMENTS` | How to resolve |
 |---|---|
-| PR number or GitHub PR URL | `gh pr view <n> --json number,title,body,author,labels,files,baseRefName,baseRefOid,headRefName,headRefOid,headRepository,url` and `gh pr diff <n>` |
+| PR number or GitHub PR URL | `gh pr view <n> --json number,title,body,author,labels,files,baseRefName,baseRefOid,headRefName,headRefOid,headRepository,isCrossRepository,url` and `gh pr diff <n>` |
 | Empty | Current branch against the branch it forked from. There is no PR, so PR-only checks (labels, author, PR body) are skipped |
 | File or directory path | Treat the files there as the review scope. There is no diff, so **every line counts as in scope** — you cannot separate introduced from pre-existing, and Step 5 must say so instead of guessing. PR-only checks are skipped |
 
@@ -87,23 +87,32 @@ State which input mode you used in the report header. The last two modes lose ch
 ```
 BASE=$(gh pr view --json baseRefName -q .baseRefName 2>/dev/null) \
   || BASE=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
-git fetch origin "$BASE"
-git diff -U0 "$(git merge-base HEAD "origin/$BASE")"...HEAD
+BASE_REPO=$(gh repo view --json parent,nameWithOwner \
+  -q 'if .parent then .parent.nameWithOwner else .nameWithOwner end')
+git fetch "https://github.com/$BASE_REPO.git" "$BASE"
+git diff -U0 "$(git merge-base HEAD FETCH_HEAD)"...HEAD
 ```
 
-`gh pr view` with no number resolves the current branch's PR when one exists, which is the most reliable answer. **If the resulting diff is empty, stop and say so** rather than reporting a clean review — an empty diff nearly always means the base was resolved wrongly, not that there is nothing to review.
+Two things that recipe is careful about:
+
+- **`gh pr view` with no number** resolves the current branch's PR when one exists, which is the most reliable answer about what the branch targets.
+- **Fetch the base branch from the base repository, not from `origin`.** In a fork clone `origin` is the fork, so `origin/main` is the contributor's copy of main — stale, or missing entirely — and diffing against it gives a wrong changed-file set. Resolving `parent` and fetching by URL into `FETCH_HEAD` sidesteps the question of what any local remote happens to point at.
+
+**If the resulting diff is empty, stop and say so** rather than reporting a clean review — an empty diff nearly always means the base was resolved wrongly, not that there is nothing to review.
 
 ### Confirm the working tree matches the PR
 
 Do this before reading any file. Several checks in Step 4 — orphaned images, missing redirects, cross-references from parent pages — grep the local repo. If the PR's head ref is not checked out here, those greps read a different tree and you report confidently wrong results.
 
-Compare the **commit**, not the branch name. A local branch can share a name with the PR's head and point somewhere else entirely, and for a fork PR `origin` is the upstream repo, not the contributor's. So:
+Compare the **commit**, not the branch name. A local branch can share a name with the PR's head and point somewhere else entirely. So:
 
 1. `git rev-parse HEAD` must equal `headRefOid`. That single check subsumes branch name, fork, and staleness — a matching commit is a matching tree.
-2. If it does not match, compare repository identity by `owner/name` (from `headRepository` and `gh repo view --json nameWithOwner`), not by remote URL string, since SSH and HTTPS forms of the same repo differ as text.
+2. If it does not match, check that you are in the right repository before anything else. Compare `gh repo view --json nameWithOwner` against the PR's **base** repository — the `owner/name` in the PR URL — by `owner/name`, never by remote URL string, since the SSH and HTTPS forms of one repo differ as text.
+
+**Never compare the local repo against `headRepository`.** On a fork PR (`isCrossRepository: true`) the head repository is the contributor's fork, which nobody has checked out. Fork PRs are reviewed from a clone of the base repo: `gh pr checkout` fetches the fork's head into a local branch there. Comparing against `headRepository` would reject every fork PR as the wrong repository — exactly the contributions that most need a careful review.
 
 - **Commit matches** — proceed.
-- **Not a git repo, or an unrelated repo** — stop. Tell the user which repo to run from.
+- **Not a git repo, or not the PR's base repo** — stop. Tell the user which repo to run from.
 - **Right repo, wrong ref** — run `git status --porcelain` first. If the tree is dirty, do not offer to switch; tell the user to stash or commit. If it is clean, ask whether to run `gh pr checkout <n>`. Wait for an answer. Never check out without one.
 - **User declines the checkout** — continue in degraded mode. Write each changed file to its own scratchpad path, preserving the repo-relative structure, and review those copies:
 
@@ -127,8 +136,8 @@ Read each changed `.md` file from end to end, not only the diff hunks. H1 accura
 The base commit is usually not in the local clone, so fetch it before reading, or `git show` fails with a bad-object error:
 
 ```
-git fetch origin "$BASE"
-git show "$(git merge-base HEAD "origin/$BASE")":<path>
+git fetch "https://github.com/$BASE_REPO.git" "$BASE"
+git show "$(git merge-base HEAD FETCH_HEAD)":<path>
 ```
 
 When the fetch cannot succeed — a shallow clone, or no access to the base repo — read the file over the API instead, using `baseRefOid` from the `gh pr view` output:
