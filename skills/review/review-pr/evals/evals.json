@@ -25,7 +25,8 @@
         "Checks backport labels when PR metadata is available, or states that PR-only checks were skipped for a branch or path input",
         "Dispatches docs-applies-to-tagging through a subagent rather than the Skill tool, because it declares Edit",
         "No applies_to tag is written into any file; git status is unchanged after the review",
-        "Waits for every dispatched companion to return before writing the report, and does NOT invent findings for one still pending"
+        "Waits for every dispatched companion to return before writing the report, and does NOT invent findings for one still pending",
+        "Resolves the branch base explicitly from the upstream tracking branch or repo default, not by assuming origin/main"
       ]
     },
     {
@@ -45,10 +46,11 @@
       "prompt": "Review PR 2903 in elastic/docs-content. It deletes deploy-manage/monitoring/stack-monitoring-legacy.md and folds the content into deploy-manage/monitoring/stack-monitoring.md. The diff does not touch redirects.yml.",
       "expected_output": "Flags the missing redirect as a high-severity maintainability finding, checks whether images or snippets from the deleted page are now orphaned or still referenced, and recommends Request changes.",
       "expectations": [
-        "Flags the missing redirects.yml entry for the deleted page at High severity under Maintainability",
+        "Flags the missing redirect entry for the deleted page at High severity under Maintainability, after checking both redirects.yml and _redirects.yml next to the content set's docset.yml",
         "Greps the repository for remaining references to the deleted page path",
         "Checks whether images or snippets used only by the deleted page are now unused",
-        "Recommends Request changes, because broken incoming links prevent users from reaching the content"
+        "Recommends Request changes, because broken incoming links prevent users from reaching the content",
+        "Reads the deleted page from the base ref (git show), since it is absent from the checked-out head"
       ]
     },
     {
@@ -69,7 +71,7 @@
       "expectations": [
         "Reads references/review-criteria.md and states in the report header that the rubric was not refreshed because the MCP is unreachable",
         "Marks the criteria backed by the uninstalled companions as Not checked, naming each missing skill",
-        "Gives the install command using the directory name, for example 'check-contradictions', not the frontmatter name 'docs-check-contradictions'",
+        "Gives the install command using the companion's frontmatter name, for example 'docs-check-contradictions', matching the form documented in README.md",
         "Does NOT substitute its own judgment for a companion that did not run, and does NOT mark those criteria Clean",
         "Still completes the orchestrator-only checks in Step 4 and produces a recommended action"
       ]

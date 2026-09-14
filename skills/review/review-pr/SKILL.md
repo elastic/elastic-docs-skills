@@ -4,7 +4,7 @@ version: 1.0.0
 description: Run a full review of an Elastic documentation PR against the docs team review checklist — user focus, technical accuracy, applicability, maintainability, language, and style. Runs the companion review skills and merges everything into one report with a recommended approve, comment, or request-changes call. Use when reviewing a docs PR, checking a branch before requesting review, or deciding whether a docs change is ready to merge.
 argument-hint: "[pr-number-or-url-or-path]"
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *), Skill, Agent, CallMcpTool, WebFetch
+allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *), Skill, Agent, CallMcpTool, WebFetch, AskUserQuestion
 sources:
   - https://www.elastic.co/docs/contribute-docs/content-types
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/guidelines
@@ -42,6 +42,8 @@ You review Elastic documentation pull requests against the docs team review chec
 
 You are an orchestrator. The catalog already has skills that check style, tagging, content type, contradictions, metadata, and code samples. You dispatch those and merge their findings into checklist shape. You do not re-implement their rubrics.
 
+This skill deliberately omits `context: fork`, which most catalog skills set. It has to stay in the main context to dispatch companions through the `Skill` and `Agent` tools and to ask the user about `gh pr checkout` in Step 1. Each companion forks itself, so their output still stays out of context.
+
 **This skill always runs a full review.** There is no light or trivial mode. The reviewer decides how much of the report to act on; your job is to produce the complete picture.
 
 ## Constraints
@@ -75,25 +77,42 @@ The fetched pages take precedence where they differ, and any conflict goes in th
 | `$ARGUMENTS` | How to resolve |
 |---|---|
 | PR number or GitHub PR URL | `gh pr view <n> --json number,title,body,author,labels,files,baseRefName,headRefName,headRefOid,headRepository,url` and `gh pr diff <n>` |
-| Empty | Current branch against its base: `git diff --name-status $(git merge-base HEAD origin/main)...HEAD`. There is no PR, so PR-only checks (labels, author, PR body) are skipped — say so in the report |
-| File or directory path | Treat the `.md` files there as the changed set. PR-only checks (labels, author, PR body) are skipped — say so in the report |
+| Empty | Current branch against its base. Resolve the base explicitly — `git rev-parse --abbrev-ref @{u}` when the branch tracks one, otherwise the repository default from `gh repo view --json defaultBranchRef`. Never assume `origin/main`. There is no PR, so PR-only checks (labels, author, PR body) are skipped |
+| File or directory path | Treat the files there as the review scope. There is no diff, so **every line counts as in scope** — you cannot separate introduced from pre-existing, and Step 5 must say so instead of guessing. PR-only checks are skipped |
+
+State which input mode you used in the report header. The last two modes lose checks, and the reader needs to know which.
 
 ### Confirm the working tree matches the PR
 
 Do this before reading any file. Several checks in Step 4 — orphaned images, missing redirects, cross-references from parent pages — grep the local repo. If the PR's head ref is not checked out here, those greps read a different tree and you report confidently wrong results.
 
-Compare `headRepository` and `headRefName` from `gh pr view` against `git remote get-url origin` and `git branch --show-current`:
+Compare the **commit**, not the branch name. A local branch can share a name with the PR's head and point somewhere else entirely, and for a fork PR `origin` is the upstream repo, not the contributor's. So:
 
-- **Match** — proceed.
-- **Wrong repo, or not a git repo** — stop. Tell the user which repo to run from.
+1. `git rev-parse HEAD` must equal `headRefOid`. That single check subsumes branch name, fork, and staleness — a matching commit is a matching tree.
+2. If it does not match, compare repository identity by `owner/name` (from `headRepository` and `gh repo view --json nameWithOwner`), not by remote URL string, since SSH and HTTPS forms of the same repo differ as text.
+
+- **Commit matches** — proceed.
+- **Not a git repo, or an unrelated repo** — stop. Tell the user which repo to run from.
 - **Right repo, wrong ref** — run `git status --porcelain` first. If the tree is dirty, do not offer to switch; tell the user to stash or commit. If it is clean, ask whether to run `gh pr checkout <n>`. Wait for an answer. Never check out without one.
-- **User declines the checkout** — continue in degraded mode. Fetch each changed file to the scratchpad with `gh api repos/{owner}/{repo}/contents/{path}?ref={headRefOid} --jq .content | base64 -d` and review those copies. Mark every repo-hygiene check in Step 4 as **Not checked — ran against a different ref**. Do not report them clean.
+- **User declines the checkout** — continue in degraded mode. Write each changed file to its own scratchpad path, preserving the repo-relative structure, and review those copies:
+
+  ```
+  mkdir -p "$SCRATCH/$(dirname <path>)"
+  gh api "repos/{owner}/{repo}/contents/<path>?ref=<headRefOid>" --jq .content \
+    | base64 -d > "$SCRATCH/<path>"
+  ```
+
+  Redirecting to a file is the point — decoded content on stdout gives the later Read, Grep, and companion steps nothing to open. Dispatch companions against the scratchpad paths. Mark every repo-hygiene check in Step 4 as **Not checked — ran against a different ref**, because the rest of the repo is still at the wrong commit. Do not report them clean.
 
 ### Read the changed files
 
 Read each changed `.md` file from end to end, not only the diff hunks. H1 accuracy, admonition stacking, content placement, and heading structure are all page-level properties that a hunk cannot show you.
 
-Keep a record of which lines the diff actually touched. You need it in Step 5 to separate what this PR introduced from what it merely sits next to.
+**Deleted and renamed pages need the base version.** Once the head ref is checked out, a deleted page — or the source side of a rename — is no longer on disk, and those are exactly the files the orphaned-asset and redirect checks depend on. Read them from the base instead: `git show <baseRefOid>:<path>`.
+
+**Read the non-Markdown files in the diff too.** Navigation files (`toc.yml`, `docset.yml`) and redirect files are part of the change and decide whether pages build and stay reachable. They are in scope even though the six criteria are about prose.
+
+Keep a record of which lines the diff actually touched — `gh pr diff <n>` for a PR, or `git diff -U0 <base>...HEAD` for a branch. A name-only listing is not enough: Step 5 needs line ranges to separate what this PR introduced from what it merely sits next to. For a file or directory input there is no diff at all, so treat every line as in scope and say so in the report rather than guessing which lines are new.
 
 ## Step 2: Note the author signal
 
@@ -105,23 +124,25 @@ From the PR review guidelines. This shapes emphasis, not depth — the full chec
 | Writer, with a developer tagged | Note that a pending technical review might trigger significant changes worth re-reviewing. |
 | Non-writer, non-developer (for example, a customer-facing team) | For anything beyond a typo fix, flag that a writer with subject matter expertise should take it, and that a technical reviewer might still be needed. |
 
+`gh pr view` gives you a GitHub login, not a role. Infer the author type only from real evidence — team membership you can see, how the PR describes itself, the repos the author normally touches. When the evidence is thin, record **Author signal: unknown** and weight nothing. An invented author type silently reshapes the whole review.
+
 Record this as one line in the report header.
 
 ## Step 3: Dispatch the companion skills
 
-Every companion runs on every review. The only gate is content relevance — a code-sample validator has nothing to say about a PR with no code blocks.
+Every companion whose Gate condition is satisfied runs on every review — there is no tier that skips a companion. Two gates are conditional, because a code-sample validator has nothing to say about a PR with no code blocks, and the tagging skill has nothing to say about a diff that never touches `applies_to`. Check the Gate column before dispatching. Do not run a gated companion on a PR it does not apply to.
 
-| Criterion | Companion (`name:`) | Invoke as | Path | Gate |
-|---|---|---|---|---|
-| Language, Style | `docs-check-style` | `docs-check-style` | Either | Always |
-| Language (jargon) | `docs-flag-jargon-skill` | `flag-jargon-skill` | Either | Always |
-| User focus (structure) | `docs-content-type-checker` | `content-type-checker` | Either | Always |
-| Technical accuracy | `docs-check-contradictions` | `check-contradictions` | Either | Always |
-| Findability (metadata) | `docs-frontmatter-audit` | `frontmatter-audit` | Either | Always |
-| Applicability | `docs-applies-to-tagging` | `applies-to-tagging` | Subagent only | Diff touches `applies_to` or version-scoped content |
-| Technical accuracy (code) | `docs-validate-code-samples` | `docs-validate-code-samples` | Subagent only | Diff adds or changes code blocks |
+| Report section | Companion | Path | Gate |
+|---|---|---|---|
+| Language, Style | `docs-check-style` | Either | Always |
+| Language | `docs-flag-jargon-skill` | Either | Always |
+| User focus | `docs-content-type-checker` | Either | Always |
+| Technical accuracy | `docs-check-contradictions` | Either | Always |
+| User focus | `docs-frontmatter-audit` | Either | Always |
+| Applicability | `docs-applies-to-tagging` | Subagent only | Diff touches `applies_to` or version-scoped content |
+| Technical accuracy | `docs-validate-code-samples` | Subagent only | Diff adds or changes code blocks |
 
-**The two name columns differ, and this is the most common reason dispatch fails.** A skill's invocation name comes from its directory, not its frontmatter `name:` field. `docs-applies-to-tagging` lives in `applies-to-tagging/` and is invoked as `applies-to-tagging`. Use the **Invoke as** column; fall back to the `name:` column only if that is refused.
+Every companion maps onto one of the six report sections. Nothing produces a seventh — `docs-frontmatter-audit` findings belong under User focus, as findability and metadata.
 
 ### How to dispatch
 
@@ -129,11 +150,11 @@ Most companions set `disable-model-invocation: true`. That hides them from the m
 
 The Path column decides where each companion goes. Read-only companions try path 1 and drop to path 2 if it fails; write-capable companions go straight to path 2. Record which path each one actually used, and report it.
 
-1. **`Skill` tool** — read-only companions only, per the Path column. Pass the file to review as `args`. Try the plugin-prefixed form first — `elastic-docs-skills:<invoke-as>`, for example `elastic-docs-skills:content-type-checker` — then the bare `<invoke-as>` name. The prefixed form is the one that works for a companion that disables model invocation.
+1. **`Skill` tool** — read-only companions only, per the Path column. Pass one file to review as `args`. Use the plugin-prefixed frontmatter name, `elastic-docs-skills:docs-content-type-checker`, which is the form the README documents. Fall back to the bare name if the prefixed one is refused. The prefixed form is what reaches a companion that sets `disable-model-invocation: true`.
 
    **A companion that declares `Edit` or `Write` never goes down this path.** `args` is the only thing you control on a `Skill` call, and asking politely for validation is not a guarantee: `docs-applies-to-tagging` treats a file path as validate mode, and validate mode still reports or fixes. The subagent spawn prompt is the only channel that can actually forbid a write, so `applies-to-tagging` and `docs-validate-code-samples` always use path 2, even when the `Skill` tool would accept them.
 
-   **One target per call.** Most companions declare `<file-or-directory>` and glob `$ARGUMENTS`; a space-separated list of paths is read as a single bad path. Invoke once per changed file, or once with the common parent directory when the PR is confined to one — never a list.
+   **One changed file per call.** Companions declare `<file-or-directory>` and glob `$ARGUMENTS`, so a space-separated list is read as one bad path, not many good ones. Invoke once per changed file. Pass a directory only when it contains exactly the changed set and nothing else — otherwise the companion globs unrelated pages and their findings leak into the report and skew the recommendation. When in doubt, one file per call. This applies to both dispatch paths.
 
 2. **Subagent.** The required path for write-capable companions, and the fallback whenever both `Skill` name forms are refused or unlisted. Spawn one subagent per companion, all in a single message so they run in parallel. Each subagent:
    - Locates the companion's `SKILL.md` by globbing `~/.claude/skills/*/SKILL.md`, `~/.claude/plugins/**/skills/**/SKILL.md`, and the local repo's `skills/**/SKILL.md`, matching on either the directory name or the frontmatter `name:` field.
@@ -145,8 +166,10 @@ The Path column decides where each companion goes. Read-only companions try path
 3. **Not installed.** If a companion is nowhere to be found, mark its criterion **Not checked — `<skill>` not installed** and give the install command:
 
    ```
-   npx --yes skills@latest add elastic/elastic-docs-skills --skill <invoke-as> -g
+   npx --yes skills@latest add elastic/elastic-docs-skills --skill <name> -g
    ```
+
+   Use the companion's frontmatter `name:` — `docs-check-contradictions`, not its `check-contradictions` directory. Directory names are for locating files on disk, nothing else.
 
    Do not substitute your own judgment for a companion that did not run. A criterion that looks clean because nothing checked it is worse than an admitted gap.
 
@@ -206,7 +229,7 @@ You cannot confirm that an SME reviewed a change. You can report whether the evi
 - No procedure or value is duplicated from somewhere it already lives. A cross-reference or a snippet is better.
 - No remaining page links to or references a deleted or moved page by its old path. Grep the repo for the old path and for its anchors.
 - No deleted image or snippet is still referenced by another page. Grep the repo for each removed asset path.
-- Every renamed, moved, or deleted page has a matching entry in `redirects.yml`, including renamed anchors. Flag a missing one High, because it breaks live links.
+- Every renamed, moved, or deleted page has a matching redirect entry, including renamed anchors. Flag a missing one High, because it breaks live links. The file is `redirects.yml` or `_redirects.yml`, next to the content set's `docset.yml` or `_docset.yml` — check both names before reporting one missing, or you will raise false findings.
 - No generated or automated reference material is hand-edited. The fix belongs at the source.
 - Screenshots, diagrams, and non-Elastic external links earn their ongoing maintenance cost.
 

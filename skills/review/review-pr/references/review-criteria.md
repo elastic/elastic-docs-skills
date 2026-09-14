@@ -46,7 +46,7 @@ Sources: [content types](https://www.elastic.co/docs/contribute-docs/content-typ
 
 ## Technical accuracy
 
-Sources: no single public page governs this; correctness is established by a subject matter expert or an authoritative source.
+Sources: no single public page governs this. A subject matter expert or an authoritative source establishes correctness.
 
 ### Correctness
 
@@ -110,7 +110,7 @@ Sources: [redirects](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tr
 
 ### Repository hygiene
 
-- Every renamed, moved, or deleted page has a matching entry in `redirects.yml`, including renamed anchors. A missing redirect is High severity, because it breaks live links.
+- Every renamed, moved, or deleted page has a matching redirect entry, including renamed anchors. A missing redirect is High severity, because it breaks live links. The file is `redirects.yml` or `_redirects.yml`, next to the content set's `docset.yml` or `_docset.yml`. Check both names before reporting one missing.
 - No remaining page links to or references a deleted or moved page by its old path.
 - No deleted image or snippet is still referenced by another page.
 - No image or snippet is left behind unused after the page that used it is removed.
@@ -196,5 +196,5 @@ Blocking a PR is a normal part of maintaining quality, not a judgment on the aut
 
 - When one issue repeats across the PR, report it once as a pattern with a count and a couple of examples, rather than commenting on every instance.
 - Where the content is strong, say so. Positive feedback reinforces good writing habits and makes the review less daunting.
-- Who wrote the PR tells you where to focus. A developer's information is usually technically sound, so weight language and style. A writer's PR with a developer tagged may still change after the technical review. A PR from outside both groups needs a writer with subject matter expertise for anything beyond a typo fix.
+- Who wrote the PR tells you where to focus. A developer's information is usually technically sound, so weight language and style. A writer's PR with a developer tagged might still change after the technical review. A PR from outside both groups needs a writer with subject matter expertise for anything beyond a typo fix.
 - Treat automated output as a first pass, not a substitute for review. It is not always accurate and needs human judgment before anyone acts on it.
