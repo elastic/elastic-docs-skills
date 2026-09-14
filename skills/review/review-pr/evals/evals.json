@@ -75,6 +75,18 @@
         "Does NOT substitute its own judgment for a companion that did not run, and does NOT mark those criteria Clean",
         "Still completes the orchestrator-only checks in Step 4 and produces a recommended action"
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "Review the current branch. It is a pushed feature branch with three changed docs pages, and it tracks its own remote copy at origin/<branch-name>.",
+      "expected_output": "Resolves the base to the repository's default branch or the PR's base, not the upstream tracking branch, finds the three changed files, and reviews them.",
+      "expectations": [
+        "Resolves the base via gh pr view baseRefName or the repository default branch",
+        "Does NOT use git rev-parse --abbrev-ref @{u} or the upstream tracking branch as the diff base",
+        "Finds the three changed files rather than reporting an empty diff",
+        "If the diff does come back empty, stops and reports a base-resolution problem instead of reporting a clean review",
+        "Captures line ranges, not only changed paths, so findings can be scoped in Step 5"
+      ]
     }
   ]
 }

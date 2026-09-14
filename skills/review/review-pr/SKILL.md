@@ -76,11 +76,22 @@ The fetched pages take precedence where they differ, and any conflict goes in th
 
 | `$ARGUMENTS` | How to resolve |
 |---|---|
-| PR number or GitHub PR URL | `gh pr view <n> --json number,title,body,author,labels,files,baseRefName,headRefName,headRefOid,headRepository,url` and `gh pr diff <n>` |
-| Empty | Current branch against its base. Resolve the base explicitly — `git rev-parse --abbrev-ref @{u}` when the branch tracks one, otherwise the repository default from `gh repo view --json defaultBranchRef`. Never assume `origin/main`. There is no PR, so PR-only checks (labels, author, PR body) are skipped |
+| PR number or GitHub PR URL | `gh pr view <n> --json number,title,body,author,labels,files,baseRefName,baseRefOid,headRefName,headRefOid,headRepository,url` and `gh pr diff <n>` |
+| Empty | Current branch against the branch it forked from. There is no PR, so PR-only checks (labels, author, PR body) are skipped |
 | File or directory path | Treat the files there as the review scope. There is no diff, so **every line counts as in scope** — you cannot separate introduced from pre-existing, and Step 5 must say so instead of guessing. PR-only checks are skipped |
 
 State which input mode you used in the report header. The last two modes lose checks, and the reader needs to know which.
+
+**Resolving the base for a branch review.** Do not use the upstream tracking branch (`@{u}`). That is where the branch *pushes*, not what it *forked from* — on a pushed branch it resolves to the branch's own remote copy, the diff comes back empty, and you report a clean review of nothing. Ask GitHub what the base is, and fall back to the repository default:
+
+```
+BASE=$(gh pr view --json baseRefName -q .baseRefName 2>/dev/null) \
+  || BASE=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+git fetch origin "$BASE"
+git diff -U0 "$(git merge-base HEAD "origin/$BASE")"...HEAD
+```
+
+`gh pr view` with no number resolves the current branch's PR when one exists, which is the most reliable answer. **If the resulting diff is empty, stop and say so** rather than reporting a clean review — an empty diff nearly always means the base was resolved wrongly, not that there is nothing to review.
 
 ### Confirm the working tree matches the PR
 
@@ -97,10 +108,13 @@ Compare the **commit**, not the branch name. A local branch can share a name wit
 - **User declines the checkout** — continue in degraded mode. Write each changed file to its own scratchpad path, preserving the repo-relative structure, and review those copies:
 
   ```
+  SCRATCH=$(mktemp -d)                       # create it once, reuse for every file
   mkdir -p "$SCRATCH/$(dirname <path>)"
   gh api "repos/{owner}/{repo}/contents/<path>?ref=<headRefOid>" --jq .content \
     | base64 -d > "$SCRATCH/<path>"
   ```
+
+  Create `$SCRATCH` before the first fetch and report the path, so the user can inspect what you reviewed.
 
   Redirecting to a file is the point — decoded content on stdout gives the later Read, Grep, and companion steps nothing to open. Dispatch companions against the scratchpad paths. Mark every repo-hygiene check in Step 4 as **Not checked — ran against a different ref**, because the rest of the repo is still at the wrong commit. Do not report them clean.
 
@@ -108,7 +122,22 @@ Compare the **commit**, not the branch name. A local branch can share a name wit
 
 Read each changed `.md` file from end to end, not only the diff hunks. H1 accuracy, admonition stacking, content placement, and heading structure are all page-level properties that a hunk cannot show you.
 
-**Deleted and renamed pages need the base version.** Once the head ref is checked out, a deleted page — or the source side of a rename — is no longer on disk, and those are exactly the files the orphaned-asset and redirect checks depend on. Read them from the base instead: `git show <baseRefOid>:<path>`.
+**Deleted and renamed pages need the base version.** Once the head ref is checked out, a deleted page — or the source side of a rename — is no longer on disk, and those are exactly the files the orphaned-asset and redirect checks depend on. Read them from the base.
+
+The base commit is usually not in the local clone, so fetch it before reading, or `git show` fails with a bad-object error:
+
+```
+git fetch origin "$BASE"
+git show "$(git merge-base HEAD "origin/$BASE")":<path>
+```
+
+When the fetch cannot succeed — a shallow clone, or no access to the base repo — read the file over the API instead, using `baseRefOid` from the `gh pr view` output:
+
+```
+gh api "repos/{owner}/{repo}/contents/<path>?ref=<baseRefOid>" --jq .content | base64 -d
+```
+
+If neither works, mark the orphaned-asset and redirect checks **Not checked — base version unavailable**. Do not infer a deleted page's contents.
 
 **Read the non-Markdown files in the diff too.** Navigation files (`toc.yml`, `docset.yml`) and redirect files are part of the change and decide whether pages build and stay reachable. They are in scope even though the six criteria are about prose.
 
