@@ -1,0 +1,66 @@
+{
+  "skill_name": "docs-review-pr",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review PR 2481 in elastic/docs-content. It adds a new page at deploy-manage/autoscaling/ece-autoscaling-limits.md, updates the parent overview page to link to it, and adds an entry to the navigation file.",
+      "expected_output": "Confirms the PR head ref is checked out, reads both changed pages in full, dispatches the companion review skills, and produces one report sectioned by the six review criteria with a recommended approve, comment, or request-changes call.",
+      "expectations": [
+        "Fetches the review checklist from the elastic-internal-docs MCP, or states that it fell back to the embedded checklist and why",
+        "Dispatches docs-content-type-checker and docs-check-contradictions, and reports which dispatch path was used for each",
+        "Report contains all six criteria sections: user focus, technical accuracy, applicability, maintainability, language, style",
+        "Checks whether the new page is cross-referenced from its parent page so users are not stranded",
+        "Ends with an explicit Approve / Comment / Request changes recommendation with reasoning",
+        "Does NOT edit any file, post a GitHub comment, or run gh pr review"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review the current branch. It changes applies_to tags on two existing pages in solutions/observability/ to add serverless availability. No code samples or images are touched.",
+      "expected_output": "Resolves the branch diff against its base, dispatches docs-applies-to-tagging because applies_to changed, skips docs-validate-code-samples because no code blocks changed, and reports against the full checklist.",
+      "expectations": [
+        "Dispatches docs-applies-to-tagging",
+        "Does NOT dispatch docs-validate-code-samples, and states in the companion run table that it was skipped as not relevant",
+        "Still reports on all six criteria rather than only applicability",
+        "Checks backport labels when PR metadata is available, or states that PR-only checks were skipped for a branch or path input",
+        "Dispatches docs-applies-to-tagging through a subagent rather than the Skill tool, because it declares Edit",
+        "No applies_to tag is written into any file; git status is unchanged after the review",
+        "Waits for every dispatched companion to return before writing the report, and does NOT invent findings for one still pending"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review PR 3102 in elastic/docs-content. It is a small, well-written change: it corrects a default timeout value on one how-to page, the applies_to tags are already correct, the wording follows the style guide, and the PR body links to the engineering issue confirming the new value.",
+      "expected_output": "Runs the full checklist, finds nothing blocking, notes the SME evidence in the PR body, and recommends Approve without manufacturing findings.",
+      "expectations": [
+        "Recommends Approve",
+        "Marks criteria that were checked and came back clean as Clean, distinct from Not checked",
+        "Does NOT manufacture low-value findings to appear thorough",
+        "Does NOT report unrelated pre-existing issues as blockers; any such observation appears in a separate pre-existing section",
+        "Notes that the linked engineering issue provides the authoritative source for the changed value"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Review PR 2903 in elastic/docs-content. It deletes deploy-manage/monitoring/stack-monitoring-legacy.md and folds the content into deploy-manage/monitoring/stack-monitoring.md. The diff does not touch redirects.yml.",
+      "expected_output": "Flags the missing redirect as a high-severity maintainability finding, checks whether images or snippets from the deleted page are now orphaned or still referenced, and recommends Request changes.",
+      "expectations": [
+        "Flags the missing redirects.yml entry for the deleted page at High severity under Maintainability",
+        "Greps the repository for remaining references to the deleted page path",
+        "Checks whether images or snippets used only by the deleted page are now unused",
+        "Recommends Request changes, because broken incoming links prevent users from reaching the content"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review PR 2481 in elastic/docs-content. (The working tree is currently on the main branch, not the PR head ref, and has no uncommitted changes.)",
+      "expected_output": "Detects that the checked-out ref does not match the PR head ref, surfaces the mismatch, and asks before running gh pr checkout rather than silently reviewing the base tree.",
+      "expectations": [
+        "Detects and reports the mismatch between the PR head ref and the checked-out branch",
+        "Asks the user before running gh pr checkout, and does NOT check out the branch without confirmation",
+        "If the user declines, marks repository hygiene checks as Not checked because they ran against a different ref",
+        "Does NOT report orphaned-image or missing-redirect checks as clean while on the wrong ref"
+      ]
+    }
+  ]
+}
