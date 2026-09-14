@@ -6,7 +6,7 @@
       "prompt": "Review PR 2481 in elastic/docs-content. It adds a new page at deploy-manage/autoscaling/ece-autoscaling-limits.md, updates the parent overview page to link to it, and adds an entry to the navigation file.",
       "expected_output": "Confirms the PR head ref is checked out, reads both changed pages in full, dispatches the companion review skills, and produces one report sectioned by the six review criteria with a recommended approve, comment, or request-changes call.",
       "expectations": [
-        "Fetches the review checklist from the elastic-internal-docs MCP, or states that it fell back to the embedded checklist and why",
+        "Loads the rubric from references/review-criteria.md, and refreshes it from the elastic-internal-docs MCP or states in the report header that the MCP was not reachable",
         "Dispatches docs-content-type-checker and docs-check-contradictions, and reports which dispatch path was used for each",
         "Report contains all six criteria sections: user focus, technical accuracy, applicability, maintainability, language, style",
         "Checks whether the new page is cross-referenced from its parent page so users are not stranded",
@@ -60,6 +60,18 @@
         "Asks the user before running gh pr checkout, and does NOT check out the branch without confirmation",
         "If the user declines, marks repository hygiene checks as Not checked because they ran against a different ref",
         "Does NOT report orphaned-image or missing-redirect checks as clean while on the wrong ref"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Review PR 2755 in elastic/docs-content. (Only docs-check-style and content-type-checker are installed; check-contradictions, frontmatter-audit, and flag-jargon-skill are not installed on this machine, and the elastic-internal-docs MCP is not reachable.)",
+      "expected_output": "Loads the rubric from references/review-criteria.md, reports the criteria whose companions are missing as Not checked with the install command, and does not present unchecked criteria as clean.",
+      "expectations": [
+        "Reads references/review-criteria.md and states in the report header that the rubric was not refreshed because the MCP is unreachable",
+        "Marks the criteria backed by the uninstalled companions as Not checked, naming each missing skill",
+        "Gives the install command using the directory name, for example 'check-contradictions', not the frontmatter name 'docs-check-contradictions'",
+        "Does NOT substitute its own judgment for a companion that did not run, and does NOT mark those criteria Clean",
+        "Still completes the orchestrator-only checks in Step 4 and produces a recommended action"
       ]
     }
   ]

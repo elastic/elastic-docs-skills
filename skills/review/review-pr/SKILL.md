@@ -57,25 +57,25 @@ This skill is read-only.
 
 `$ARGUMENTS` is a PR number, a GitHub PR URL, a file, or a directory. If empty, review the current branch against its base.
 
-## Step 0: Refresh the rubric
+## Step 0: Load the rubric
 
-The canonical checklist lives in Elastic internal docs. Fetch both pages with the `elastic-internal-docs` MCP tool `get_internal_document_by_url`, with `includeBody: true`:
+**Always read `references/review-criteria.md`** (next to this file). That is the rubric, and it works with no network, no MCP, and no authentication — the case in agentic workflows and CI.
+
+Then, if the `elastic-internal-docs` MCP is reachable, refresh it against the canonical pages with `get_internal_document_by_url` and `includeBody: true`:
 
 | Page | URL |
 |---|---|
 | Docs review checklists | `/r/docs-content-internal/processes/docs-review-checklists` |
 | PR review guidelines | `/r/docs-content-internal/processes/pr-reviews` |
 
-Prefer the fetched guidance over the checklist in the Embedded checklist section. If they conflict, follow the fetched version and note the conflict in your report.
-
-If the MCP is unavailable or not authenticated, use the embedded checklist and say so in the report header: `Rubric source: embedded fallback — internal MCP unavailable`. The embedded copy is a snapshot and might have drifted, so the reader needs to know which one you used.
+The fetched pages take precedence where they differ, and any conflict goes in the report. If the MCP is unavailable or unauthenticated, the reference file alone is enough — say so in the report header with `Rubric source: references/review-criteria.md (MCP not reachable)` so the reader knows the rubric was not refreshed.
 
 ## Step 1: Resolve the target
 
 | `$ARGUMENTS` | How to resolve |
 |---|---|
 | PR number or GitHub PR URL | `gh pr view <n> --json number,title,body,author,labels,files,baseRefName,headRefName,headRefOid,headRepository,url` and `gh pr diff <n>` |
-| Empty | Current branch against its base: `git diff --name-status $(git merge-base HEAD origin/main)...HEAD` |
+| Empty | Current branch against its base: `git diff --name-status $(git merge-base HEAD origin/main)...HEAD`. There is no PR, so PR-only checks (labels, author, PR body) are skipped — say so in the report |
 | File or directory path | Treat the `.md` files there as the changed set. PR-only checks (labels, author, PR body) are skipped — say so in the report |
 
 ### Confirm the working tree matches the PR
@@ -204,6 +204,7 @@ You cannot confirm that an SME reviewed a change. You can report whether the evi
 ### Maintainability and repository hygiene
 
 - No procedure or value is duplicated from somewhere it already lives. A cross-reference or a snippet is better.
+- No remaining page links to or references a deleted or moved page by its old path. Grep the repo for the old path and for its anchors.
 - No deleted image or snippet is still referenced by another page. Grep the repo for each removed asset path.
 - Every renamed, moved, or deleted page has a matching entry in `redirects.yml`, including renamed anchors. Flag a missing one High, because it breaks live links.
 - No generated or automated reference material is hand-edited. The fix belongs at the source.
@@ -257,6 +258,7 @@ Group by criterion: User focus, Technical accuracy, Applicability, Maintainabili
 - **Severity** — High when a user following the page fails or is misled, or when live links break. Medium when the content is inconsistent or unclear but still usable. Low for nuance.
 - **Source** — which companion skill produced it, or `docs-review-pr` for your own checks. The reader needs to know what to re-run.
 - Mark a criterion **Clean** when it was checked and nothing came back. Mark it **Not checked** when no check ran. These are different things — never present the second as the first.
+- **A clean PR is a valid result.** Never pad the report with trivia to look thorough. If a criterion produced nothing worth the author's time, it is Clean and you move on. A short report on a good PR is the correct output, not a sign you missed something.
 
 ### Recurring patterns
 
@@ -283,19 +285,3 @@ One of **Approve**, **Comment**, or **Request changes**, with the reasoning:
 End with this, so nobody treats the report as the review itself:
 
 > This is a first pass, not a substitute for review. AI-generated results are not always accurate — confirm findings before acting on them.
-
-## Embedded checklist (fallback only)
-
-Use this only when Step 0 could not fetch the canonical pages. It is a snapshot and might have drifted.
-
-**User focus** — Content completeness: focused on user intent, goals, and tasks; states the benefit; all impacted pages assessed; new features contextualized on the parent page. Scannability: reasonable paragraph length; lists, tables, and admonitions break up dense content; lead-in sentences set topic boundaries. Findability: correct IA placement; strategic cross-references so users are not stranded; each page has a clear goal and matches a content type; screenshots and diagrams only if necessary; SEO and findability considered. Logical flow: most logical order and location; progressive disclosure; contrasting pairs for conceptual choices; value propositions near decision points; nested navigation for branching decisions.
-
-**Technical accuracy** — Correctness: SME-written or backed by eng or another authoritative source; tested where possible; no contradictions with the docs corpus. Precise prerequisites: permissions, setup, and assumed knowledge stated; deployment types and versions called out in prerequisites when they differ from page tagging.
-
-**Applicability** — `applies_to` tags: product, version, and lifecycle correct; single applicability facet at page level; correct versioning scheme per product. Cumulative structure: version-specific changes tagged; for versioned products, changes are non-destructive and older information stays findable with correct lifecycle and range tags; for unversioned products, only current functionality; no version tags on version-insensitive information. Markup correctness: ranges, precise versions, and open-ended ranges used correctly; section- and line-level tags work with page-level tags. Deployment types: scope set correctly; relevant types covered or signposted; shared processes stay deployment-agnostic; self-managed not conflated with the self/ECE/ECK grouping. Scope discipline: no roadmap or future commitments; no implementation details or decision history.
-
-**Maintainability** — Single source of truth: prefer cross-references or snippets over duplicated procedures. Repository hygiene: do not hand-edit generated reference material at the wrong source; unused images and snippets removed; redirects (including renamed anchors) for retired or merged pages. High-maintenance content: images, screenshots, diagrams, and non-Elastic external links justify their ongoing cost.
-
-**Language** — Mechanics: grammar, spelling, and punctuation support clarity. Plain language and terminology: accessible to someone new to the topic; jargon, acronyms, and internal terms defined or linked; minimal wording; informational tone; consistent terms; no promotional language or superlatives. Variables: version variables and substitutions used correctly.
-
-**Style** — Voice and tense: active voice except where passive is necessary; voice and tone fit the content type; present tense unless future is genuinely required. Flagged language: no directional terms, Latinisms, parentheses cruft, italics or bold for emphasis, "and/or," or "please." Titles and headings: sentence case; distinct from similar titles; action-oriented where appropriate; content between consecutive headings; consistent heading style per level; about 50–60 characters when practical. Formatting and admonitions: consistent formatting; admonitions sparingly (roughly three or fewer nearby); no back-to-back stacked admonitions. Links, accessibility, and preview: meaningful link text; new or changed links resolve; tables and images have clear alt text and surrounding explanation; preview clean — badges render, no stray bullets or comments, tables and tabsets intact, no literal `{{` in snippets.
