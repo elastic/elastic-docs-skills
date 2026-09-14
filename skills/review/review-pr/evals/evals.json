@@ -50,7 +50,8 @@
         "Greps the repository for remaining references to the deleted page path",
         "Checks whether images or snippets used only by the deleted page are now unused",
         "Recommends Request changes, because broken incoming links prevent users from reaching the content",
-        "Reads the deleted page from the base ref (git show), since it is absent from the checked-out head"
+        "Reads the deleted page from the base ref (git show), since it is absent from the checked-out head",
+        "Initializes BASE and BASE_REPO during PR target resolution, so the base fetch for the deleted page does not run with empty values"
       ]
     },
     {

@@ -82,7 +82,19 @@ The fetched pages take precedence where they differ, and any conflict goes in th
 
 State which input mode you used in the report header. The last two modes lose checks, and the reader needs to know which.
 
-**Resolving the base for a branch review.** Do not use the upstream tracking branch (`@{u}`). That is where the branch *pushes*, not what it *forked from* — on a pushed branch it resolves to the branch's own remote copy, the diff comes back empty, and you report a clean review of nothing. Ask GitHub what the base is, and fall back to the repository default:
+### Resolve the base, in every mode
+
+`$BASE` and `$BASE_REPO` are used later in this step to read deleted pages, and in Step 5 to scope findings. **Set them during target resolution for whichever mode you are in** — not only for branch reviews. A PR review that reaches the deleted-page read with them unset runs `git fetch "https://github.com/.git" ""`, which fails with an unhelpful error.
+
+**PR mode** — take both from the PR itself. `gh pr view` has no `baseRepository` field, so the base repo comes from the PR URL:
+
+```
+BASE=$(gh pr view <n> --json baseRefName -q .baseRefName)
+BASE_REPO=$(gh pr view <n> --json url \
+  -q '.url | capture("github\\.com/(?<r>[^/]+/[^/]+)/pull").r')
+```
+
+**Branch mode** — ask GitHub what the branch targets, and fall back to the repository default. Do not use the upstream tracking branch (`@{u}`): that is where the branch *pushes*, not what it *forked from*, so on a pushed branch it resolves to the branch's own remote copy, the diff comes back empty, and you report a clean review of nothing.
 
 ```
 BASE=$(gh pr view --json baseRefName -q .baseRefName 2>/dev/null) \
@@ -93,10 +105,12 @@ git fetch "https://github.com/$BASE_REPO.git" "$BASE"
 git diff -U0 "$(git merge-base HEAD FETCH_HEAD)"...HEAD
 ```
 
-Two things that recipe is careful about:
+**Path mode** — there is no diff and no base. Leave both unset and skip every step that needs them, marking those checks **Not checked — no base to compare against**.
 
-- **`gh pr view` with no number** resolves the current branch's PR when one exists, which is the most reliable answer about what the branch targets.
-- **Fetch the base branch from the base repository, not from `origin`.** In a fork clone `origin` is the fork, so `origin/main` is the contributor's copy of main — stale, or missing entirely — and diffing against it gives a wrong changed-file set. Resolving `parent` and fetching by URL into `FETCH_HEAD` sidesteps the question of what any local remote happens to point at.
+Two things these recipes are careful about:
+
+- **`gh pr view` with no number** resolves the current branch's PR when one exists, which is the most reliable answer about what a branch targets.
+- **Fetch the base branch from the base repository, not from `origin`.** In a fork clone `origin` is the fork, so `origin/main` is the contributor's copy of main — stale, or missing entirely — and diffing against it gives a wrong changed-file set. Fetching by URL into `FETCH_HEAD` sidesteps the question of what any local remote happens to point at.
 
 **If the resulting diff is empty, stop and say so** rather than reporting a clean review — an empty diff nearly always means the base was resolved wrongly, not that there is nothing to review.
 
