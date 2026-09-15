@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.4.0
+version: 1.5.0
 description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (experimental, preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
@@ -248,6 +248,13 @@ When content must be version- or deployment-scoped, pick the simplest form that 
 
 Do not reach for tabs when a tagged tip or bullet would do.
 
+**Version-variant lists.** When two or more tagged bullets are the same fact at different versions:
+
+- Keep them in their own list. Do not mix them with unrelated bullets.
+- Lead with an untagged sentence that states the shared condition.
+- Newest first: `serverless` plus the latest stack tag, then the older stack range.
+- Every range endpoint must be evidenced. Use the minor where that behavior began, or the corpus sibling pattern for "through X" (usually `9.0-X`). Do not start a range at "current 8.x" or any version you did not verify.
+
 ### Place `applies_to` where the change applies
 
 Pick the form that matches what the change is scoped to:
@@ -368,6 +375,8 @@ Before suggesting any change involving version-scoped content, ask:
 ### Availability floor vs backport labels
 
 A version in an issue availability table, or a `vX.Y.Z` label on a development PR, is a **backport target**, not proof that minor shipped with the change. Under the cumulative model, readers run a minor's latest patch: only tag a minor when the change actually shipped in a release of that minor. If the minor ended before the backport landed (for example a `v9.3.9` label when 9.3 ended at 9.3.8), that minor must not drive `applies_to`. `applies_to` is a single monotonic Major.Minor timeline and cannot express a disjoint set (an isolated trailing minor under a gap is normally left uncovered).
+
+The same rule applies to the **start** of a range. A longstanding value that later changed is not "GA since current 8.x". Use the minor where that value began, or the corpus pattern for "through X" (`9.0-X`). Do not invent a floor.
 
 ## Generate-from-intent execution
 
