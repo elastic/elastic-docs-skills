@@ -368,10 +368,12 @@ Group by criterion: User focus, Technical accuracy, Applicability, Maintainabili
 ```
 
 - **Severity** — High when a user following the page fails or is misled, or when live links break. Medium when the content is inconsistent or unclear but still usable. Low for nuance.
-- **Guideline** — a link to the rule that decides the finding, from the Rule citations table in `references/review-criteria.md`. Link the section anchor when the table lists one, otherwise the page that governs the criterion. Cite the rule the finding actually rests on, not the section it happens to sit in: a missing `description` is a metadata and findability rule, not `seo#headings`; an ambiguous trigger condition is a clarity problem, not `grammar-spelling`. A criterion name such as "Technical accuracy" is not a citation — it names where the finding is filed, not what decides it. If nothing in the table fits, leave the column empty rather than reaching for the nearest link; a wrong citation sends the writer to a rule that does not say what you claim. **Every Language and Style finding must carry one**, and so must any other finding a specific page decides. A writer who disagrees needs somewhere to go and check; "the style guide says so" is not a citation. When a companion reports a rule name of its own, such as a Vale rule like `Elastic.OxfordComma`, include that too, so the writer knows which check fired. Never invent an anchor — if nothing listed covers it, cite the page and say which part applies.
+- **Guideline** — a link to the rule that decides the finding, from the Rule citations table in `references/review-criteria.md`. Link the section anchor when the table lists one, otherwise the page that governs the criterion. Cite the rule the finding actually rests on, not the section it happens to sit in: a missing `description` is a metadata and findability rule, not `seo#headings`; an ambiguous trigger condition is a clarity problem, not `grammar-spelling`. A criterion name such as "Technical accuracy" is not a citation — it names where the finding is filed, not what decides it. If nothing in the table fits, leave the column empty rather than reaching for the nearest link; a wrong citation sends the writer to a rule that does not say what you claim. The column holds a link or nothing — a bare word such as `findability`, or a criterion name, is not a citation and must not appear there. **Every Language and Style finding must carry one**, and so must any other finding a specific page decides. A writer who disagrees needs somewhere to go and check; "the style guide says so" is not a citation. When a companion reports a rule name of its own, such as a Vale rule like `Elastic.OxfordComma`, include that too, so the writer knows which check fired. Never invent an anchor — if nothing listed covers it, cite the page and say which part applies.
 - **Source** — which companion skill produced it, or `docs-review-pr` for your own checks. The reader needs to know what to re-run.
 - Mark a criterion **Clean** when it was checked and nothing came back. Mark it **Not checked** when no check ran. These are different things — never present the second as the first. Both are *section-level* statuses: write them as a line under the section heading, never as a row in the findings table with "Clean" in the Severity column. A findings table holds findings; a section with none has no table.
 - Use the same table for every section. Do not switch between tables and loose `Severity:` / `Finding:` blocks partway through the report — one format throughout, so the reader can scan it.
+- **All six sections appear, always.** A section with no findings carries a one-line status — Clean, or Not checked with the reason — never a bare heading with nothing under it. An empty section reads as an oversight, and the reader cannot tell whether it passed or was skipped.
+- Name each companion exactly as the dispatch table does, every time it appears. `docs-flag-jargon-skill` and `docs-flag-jargon` are not two sources.
 - **A clean PR is a valid result.** Never pad the report with trivia to look thorough. If a criterion produced nothing worth the author's time, it is Clean and you move on. A short report on a good PR is the correct output, not a sign you missed something.
 
 ### Recurring patterns
@@ -382,11 +384,15 @@ When one issue repeats across the PR, report it once as a pattern with a count a
 
 Anything you noticed that this PR did not introduce goes in its own section, clearly labeled. The author is not responsible for unrelated debt, and mixing the two makes a review feel arbitrary.
 
+This section holds **problems**, not praise. A good change the PR makes belongs under *What is working*; putting it here tells the author their improvement is a pre-existing defect. If there are no pre-existing issues, say so in one line.
+
 ### What is working
 
 Where the content is strong, say so, briefly and specifically. Positive feedback reinforces good writing habits and makes the review less daunting.
 
 ### Recommended action
+
+**Build this list from the findings above, never from memory.** Each action item restates one finding you already wrote, in the same direction. Do not re-derive a fix while summarising: that is how a report ends up telling the author to change `select` to `click` when its own finding said the opposite, and the summary is the part people act on. Before writing an item, re-read the finding it comes from and check the direction matches. If an item has no finding above it, either it does not belong in the list or the finding is missing from the report.
 
 One of **Approve**, **Comment**, or **Request changes**, with the reasoning:
 

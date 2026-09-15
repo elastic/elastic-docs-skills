@@ -222,6 +222,8 @@ Link to the section, not the page, when one of these covers the rule:
 | Heading length and phrasing | [seo#headings](https://www.elastic.co/docs/contribute-docs/how-to/seo#headings) |
 | Cross-references | [seo#interlinking](https://www.elastic.co/docs/contribute-docs/how-to/seo#interlinking) |
 | Images and diagrams | [seo#multimedia](https://www.elastic.co/docs/contribute-docs/how-to/seo#multimedia) |
+| Introductory paragraph | [seo#introductory-paragraph](https://www.elastic.co/docs/contribute-docs/how-to/seo#introductory-paragraph) |
+| Content length and body copy | [seo#body-copy](https://www.elastic.co/docs/contribute-docs/how-to/seo#body-copy) |
 | Mixing applicability facets | [cumulative-docs/guidelines#dimensions](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/guidelines#dimensions) |
 
 Otherwise link the page that governs the criterion, from the Sources line of the section the finding sits under:
@@ -240,7 +242,12 @@ Otherwise link the page that governs the criterion, from the Sources line of the
 | Deployment scope | [how-to/deployment-types](https://www.elastic.co/docs/contribute-docs/how-to/deployment-types) |
 | Redirects | [docs-builder redirects](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/documentation/redirects) |
 | Substitutions and variables | [docs-builder substitutions](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/substitutions) |
+| Frontmatter fields: `description`, `navigation_title`, `products` | [docs-builder frontmatter](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/frontmatter) |
+| Declaring a page's `type:` | [content-types](https://www.elastic.co/docs/contribute-docs/content-types) |
 
 When a companion skill reports a rule name of its own — a Vale rule such as `Elastic.OxfordComma`, for instance — pass that through as well. It tells the writer which check fired and how to reproduce it.
 
-Do not invent an anchor. If no listed link covers the finding, cite the page and say which part of it applies.
+Do not invent an anchor. If no listed link covers the finding, cite the page and say which part of it applies, or leave the citation empty. Two mistakes to avoid, both seen in real runs:
+
+- A missing `description` field is a frontmatter and metadata rule. It is not `seo#headings`, which is about heading text and length.
+- Content duplicated across pages is a single-source-of-truth problem under Maintainability. It is not `seo#interlinking`, which is about how pages link to each other.

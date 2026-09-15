@@ -153,6 +153,20 @@
         "Any finding it made itself under Step 4 is sourced docs-review-pr and kept separate from the missing companion's slot",
         "Uses one consistent table format across all six sections, with Clean and Not checked as section-level statuses rather than Severity values"
       ]
+    },
+    {
+      "id": 13,
+      "prompt": "Review PR 8290 in elastic/docs-content. The pages use 'choose' where Elastic style prefers 'select', two pages are missing a description field in frontmatter, and Maintainability produces no findings.",
+      "expected_output": "Findings recommend select over click or choose, the recommended-action list matches those findings in direction, citations point at the governing rule, and all six sections appear with a status.",
+      "expectations": [
+        "Recommends 'select' rather than 'click', consistent with the word-choice guidance",
+        "The recommended-action list restates the findings in the same direction and does NOT invert any of them",
+        "Cites the frontmatter guideline for a missing description field, NOT seo#headings",
+        "Cites a maintainability or single-source-of-truth rule for content duplicated across pages, NOT seo#interlinking",
+        "The Guideline column contains a link or nothing, never a bare word such as 'findability' or a criterion name",
+        "All six criteria sections appear; Maintainability carries an explicit Clean status rather than an empty heading",
+        "Names each companion identically everywhere it appears, for example docs-flag-jargon-skill and not docs-flag-jargon"
+      ]
     }
   ]
 }
