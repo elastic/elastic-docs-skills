@@ -184,15 +184,19 @@ Record this as one line in the report header.
 
 Every companion whose Gate condition is satisfied runs on every review — there is no tier that skips a companion. Two gates are conditional, because a code-sample validator has nothing to say about a PR with no code blocks, and the tagging skill has nothing to say about a diff that never touches `applies_to`. Check the Gate column before dispatching. Do not run a gated companion on a PR it does not apply to.
 
-| Report section | Companion | Path | Gate |
-|---|---|---|---|
-| Language, Style | `docs-check-style` | Either | Always |
-| Language | `docs-flag-jargon-skill` | Either | Always |
-| User focus | `docs-content-type-checker` | Either | Always |
-| Technical accuracy | `docs-check-contradictions` | Either | Always |
-| User focus | `docs-frontmatter-audit` | Either | Always |
-| Applicability | `docs-applies-to-tagging` | Subagent only | Diff touches `applies_to` or version-scoped content |
-| Technical accuracy | `docs-validate-code-samples` | Subagent only | Diff adds or changes code blocks |
+| # | Companion | Dispatch | Gate | Findings report under |
+|---|---|---|---|---|
+| 1 | `docs-check-style` | Either | Always | Language, Style |
+| 2 | `docs-flag-jargon-skill` | Either | Always | Language |
+| 3 | `docs-content-type-checker` | Either | Always | User focus |
+| 4 | `docs-check-contradictions` | Either | Always | Technical accuracy |
+| 5 | `docs-frontmatter-audit` | Either | Always | User focus |
+| 6 | `docs-applies-to-tagging` | Subagent only | Diff touches `applies_to` or version-scoped content | Applicability |
+| 7 | `docs-validate-code-samples` | Subagent only | Diff adds or changes code blocks | Technical accuracy |
+
+**Seven companions, seven separate dispatches. Never combine two into one call or one subagent.** The last column says where a companion's findings are *reported*; it is not a grouping key. Companions 1 and 2 both feed Language, and 3 and 5 both feed User focus, but each is its own dispatch with its own rubric — bundling them means one of the two rubrics silently does not run, and the run table then claims coverage you do not have.
+
+The five Always-gated companions are dispatched on every review without exception. **"Not dispatched" is never a valid outcome for them** — if one could not be reached, it is *Not installed* or *did not return*, and it is reported that way.
 
 Every companion maps onto one of the six report sections. Nothing produces a seventh — `docs-frontmatter-audit` findings belong under User focus, as findability and metadata.
 
@@ -223,7 +227,13 @@ The Path column decides where each companion goes. Read-only companions try path
 
    Use the companion's frontmatter `name:` — `docs-check-contradictions`, not its `check-contradictions` directory. Directory names are for locating files on disk, nothing else.
 
-   Do not substitute your own judgment for a companion that did not run. A criterion that looks clean because nothing checked it is worse than an admitted gap.
+### Never stand in for a companion that did not run
+
+This applies to **every** reason a companion produced nothing — not installed, refused, errored, or dispatched and never returned.
+
+- Do not write findings for that companion's criterion yourself, and do not label the gap a manual assessment. Your own checks are Step 4's list; they are not a substitute for a companion's rubric, which is the whole reason the companion exists.
+- Mark the criterion **Not checked**, say which companion and why, and leave it at that. A criterion that looks covered because you filled it in by hand is worse than an admitted gap, because nobody can tell the difference in the report.
+- The exception is a finding you genuinely made yourself under Step 4. Source it `docs-review-pr` and keep it in its own row — never merge it into a missing companion's slot.
 
 ### Report-only mode is mandatory
 
@@ -237,7 +247,9 @@ Both dispatch paths fork and run in the background. Results arrive as notificati
 
 - Do not begin Step 5 until every dispatched companion has returned.
 - Never predict, summarize, or invent what a pending companion will say. Fabricating companion output is the worst failure this skill can have, because the report format makes it look attributed and verified.
-- If a companion errors or never returns, mark its criterion **Not checked — companion did not return** and carry on with the rest.
+- If a companion errors or never returns, mark its criterion **Not checked — companion did not return** and carry on with the rest. Do not fill the gap with your own assessment; see *Never stand in for a companion that did not run*.
+
+**Before writing the report, check the count.** The run table must have exactly seven rows, one per companion in the dispatch table. Every Always-gated companion must read *Ran*, *Not installed*, or *did not return* — never *Not dispatched*. If a row says you skipped one, you either missed it or bundled it into another call; go back and dispatch it.
 
 ## Step 4: Run the checks no companion covers
 
@@ -356,9 +368,10 @@ Group by criterion: User focus, Technical accuracy, Applicability, Maintainabili
 ```
 
 - **Severity** — High when a user following the page fails or is misled, or when live links break. Medium when the content is inconsistent or unclear but still usable. Low for nuance.
-- **Guideline** — a link to the rule that decides the finding, from the Rule citations table in `references/review-criteria.md`. Link the section anchor when the table lists one, otherwise the page that governs the criterion. **Every Language and Style finding must carry one**, and so must any other finding a specific page decides. A writer who disagrees needs somewhere to go and check; "the style guide says so" is not a citation. When a companion reports a rule name of its own, such as a Vale rule like `Elastic.OxfordComma`, include that too, so the writer knows which check fired. Never invent an anchor — if nothing listed covers it, cite the page and say which part applies.
+- **Guideline** — a link to the rule that decides the finding, from the Rule citations table in `references/review-criteria.md`. Link the section anchor when the table lists one, otherwise the page that governs the criterion. Cite the rule the finding actually rests on, not the section it happens to sit in: a missing `description` is a metadata and findability rule, not `seo#headings`; an ambiguous trigger condition is a clarity problem, not `grammar-spelling`. A criterion name such as "Technical accuracy" is not a citation — it names where the finding is filed, not what decides it. If nothing in the table fits, leave the column empty rather than reaching for the nearest link; a wrong citation sends the writer to a rule that does not say what you claim. **Every Language and Style finding must carry one**, and so must any other finding a specific page decides. A writer who disagrees needs somewhere to go and check; "the style guide says so" is not a citation. When a companion reports a rule name of its own, such as a Vale rule like `Elastic.OxfordComma`, include that too, so the writer knows which check fired. Never invent an anchor — if nothing listed covers it, cite the page and say which part applies.
 - **Source** — which companion skill produced it, or `docs-review-pr` for your own checks. The reader needs to know what to re-run.
-- Mark a criterion **Clean** when it was checked and nothing came back. Mark it **Not checked** when no check ran. These are different things — never present the second as the first.
+- Mark a criterion **Clean** when it was checked and nothing came back. Mark it **Not checked** when no check ran. These are different things — never present the second as the first. Both are *section-level* statuses: write them as a line under the section heading, never as a row in the findings table with "Clean" in the Severity column. A findings table holds findings; a section with none has no table.
+- Use the same table for every section. Do not switch between tables and loose `Severity:` / `Finding:` blocks partway through the report — one format throughout, so the reader can scan it.
 - **A clean PR is a valid result.** Never pad the report with trivia to look thorough. If a criterion produced nothing worth the author's time, it is Clean and you move on. A short report on a good PR is the correct output, not a sign you missed something.
 
 ### Recurring patterns

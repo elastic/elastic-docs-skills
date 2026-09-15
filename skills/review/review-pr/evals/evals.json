@@ -140,6 +140,19 @@
         "Does NOT fabricate a linked code PR or speculate about which repository the change relates to",
         "Completes the other five criteria normally"
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "Review PR 8290 in elastic/docs-content. All seven companion skills are installed. During the run, docs-check-style is dispatched but never returns.",
+      "expected_output": "Dispatches all five Always-gated companions separately, reports docs-check-style as did not return, and does not author Language or Style findings in its place.",
+      "expectations": [
+        "Dispatches docs-check-style, docs-flag-jargon-skill, docs-content-type-checker, docs-check-contradictions and docs-frontmatter-audit as five separate calls, never bundled into combined agents",
+        "The companion run table has exactly seven rows and no Always-gated companion is marked Not dispatched",
+        "Marks docs-check-style as Not checked — companion did not return",
+        "Does NOT substitute its own style assessment for the missing companion, and does NOT label the gap manual assessment",
+        "Any finding it made itself under Step 4 is sourced docs-review-pr and kept separate from the missing companion's slot",
+        "Uses one consistent table format across all six sections, with Clean and Not checked as section-level statuses rather than Severity values"
+      ]
     }
   ]
 }
