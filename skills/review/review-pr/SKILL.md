@@ -266,9 +266,33 @@ This is your own contribution to the review. Scope every finding to what the PR 
 
 You cannot confirm that an SME reviewed a change. You can report whether the evidence is there.
 
-- Look in the PR body, review comments, and any linked issue for an SME sign-off, an eng review, or an authoritative source.
+- Look in the PR body, review comments, branch name, and any linked issue for an SME sign-off, an eng review, or an authoritative source.
 - Check whether new code samples are described as tested.
 - State plainly which it is: evidence present and where, or evidence absent. Never infer technical correctness from confident prose.
+
+### Check the docs against the code change they describe
+
+When that evidence is a **code PR or commit** — `elastic/elasticsearch#12345`, a GitHub PR URL, "Docs for kibana#678", a branch named after an issue — do not stop at noting it exists. Read it and compare. A linked code change pins the repository, the ref, and the version, so this is the one technical check you can make without guessing which source to trust. Skip this whole block when no code change is referenced; never go looking for one to scan.
+
+1. Resolve the reference and read both sides:
+
+   ```
+   gh pr view <n> --repo <owner/repo> --json title,body,state,mergedAt,baseRefName,files
+   gh pr diff <n> --repo <owner/repo>
+   ```
+
+   Pass the number with `--repo`, or a full PR URL. The shorthand `gh pr view elastic/elasticsearch#12345` does **not** work — `gh` reads it as a branch name and reports no PR found, which looks like a missing PR rather than a bad command.
+
+2. Pull the checkable facts out of the code diff: setting, flag, and parameter names; default values, limits, and enum values; error and log message text; and any added or changed tests, which assert intended behavior more reliably than comments describe it.
+
+3. Compare each against what the docs change asserts. Report under Technical accuracy, citing the code PR and the file in its diff, so the writer can follow the same trail.
+
+Four things to get right, because each is a way to be confidently wrong:
+
+- **Version.** The code PR's `baseRefName` tells you which branch it landed on. Cross-check that against the page's `applies_to`. Docs tagged for 9.2 describing a change that landed on 8.19 is a real finding, and one nothing else in this review would catch.
+- **Merge state.** An unmerged code PR describes intended behavior that can still change. Say so rather than treating it as settled.
+- **Absence proves nothing.** A docs claim missing from the code diff is not wrong — the diff is one change, not the whole product. Only flag a direct conflict: the docs say one value, the code says another.
+- **Matching is not verification.** Report what matched and where. Never write that a change is technically correct because a diff agreed with it; the same rule that governs confident prose governs confident diffs.
 
 ### Applicability checks outside the tagging skill
 

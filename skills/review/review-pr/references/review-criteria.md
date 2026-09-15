@@ -55,6 +55,7 @@ Sources: no single public page governs this. A subject matter expert or an autho
 - Claims are tested where testing is possible.
 - Nothing contradicts the rest of the documentation corpus.
 - New code samples are tested.
+- When the change references a code PR or commit, the documentation matches it: setting and parameter names, default values and limits, and behavior asserted by the tests in that change. The code PR's base branch matches the page's `applies_to`, and an unmerged code PR is reported as intended rather than settled behavior.
 
 A reviewer cannot confirm that a subject matter expert reviewed a change. Report whether the evidence exists and where, or that it is absent. Never infer technical correctness from confident prose.
 

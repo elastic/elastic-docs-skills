@@ -115,6 +115,30 @@
         "Does NOT invent an anchor; when no listed link covers a finding, cites the page and says which part applies",
         "Passes through a companion's own rule name, such as a Vale rule like Elastic.OxfordComma, alongside the guideline link"
       ]
+    },
+    {
+      "id": 10,
+      "prompt": "Review PR 9001 in elastic/docs-content. The PR body says 'Docs for elastic/elasticsearch#141516'. That code PR renames the setting indices.recovery.max_bytes_per_sec, changes its default from 40mb to 80mb, and landed on branch 8.19. The docs page is tagged applies_to stack: ga 9.2 and still documents the old default.",
+      "expected_output": "Reads the linked code PR and its diff, flags the stale default and the version mismatch between the code PR's base branch and the page's applies_to, and cites the code PR for each finding.",
+      "expectations": [
+        "Resolves and reads the linked elasticsearch PR using gh pr view/diff with --repo or a full URL, not the owner/repo#number shorthand, rather than only noting that a link exists",
+        "Flags that the documented default no longer matches the value in the code diff",
+        "Flags the mismatch between the code PR's base branch (8.19) and the page's applies_to (9.2)",
+        "Cites the linked code PR and the file in its diff so the writer can follow the same trail",
+        "Does NOT claim the docs change is technically correct merely because parts of it matched the diff",
+        "Does NOT flag documented claims that are simply absent from the code diff as errors"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Review PR 9100 in elastic/docs-content. It clarifies wording on an existing concept page. The PR body links no code PR, issue, or commit, and no engineering repository is referenced anywhere.",
+      "expected_output": "Reports that no authoritative source is cited, and does not go looking for a code change to verify against.",
+      "expectations": [
+        "Reports under Technical accuracy that no SME sign-off or authoritative source is cited",
+        "Does NOT search repositories or attempt source verification when no code change is referenced",
+        "Does NOT fabricate a linked code PR or speculate about which repository the change relates to",
+        "Completes the other five criteria normally"
+      ]
     }
   ]
 }
