@@ -77,10 +77,10 @@ The fetched pages take precedence where they differ, and any conflict goes in th
 | `$ARGUMENTS` | How to resolve |
 |---|---|
 | PR number or GitHub PR URL | `gh pr view <n> --json number,title,body,author,labels,files,baseRefName,baseRefOid,headRefName,headRefOid,headRepository,isCrossRepository,url` and `gh pr diff <n>` |
-| Empty | Current branch against the branch it forked from. There is no PR, so PR-only checks (labels, author, PR body) are skipped |
+| Empty | Current branch against the branch it forked from. First check whether the branch already has a PR — `gh pr view` with no number resolves one when it exists. If it does, use it and run the PR-only checks. Only when there is no PR do you skip them |
 | File or directory path | Treat the files there as the review scope. There is no diff, so **every line counts as in scope** — you cannot separate introduced from pre-existing, and Step 5 must say so instead of guessing. PR-only checks are skipped |
 
-State which input mode you used in the report header. The last two modes lose checks, and the reader needs to know which.
+State which input mode you used in the report header, and whether PR metadata was available. A branch with an open PR gets the full review; a branch without one loses the PR-only checks, and so does a path input. The reader needs to know which.
 
 ### Resolve the base, in every mode
 
@@ -109,7 +109,7 @@ git diff -U0 "$(git merge-base HEAD FETCH_HEAD)"...HEAD
 
 Two things these recipes are careful about:
 
-- **`gh pr view` with no number** resolves the current branch's PR when one exists, which is the most reliable answer about what a branch targets.
+- **`gh pr view` with no number** resolves the current branch's PR when one exists, which is the most reliable answer about what a branch targets. When it succeeds, the branch is not PR-less: reuse that PR's metadata for labels, author, and body rather than reporting the PR-only checks as skipped.
 - **Fetch the base branch from the base repository, not from `origin`.** In a fork clone `origin` is the fork, so `origin/main` is the contributor's copy of main — stale, or missing entirely — and diffing against it gives a wrong changed-file set. Fetching by URL into `FETCH_HEAD` sidesteps the question of what any local remote happens to point at.
 
 **If the resulting diff is empty, stop and say so** rather than reporting a clean review — an empty diff nearly always means the base was resolved wrongly, not that there is nothing to review.

@@ -87,7 +87,8 @@
         "Finds the three changed files rather than reporting an empty diff",
         "If the diff does come back empty, stops and reports a base-resolution problem instead of reporting a clean review",
         "Captures line ranges, not only changed paths, so findings can be scoped in Step 5",
-        "Fetches the base branch from the base repository rather than assuming origin/<base> is correct"
+        "Fetches the base branch from the base repository rather than assuming origin/<base> is correct",
+        "Detects that the branch has an open PR via gh pr view with no number, and runs the PR-only checks (labels, author, PR body) rather than reporting them skipped"
       ]
     },
     {
