@@ -45,6 +45,11 @@ Each pitfall has an id, a **When** trigger, and a **Check** you can run on the d
 - **When:** prose or image alt text describes a field, control, or value shown in an adjacent screenshot
 - **Check:** Confirm the text matches what the image shows. Fix prose and alt text to match the image, or flag the screenshot for refresh.
 
+### PIT-DOC-09: Version-variant list is the wrong shape
+
+- **When:** the diff adds two or more `{applies_to}` bullets that state the same fact at different versions
+- **Check:** Those bullets are the only items in that list. An untagged sentence leads the list and states the shared condition. The newest version is first. Every range endpoint is a shipped minor or a corpus sibling tag, not an invented floor such as "current 8.x".
+
 ---
 
 ## Links and references

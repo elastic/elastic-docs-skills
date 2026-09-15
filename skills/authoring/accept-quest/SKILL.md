@@ -1,6 +1,6 @@
 ---
 name: docs-accept-quest
-version: 1.0.1
+version: 1.1.0
 description: Turn an Elastic documentation GitHub issue into a drafted docs PR. Triangulates linked product PRs, finds the canonical docs home (docs-content or in-product docs repos such as kibana and elasticsearch), drafts with cumulative applies_to, verifies claims against source at HEAD, sweeps a local pitfalls checklist, and opens a draft PR in the correct repo. Use when assigned a docs issue, asked to draft docs for a GitHub issue, or told to accept a docs quest.
 argument-hint: <docs-issue-url-or-number>
 context: fork
@@ -262,6 +262,16 @@ For each gap, start from the lightest change that resolves it. After you have pi
 | New capability that fits an existing section | Add a short section |
 | Entirely new task not covered anywhere | Create a new how-to page |
 
+**A small add still needs a Phase 3 shape.** After the whether-to-document gate, if the user says to add a sentence or two, do not jump to the first commit. Write this shape in chat first, then draft:
+
+- **Form:** tagged paragraph, own bullet list, note, or tabs
+- **Lead-in:** an untagged sentence for the shared condition, when the bullets are the same fact at different versions
+- **Membership:** version-variant bullets stay in their own list. Do not mix them with unrelated items
+- **Order:** newest first (`serverless` plus the latest stack tag, then the older stack range)
+- **Version evidence:** every range endpoint comes from a shipped minor or a corpus sibling tag. Do not invent a floor such as "current 8.x"
+
+A short request does not skip this. Show the shape before you draft.
+
 **For a new page or an overview page, write a short persona and goal brief before drafting.** These are the cases most prone to feature-description mode — restating what the feature is instead of serving a reader — so name the reader and their end goal up front:
 
 - **Reader**: who this is for (role, experience level, deployment type).
@@ -495,6 +505,8 @@ Then check your changes against this list:
 - [ ] No inline `applies_to` floating in prose
 - [ ] Version syntax correct, no overlapping ranges
 - [ ] No version numbers in prose adjacent to a badge
+- [ ] Version-variant bullets (same fact, different versions) are their own list, newest first, with an untagged lead-in
+- [ ] Every `applies_to` range endpoint is evidenced. No invented floors
 
 **Content type (any new or restructured page):**
 - [ ] The page matches a single content type and follows that type's template

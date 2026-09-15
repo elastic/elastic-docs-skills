@@ -111,6 +111,7 @@ Safety warnings, non-obvious gotchas, and version-scoped prose that does not fit
 - Inside a version-scoped block, say **"in later versions"** — not a bare stack version ("in 9.5 and later") in forward-looking prose.
 - When **Inspect** covers more than one request path, broaden the heading (for example **Inspect requests**) — don't leave search-API-only wording after ES|QL is added.
 - Situational states (empty panels after enablement, reload tips) belong in a **`:::{tip}`** — not inline after a procedure list. Reload {{kib}}, not "reload the page."
+- **Version-variant bullets are their own list.** When two tagged bullets are the same fact at different versions, do not mix them into a list of unrelated items. Lead with an untagged sentence that states the shared condition. Put the newest variant first.
 
 ## Snippets and generated content
 
