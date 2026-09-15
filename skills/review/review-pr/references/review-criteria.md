@@ -93,7 +93,9 @@ Sources: [cumulative docs guidelines](https://www.elastic.co/docs/contribute-doc
 
 - Scope is set correctly, and relevant types are covered or signposted.
 - Shared processes stay deployment-agnostic.
-- Self-managed (vanilla Elasticsearch) is not conflated with the self, ECE, and ECK grouping.
+- Self-managed, ECE, and ECK are distinct deployment types. Do not collapse them into a single group on the grounds that the customer operates them rather than Elastic. They share the same core Elasticsearch functionality — the difference is how a deployment is run, not what it can do — so scope each one explicitly wherever the steps differ.
+
+> **Known divergence from the internal checklist.** The Codex checklist phrases this as "self-managed (vanilla Elasticsearch) not conflated with self/ECE/ECK grouping." That wording is wrong and the correction above is deliberate: "vanilla Elasticsearch" implies a difference in core capability, when the distinction is purely about deployment type. If a Step 0 fetch returns the older phrasing, keep the wording here and note the conflict rather than adopting it.
 
 ### Scope discipline
 

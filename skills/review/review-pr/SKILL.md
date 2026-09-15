@@ -299,7 +299,7 @@ Four things to get right, because each is a way to be confidently wrong:
 - Prerequisites are still accurate after the change, covering permissions, setup, and assumed knowledge.
 - No new permission or setup dependency is left unstated.
 - Deployment types and versions are called out in prerequisites when they differ from page-level tagging.
-- Deployment scope is correct: relevant types are covered or signposted, shared processes stay deployment-agnostic, and self-managed (vanilla Elasticsearch) is not conflated with the self/ECE/ECK grouping.
+- Deployment scope is correct: relevant types are covered or signposted, shared processes stay deployment-agnostic, and self-managed, ECE, and ECK are treated as distinct deployment types rather than collapsed into one customer-operated group. They share core Elasticsearch functionality; the difference is how a deployment is run, not what it can do.
 
 ### Maintainability and repository hygiene
 
