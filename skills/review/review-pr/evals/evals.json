@@ -62,7 +62,8 @@
         "Detects and reports the mismatch between the PR head ref and the checked-out branch",
         "Asks the user before running gh pr checkout, and does NOT check out the branch without confirmation",
         "If the user declines, marks repository hygiene checks as Not checked because they ran against a different ref",
-        "Does NOT report orphaned-image or missing-redirect checks as clean while on the wrong ref"
+        "Does NOT report orphaned-image or missing-redirect checks as clean while on the wrong ref",
+        "Treats only tracked modifications as blocking; an untracked file such as a scratch directory does not prevent offering gh pr checkout"
       ]
     },
     {

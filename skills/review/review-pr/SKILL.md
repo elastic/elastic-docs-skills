@@ -127,7 +127,7 @@ Compare the **commit**, not the branch name. A local branch can share a name wit
 
 - **Commit matches** — proceed.
 - **Not a git repo, or not the PR's base repo** — stop. Tell the user which repo to run from.
-- **Right repo, wrong ref** — run `git status --porcelain` first. If the tree is dirty, do not offer to switch; tell the user to stash or commit. If it is clean, ask whether to run `gh pr checkout <n>`. Wait for an answer. Never check out without one.
+- **Right repo, wrong ref** — check for uncommitted work first with `git status --porcelain --untracked-files=no`. Only **tracked** modifications block a switch: if there are any, do not offer to check out, and tell the user to stash or commit. Untracked files do not block, because `gh pr checkout` leaves them alone — mention them and carry on. When nothing is blocking, ask whether to run `gh pr checkout <n>`, and wait for an answer. Never check out without one.
 - **User declines the checkout** — continue in degraded mode. Write each changed file to its own scratchpad path, preserving the repo-relative structure, and review those copies:
 
   ```
