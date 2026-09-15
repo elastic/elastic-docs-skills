@@ -251,6 +251,7 @@ This is your own contribution to the review. Scope every finding to what the PR 
 - The benefit of the feature or path is stated, not only its mechanics.
 - All impacted pages are assessed and updated, including reference pages that use a newly introduced concept.
 - A new feature is contextualized on its parent page against the product landscape.
+- **The page declares its content type in frontmatter as `type:`.** When `docs-content-type-checker` identifies the page as a how-to, tutorial, overview, or troubleshooting page and the frontmatter carries no `type:` field, recommend adding it — naming the type it should be. Do this for edited pages, not only new ones: an existing page never passed through a template, so the field is the one most often missing. Recommend it even when nothing consumes the field yet. Structural findings about a content type without the tag that names it leave the reader to infer what you already determined.
 
 ### Findability and logical flow
 
@@ -327,10 +328,11 @@ Then a companion run table: each skill, and whether it ran, and through which pa
 Group by criterion: User focus, Technical accuracy, Applicability, Maintainability, Language, Style. Under each, one line per finding:
 
 ```
-| Severity | file:line | Finding | Source |
+| Severity | file:line | Finding | Guideline | Source |
 ```
 
 - **Severity** — High when a user following the page fails or is misled, or when live links break. Medium when the content is inconsistent or unclear but still usable. Low for nuance.
+- **Guideline** — a link to the rule that decides the finding, from the Rule citations table in `references/review-criteria.md`. Link the section anchor when the table lists one, otherwise the page that governs the criterion. **Every Language and Style finding must carry one**, and so must any other finding a specific page decides. A writer who disagrees needs somewhere to go and check; "the style guide says so" is not a citation. When a companion reports a rule name of its own, such as a Vale rule like `Elastic.OxfordComma`, include that too, so the writer knows which check fired. Never invent an anchor — if nothing listed covers it, cite the page and say which part applies.
 - **Source** — which companion skill produced it, or `docs-review-pr` for your own checks. The reader needs to know what to re-run.
 - Mark a criterion **Clean** when it was checked and nothing came back. Mark it **Not checked** when no check ran. These are different things — never present the second as the first.
 - **A clean PR is a valid result.** Never pad the report with trivia to look thorough. If a criterion produced nothing worth the author's time, it is Clean and you move on. A short report on a good PR is the correct output, not a sign you missed something.

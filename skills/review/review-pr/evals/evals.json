@@ -101,6 +101,19 @@
         "Fetches the base branch from the base repository, not from origin, when reading base versions of deleted files",
         "Completes the review rather than stopping at target resolution"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "Review PR 8290 in elastic/docs-content. It recalibrates create-serverless-project.md into step-by-step instructions and moves the project-type cards to serverless.md. The page's frontmatter has no type field. The intro opens with 'There are a few options...' and prerequisites are scattered through intro bullets.",
+      "expected_output": "Reports the how-to structural findings, recommends adding type: how-to to the frontmatter, and cites the governing style guide page or section on each language and style finding.",
+      "expectations": [
+        "Recommends adding `type: how-to` to the page's frontmatter, naming the content type",
+        "Makes that recommendation even though the page is an edit to an existing page rather than a new page from a template",
+        "Every Language and Style finding carries a Guideline link to the style guide page or section that decides it",
+        "Uses section anchors where they exist, for example voice-tone#active-and-passive-voice or seo#headings, rather than linking only the top-level style guide",
+        "Does NOT invent an anchor; when no listed link covers a finding, cites the page and says which part applies",
+        "Passes through a companion's own rule name, such as a Vale rule like Elastic.OxfordComma, alongside the guideline link"
+      ]
     }
   ]
 }

@@ -30,6 +30,7 @@ Sources: [content types](https://www.elastic.co/docs/contribute-docs/content-typ
 - The page sits in the correct place in the information architecture.
 - Cross-references point into the page from its parents, so users are not stranded.
 - The page has one clear goal and matches an Elastic Docs content type.
+- The page declares that type in frontmatter as `type:`. When a change makes the content type clear on a page that does not declare one, recommend adding it, even if nothing consumes the field yet. This applies to edited pages as much as to new ones — an existing page never went through a template, so the field is the one most often missed.
 - Screenshots and diagrams appear only where they are necessary.
 - Instructions are unambiguous.
 - Headings run about 50–60 characters where practical, and describe the page distinctly from similar ones.
@@ -198,3 +199,45 @@ Blocking a PR is a normal part of maintaining quality, not a judgment on the aut
 - Where the content is strong, say so. Positive feedback reinforces good writing habits and makes the review less daunting.
 - Who wrote the PR tells you where to focus. A developer's information is usually technically sound, so weight language and style. A writer's PR with a developer tagged might still change after the technical review. A PR from outside both groups needs a writer with subject matter expertise for anything beyond a typo fix.
 - Treat automated output as a first pass, not a substitute for review. It is not always accurate and needs human judgment before anyone acts on it.
+
+---
+
+## Rule citations
+
+Cite the governing guideline on every Language and Style finding, and on any other finding a specific page decides. A writer who disagrees with a finding needs somewhere to go and check, and "the style guide says so" is not that.
+
+Link to the section, not the page, when one of these covers the rule:
+
+| Rule | Link |
+|---|---|
+| Active and passive voice | [voice-tone#active-and-passive-voice](https://www.elastic.co/docs/contribute-docs/style-guide/voice-tone#active-and-passive-voice) |
+| Informational tone | [voice-tone#informational](https://www.elastic.co/docs/contribute-docs/style-guide/voice-tone#informational) |
+| Minimal wording | [voice-tone#write-like-a-minimalist](https://www.elastic.co/docs/contribute-docs/style-guide/voice-tone#write-like-a-minimalist) |
+| "please" | [voice-tone#please-avoid-please-please](https://www.elastic.co/docs/contribute-docs/style-guide/voice-tone#please-avoid-please-please) |
+| Verb tense | [grammar-spelling#verb-tense](https://www.elastic.co/docs/contribute-docs/style-guide/grammar-spelling#verb-tense) |
+| Screenshots | [ui-writing#screenshots](https://www.elastic.co/docs/contribute-docs/style-guide/ui-writing#screenshots) |
+| Heading length and phrasing | [seo#headings](https://www.elastic.co/docs/contribute-docs/how-to/seo#headings) |
+| Cross-references | [seo#interlinking](https://www.elastic.co/docs/contribute-docs/how-to/seo#interlinking) |
+| Images and diagrams | [seo#multimedia](https://www.elastic.co/docs/contribute-docs/how-to/seo#multimedia) |
+| Mixing applicability facets | [cumulative-docs/guidelines#dimensions](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/guidelines#dimensions) |
+
+Otherwise link the page that governs the criterion, from the Sources line of the section the finding sits under:
+
+| Area | Link |
+|---|---|
+| Word choice | [style-guide/word-choice](https://www.elastic.co/docs/contribute-docs/style-guide/word-choice) |
+| Grammar, spelling, punctuation | [style-guide/grammar-spelling](https://www.elastic.co/docs/contribute-docs/style-guide/grammar-spelling) |
+| Formatting, lists, admonitions | [style-guide/formatting](https://www.elastic.co/docs/contribute-docs/style-guide/formatting) |
+| Alt text, link text, directional language | [style-guide/accessibility](https://www.elastic.co/docs/contribute-docs/style-guide/accessibility) |
+| Writing about the UI | [style-guide/ui-writing](https://www.elastic.co/docs/contribute-docs/style-guide/ui-writing) |
+| Voice, tone, tense | [style-guide/voice-tone](https://www.elastic.co/docs/contribute-docs/style-guide/voice-tone) |
+| Content types and page structure | [content-types](https://www.elastic.co/docs/contribute-docs/content-types) |
+| applies_to and cumulative docs | [cumulative-docs/guidelines](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/guidelines) |
+| Badge placement | [cumulative-docs/badge-placement](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/badge-placement) |
+| Deployment scope | [how-to/deployment-types](https://www.elastic.co/docs/contribute-docs/how-to/deployment-types) |
+| Redirects | [docs-builder redirects](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/documentation/redirects) |
+| Substitutions and variables | [docs-builder substitutions](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/substitutions) |
+
+When a companion skill reports a rule name of its own — a Vale rule such as `Elastic.OxfordComma`, for instance — pass that through as well. It tells the writer which check fired and how to reproduce it.
+
+Do not invent an anchor. If no listed link covers the finding, cite the page and say which part of it applies.
