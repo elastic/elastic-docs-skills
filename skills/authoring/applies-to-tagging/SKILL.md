@@ -198,14 +198,13 @@ When validating, check for these errors:
 
 - The edit is valid for all versions (rewording, typo fixes, restructuring) — it's not version-scoped at all.
 - A parent page or parent section already has the correct `applies_to` — repeating it is redundant.
-- The change *is* version-scoped but a small inline pattern carries the meaning without `applies_to`. The most common case is a renamed UI element: write "Select **New name** (**Old name** in earlier versions)." rather than splitting the step with `applies_to`. Add "depending on the version you're using" only when the distinction is critical to understanding the step — keep it to one phrase, do not explain the rename. This exception applies only to a rename of an existing control or label. It does not apply to a new capability, option, workflow step, availability change, or behavior change.
+- The change *is* version-scoped but a small inline pattern carries the meaning without `applies_to`. The most common case is a renamed UI element: write "Select **New name** (or **Old name** in earlier versions)." rather than splitting the step with `applies_to`. Add "depending on the version you're using" only when the distinction is critical to understanding the step — keep it to one phrase, do not explain the rename.
 - Adding GA features to unversioned products where the page-level lifecycle already covers the content.
 
 **Tag when:**
 
 - Content is genuinely version- or deployment-scoped, isn't already covered by a parent tag, and isn't better expressed inline.
 - Functionality is added in a specific release, lifecycle state changes (preview → GA, deprecated, removed), or availability differs across products or deployment types.
-- A new version-scoped capability, option, workflow step, availability change, or behavior change is being documented. Add the appropriate `applies_to` tag even when the target minor is unreleased. Release status affects which version evidence is valid, not whether version-scoped documentation needs a badge.
 
 ### Consolidate with content that already covers the version
 
