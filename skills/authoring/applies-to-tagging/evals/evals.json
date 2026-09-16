@@ -140,6 +140,18 @@
         "Treats ga on deployment keys as a support flag, not a GA claim for the setting",
         "Confirms stack: preview 9.2 with ech: ga (and the other support keys listed) is correct"
       ]
+    },
+    {
+      "id": 13,
+      "prompt": "I need to document a preview list cap that was 100 sources through Stack 9.5 and is 10,000 sources from Stack 9.6 and on serverless. The create step already has bullets for wildcard, comma-separated names, and minus-sign excludes. How should I add the two caps?",
+      "expected_output": "Own list of two version-variant bullets, newest first, with an untagged lead-in. Do not mix the caps into the pattern-syntax list. Do not invent an 8.x range start.",
+      "expectations": [
+        "Recommends a separate list that contains only the two cap bullets",
+        "Recommends an untagged lead-in sentence that states the shared condition (not all matching sources show)",
+        "Puts the serverless plus stack 9.6+ bullet first, then the stack 9.0-9.5 bullet",
+        "Does NOT mix the cap bullets into the wildcard / comma / exclude list",
+        "Does NOT start the older range at current 8.x (for example 8.19-9.5)"
+      ]
     }
   ]
 }
