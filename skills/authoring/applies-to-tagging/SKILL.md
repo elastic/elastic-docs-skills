@@ -1,13 +1,12 @@
 ---
 name: docs-applies-to-tagging
-version: 1.5.0
+version: 1.3.0
 description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (experimental, preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
 allowed-tools: Read, Grep, Glob, Edit, CallMcpTool, WebFetch
 sources:
-  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/applies
-  - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/automated_settings
+  - https://elastic.github.io/docs-builder/syntax/applies/
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/reference
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/guidelines
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/badge-placement
@@ -44,7 +43,6 @@ Detect generate-from-intent mode when the user describes a change rather than pr
 - "I'm adding feature X to 9.5 in stack only — generate the applies_to."
 - "What's the right tag for a serverless-only GA feature in observability?"
 - "A feature went from preview in 9.4 to GA in 9.5. What should I write?"
-- "What's the right applies_to map for a new kibana.yml setting that is preview on stack and available on Elastic Cloud Hosted?"
 - Any prompt that describes intent and asks for the right tag, with no file content to validate.
 
 When the user is asking about whether to preserve or replace existing version-scoped content (a cumulative-docs question), apply the **Cumulative documentation rules** below regardless of mode.
@@ -141,7 +139,7 @@ Use `ech` for Elastic Cloud Hosted. `ess` is a deprecated alias and should not b
 Unversioned products (serverless) use lifecycle only: `serverless: ga`.
 
 When generating new tags, make version intent explicit:
-- **Tag at the minor level by default.** Even when a feature ships in a patch release (for example 9.4.2), tag it at the minor: `stack: ga 9.4`, not `stack: ga 9.4.2`. Badges only ever display Major.Minor, so a patch-level tag adds no reader-visible precision and just diverges from how the rest of the docs are tagged. **Don't name the patch number in prose either.** Cumulative docs treat a minor-level tag as always representing the latest patch of that minor — once a feature ships in any patch, write it as simply available in that minor, with no "starting in x.y.z" qualifier. A plain-text patch callout is an extremely rare exception (see version display notes), not a default fallback: reach for it only when omitting the patch would actively mislead a reader on an earlier patch of the same minor, and treat it as a judgment call worth flagging for review rather than doing unprompted, since it undermines the assumption the rest of the corpus relies on.
+- **Tag at the minor level by default.** Even when a feature ships in a patch release (for example 9.4.2), tag it at the minor: `stack: ga 9.4`, not `stack: ga 9.4.2`. Badges only ever display Major.Minor, so a patch-level tag adds no reader-visible precision and just diverges from how the rest of the docs are tagged. Reserve patch versions for plain-text prose, and only when the patch distinction is genuinely critical (see version display notes).
 - Use `x.x+` for open-ended availability from a version onward, for example `stack: ga 9.1+`.
 - Use `=x.x` for exactly one minor version, for example `stack: preview =9.0`.
 - Use `x.x-y.y` for an inclusive range, for example `stack: beta 9.1-9.2`.
@@ -150,8 +148,8 @@ When generating new tags, make version intent explicit:
 
 **Important version display notes:**
 - Versions always display as **Major.Minor** (e.g., `9.1`) in badges, regardless of whether you specify patch versions in the source.
-- Each version statement corresponds to the **latest patch** of the specified minor version (e.g., `9.1` represents 9.1.0, 9.1.1, 9.1.6, etc.). This is load-bearing for cumulative docs: don't spell out which patch a feature actually shipped in, either in the tag or in prose. Once it's shipped in any patch, it belongs to that minor, full stop.
-- Naming a specific patch in plain text is an extremely rare exception, not a normal tool. Reach for it only when omitting the patch would be actively misleading, not just slightly imprecise, and prefer surfacing it as a question rather than doing it unprompted.
+- Each version statement corresponds to the **latest patch** of the specified minor version (e.g., `9.1` represents 9.1.0, 9.1.1, 9.1.6, etc.).
+- When critical patch-level differences exist, use plain text descriptions alongside the badge rather than specifying patch versions.
 - Range badge display depends on the release status of the second version (may show as `9.0+` instead of `9.0-9.2` if the end version isn't yet released).
 
 ### Implicit version inference
@@ -175,27 +173,12 @@ Always renders as: GA since 9.2, Beta in 9.1, Preview in 9.0 — newest to oldes
 
 Similarly, multiple keys in a single directive are reordered consistently: Stack/Serverless first, then deployment types (ECH, ECK, ECE, Self-managed), then product keys.
 
-## Settings YAML
-
-`{settings}` YAML (for example `advanced-settings-*.yml` and `docs/reference/configuration-reference/*.yml`) uses the same `applies_to` keys with a different authoring contract. Fetch [applies_to in settings YAML](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/automated_settings#settings-yaml) and follow that page.
-
-On each setting entry:
-
-- `stack` carries lifecycle and version.
-- `ech`, `ece`, `eck`, `self`, and `serverless` are support flags: `ga` or `unavailable`. Always list all five.
-- `ga` on a deployment key means the setting is supported there. It does not mean the setting is generally available.
-- `stack: preview` plus `ech: ga` is correct.
-
-Do not apply these body-Markdown rules to that YAML: mixed dimensions, lifecycle symmetry between `stack` and deployment keys, or missing page-level frontmatter.
-
-If the task is adding or changing a Kibana `kibana.yml` or Advanced Settings key, use `kibana-settings-docs` when that skill is available.
-
 ## Validation rules
 
 When validating, check for these errors:
 
 1. **Missing page-level tag** — every page must have `applies_to` in frontmatter
-2. **Mixed dimensions** — only one dimension per page level (stack/serverless OR deployment OR product). Does not apply to `{settings}` YAML. See **Settings YAML**.
+2. **Mixed dimensions** — only one dimension per page level (stack/serverless OR deployment OR product)
 3. **One version per lifecycle** — `ga 9.2, ga 9.3` is invalid
 4. **One open-ended per key** — only one `+` lifecycle allowed per key
 5. **Invalid exact syntax** — exact versions must use `=x.x` or `=x.x.x`, not a bare version that is meant to be exact
@@ -215,20 +198,14 @@ When validating, check for these errors:
 
 - The edit is valid for all versions (rewording, typo fixes, restructuring) — it's not version-scoped at all.
 - A parent page or parent section already has the correct `applies_to` — repeating it is redundant.
-- The change *is* version-scoped but a small inline pattern carries the meaning without `applies_to`. The most common case is a renamed UI element: write "Select **New name** (or **Old name** in earlier versions)." rather than splitting the step with `applies_to`. Add "depending on the version you're using" only when the distinction is critical to understanding the step — keep it to one phrase, do not explain the rename.
+- The change *is* version-scoped but a small inline pattern carries the meaning without `applies_to`. The most common case is a renamed UI element: write "Select **New name** (**Old name** in earlier versions)." rather than splitting the step with `applies_to`. Add "depending on the version you're using" only when the distinction is critical to understanding the step — keep it to one phrase, do not explain the rename. This exception applies only to a rename of an existing control or label. It does not apply to a new capability, option, workflow step, availability change, or behavior change.
 - Adding GA features to unversioned products where the page-level lifecycle already covers the content.
 
 **Tag when:**
 
 - Content is genuinely version- or deployment-scoped, isn't already covered by a parent tag, and isn't better expressed inline.
 - Functionality is added in a specific release, lifecycle state changes (preview → GA, deprecated, removed), or availability differs across products or deployment types.
-
-### Placement and lifecycle hygiene
-
-- Don't duplicate inline `{applies_to}` deployment badges when the sentence already names those deployment types.
-- When a feature is properly tagged with applies_to badges, remove any obsolete admonitions the badge now covers.
-- Scope each list item independently when siblings start in different versions — not a container tag with one override.
-- Version-scoped content that can't fold into an adjacent paragraph and has no list to join → `:::{note}` or `:::{tip}` with `:applies_to:` metadata, not a standalone tagged paragraph.
+- A new version-scoped capability, option, workflow step, availability change, or behavior change is being documented. Add the appropriate `applies_to` tag even when the target minor is unreleased. Release status affects which version evidence is valid, not whether version-scoped documentation needs a badge.
 
 ### Consolidate with content that already covers the version
 
@@ -238,42 +215,13 @@ Because tags resolve to the minor, content that lands in a minor already represe
 
 This is the cumulative-docs corollary of "tag at the minor level": one minor, one place.
 
-### Prefer the lightest cumulative form
-
-When content must be version- or deployment-scoped, pick the simplest form that still works:
-
-1. **Tagged tip, note, or short paragraph** — additive change; existing content stays untouched.
-2. **Tagged bullet points** — some list items apply only to certain versions or deployments.
-3. **`applies-switch` tabs** — only when the two contexts' content is substantial and truly diverges.
-
-Do not reach for tabs when a tagged tip or bullet would do.
-
-**Version-variant lists.** When two or more tagged bullets are the same fact at different versions:
-
-- Keep them in their own list. Do not mix them with unrelated bullets.
-- Lead with an untagged sentence that states the shared condition.
-- Newest first: `serverless` plus the latest stack tag, then the older stack range.
-- Every range endpoint must be evidenced. Use the minor where that behavior began, or the corpus sibling pattern for "through X" (usually `9.0-X`). Do not start a range at "current 8.x" or any version you did not verify.
-
 ### Place `applies_to` where the change applies
 
 Pick the form that matches what the change is scoped to:
 
 - **Section level** — fenced `{applies_to}` block immediately after the heading, when the change is relevant to a section.
 - **Page level** — YAML frontmatter, when the change scopes the whole page.
-- **Inline** — only at start of a paragraph, list item, end of a definition term, or inside a table cell. Never mid-sentence in running prose, and never floating between sentences in a paragraph (scope becomes ambiguous).
-  - **Don't repeat an inline tag before a second sentence in the same paragraph to "extend" its scope.** A tag placed right after a period and before the next sentence is the floating-between-sentences case above, even though it visually sits next to the sentence it's meant to cover.
-    - ❌ `{applies_to}`stack: preview 9.6+`` Use coordinator mode for this. {applies_to}`stack: preview 9.6+`` It also does this other thing.`
-    - ✅ Merge into one sentence so a single tag pair unambiguously covers the whole thing: `{applies_to}`stack: preview 9.6+`` Use coordinator mode for this, which also does the other thing.`
-    - ✅ Or, if merging would cram two distinct ideas into one sentence, pull the content into its own tagged short paragraph instead (see "Prefer the lightest cumulative form" above) rather than tagging each sentence separately.
-  - **A single tag inserted once between two sentences is still floating, even without repetition.** Physical adjacency to the sentence it's meant to cover doesn't establish scope — only a blank-line paragraph boundary or one of the sanctioned inline positions (list item, definition term, table cell) does.
-    - ❌ `General statement that applies to every version. {applies_to}`stack: ga 9.5+`` This part only applies from 9.5.`
-    - ✅ Split into two paragraphs so the tag leads the one it scopes, separated by a blank line:
-      ```markdown
-      General statement that applies to every version.
-
-      {applies_to}`stack: ga 9.5+` This part only applies from 9.5.
-      ```
+- **Inline** — only at start of a list item, end of a definition term, or inside a table cell. Never mid-sentence in running prose, and never floating between sentences in a paragraph (scope becomes ambiguous).
 - **Admonition or dropdown** — use the `:applies_to:` directive option when prose needs version scoping but doesn't fit any of the inline positions above. Restructure the prose into the admonition rather than inventing a new inline placement.
 - **`applies-switch` tabs** — only when content truly diverges between contexts (a stack-only step that has no serverless equivalent, with materially different code):
 ````markdown
@@ -370,13 +318,7 @@ Before suggesting any change involving version-scoped content, ask:
 
 - Never write versions in prose adjacent to badges — they contradict the "Planned" badge text before release.
 - Versions display as Major.Minor in badges regardless of patch numbers in source.
-- Each version statement covers the latest patch of that minor — don't name the specific patch in prose either, except in the extremely rare case where leaving it out would mislead a reader on an earlier patch of the same minor.
-
-### Availability floor vs backport labels
-
-A version in an issue availability table, or a `vX.Y.Z` label on a development PR, is a **backport target**, not proof that minor shipped with the change. Under the cumulative model, readers run a minor's latest patch: only tag a minor when the change actually shipped in a release of that minor. If the minor ended before the backport landed (for example a `v9.3.9` label when 9.3 ended at 9.3.8), that minor must not drive `applies_to`. `applies_to` is a single monotonic Major.Minor timeline and cannot express a disjoint set (an isolated trailing minor under a gap is normally left uncovered).
-
-The same rule applies to the **start** of a range. A longstanding value that later changed is not "GA since current 8.x". Use the minor where that value began, or the corpus pattern for "through X" (`9.0-X`). Do not invent a floor.
+- Each version statement covers the latest patch of that minor.
 
 ## Generate-from-intent execution
 
@@ -392,7 +334,6 @@ From the user's prompt, pull the following. Ask **one** focused clarifying quest
 - **Sub-projects** (serverless only) — elasticsearch, observability, security, or omit if all apply.
 - **Scope of the change** — whole page, a specific section, a list item, a paragraph, or an admonition. Determines which level of annotation to generate.
 - **Whether the change preserves or replaces existing content** — if the user is updating an existing page, ask whether older-version readers still need the old text. Apply the **Cumulative documentation rules** above.
-- **Settings YAML** — if the change is a `{settings}` YAML entry, follow **Settings YAML** instead of the page-level mixed-dimensions rule.
 
 ### Step 2: Decide preservation vs. replacement
 
@@ -439,7 +380,6 @@ Produce the right form based on scope:
   Some text {applies_to}`stack: ga 9.5+` more text.
   ```
 - **Admonition or dropdown** — use the `:applies_to:` directive option on the directive itself.
-- **Settings YAML entry** — the map form in **Settings YAML**. List `stack` plus all five support keys.
 
 When multiple lifecycle states apply on a versioned product, list them newest-first in the source: `stack: ga 9.5+, preview =9.4`. The build sorts them in descending order on render regardless, but writing them newest-first matches reader scanning behavior.
 
@@ -455,20 +395,18 @@ Return:
 
 Use this flow for **validate** mode (file path, directory, or pasted page content).
 
-1. **Detect settings YAML.** If the path is `.yml`/`.yaml`, or the content has `groups:` with `setting:` entries, follow **Settings YAML**. Skip the body-Markdown rules listed there.
-2. **Glob** for `.md` files in scope, and for settings YAML when the scope is a directory
-3. **Read** each Markdown file and check for correct frontmatter `applies_to`
-4. **Validate** Markdown tags against the **Validation rules** above. Validate settings YAML against **Settings YAML**.
-5. **Report** issues found (missing tags, invalid syntax, wrong placement)
-6. If asked to fix or generate tags, use **Edit** to apply corrections; for generation from a change description without a file, use the **Generate-from-intent execution** flow
-7. Summarize all changes made or issues found
+1. **Glob** for all `.md` files in scope
+2. **Read** each file and check for correct frontmatter `applies_to`
+3. **Validate** existing tags against the **Validation rules** above
+4. **Report** issues found (missing tags, invalid syntax, wrong placement)
+5. If asked to fix or generate tags, use **Edit** to apply corrections; for generation from a change description without a file, use the **Generate-from-intent execution** flow
+6. Summarize all changes made or issues found
 
 ## Reference
 
 For exhaustive key lists, advanced scenarios, and badge placement details, fetch these URLs:
 
-- [Syntax reference](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/applies)
-- [applies_to in settings YAML](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/automated_settings#settings-yaml)
+- [Syntax reference](https://elastic.github.io/docs-builder/syntax/applies/)
 - [Full key reference](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/reference)
 - [Guidelines](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/guidelines)
 - [Badge placement](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/badge-placement)
