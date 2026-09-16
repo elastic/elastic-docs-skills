@@ -1,0 +1,172 @@
+{
+  "skill_name": "docs-review-pr",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review PR 2481 in elastic/docs-content. It adds a new page at deploy-manage/autoscaling/ece-autoscaling-limits.md, updates the parent overview page to link to it, and adds an entry to the navigation file.",
+      "expected_output": "Confirms the PR head ref is checked out, reads both changed pages in full, dispatches the companion review skills, and produces one report sectioned by the six review criteria with a recommended approve, comment, or request-changes call.",
+      "expectations": [
+        "Loads the rubric from references/review-criteria.md, and refreshes it from the elastic-internal-docs MCP or states in the report header that the MCP was not reachable",
+        "Dispatches docs-content-type-checker and docs-check-contradictions, and reports which dispatch path was used for each",
+        "Report contains all six criteria sections: user focus, technical accuracy, applicability, maintainability, language, style",
+        "Checks whether the new page is cross-referenced from its parent page so users are not stranded",
+        "Ends with an explicit Approve / Comment / Request changes recommendation with reasoning",
+        "Does NOT edit any file, post a GitHub comment, or run gh pr review"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review the current branch. It changes applies_to tags on two existing pages in solutions/observability/ to add serverless availability. No code samples or images are touched.",
+      "expected_output": "Resolves the branch diff against its base, dispatches docs-applies-to-tagging because applies_to changed, skips docs-validate-code-samples because no code blocks changed, and reports against the full checklist.",
+      "expectations": [
+        "Dispatches docs-applies-to-tagging",
+        "Does NOT dispatch docs-validate-code-samples, and states in the companion run table that it was skipped as not relevant",
+        "Still reports on all six criteria rather than only applicability",
+        "Checks backport labels when PR metadata is available, or states that PR-only checks were skipped for a branch or path input",
+        "Dispatches docs-applies-to-tagging through a subagent rather than the Skill tool, because it declares Edit",
+        "No applies_to tag is written into any file; git status is unchanged after the review",
+        "Waits for every dispatched companion to return before writing the report, and does NOT invent findings for one still pending",
+        "Resolves the branch base from the PR's baseRefName or the repository default branch, and does NOT use the upstream tracking branch (@{u}), which is the branch's own remote copy and yields an empty diff"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review PR 3102 in elastic/docs-content. It is a small, well-written change: it corrects a default timeout value on one how-to page, the applies_to tags are already correct, the wording follows the style guide, and the PR body links to the engineering issue confirming the new value.",
+      "expected_output": "Runs the full checklist, finds nothing blocking, notes the SME evidence in the PR body, and recommends Approve without manufacturing findings.",
+      "expectations": [
+        "Recommends Approve",
+        "Marks criteria that were checked and came back clean as Clean, distinct from Not checked",
+        "Does NOT manufacture low-value findings to appear thorough",
+        "Does NOT report unrelated pre-existing issues as blockers; any such observation appears in a separate pre-existing section",
+        "Notes that the linked engineering issue provides the authoritative source for the changed value"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Review PR 2903 in elastic/docs-content. It deletes deploy-manage/monitoring/stack-monitoring-legacy.md and folds the content into deploy-manage/monitoring/stack-monitoring.md. The diff does not touch redirects.yml.",
+      "expected_output": "Flags the missing redirect as a high-severity maintainability finding, checks whether images or snippets from the deleted page are now orphaned or still referenced, and recommends Request changes.",
+      "expectations": [
+        "Flags the missing redirect entry for the deleted page at High severity under Maintainability, after checking both redirects.yml and _redirects.yml next to the content set's docset.yml",
+        "Greps the repository for remaining references to the deleted page path",
+        "Checks whether images or snippets used only by the deleted page are now unused",
+        "Recommends Request changes, because broken incoming links prevent users from reaching the content",
+        "Reads the deleted page from the base ref (git show), since it is absent from the checked-out head",
+        "Initializes BASE and BASE_REPO during PR target resolution, so the base fetch for the deleted page does not run with empty values"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review PR 2481 in elastic/docs-content. (The working tree is currently on the main branch, not the PR head ref, and has no uncommitted changes.)",
+      "expected_output": "Detects that the checked-out ref does not match the PR head ref, surfaces the mismatch, and asks before running gh pr checkout rather than silently reviewing the base tree.",
+      "expectations": [
+        "Detects and reports the mismatch between the PR head ref and the checked-out branch",
+        "Asks the user before running gh pr checkout, and does NOT check out the branch without confirmation",
+        "If the user declines, marks repository hygiene checks as Not checked because they ran against a different ref",
+        "Does NOT report orphaned-image or missing-redirect checks as clean while on the wrong ref",
+        "Treats only tracked modifications as blocking; an untracked file such as a scratch directory does not prevent offering gh pr checkout"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Review PR 2755 in elastic/docs-content. (Only docs-check-style and content-type-checker are installed; check-contradictions, frontmatter-audit, and flag-jargon-skill are not installed on this machine, and the elastic-internal-docs MCP is not reachable.)",
+      "expected_output": "Loads the rubric from references/review-criteria.md, reports the criteria whose companions are missing as Not checked with the install command, and does not present unchecked criteria as clean.",
+      "expectations": [
+        "Reads references/review-criteria.md and states in the report header that the rubric was not refreshed because the MCP is unreachable",
+        "Marks the criteria backed by the uninstalled companions as Not checked, naming each missing skill",
+        "Gives the install command using the companion's frontmatter name, for example 'docs-check-contradictions', matching the form documented in README.md",
+        "Does NOT substitute its own judgment for a companion that did not run, and does NOT mark those criteria Clean",
+        "Still completes the orchestrator-only checks in Step 4 and produces a recommended action"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Review the current branch. It is a pushed feature branch with three changed docs pages, and it tracks its own remote copy at origin/<branch-name>.",
+      "expected_output": "Resolves the base to the repository's default branch or the PR's base, not the upstream tracking branch, finds the three changed files, and reviews them.",
+      "expectations": [
+        "Resolves the base via gh pr view baseRefName or the repository default branch",
+        "Does NOT use git rev-parse --abbrev-ref @{u} or the upstream tracking branch as the diff base",
+        "Finds the three changed files rather than reporting an empty diff",
+        "If the diff does come back empty, stops and reports a base-resolution problem instead of reporting a clean review",
+        "Captures line ranges, not only changed paths, so findings can be scoped in Step 5",
+        "Fetches the base branch from the base repository rather than assuming origin/<base> is correct",
+        "Detects that the branch has an open PR via gh pr view with no number, and runs the PR-only checks (labels, author, PR body) rather than reporting them skipped"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Review PR 4120 in elastic/docs-content. It was opened from a contributor's fork (isCrossRepository is true) and changes two pages. The working directory is a clone of elastic/docs-content, currently on main.",
+      "expected_output": "Recognizes the fork PR as reviewable from the base-repo clone, offers gh pr checkout, and does not reject the repository as unrelated.",
+      "expectations": [
+        "Does NOT reject the repository as wrong or unrelated because headRepository is the contributor's fork",
+        "Compares the local repository against the PR's base repository, not headRepository",
+        "Detects the ref mismatch and offers gh pr checkout, which fetches the fork's head into a local branch",
+        "Fetches the base branch from the base repository, not from origin, when reading base versions of deleted files",
+        "Completes the review rather than stopping at target resolution"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Review PR 8290 in elastic/docs-content. It recalibrates create-serverless-project.md into step-by-step instructions and moves the project-type cards to serverless.md. The page's frontmatter has no type field. The intro opens with 'There are a few options...' and prerequisites are scattered through intro bullets.",
+      "expected_output": "Reports the how-to structural findings, recommends adding type: how-to to the frontmatter, and cites the governing style guide page or section on each language and style finding.",
+      "expectations": [
+        "Recommends adding `type: how-to` to the page's frontmatter, naming the content type",
+        "Makes that recommendation even though the page is an edit to an existing page rather than a new page from a template",
+        "Every Language and Style finding carries a Guideline link to the style guide page or section that decides it",
+        "Uses section anchors where they exist, for example voice-tone#active-and-passive-voice or seo#headings, rather than linking only the top-level style guide",
+        "Does NOT invent an anchor; when no listed link covers a finding, cites the page and says which part applies",
+        "Passes through a companion's own rule name, such as a Vale rule like Elastic.OxfordComma, alongside the guideline link"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Review PR 9001 in elastic/docs-content. The PR body says 'Docs for elastic/elasticsearch#141516'. That code PR renames the setting indices.recovery.max_bytes_per_sec, changes its default from 40mb to 80mb, and landed on branch 8.19. The docs page is tagged applies_to stack: ga 9.2 and still documents the old default.",
+      "expected_output": "Reads the linked code PR and its diff, flags the stale default and the version mismatch between the code PR's base branch and the page's applies_to, and cites the code PR for each finding.",
+      "expectations": [
+        "Resolves and reads the linked elasticsearch PR using gh pr view/diff with --repo or a full URL, not the owner/repo#number shorthand, rather than only noting that a link exists",
+        "Flags that the documented default no longer matches the value in the code diff",
+        "Flags the mismatch between the code PR's base branch (8.19) and the page's applies_to (9.2)",
+        "Cites the linked code PR and the file in its diff so the writer can follow the same trail",
+        "Does NOT claim the docs change is technically correct merely because parts of it matched the diff",
+        "Does NOT flag documented claims that are simply absent from the code diff as errors"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Review PR 9100 in elastic/docs-content. It clarifies wording on an existing concept page. The PR body links no code PR, issue, or commit, and no engineering repository is referenced anywhere.",
+      "expected_output": "Reports that no authoritative source is cited, and does not go looking for a code change to verify against.",
+      "expectations": [
+        "Reports under Technical accuracy that no SME sign-off or authoritative source is cited",
+        "Does NOT search repositories or attempt source verification when no code change is referenced",
+        "Does NOT fabricate a linked code PR or speculate about which repository the change relates to",
+        "Completes the other five criteria normally"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Review PR 8290 in elastic/docs-content. All seven companion skills are installed. During the run, docs-check-style is dispatched but never returns.",
+      "expected_output": "Dispatches all five Always-gated companions separately, reports docs-check-style as did not return, and does not author Language or Style findings in its place.",
+      "expectations": [
+        "Dispatches docs-check-style, docs-flag-jargon-skill, docs-content-type-checker, docs-check-contradictions and docs-frontmatter-audit as five separate calls, never bundled into combined agents",
+        "The companion run table has exactly seven rows and no Always-gated companion is marked Not dispatched",
+        "Marks docs-check-style as Not checked — companion did not return",
+        "Does NOT substitute its own style assessment for the missing companion, and does NOT label the gap manual assessment",
+        "Any finding it made itself under Step 4 is sourced docs-review-pr and kept separate from the missing companion's slot",
+        "Uses one consistent table format across all six sections, with Clean and Not checked as section-level statuses rather than Severity values"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Review PR 8290 in elastic/docs-content. The pages use 'choose' where Elastic style prefers 'select', two pages are missing a description field in frontmatter, and Maintainability produces no findings.",
+      "expected_output": "Findings recommend select over click or choose, the recommended-action list matches those findings in direction, citations point at the governing rule, and all six sections appear with a status.",
+      "expectations": [
+        "Recommends 'select' rather than 'click', consistent with the word-choice guidance",
+        "The recommended-action list restates the findings in the same direction and does NOT invert any of them",
+        "Cites the frontmatter guideline for a missing description field, NOT seo#headings",
+        "Cites a maintainability or single-source-of-truth rule for content duplicated across pages, NOT seo#interlinking",
+        "The Guideline column contains a link or nothing, never a bare word such as 'findability' or a criterion name",
+        "All six criteria sections appear; Maintainability carries an explicit Clean status rather than an empty heading",
+        "Names each companion identically everywhere it appears, for example docs-flag-jargon-skill and not docs-flag-jargon"
+      ]
+    }
+  ]
+}
