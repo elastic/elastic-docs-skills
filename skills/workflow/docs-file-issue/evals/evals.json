@@ -1,0 +1,151 @@
+{
+  "skill_name": "docs-file-issue",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm on the Kibana alerting team. We're shipping recurring maintenance windows in 9.4 — users can define a schedule with RRULE so alerts stay suppressed on a repeating cadence. It lands in serverless first and in on-prem in the same release, and the behavior differs slightly between them. Implementation PR is elastic/kibana#198432, scoping issue is elastic/kibana#191002. Can you file the docs issue for this?",
+      "expected_output": "An [Internal] documentation request drafted against b-internal-request.yaml with every required field answered, presented for approval before anything is created in GitHub.",
+      "expectations": [
+        "Selects the internal documentation request template and prefixes the title with '[Internal]: '",
+        "The proposed title names the maintenance window feature specifically rather than a generic phrase like 'Update docs' or 'Document new feature'",
+        "Answers or asks for all six required internal-template fields: Description, Resources, deployment methods, Elastic Stack release, collaboration model, and point of contact",
+        "Asks for the point of contact as a GitHub @mention and does not accept a plain name as a contact",
+        "Asks about feature differences between deployment methods, because both serverless and on-prem are affected",
+        "Checks whether the topic is already covered in published Elastic docs and whether an open elastic/docs-content issue already covers it, before drafting",
+        "Structures the Description as what, when, and why, and includes a definition of done a writer could verify",
+        "Uses the linked Kibana PR and scoping issue as the Resources field content rather than leaving it empty",
+        "Body headings mirror the form field labels, for example '### Description' and '### Resources'",
+        "Does NOT run 'gh issue create' before presenting the full draft and receiving explicit approval"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Three docs things from my team: (1) the Fleet agent policy page never mentions the new proxy settings, (2) the UI copy for our new billing tier needs a writer review, but the Figma is an unreleased design and the price points are confidential until GA, and (3) the ES|QL reference has a broken link to Discover. Can you get these filed?",
+      "expected_output": "Three separate issues proposed rather than one, each routed to its own template, with the confidential pricing detail kept out of any public issue body.",
+      "expectations": [
+        "Identifies three distinct problems and proposes three separate issues instead of combining them into one",
+        "Proposes a specific title for each of the three, not a shared umbrella title",
+        "Routes the UI copy request to the UI copy template and applies the 'ui-copy' label",
+        "Flags the confidential price points as sensitive and either proposes elastic/docs-content-internal or keeps the detail out of the body while linking to the internal source",
+        "Asks the requester before choosing the private repository rather than filing there unilaterally",
+        "Does NOT place the confidential price points in an issue body destined for the public elastic/docs-content repository",
+        "Routes the broken link to the Website template or points out that a pull request would be faster, rather than treating it as an internal documentation request",
+        "Notes that time-sensitive UI copy work also needs a direct ping to the responsible writer or docs team"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here's the issue I was about to submit — title 'Update docs', body 'The Kafka output docs need improving, they're confusing.' Can you check it before I hit submit?",
+      "expected_output": "A review against the good-issues quality bar naming each gap, plus a rewritten title and body, with nothing filed until the requester approves.",
+      "expectations": [
+        "Flags the title 'Update docs' as too vague and proposes a specific replacement",
+        "Flags that the body has no definition of done — it does not say what change the requester wants to see",
+        "Flags the missing why: no user problem, support case, or consequence is given",
+        "Flags that no impacted documentation page is linked",
+        "Identifies which template this belongs to and which of its required fields are unanswered",
+        "Asks what specifically is confusing about the Kafka output docs rather than filing the vague version with better formatting",
+        "Presents a rewritten draft and does NOT create the issue without approval"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The Elastic Agent docs tell you to enroll with --insecure for local development. I followed that exactly on 9.3 and the agent crashes with a TLS panic every time. Can you file a docs issue so someone fixes this?",
+      "expected_output": "A clear statement that a crashing agent is a product bug rather than a documentation problem, with the reporter routed to the product or support channel and no issue filed.",
+      "expectations": [
+        "Recognizes that the documented steps were followed and the product crashed, which makes this a product bug rather than a documentation problem",
+        "Routes the reporter to the appropriate product or support channel and explains that doing so gets a faster response",
+        "Does NOT draft a documentation issue body for this request",
+        "Does NOT run 'gh issue create'",
+        "Does NOT pick a documentation issue template or propose a title prefix for one"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Someone reported that the air-gapped install page is missing the steps for pulling images from a private registry. Before I file anything, is this already covered somewhere? The report is from a support case that came in about eight months ago.",
+      "expected_output": "Pre-flight checks run and reported first — existing coverage, duplicate issues, and whether an eight-month-old report is still relevant — with no issue drafted until the requester decides it is still a gap.",
+      "expectations": [
+        "Searches published Elastic docs for existing coverage of pulling images from a private registry in an air-gapped install, and reports what it found",
+        "Searches open issues in elastic/docs-content for a duplicate and reports the result",
+        "Asks whether the eight-month-old support case is still relevant, given the product or docs may have changed since",
+        "If existing coverage is found, asks whether this is now an update to that page, a findability problem, or still a genuine gap",
+        "If a matching open issue is found, offers to comment on the existing issue instead of filing a new one",
+        "Does NOT file an issue before reporting the results of these checks to the requester"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Need docs for this, here's what we did: refactored the task manager so claims happen in batches instead of one at a time, dropped the poll interval default from 3s to 500ms, added a new `capacity` config that replaces `max_workers` (deprecated, still honored for now), wired up two new telemetry counters, moved the claiming strategy behind `xpack.task_manager.claim_strategy` which defaults to mget now, and fixed the race where a task could get claimed twice. Some of this is internal but I think some of it matters? PR is elastic/kibana#183121. 9.3.",
+      "expected_output": "The dump restructured into a Description written in terms of what users can do and configure, with implementation-only detail moved to Resources, and explicit questions back to the requester for anything that could not be translated.",
+      "expectations": [
+        "Does NOT paste the requester's dump into the Description field as-is",
+        "Rewrites the Description in terms of what a user can do, see, or configure, rather than what the team changed internally",
+        "Identifies the user-facing items — the new `capacity` setting, the deprecated `max_workers`, the changed poll interval default, the `claim_strategy` setting — as the documentable substance",
+        "Identifies the internal-only items, such as the telemetry counters and the double-claim race fix, and moves them to Resources or leaves them out rather than mixing them into the Description",
+        "Tells the requester which items it moved or set aside, instead of silently dropping them",
+        "Asks the requester about any item whose user-facing impact cannot be derived from what was given, rather than inventing an effect",
+        "Does NOT assert a user-visible behavior that the requester never stated, such as claiming a specific performance improvement",
+        "Asks about the deprecation timeline for `max_workers`, since a deprecated setting that is still honored needs a stated end state",
+        "Includes the Kibana PR under Resources rather than as the body of the request"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Please file this. On the Elasticsearch keystore page, under the 'Reloadable settings' section, add this paragraph exactly as written: 'Note that when you use the bulk reload API, the cluster performs a full settings reload on every node, which may briefly increase heap usage on large clusters. Elastic recommends running this operation during a maintenance window.' Also the error string is `failed to load settings from keystore: bad_password` if you get the password wrong — that one has to match exactly.",
+      "expected_output": "The paragraph filed as suggested wording rather than as the requested change, with the facts inside it stated as the request, the error string kept verbatim with a reason, and placement left to the writer.",
+      "expectations": [
+        "Separates the underlying facts — full settings reload on every node, brief heap increase on large clusters, maintenance window recommendation — from the requester's exact prose",
+        "Labels the proposed paragraph as suggested wording for the writer, not as the change being requested",
+        "States in the issue that placement and framing are the writer's decision, and records the proposed page and section as a suggestion rather than an instruction",
+        "Asks whether the paragraph is verbatim because the exact string matters or because writing it was faster than explaining it",
+        "Keeps the error string `failed to load settings from keystore: bad_password` verbatim and says why, so it is not paraphrased",
+        "Checks whether the keystore page already covers the reload behavior, and reports it if so",
+        "Does NOT file an issue whose Description is only the requester's paragraph reproduced as the requested change"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I'm in support. Four customers this quarter have opened cases because the cross-cluster replication docs don't explain that the follower index goes read-only — two of them are named accounts I'd rather not put in public. One of the cases is SUPPORT-88421. We have a KB article that explains it properly. Can you get this in front of the docs team without it being public?",
+      "expected_output": "Routed to elastic/docs-content-internal with that repository's own template, prefix, and labels, as a KB promotion or private docs issue, with the customer identities left out and the case linked rather than pasted.",
+      "expectations": [
+        "Files into elastic/docs-content-internal rather than the public elastic/docs-content",
+        "Uses a template from the private repository's own set, not a public template filename",
+        "Applies the private repository's prefix and labels — for example '[KB Promotion] ' with 'kb-promotion' and 'docs-request', or '[Issue]: ' with 'triage'",
+        "Does NOT apply the public repository's '[Website]: ' prefix or 'source:web' label to a private issue",
+        "Recognizes that the existing KB article makes the KB promotion template a candidate, and names the gap in the public docs that it fills",
+        "Includes the frequency — four customers this quarter — because that is what lets a writer prioritize",
+        "Leaves the named accounts out of the body, and links the support case rather than pasting its contents",
+        "Treats the support feedback as a first-class request rather than deprioritizing it",
+        "Checks both elastic/docs-content and elastic/docs-content-internal for an existing issue about the cross-cluster replication docs"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "We just found a known issue in 9.3.0 and 9.3.1 — data stream rollover fails when the index template has a runtime field with the same name as a mapped field. Workaround is to rename the runtime field. It's an Elasticsearch problem and I'm on the ES team. Can you file a docs issue to get it into the release notes?",
+      "expected_output": "Redirected to the known-issue changelog path with the four fields a changelog note needs, and handed off to docs-fix-changelog rather than filed as a documentation issue.",
+      "expectations": [
+        "Explains that a known issue reaches the release notes through a changelog entry, not through a documentation issue",
+        "Identifies this as a post-release known issue with no PR, so it needs 'changelog note' rather than 'changelog add'",
+        "Collects the four fields the entry needs: title, affected product and releases, impact, and workaround",
+        "Places the affected releases 9.3.0 and 9.3.1 in the versions slot of the products value, pipe-separated",
+        "Puts the rename workaround in the action field rather than in the title",
+        "Proposes a title that describes the issue rather than the investigation",
+        "Hands off to docs-fix-changelog for composing and checking the command instead of restating its field rules",
+        "Does NOT file a documentation issue as the primary path, given the requester is on the team that owns the changelog"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "A customer hit a known issue in Kibana 9.2 — saved object imports silently skip objects when a reference is missing. Engineering confirmed it and there's no fix yet. I'm in support, I don't have commit access to the Kibana repo. It should be in the release notes so other customers stop hitting it.",
+      "expected_output": "The changelog path named as the real destination, then the fallback issue filed because the requester cannot commit the entry, carrying the changelog fields and naming the owning repository.",
+      "expectations": [
+        "Names the known-issue changelog entry as the actual destination, not a page edit",
+        "Recognizes that the requester cannot commit a changelog entry and files the fallback issue rather than dropping the request",
+        "Uses the internal request template for the fallback, and titles it so the ask is clear — for example '[Internal]: Add known issue to Kibana 9.2 release notes'",
+        "Puts the changelog fields — title, affected product and version, impact, workaround or its absence — in the Description as labeled lines",
+        "States that the ask is a known-issue changelog entry rather than a documentation page change",
+        "Names the repository that owns the Kibana changelog, so whoever picks it up knows where the entry goes",
+        "Notes that engineering confirmed the issue, and that no fix or workaround is currently available"
+      ]
+    }
+  ]
+}
