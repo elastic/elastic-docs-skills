@@ -1,7 +1,7 @@
 ---
 name: docs-kibana-release-notes
-version: 1.0.1
-description: Convert raw Kibana release notes tool output into Stack release notes (Elastic Observability or Elastic Security) using GitHub PR context and prior release notes. Use when drafting or editing Stack 9.x release notes from the Kibana release notes generator output.
+version: 1.0.2
+description: Convert raw Kibana release notes tool output into Stack release notes (Elastic Observability or Elastic Security) using GitHub PR context and prior release notes. Use when drafting or editing Stack 9.x Observability or Security release notes from the Kibana release notes generator output. For Kibana core application notes in elastic/kibana, use docs-curate-kibana-release-notes.
 argument-hint: <path-to-raw-rn.md> [observability|security] [version]
 disable-model-invocation: true
 context: fork

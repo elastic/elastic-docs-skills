@@ -1,0 +1,64 @@
+{
+  "skill_name": "docs-curate-kibana-release-notes",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Curate the Kibana 9.3.0 core release notes in ~/Documents/github/kibana. The unpublished 9.3.0 section of docs/release-notes/index.md includes: PR #220111 adding a new Kibana role privilege for saved objects (Team:Security, Feature:Security/Authorization); PR #220222 adding a new Elastic Security detection-rule action (Team:Security Solution); PR #220333 adding an Observability SLO burn-rate chart (Team:obs-ux-management); and PR #220444 renaming an internal CI helper with release_note:enhancement. Clean scope and report what you would remove.",
+      "expected_output": "Keeps the Kibana core authorization/role change, proposes removing the Security solution and Observability solution PRs plus the internal CI helper from the 9.3.0 notes, with evidence from labels and changed paths. Does not rewrite shipped older-version bullets.",
+      "expectations": [
+        "Keeps the Kibana core security/authorization PR as in-scope core content",
+        "Proposes removing the Elastic Security solution detection-rule PR from Kibana core notes",
+        "Proposes removing the Observability SLO PR from Kibana core notes",
+        "Proposes removing the internal-only CI helper as not user-facing",
+        "Captures evidence (labels, feature, changed paths) for each proposed removal",
+        "Does NOT rewrite live bullets in already-shipped version sections"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Update pass for Kibana 9.3.0. Latest BC is 9.3.0-abcd1234 whose Kibana commit is abcdef1. PR #220555 has v9.3.0 and release_note:fix, and its backport merged to 9.3 after that BC commit. git merge-base --is-ancestor reports OUT. Add it to the 9.3.0 notes if it belongs.",
+      "expected_output": "Does not add a live 9.3.0 bullet. Records the PR as deferred with % !!DEFERRED!! in the unpublished target section only, because ancestry against the BC commit is OUT. Does not treat the version label or merge date as proof of shipment.",
+      "expectations": [
+        "Does NOT add PR #220555 as a live 9.3.0 release-note bullet",
+        "Records the PR as deferred for the next BC, using % !!DEFERRED!! in the unpublished target-version section",
+        "Uses git merge-base --is-ancestor against the BC Kibana commit, not the merge date alone",
+        "Does NOT rewrite a deferred comment to Moved to 9.3.1 or similar"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Convert this raw Kibana release notes generator output into Elastic Observability 9.3.2 Stack release notes. File is at ./raw-rn-9.3.2.md. Use gh to fetch PR context and docs-content release-notes/elastic-observability for style.",
+      "expected_output": "Skill does NOT curate Kibana core notes in elastic/kibana. This request is Observability Stack conversion; point the user to docs-kibana-release-notes instead of editing kibana docs/release-notes files.",
+      "expectations": [
+        "Does NOT edit elastic/kibana docs/release-notes/index.md as Kibana core curation",
+        "Does NOT output a Kibana core scope-cleanup report for Observability Stack notes",
+        "Directs the user to docs-kibana-release-notes (or otherwise declines as out of scope for Kibana core curation)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "While curating Kibana 9.3.0 core notes, PR #220666 is a Security solution change that currently has release_note:enhancement but no solution-routing feature label. You found the exact existing label Feature:Detection Rules. Add that label so it routes correctly.",
+      "expected_output": "Presents the proposed exact label, PR, title, rationale, and target category for user approval. Does not apply the label or post a GitHub comment until approved. After approval, adds the label without removing valid ownership labels and uses the Security solution comment template.",
+      "expectations": [
+        "Shows the proposed GitHub label change to the user before applying it",
+        "Uses the exact existing label name Feature:Detection Rules and does not invent a label",
+        "Does NOT apply the label or post a comment before user approval",
+        "After approval, adds the label without removing valid ownership labels",
+        "Uses the Security solution routing comment template after approval"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Rewrite the unpublished 9.3.0 Kibana core bullets. Current text: 'Adds Lens as-code support that lets users create dashboards from YAML.' and 'Fixes a bug in Identifier Control.' Shipped 9.2.0 notes still say 'Adds Lens formulas.' Also delete the 9.2.0 % !!DEFERRED!! comment for a PR that now has a live 9.3.0 bullet.",
+      "expected_output": "Rewrites unpublished bullets to imperative Add/Fix wording, Visualizations API (not Lens as-code), you not users, and field variable control. Leaves the shipped 9.2.0 Lens formulas bullet unchanged. Deletes the resolved deferred comment instead of rewriting it to Moved to 9.3.0.",
+      "expectations": [
+        "Rewrites unpublished bullets with imperative base-form verbs (Add, Fix), not Adds or Fixes",
+        "Replaces Lens as-code with Visualizations API or equivalent reader-facing wording",
+        "Avoids Let users / lets users and addresses the reader as you if an audience reference is needed",
+        "Replaces Identifier Control with field variable control language",
+        "Does NOT rewrite the shipped 9.2.0 'Adds Lens formulas' live bullet",
+        "Deletes the resolved % !!DEFERRED!! comment from the older section rather than rewriting it to Moved to 9.3.0"
+      ]
+    }
+  ]
+}
