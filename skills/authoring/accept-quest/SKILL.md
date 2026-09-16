@@ -373,8 +373,6 @@ When working on writing tasks, make sure to respect these preferences: `$EDITORI
 **2. `applies_to` / cumulative model (required when any content is version- or deployment-scoped):**
 Invoke the `docs-applies-to-tagging` skill and follow it. Do not invent tag syntax from memory. That skill owns placement forms, version syntax, lifecycle append vs replace, minor-level tagging, rename patterns without badges, and cumulative preservation. Editorial model overview: https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs. Also honor Phase 1: a `vX.Y.Z` backport label is a target, not proof the minor shipped.
 
-**Do not confuse the rename exception with release timing.** A UI rename can use inline wording such as **New name** (**Old name** in earlier versions) without an `applies_to` badge because the documentation remains valid as a version-aware instruction. This is independent of whether the target release has shipped. If the change adds a new capability, option, workflow step, availability change, or behavior change, document it with the appropriate `applies_to` badge even when the target minor is unreleased. Release status determines the version evidence and lifecycle tag, not whether a version-scoped addition needs a badge.
-
 **3. Elastic style guide + MyST (fetch when drafting):**
 - https://www.elastic.co/docs/contribute-docs/style-guide — voice/tone/formatting baseline (Vale enforces much of it)
 - https://elastic.github.io/docs-builder/ — MyST directive syntax
