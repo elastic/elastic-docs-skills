@@ -45,6 +45,12 @@ This skill deliberately omits `context: fork`. It has to stay in the main contex
 
 Given an existing issue, run Steps 1 through 6 as a review: report what is missing against the quality bar and offer to post the additions as an edit, rather than filing something new.
 
+### When the ask is "how do I request docs support?"
+
+Hand over [Request documentation support](https://codex.elastic.dev/r/docs-content-internal/work-with-us), then offer to file the issue with them now. The page is the process; this skill is the filing half of it, so the useful reply is the link **and** an offer, not the link alone.
+
+Give them the URL as-is. It is Elastic-internal and needs a signed-in browser session, so do not try to fetch it, and do not summarize what it says from memory — lead times and contacts are exactly the details that are wrong when guessed.
+
 ## Step 0: Load the templates
 
 Each repository has its own template set, in its own `.github/ISSUE_TEMPLATE` directory. Read the one you need from **the repository you are filing into**, so you interview against its current fields rather than a stale copy:
@@ -439,7 +445,7 @@ Sources this skill encodes.
 
 See also. Elastic-internal and behind org access, so it is deliberately not in `sources:` — it cannot be fetched or staleness-checked.
 
-- [Request documentation support](https://stunning-adventure-qrvr1k2.pages.github.io/ski-team/work-with-us/#request-documentation-support) — what happens **after** the issue is filed: lead times, planning, who to contact. Hand the requester the link. Do not try to fetch it, and do not restate it from memory.
+- [Request documentation support](https://codex.elastic.dev/r/docs-content-internal/work-with-us) — the intake process, and what happens **after** the issue is filed: lead times, planning, who to contact. Hand the requester the link. Do not try to fetch it, and do not restate it from memory.
 
 Companion skills in this catalog. Collect the inputs they need; do not restate their rules here.
 

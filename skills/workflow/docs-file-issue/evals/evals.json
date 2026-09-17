@@ -219,6 +219,18 @@
         "Reads the existing Security known-issues page and follows the format already used there",
         "Collects the affected version, what users experience, the smaller-batch workaround, and a tracking issue link"
       ]
+    },
+    {
+      "id": 16,
+      "prompt": "I'm a PM on the Fleet team and we've got a feature landing in 9.5. What's the process for getting docs support? I've never done this before.",
+      "expected_output": "Hands over the internal work-with-us link and offers to draft and file the issue in the same reply.",
+      "expectations": [
+        "Gives the https://codex.elastic.dev/r/docs-content-internal/work-with-us link",
+        "Offers to file the issue with them now rather than replying with the link alone",
+        "Does NOT attempt to fetch the page, which is Elastic-internal and requires a signed-in browser session",
+        "Does NOT summarize or invent lead times, planning cadence, or contacts from memory",
+        "If they take the offer, continues into Step 1 and interviews for a feature request rather than starting over"
+      ]
     }
   ]
 }
