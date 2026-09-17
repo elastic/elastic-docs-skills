@@ -22,7 +22,7 @@ This table is transitional. When a specialist's area knowledge is reduced to an 
 | Area | File | Notes |
 |---|---|---|
 | Elastic Security — `solutions/security/`, `reference/security/` | `elastic-security.md` | **Needs a refresh after the docset restructure** ([docs-content-internal#1541](https://github.com/elastic/docs-content-internal/issues/1541), deadline 2026-10-31). Read the note at the top of the file before trusting its paths |
-| Alerting, Cases, and Workflows — `explore-analyze/alerting/`, `cases/`, `workflows/` | `alerting-cases-workflows.md` | Platform capabilities the solutions also surface, so placement is the main risk. Workflows drafting still delegates to the specialist above |
+| Alerting, Cases, and Workflows — `explore-analyze/alerting/`, `cases/`, `workflows/` | `alerting-cases-workflows.md` | Platform capabilities the solutions also surface, so placement is the main risk. **Alerting V2 is mid-GA-transition with its names unfrozen** — read the note at the top of the file before drafting any alerting page. Workflows drafting still delegates to the specialist above |
 
 An area file **adds** facts and narrows choices. It can never override the style guide, content types, cumulative-docs rules, or the approval gates. When an area file appears to contradict the baseline, follow the baseline and flag the conflict.
 

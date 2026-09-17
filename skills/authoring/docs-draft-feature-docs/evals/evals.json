@@ -129,7 +129,8 @@
       "expected_output": "Loads the alerting area file, recognizes that 'the alerting docs' names none of the four systems, and routes via compare-alerting-systems.md. Concludes an SLO burn rate rule is Observability's, so it belongs in solutions/observability/incident-management/ rather than explore-analyze/alerting/alerts/.",
       "expectations": [
         "Reads compare-alerting-systems.md before choosing a destination",
-        "Establishes which of the four alerting systems the request means rather than assuming Kibana alerting",
+        "Establishes which of the five alerting systems the request means rather than assuming Kibana alerting",
+        "Recognizes that compare-alerting-systems.md omits Observability alerting, so it is a starting point and not a complete map",
         "Places the rule type in solutions/observability/incident-management/ beside the other create-*-rule.md pages",
         "Does NOT add an Observability rule type to explore-analyze/alerting/alerts/",
         "Does NOT draft it against the experimental alerting system or present that system as production-ready"
@@ -145,6 +146,20 @@
         "Declines to put the full configuration steps in solutions/security/investigate/security-cases.md",
         "Verifies the field against x-pack/platform/plugins/shared/cases/",
         "Does NOT duplicate the steps across both the platform and Security pages"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Alerting v2 is going GA, so let's get ahead of it. Rename the experimental alerting system to Alerting V2 across the docset, swap alert episode to alert everywhere, and drop the not-ready-for-production caveats.",
+      "expected_output": "Declines to execute the sweep yet. The final names and UI strings are not frozen, a term pass would break the pages that teach the data model, and the caveats are still true for 9.5 because the docs are cumulative.",
+      "expectations": [
+        "States that the system names and UI labels are not yet frozen and declines to draft them as fact",
+        "Refuses a blanket search-replace of alert episode to alert, and explains that the data-model pages need rewriting instead",
+        "Preserves rule event, signal, and series as distinct terms, and keeps stored episode.* fields and alerting.episode* trigger IDs",
+        "Scopes the production caveats to 9.5 rather than deleting them, because the page also serves 9.6",
+        "Proposes applies_to of stack: experimental 9.5, ga 9.6 with serverless: ga and delegates the tagging",
+        "Flags the two system-flow diagrams as needing design work and does NOT generate replacements",
+        "Does NOT present either GA date as confirmed"
       ]
     }
   ]
