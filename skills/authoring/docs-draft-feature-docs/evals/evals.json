@@ -425,6 +425,36 @@
         "Does NOT delete the section, and does NOT report a deletion as the completed work",
         "Does NOT write the version number into the prose next to the badge"
       ]
+    },
+    {
+      "id": 34,
+      "prompt": "Pick up this doc issue: it adds 8 new event-driven workflow triggers under the security.* namespace so workflows can react when alert status, tags, or assignees change. The issue is labeled release_note:feature, the availability table says Stack v9.6.0 and Serverless, and the feature flag row reads \"None — active by default\". Document them on the event-driven triggers reference page alongside the existing Cases triggers.",
+      "expected_output": "Reads the trigger registrations in the product source to find the declared stability before choosing a lifecycle, treats the release-note label and the unqualified version as descriptions of a shipped feature rather than evidence of general availability, and hands the declared value to docs-applies-to-tagging.",
+      "expectations": [
+        "Reads the trigger registrations in the product source at HEAD to find the declared stability or maturity field before choosing a lifecycle",
+        "Treats the release_note:feature label, the unqualified version, and \"active by default\" as descriptions of something that shipped rather than as evidence that it is generally available",
+        "Lets the value declared in the code outrank how the issue reads when the two disagree",
+        "Hands the lifecycle, version, and deployment answers to docs-applies-to-tagging rather than composing the applies_to block itself",
+        "Verifies the trigger IDs against the source instead of copying them from the issue",
+        "Mirrors the existing Cases triggers structure on the page rather than adding a new page",
+        "Does NOT tag the triggers as generally available on the strength of the issue's framing",
+        "Does NOT write the version number into the prose next to the badge"
+      ]
+    },
+    {
+      "id": 35,
+      "prompt": "Pick up this doc issue: a Kibana feature privilege category was renamed from \"Alerting\" to \"Alerting V2\" in the Roles UI. The availability table says Stack 9.5.3 and 9.6.0 plus serverless, and the issue says the change applies from 9.5.3 and 9.6.0. The page to update is scoped applies_to stack: experimental 9.5+ and serverless: experimental, and its tables also name several other privilege categories.",
+      "expected_output": "Treats the patch-level availability as a question for docs-applies-to-tagging rather than a value to copy onto the page, establishes which patches actually shipped, and accepts that the resolution may be that no tag is needed at all.",
+      "expectations": [
+        "Treats the patch release in the availability table as a question for docs-applies-to-tagging rather than a value to carry onto the page",
+        "Establishes which patch releases actually shipped rather than trusting the issue's version list or the merged backport",
+        "Accepts that the resolution can be that the page needs no applies_to tag at all",
+        "Changes only the references to the renamed category and leaves the other privilege categories alone, including on a line that names two of them",
+        "Leaves the existing section anchors unchanged because they are link targets",
+        "Reports the parts of the writer brief that turn out not to apply instead of silently dropping them",
+        "Does NOT write a patch-level version into an applies_to tag",
+        "Does NOT add version-scoped phrasing for a difference that readers on the covered versions cannot encounter"
+      ]
     }
   ]
 }

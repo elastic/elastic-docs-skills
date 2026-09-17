@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.4.1
+version: 2.5.0
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -214,6 +214,10 @@ This is the request shape where doing literally what the issue asks is most ofte
 
 **A backport label is not a shipped release.** Neither is a merged pull request. Establish which released version actually carries the change before any version reaches the page, and say which evidence you used. Collect the deployment answers too — stack, serverless, and the deployment types — since the content is scoped, not versioned.
 
+**The code declares the lifecycle; the request only describes it.** When a registration carries a stability or maturity field, that field is the answer and it outranks how the request reads — a release-note label, a bare version number, and "on by default" each describe something that shipped, and none of them mean generally available. Read the declared value and pass it to `docs-applies-to-tagging` rather than mapping it yourself.
+
+**Availability given as a patch release is a question, not a value.** A patch number does not reach the page as written, and resolving it sometimes removes the need for a tag entirely, so hand it over rather than deciding.
+
 ### 4e. Confirm which repos own the work
 
 Do not assume docs-content, and do not assume a single owner. Narrative user documentation lives there, but reference content often lives in the product repo's own docs tree, so **one request routinely splits across two repos** — a Workflows change can need authoring content in docs-content, a setting in `kibana/docs/reference/`, and a connector page in the same Kibana tree.
@@ -269,7 +273,7 @@ Three moves the baseline leaves to your judgment:
 
 If `$EDITORIAL_PREFERENCES_PATH` resolved in Step 1, read that file now and apply it to the prose you write. It is additive prose craft, so it never overrides the style guide, content types, or an area file — where it conflicts with the baseline, the baseline wins, and say so rather than silently following the preference. Apply it only to new prose: do not restyle surrounding copy you were not otherwise changing. An optional Simplified Technical English overlay ships at `references/ste-overlay.md`; it stays off unless the variable points at it.
 
-Frontmatter follows `frontmatter.config.yml` and the conventions in the area file. Check the nearest `_snippets/` directory before writing shared prose. For `applies_to` values and badge placement, use `docs-applies-to-tagging` — collect the version, lifecycle, and deployment answers, and let that skill decide the tags.
+Frontmatter follows `frontmatter.config.yml` and the conventions in the area file. Check the nearest `_snippets/` directory before writing shared prose. For `applies_to` values and badge placement, use `docs-applies-to-tagging` — collect the version, lifecycle, and deployment answers, and let that skill decide the tags, including whether the page needs any.
 
 Where a screenshot is needed, name it and describe what it should show. Never generate one.
 
@@ -292,7 +296,7 @@ Invoke each of these on the draft. Run the ones that apply, and do not fail when
 | Skill | What it decides | Run it when |
 |---|---|---|
 | `docs-content-type-checker` | Which content type the page is, and whether its structure matches | Always. Also used in classify mode in Step 5 |
-| `docs-applies-to-tagging` | The `applies_to` values and where the badges go | The page is version- or deployment-scoped, which is almost always |
+| `docs-applies-to-tagging` | Whether the content needs scoping at all, the `applies_to` values, and where the badges go | The page is version- or deployment-scoped, which is almost always |
 | `docs-page-opening-optimizer` | The H1, the opening paragraph, and the requirements section | Always, for a new page or a rewritten opening |
 | `docs-check-style` | Style guide compliance, and runs Vale when it is available | Always |
 | `docs-flag-jargon-skill` | Jargon and unexplained terms | Always |
