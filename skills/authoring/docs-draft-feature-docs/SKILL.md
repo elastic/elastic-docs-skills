@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 1.1.0
+version: 1.2.0
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -45,7 +45,8 @@ When `AGENTS.md` and the contribution guide disagree, the guide wins — that is
 
 ## Constraints
 
-- **Never write a file, create a branch, or open a pull request without explicit approval.** See *Approval gates*. This matches the baseline's own statement that its conventions are not instructions to push or open PRs on your own.
+- **Never write a file or open a pull request without explicit approval.** See *Approval gates*. This matches the baseline's own statement that its conventions are not instructions to push or open PRs on your own. Creating the working branch in Phase 2 is the one exception, because an empty local branch changes nothing and is reversible.
+- **Never commit to, or write on, a default branch.** Phase 2 puts you on a working branch before anything else happens.
 - Never invent a UI label, a default value, a parameter name, or a behavior. Every concrete claim is verified in Step 3 or surfaced as an open question.
 - Never invent or generate a screenshot. Name the screenshot that is needed and where it goes.
 - An area reference file may **add** facts and narrow choices. It may never override the style guide, content types, cumulative-docs rules, or the approval gates.
@@ -103,6 +104,58 @@ Before routing to a specialist, confirm it is installed. Delegating to a skill t
 
 `$ARGUMENTS` is a doc issue URL or `owner/repo#number`, a product pull request, a page path, or a free-text description. If empty, ask what needs documenting.
 
+## Phase 2: Create the working branch
+
+Create it before reading the issue, so no draft, edit, or `toc.yml` change can land on the default branch. Unlike a file write or a pull request, a new local branch is empty and reversible, so this is not gated — but report what you created and what you based it on.
+
+### Find the base
+
+**Never assume `origin` is the canonical repo, and never assume the default branch is `main`.** When the checkout is a fork, `origin` is the writer's own copy, and `origin/main` is stale the moment the fork falls behind. Basing on it starts the work from old content without anything looking wrong.
+
+Identify the canonical remote by URL rather than by name, because the name varies and a busy clone can carry dozens of collaborators' forks as remotes:
+
+```
+git -C <repo> remote -v | grep '(fetch)' | grep -E 'github\.com[:/]elastic/'
+```
+
+| Result | What it means | Base on | Push to |
+|---|---|---|---|
+| One match, named `origin` | Direct clone | `origin` | `origin` |
+| One match under another name, usually `upstream` | Fork | that remote | `origin`, the fork |
+| No match | Fork with no canonical remote configured | Ask first | — |
+| Several matches | Ambiguous | Ask which is canonical | — |
+
+With no match, offer `git remote add upstream https://github.com/elastic/<repo>.git` rather than guessing. Branching from a fork's own default branch is a fallback the user chooses knowingly, not one you pick for them.
+
+Then fetch, and read the default branch off the canonical remote instead of hard-coding it:
+
+```
+git -C <repo> fetch <canonical>
+git -C <repo> symbolic-ref refs/remotes/<canonical>/HEAD    # fallback: gh repo view elastic/<repo> --json defaultBranchRef
+```
+
+Base on the remote-tracking ref `<canonical>/<default>`, never on the local branch of the same name — a local `main` is only as fresh as the last pull. The default branch is the right base in nearly every case; targeting a released version branch instead is an exception the user has to name.
+
+### Check the checkout is safe
+
+Stop and ask in each of these. Never stash, reset, or discard anything to clear the way.
+
+- **Uncommitted changes**, meaning `git status --porcelain` is non-empty. Switching carries them onto the new branch and mixes unrelated work into yours.
+- **Already on a non-default branch.** It may be one the user made for this exact task, or unrelated work in progress. Ask whether to use it or branch fresh.
+- **Detached HEAD.**
+
+### Create it
+
+Name it from the issue where there is one. `docs-issue-<number>-<short-slug>` is the clearest convention in use in docs-content, though naming there is not uniform, so check recent history before assuming a shape in another repo: `gh pr list --repo <owner/repo> --state merged --limit 20 --json headRefName`.
+
+```
+git -C <repo> switch -c <branch> <canonical>/<default>
+```
+
+Do this in `$DOCS_CONTENT_ROOT` now. When Step 1e names a second repo, branch there at that point the same way — each repo gets its own branch and its own base, since a fork on one side tells you nothing about the other.
+
+If the run ends without writing anything, because Step 1c concluded no docs are needed or the user declined at gate 1, switch back and delete the branch. It is empty, so nothing is lost.
+
 ## Step 1: Understand the request
 
 ### 1a. Read the issue and the code
@@ -146,7 +199,7 @@ The honest answer that nothing needs documenting is a useful result, not a failu
 
 Do not assume docs-content, and do not assume a single owner. Narrative user documentation lives there, but reference content often lives in the product repo's own docs tree, so **one request routinely splits across two repos** — a Workflows change can need authoring content in docs-content, a setting in `kibana/docs/reference/`, and a connector page in the same Kibana tree.
 
-Split it the way Phase 1 splits a request across two areas: assign each deliverable to the repo that owns it, and say which half went where so nothing looks silently dropped.
+Split it the way Phase 1 splits a request across two areas: assign each deliverable to the repo that owns it, and say which half went where so nothing looks silently dropped. Then run Phase 2 in each newly named repo, resolving its canonical remote and base separately.
 
 Then order the halves, because this decides more than where the branch goes:
 
@@ -249,14 +302,14 @@ When the work spans repos, each pull request gets its own description written to
 Three gates. Never skip ahead, and never bundle two approvals into one question — including one gate-3 approval per repo.
 
 1. **Present.** Show the draft, the file paths you intend to write, the verification results, and the open questions. When the work spans repos, show the per-repo split and the order from Step 1e here.
-2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change into the resolved checkout. Writing to a second repo is part of this gate only if its split was presented at gate 1.
-3. **Pull request.** Only on a separate, explicit approval, and show the Step 7 description as part of asking. Branch from `origin/main` in the repo that owns each half, and open as a **draft** with `--draft`, using the approved description as the body.
+2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change onto the Phase 2 branch. Confirm you are on it first, rather than assuming — a gate 1 that ran long is enough time for a branch to change underneath you. Writing to a second repo is part of this gate only if its split was presented at gate 1.
+3. **Pull request.** Only on a separate, explicit approval, and show the Step 7 description as part of asking. The branch already exists from Phase 2, so push it and open the pull request as a **draft** with `--draft`, using the approved description as the body. Push to the fork and open against the canonical repo when the checkout is a fork, which means `--repo elastic/<repo> --head <fork-owner>:<branch>`.
 
 Open the pull requests in the Step 1e order, and cross-reference them in both bodies so a reviewer seeing one knows the other exists. Do not open the blocked one early: it cannot pass its own link check until the first publishes.
 
 ## Output
 
-1. **Setup** — paths used, and whether an area file was found
+1. **Setup** — paths used, the branch created in each repo with its base and whether that checkout is a fork, and whether an area file was found
 2. **Intake** — scope, audience, deliverables with status, answered and open questions
 3. **Placement** — target pages, why this shape, content type and why
 4. **Verification** — verified with sources, contradicted, unverifiable

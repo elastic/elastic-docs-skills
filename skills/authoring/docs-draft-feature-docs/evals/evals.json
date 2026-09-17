@@ -41,12 +41,13 @@
     {
       "id": 4,
       "prompt": "Draft the page for the new data retention setting and open a PR for it when you're done. I'm heading into a meeting.",
-      "expected_output": "Treats the upfront instruction as intent rather than approval of content that does not exist yet. Presents the draft, verification results, and file paths first, asks before writing, and asks again before branching or opening a pull request.",
+      "expected_output": "Treats the upfront instruction as intent rather than approval of content that does not exist yet. Presents the draft, verification results, and file paths first, asks before writing, and asks again before pushing and opening a pull request.",
       "expectations": [
         "Presents the draft and intended file paths before writing anything",
         "Asks for approval to write to disk as a separate step",
         "Asks for approval to open a pull request as a second, separate step",
-        "Does NOT write files or create a branch during the presentation step",
+        "Does NOT write files during the presentation step, though the empty Phase 2 working branch already exists by then and that is expected",
+        "Does NOT push the branch or open the pull request until the separate gate 3 approval",
         "Does NOT treat 'open a PR when you're done' as approval of an unwritten draft",
         "Opens the pull request as a draft if and when approval is given"
       ]
@@ -282,6 +283,42 @@
         "Does not fabricate preview URLs, noting the build posts them once the PR exists",
         "Derives all of it from Steps 2 through 5 rather than re-gathering",
         "Presents the description and takes an explicit approval before opening, and opens with --draft"
+      ]
+    },
+    {
+      "id": 23,
+      "prompt": "Draft docs for the new Kibana task manager setting in elastic/kibana#201455. My kibana checkout is a fork.",
+      "expected_output": "Creates the working branch before analyzing the issue, and bases it on the canonical remote rather than the fork's own default branch.",
+      "expectations": [
+        "Creates the branch in Phase 2, before reading the issue and before proposing any change",
+        "Identifies the canonical remote by URL match on github.com/elastic/ rather than by assuming the remote is named origin or upstream",
+        "Bases the branch on the canonical remote's default branch, not origin/main, because origin is the fork and goes stale",
+        "Fetches before branching and bases on the remote-tracking ref rather than the local branch of the same name",
+        "Resolves the default branch instead of hard-coding main",
+        "Reports the branch, its base, and that the checkout is a fork",
+        "At gate 3, pushes to the fork and opens the PR against elastic/kibana with a fork-owner-qualified head"
+      ]
+    },
+    {
+      "id": 24,
+      "prompt": "Pick up docs-content issue 8241 and draft it. (Run this with uncommitted changes in docs-content and while sitting on an unrelated feature branch.)",
+      "expected_output": "Stops and asks before touching the checkout, rather than stashing the changes or branching on top of unrelated work.",
+      "expectations": [
+        "Detects the non-empty working tree and stops rather than continuing",
+        "Never stashes, resets, or discards the uncommitted changes to clear the way",
+        "Notices it is already on a non-default branch and asks whether to use it or branch fresh, rather than assuming either",
+        "Does not begin analyzing the issue until the checkout question is settled",
+        "Explains that switching would carry the uncommitted work onto the new branch"
+      ]
+    },
+    {
+      "id": 25,
+      "prompt": "Document the new internal retry counter. It has no UI and no setting.",
+      "expected_output": "Concludes no docs are needed, then cleans up the branch it created in Phase 2 instead of leaving it behind.",
+      "expectations": [
+        "Concludes in Step 1c that nothing needs documenting",
+        "Switches back off the working branch and deletes it, since the run wrote nothing and the branch is empty",
+        "Does not write a page, a toc.yml entry, or a PR to justify the branch it already made"
       ]
     }
   ]
