@@ -121,29 +121,30 @@
     {
       "id": 9,
       "prompt": "We just found a known issue in 9.3.0 and 9.3.1 — data stream rollover fails when the index template has a runtime field with the same name as a mapped field. Workaround is to rename the runtime field. It's an Elasticsearch problem and I'm on the ES team. Can you file a docs issue to get it into the release notes?",
-      "expected_output": "Redirected to the known-issue changelog path with the four fields a changelog note needs, and handed off to docs-fix-changelog rather than filed as a documentation issue.",
+      "expected_output": "Routed to the Elasticsearch known-issues page in the product repository, matching that page's existing format, rather than to a changelog entry or a docs-content issue.",
       "expectations": [
-        "Explains that a known issue reaches the release notes through a changelog entry, not through a documentation issue",
-        "Identifies this as a post-release known issue with no PR, so it needs 'changelog note' rather than 'changelog add'",
-        "Collects the four fields the entry needs: title, affected product and releases, impact, and workaround",
-        "Places the affected releases 9.3.0 and 9.3.1 in the versions slot of the products value, pipe-separated",
-        "Puts the rename workaround in the action field rather than in the title",
+        "Identifies the destination as docs/release-notes/known-issues.md in the elastic/elasticsearch repository",
+        "Explains that the edit is a pull request against the product repository, not a documentation issue in docs-content",
+        "Does NOT route this to a known-issue changelog entry, which is the Cloud and serverless path",
+        "Does NOT suggest the Elasticsearch docs/changelog directory, which uses an older schema with no known-issue type",
+        "Reads the existing known-issues page and follows the format already used there rather than inventing one",
+        "Collects the title, affected versions 9.3.0 and 9.3.1, what users experience, the rename workaround, and a tracking issue link",
         "Proposes a title that describes the issue rather than the investigation",
-        "Hands off to docs-fix-changelog for composing and checking the command instead of restating its field rules",
-        "Does NOT file a documentation issue as the primary path, given the requester is on the team that owns the changelog"
+        "Does NOT file a docs-content issue as the primary path, given the requester is on the team that owns the page"
       ]
     },
     {
       "id": 10,
       "prompt": "A customer hit a known issue in Kibana 9.2 — saved object imports silently skip objects when a reference is missing. Engineering confirmed it and there's no fix yet. I'm in support, I don't have commit access to the Kibana repo. It should be in the release notes so other customers stop hitting it.",
-      "expected_output": "The changelog path named as the real destination, then the fallback issue filed because the requester cannot commit the entry, carrying the changelog fields and naming the owning repository.",
+      "expected_output": "The Kibana known-issues page named as the destination, then a fallback issue filed because the requester cannot open the pull request, naming the file and asking who is expected to make the edit.",
       "expectations": [
-        "Names the known-issue changelog entry as the actual destination, not a page edit",
-        "Recognizes that the requester cannot commit a changelog entry and files the fallback issue rather than dropping the request",
+        "Names docs/release-notes/known-issues.md in the elastic/kibana repository as the destination",
+        "Does NOT route this to a known-issue changelog entry, even though Kibana keeps changelog YAML for other entry types",
+        "Recognizes that the requester cannot open the pull request and files the fallback issue rather than dropping the request",
+        "Asks whether the product team or a writer is expected to make the edit, and records the answer in the issue",
         "Uses the internal request template for the fallback, and titles it so the ask is clear — for example '[Internal]: Add known issue to Kibana 9.2 release notes'",
-        "Puts the changelog fields — title, affected product and version, impact, workaround or its absence — in the Description as labeled lines",
-        "States that the ask is a known-issue changelog entry rather than a documentation page change",
-        "Names the repository that owns the Kibana changelog, so whoever picks it up knows where the entry goes",
+        "Puts the collected facts — title, affected version, what users experience, workaround or its absence, tracking issue — in the Description as labeled lines",
+        "States that the ask is a release-notes known issue rather than a change to a documentation page",
         "Notes that engineering confirmed the issue, and that no fix or workaround is currently available"
       ]
     },
@@ -190,6 +191,33 @@
         "Ends the description with a plain availability note covering 9.4 and serverless applicability",
         "Treats the two items separately rather than bundling them into one issue",
         "Does NOT pad the issue with every other page that mentions panels or controls"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Known issue on Elastic Cloud Hosted: deployments created in the new Frankfurt region can't enable the machine learning node type until the region finishes provisioning, which takes up to 48 hours. No workaround other than waiting. Should go in the release notes.",
+      "expected_output": "Routed to the known-issue changelog entry for Cloud, with the versions in the products slot and the handoff to docs-fix-changelog.",
+      "expectations": [
+        "Identifies this as a known-issue changelog entry, because the product is Elastic Cloud",
+        "Names elastic/cloud as the repository that owns the changelog",
+        "Uses 'changelog note' rather than 'changelog add', since there is no pull request behind it",
+        "Places the affected versions in the products slot of the command",
+        "Puts the wait-it-out workaround in the action field rather than the title",
+        "Hands off to docs-fix-changelog for composing and checking the command rather than restating its field rules",
+        "Does NOT route this to a product repository known-issues.md page"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "There's a known issue in Elastic Security 9.4 — the prebuilt rule upgrade flow drops custom exceptions when you upgrade more than 20 rules at once. Workaround is to upgrade in smaller batches. Can you get this into the release notes?",
+      "expected_output": "Routed to the Security solution known-issues page in docs-content, where a docs issue or pull request is the right vehicle.",
+      "expectations": [
+        "Identifies release-notes/elastic-security/known-issues.md in elastic/docs-content as the destination",
+        "Recognizes that this file is in a docs team repository, so a docs issue or a pull request there is appropriate",
+        "Does NOT route this to the elastic/kibana known-issues page, even though Security ships as part of Kibana",
+        "Does NOT route this to a known-issue changelog entry",
+        "Reads the existing Security known-issues page and follows the format already used there",
+        "Collects the affected version, what users experience, the smaller-batch workaround, and a tracking issue link"
       ]
     }
   ]

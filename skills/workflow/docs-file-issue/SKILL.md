@@ -187,18 +187,53 @@ When relaying a customer, put the substance in and leave the identity out unless
 
 ### Known issues for release notes
 
-A known issue reaching the release notes is **not** a docs issue — it is a changelog entry, and filing it as an issue adds a hop where a writer has to translate it back. Say so, and help produce the entry instead.
+A known issue usually does not reach the release notes through a docs issue — and it does not reach them the same way for every product. **Identify the product first.** That decides the destination, and there are three, so a wrong guess sends the request somewhere it cannot land.
 
-A post-release known issue has no PR, so it is a changelog note:
+| Known issue in | Where it lives | How it gets there |
+|---|---|---|
+| Elasticsearch, Kibana, Logstash, or another stack product | `docs/release-notes/known-issues.md` in that **product** repository | A pull request against the product repository |
+| Elastic Cloud or serverless | A `known-issue` changelog entry in `elastic/cloud` | `docs-builder changelog note`, then hand off to `docs-fix-changelog` |
+| The Observability or Security solution | `release-notes/elastic-observability/known-issues.md` or `release-notes/elastic-security/known-issues.md` | A pull request or an issue in `elastic/docs-content` |
+
+Only the third row is in a docs team repository. For a stack product the file is not in `docs-content` at all, which is why "file a docs issue" is the wrong reflex here.
+
+Confirm the destination rather than trusting the table — it describes where things live today, not a rule:
+
+```
+gh api repos/elastic/<product>/contents/docs/release-notes --jq '.[].name'
+```
+
+Two traps in the stack row:
+
+- **A `docs/changelog` directory does not mean the changelog path applies.** Kibana keeps changelog YAML for everything else and has no `known-issue` entries in it; its known issues are on the Markdown page. Elasticsearch's `docs/changelog` uses an older schema — `area`, `pr`, `summary`, `type` — with no `known-issue` type, so an entry written for docs-builder cannot go there at all. Logstash has no `docs/changelog` directory.
+- **The changelog path is live for Cloud.** Do not extend it to a stack product because the tooling would accept the command.
+
+#### What to collect
+
+The same facts serve all three destinations, so gather them once: a title that describes the issue rather than the investigation, the affected product and versions, what users actually experience, the workaround or an explicit statement that there is none, and a link to the tracking issue.
+
+#### Match the page you are targeting
+
+For the two Markdown destinations, **read the page before drafting anything and follow the shape already there.** The formats differ by product, and a contribution in the wrong shape gets rewritten. Kibana's page uses a `::::{dropdown}` block per issue with an `Applies to:` line and **Details** and **Workaround** headings. Elasticsearch's uses a `## <version>` section per release with prose bullets. Do not carry one product's format to another, and do not invent a third.
+
+For the changelog destination, the versions go in the products slot, `|`-separated, and the workaround goes in `action`:
 
 ```sh
 docs-builder changelog note \
   --type known-issue --title "<title>" --products "<product> <versions> ga"
 ```
 
-Collect exactly what that entry needs: a title that describes the issue rather than the investigation, the affected product and releases (they go in the versions slot, `|`-separated), the impact, and the workaround, which belongs in `action`. Then hand off to `docs-fix-changelog`, which composes and checks the command — do not reimplement its field rules here.
+Hand off to `docs-fix-changelog`, which composes and checks that command. Do not reimplement its field rules here.
 
-**When the requester cannot commit a changelog entry** to the product's repository — common when support relays an issue in a product they do not own — file it as a fallback instead of dropping it. Use `internal-request.yml`, title it `[Internal]: Add known issue to <product> <version> release notes`, and put the four changelog fields in the Description as labeled lines, so whoever picks it up can create the entry without a second round trip. Name the product repository that owns the changelog, and say in the issue that the ask is a `known-issue` changelog entry rather than a page edit.
+#### When the requester cannot make the change themselves
+
+Common when support relays an issue in a product they do not own. File it rather than dropping it, and name the destination so nobody has to rediscover it:
+
+- **Stack products** — the edit is a pull request in the product repository. Whether the product team or a writer makes it varies by team, so **ask the requester which they expect** and record the answer in the issue. Use `internal-request.yml`, titled `[Internal]: Add known issue to <product> <version> release notes`, and name the file: `docs/release-notes/known-issues.md` in `elastic/<product>`.
+- **Observability or Security** — the file is already in `docs-content`, so a docs issue is the right vehicle. Route it normally and name the page.
+- **Cloud or serverless** — the ask is a `known-issue` changelog entry. Name the repository that owns the changelog.
+
+In every case put the collected facts in the Description as labeled lines, and say plainly that the ask is a release-notes known issue rather than a change to a documentation page.
 
 ### Not a docs request
 
@@ -386,7 +421,7 @@ If `gh` is unauthenticated or the repository is unreachable, do not retry blindl
 - [Private issue templates](https://github.com/elastic/docs-content-internal/tree/main/.github/ISSUE_TEMPLATE) — `elastic/docs-content-internal`
 Companion skills in this catalog. Collect the inputs they need; do not restate their rules here.
 
-- `docs-fix-changelog` — composes the `known-issue` changelog entry that release notes are built from
+- `docs-fix-changelog` — composes the `known-issue` changelog entry, which is the Cloud and serverless destination only
 - `docs-applies-to-tagging` — turns the version, lifecycle, and deployment answers into `applies_to` tags
 - `docs-content-type-checker` — the content type definitions that decide what a proposed new page should be
 - [Request documentation support](https://stunning-adventure-qrvr1k2.pages.github.io/ski-team/work-with-us/#request-documentation-support) — the internal process page, for the parts of the intake process that sit outside the issue itself
