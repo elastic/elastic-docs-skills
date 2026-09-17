@@ -27,7 +27,17 @@ You almost never edit the Markdown. Each page is a thin shell that renders one o
 
 Advanced settings and `kibana.yml` settings are different things. Advanced settings are changed in the Kibana UI under **Advanced Settings**; configuration-reference settings are changed in `kibana.yml`. A request naming a setting does not always say which, and they live in different files.
 
-Advanced settings split again by scope, into a space-level file and a global file. **Scope is a property of the setting's registration, not something to infer.** Read the `uiSettings` registration to find which one, and never pick a file by which is larger or busier.
+Advanced settings split again by scope, into a space-level file and a global file. **Scope is decided by which API registers the setting**, so it is a fact to read rather than infer: `uiSettings.register()` makes a setting space-level, and `uiSettings.registerGlobal()` makes it global.
+
+Grepping the setting key does not land on that call, and three of the hits it does return look authoritative:
+
+| What a grep for the key finds | What it actually tells you |
+|---|---|
+| `export const <NAME>_SETTING_ID = 'the:key'` under `kbn-management/settings/setting_ids/` | The key's name. Nothing about scope |
+| `--uiSettings.globalOverrides.<key>=true` in a test config | That a test forces the value. **Not** evidence of global scope, despite the name. This is the hit most likely to produce a confident wrong answer |
+| The key listed under `serverless/settings/<type>_project/` | Which serverless project types expose it. Not its scope |
+
+So grep the key, take the constant identifier it hands you, then find where *that* is passed to `register` or `registerGlobal`. If neither call turns up, the scope is an open question for the user — never split the difference by picking the larger or busier file.
 
 Shell-to-YAML pairing is usually one-to-one but is not guaranteed. Read the shell's `:::{settings}` directives to see what it renders: `reporting-settings.md` renders several YAML files, none of which has an `.md` of its own, and the advanced settings shell renders more than one. When a page is split that way, which file a setting belongs in is a real decision.
 
@@ -37,7 +47,8 @@ Shell-to-YAML pairing is usually one-to-one but is not guaranteed. Read the shel
 |---|---|
 | The settings YAML schema | [docs-builder automated settings reference](https://github.com/elastic/docs-builder/blob/main/docs/syntax/automated_settings.md). The YAML files link it in a header comment |
 | Whether a `kibana.yml` setting exists, its default and datatype | The owning plugin's `server/config.ts` in `elastic/kibana`. The schema is the truth, not the current docs entry |
-| Whether an advanced setting exists, its UI label, and its scope | The registering plugin's `uiSettings` registration. Search the setting key across `src/` and `x-pack/` |
+| Whether an advanced setting exists, and its UI label | The registering plugin's `uiSettings` registration. Search the setting key across `src/` and `x-pack/` |
+| Which scope file an advanced setting belongs in | The `register` or `registerGlobal` call, not the key itself. See *What belongs here* above for the decoys a key search returns |
 | Which deployment types a setting reaches | The plugin config and the deployment's own limits. Do not copy `applies_to` from a neighboring setting |
 
 An existing entry is not evidence. These files are hand-maintained rather than generated from the code, so a stale default or a missing setting is exactly the kind of bug this work fixes.

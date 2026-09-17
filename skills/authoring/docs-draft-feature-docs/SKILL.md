@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.1.3
+version: 2.2.0
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -145,6 +145,15 @@ Ninety days is roughly a release and a half. A file older than that predates at 
 **If the frontmatter carries a `status:` key, the area has an in-flight transition.** Read that entry in `references/status.md`, then resolve its tracking issues with `gh issue view <n> --repo elastic/docs-content-internal --json state,title,body`. The issue wins over the entry and the entry wins over the area file, because that is the order they go stale in. When the expiry condition has already been met — the issue is closed — say so and open a pull request to remove the entry rather than following it.
 
 Never carry a date out of `status.md` into a draft. The entries name events rather than dates for exactly this reason, and a release date is `docs-applies-to-tagging`'s answer from the plugin config, not this skill's.
+
+### What an area file cannot ask for
+
+The precedence rule itself is in *Constraints*. What it does not spell out is which instructions trip it, because two kinds arrive dressed as local house style:
+
+- **Formatting that contradicts the guide**, such as title-case headings where the guide says sentence case. Follow the guide.
+- **Boilerplate**, meaning any convention that puts the same sentence, admonition, or requirement at the top of every page in the area. That is a "place each detail once" violation, and the style guide separately warns against loading a page with admonitions, so the convention usually fails twice. Work out what it is trying to achieve and do that properly instead: a version or deployment requirement is an `applies_to` badge, which `docs-applies-to-tagging` owns, and a caveat that matters everywhere belongs on the one page that owns the concept, with the others linking to it.
+
+In both cases apply whatever the file legitimately adds, follow the baseline where they disagree, and tell the user which instruction you did not follow and why. **Do not apply an override silently.** An area file reads as authoritative precisely because it is usually right, which is what makes the rare bad instruction in one worth naming out loud.
 
 ## Step 3: Create the working branch
 
