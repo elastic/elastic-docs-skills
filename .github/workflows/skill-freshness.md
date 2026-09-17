@@ -34,6 +34,7 @@ safe-outputs:
     labels: [automated, skill-freshness]
     allowed-files:
       - skills/**/SKILL.md
+      - skills/**/references/*.md
       - .claude-plugin/plugin.json
     protected-files:
       policy: request_review
@@ -61,7 +62,7 @@ under the License. -->
 
 # Weekly Skill Freshness Check
 
-Check all skills in `skills/**/SKILL.md` for staleness against their upstream source URLs.
+Check all skills in `skills/**/SKILL.md` for staleness against their upstream source URLs, then check the area reference files in `skills/**/references/` for staleness against the repos they name.
 
 ## Process
 
@@ -74,10 +75,39 @@ Check all skills in `skills/**/SKILL.md` for staleness against their upstream so
    - Compare the fetched content against the rules, syntax, and options encoded in the skill.
    - If the skill is stale (new rules added, syntax changed, options removed, links broken), update the SKILL.md to reflect the current upstream state. If the skill lacked `sources:` and you found relevant upstream pages, add them to the frontmatter.
    - After updating a skill, run its evals to catch regressions (see "Post-update eval check" below).
-3. If any files changed:
+3. Check the area reference files (see "Area reference files" below).
+4. If any files changed:
    - Read `.claude-plugin/plugin.json` and bump its `version` field (patch increment — e.g. `1.0.0` → `1.0.1`).
    - Request a pull request using the `create-pull-request` safe output exactly once, summarizing what drifted, why, and eval results.
-4. If nothing changed, close this issue with a comment confirming all skills are current.
+5. If nothing changed, close this issue with a comment confirming all skills are current.
+
+## Area reference files
+
+Files under `skills/**/references/` that declare an `area:` key in their YAML frontmatter are area reference files. They encode facts about a documentation area — product source paths, navigation files, local conventions — that no upstream URL covers, so they need a different check from `sources:`.
+
+For each one:
+
+1. **Read the frontmatter.** Note `verified` (the date it was last checked), `verified_against` (the repos it was checked against), and `status` (an anchor in the same directory's `status.md`, present only when an in-flight transition affects the area).
+2. **Check the product source paths.** The *Source of truth* section names paths in the repos listed in `verified_against`. Check each one still exists using the GitHub contents API on the default branch. A path that 404s is the highest-value finding in this workflow, because the skill verifies product facts there and a moved path silently finds nothing.
+3. **Resolve any `status:` entry.** Read the named entry in `status.md` and check its *Expires when* condition — normally whether a tracking issue has closed. When the condition has been met, the entry is stale and should be removed, and the area file section it covers needs refreshing. If a tracking issue is in a repo this workflow cannot read, say so rather than assuming either way.
+4. **Report the age.** Anything with `verified` more than 90 days old gets flagged for a human to re-check, whether or not a path broke.
+
+**Do not guess a replacement for a broken path.** Report it with the old path, the 404, and the area file it appears in, and let a human resolve it. An area file that confidently names the wrong path is worse than one that names a path someone knows is broken — a wrong path sends the skill to verify a claim against code that no longer governs it.
+
+You may bump `verified` only when you have actually re-checked every path in the file and they all resolve. Never bump it to silence the age flag.
+
+Report findings under a "### Area reference files" section in the PR body:
+
+```markdown
+### Area reference files
+
+| File | Verified | Broken paths | Status entry |
+|------|----------|--------------|--------------|
+| references/workflows.md | 112 days ago ⚠️ | `src/platform/...` (404) | — |
+| references/elastic-security.md | 40 days ago | None | #1541 still open |
+```
+
+When nothing is wrong across all area files, note "All area reference files current" instead of the table.
 
 ## Pull request creation rules
 

@@ -128,10 +128,10 @@
     {
       "id": 11,
       "prompt": "We need to document a new alerting rule option: a burn rate threshold you can set per SLO. Add it to the alerting docs.",
-      "expected_output": "Loads the alerting area file, recognizes that 'the alerting docs' names none of the five systems, and routes via compare-alerting-systems.md. Concludes an SLO burn rate rule is Observability's, so it belongs in solutions/observability/incident-management/ rather than explore-analyze/alerting/alerts/.",
+      "expected_output": "Loads the alerting area file, recognizes that 'the alerting docs' names none of the separate alerting systems, and routes via compare-alerting-systems.md. Concludes an SLO burn rate rule is Observability's, so it belongs in solutions/observability/incident-management/ rather than explore-analyze/alerting/alerts/.",
       "expectations": [
         "Reads compare-alerting-systems.md before choosing a destination",
-        "Establishes which of the five alerting systems the request means rather than assuming Kibana alerting",
+        "Establishes which alerting system the request means rather than assuming Kibana alerting, naming the candidates rather than relying on a count",
         "Recognizes that compare-alerting-systems.md omits Observability alerting, so it is a starting point and not a complete map",
         "Places the rule type in solutions/observability/incident-management/ beside the other create-*-rule.md pages",
         "Does NOT add an Observability rule type to explore-analyze/alerting/alerts/",
@@ -153,15 +153,16 @@
     {
       "id": 13,
       "prompt": "Alerting v2 is going GA, so let's get ahead of it. Rename the experimental alerting system to Alerting V2 across the docset, swap alert episode to alert everywhere, and drop the not-ready-for-production caveats.",
-      "expected_output": "Declines to execute the sweep yet. The final names and UI strings are not frozen, a term pass would break the pages that teach the data model, and the caveats are still true for 9.5 because the docs are cumulative.",
+      "expected_output": "Declines to execute the sweep yet. Reads the status.md entry and resolves its tracking issue, finds the names are not frozen, and explains that a term pass would break the pages that teach the data model and that the caveats are still true for the experimental version because the docs are cumulative.",
       "expectations": [
+        "Follows the status: key in the area file's frontmatter to the status.md entry, and resolves its tracking issue with gh rather than trusting the file",
         "States that the system names and UI labels are not yet frozen and declines to draft them as fact",
         "Refuses a blanket search-replace of alert episode to alert, and explains that the data-model pages need rewriting instead",
         "Preserves rule event, signal, and series as distinct terms, and keeps stored episode.* fields and alerting.episode* trigger IDs",
-        "Scopes the production caveats to 9.5 rather than deleting them, because the page also serves 9.6",
-        "Proposes applies_to of stack: experimental 9.5, ga 9.6 with serverless: ga and delegates the tagging",
+        "Treats the production caveats as version-scoped rather than deleting them, because the page serves both the experimental and GA versions",
+        "Delegates applies_to to docs-applies-to-tagging and gets the GA version from the plugin config rather than from the area file",
         "Flags the two system-flow diagrams as needing design work and does NOT generate replacements",
-        "Does NOT present either GA date as confirmed"
+        "Does NOT carry a release date out of status.md into the draft, since the entry names events rather than dates"
       ]
     },
     {
@@ -357,6 +358,30 @@
         "Fixes what the review raises rather than opening a pull request its own pre-review would have blocked",
         "Names companion skills by their frontmatter names, such as docs-check-style, and reports any that are not installed as not checked rather than as clean",
         "Does NOT treat the write approval as approval to open a pull request"
+      ]
+    },
+    {
+      "id": 29,
+      "prompt": "Document the new bulk close action on the Cases page. (Assume the area file's frontmatter reads verified: 2024-02-01.)",
+      "expected_output": "Notices the area file is well over 90 days old, demotes its paths and labels to hints, reverifies each one against the repo or the MCP before using it, and reports the file's age in the output.",
+      "expectations": [
+        "Reads the verified date from the area file frontmatter and compares it against today's date rather than assuming the file is current",
+        "Treats the file's paths and labels as hints rather than facts, and confirms each against the repo or the MCP before using it",
+        "States the age of the area file in the Setup section of the output",
+        "Still applies the file's durable judgment — the boundary and the known traps — rather than discarding the file wholesale",
+        "Does NOT silently draft against a stale path, and does NOT bump the verified date without rechecking the file"
+      ]
+    },
+    {
+      "id": 30,
+      "prompt": "Draft the Security page for the new entity risk panel. (Assume issue #1541 is now closed.)",
+      "expected_output": "Follows the status: key to the restructure entry, resolves the tracking issue, finds it closed, and reports the entry as expired rather than following it — then uses the current tree instead of the entry's mid-restructure advice.",
+      "expectations": [
+        "Resolves the status.md entry's tracking issue with gh rather than taking the entry at face value",
+        "Recognizes the expiry condition has been met and reports the entry as stale, proposing a pull request to remove it",
+        "Resolves paths against the current repo and the MCP rather than following the entry's mid-restructure guidance",
+        "Flags that the area file's Navigation and Known traps sections need the refresh the entry called for, including the eval asserting Security navigation is inline in solutions/toc.yml",
+        "Does NOT treat a closed tracking issue as evidence that the area file itself was updated"
       ]
     }
   ]

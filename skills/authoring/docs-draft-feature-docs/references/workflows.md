@@ -1,10 +1,19 @@
+---
+area: Elastic Workflows
+verified: 2026-09-16
+verified_against:
+  - docs-content
+  - elastic/kibana
+status: references/status.md#alerting-v2-ga
+---
+
 # Elastic Workflows
 
 Declarative YAML automations in `explore-analyze/workflows/`: step references, triggers, authoring techniques, use cases, concepts, and the reference set.
 
 The boundary that matters: this area owns **how to author workflows**. A workflow that automates a Security or Observability task is still Workflows content, but documenting the underlying product feature is not — and the reverse trap is worse, so never park product feature content under a Workflows path for convenience. The seam with alerting is real and shared with `alerting-and-cases.md`; read both when drafting triggers.
 
-> Migrated from the standalone `docs-draft-workflow-docs` skill, which held the same area knowledge plus its own copy of the drafting process. This file keeps the facts; the process comes from `SKILL.md`. Verified against `docs-content` and `kibana` on 2026-09-16. Find pages with `search_docs`; this file does not inventory them.
+> Migrated from the standalone `docs-draft-workflow-docs` skill, which held the same area knowledge plus its own copy of the drafting process. This file keeps the facts; the process comes from `SKILL.md`. Find pages with `search_docs`; this file does not inventory them.
 >
 > Elastic Workflows docs are the source of truth. **Never reference or link to the deprecated Keep HQ workflow docs**, even when they answer the question.
 
@@ -63,7 +72,7 @@ Two-space indent, copy-pasteable, descriptive step names (`search_for_alerts`, n
 
 ### Version split on inputs
 
-Stack 9.4 and earlier use a top-level `inputs:`. Stack 9.5+ and serverless nest `inputs` under the `type: manual` trigger. Show both with an `applies-switch` or tabs, using the markup from `authoring-techniques/anatomy.md` rather than inventing it.
+There are two shapes: a top-level `inputs:` in earlier stack versions, and `inputs` nested under the `type: manual` trigger in later stack versions and serverless. Get the cutover version from `schema.ts` rather than from this file or a neighboring page, then show both with an `applies-switch` or tabs, using the markup from `authoring-techniques/anatomy.md` rather than inventing it.
 
 ### Namespace step page structure
 
