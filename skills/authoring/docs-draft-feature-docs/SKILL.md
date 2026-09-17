@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.1.2
+version: 2.1.3
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -221,7 +221,7 @@ The baseline says find the canonical home and place each detail once. Start from
 4. Propose **the lightest change that closes the gap**: a sentence in place, then a section, then a new page, in that order of preference.
 5. Pause for sign-off when the information architecture is ambiguous, when the change spans several pages, or when you are proposing a new page.
 
-For content type, hand the proposal to `docs-content-type-checker` in classify mode and start from the matching template in `contribute-docs/content-types/_snippets/templates/`. When no content type genuinely fits, say so explicitly, describe the structure you are using instead, and why — do not force the page into the nearest type in silence.
+For content type, hand the proposal to `docs-content-type-checker` in classify mode and start from the matching template in `contribute-docs/content-types/_snippets/templates/`. That directory carries how-to, overview, troubleshooting, and tutorial; changelog has no template there, so work from the content-type guide itself for those rather than bending one of the four. When no content type genuinely fits, say so explicitly, describe the structure you are using instead, and why — do not force the page into the nearest type in silence.
 
 ## Step 6: Enumerate the claims, then verify them
 
@@ -283,7 +283,9 @@ Invoke each of these on the draft. Run the ones that apply, and do not fail when
 | `docs-frontmatter-audit` | The rest of the frontmatter against the repo schema | Always |
 | `docs-redirects` | The `redirects.yml` entries for anything moved, renamed, or deleted | Step 8 moved, renamed, or deleted a page |
 
-**How to invoke one.** Use the `Skill` tool with the plugin-prefixed frontmatter name, `elastic-docs-skills:docs-check-style`, and fall back to the bare name if the prefixed form is refused. Most of these set `disable-model-invocation: true`, and the prefixed form is what reaches them. Pass **one target per call** — these skills glob `$ARGUMENTS`, so a space-separated list is read as one bad path. If both name forms are refused, spawn a subagent that locates the skill's `SKILL.md` under `~/.claude/skills/*/`, `~/.claude/plugins/**/skills/**/`, or the local `skills/**/` tree and follows it verbatim. Names above are frontmatter names, which is what invocation needs; directory names differ and are only for finding files on disk.
+**How to invoke one.** Use the `Skill` tool with the plugin-prefixed frontmatter name, `elastic-docs-skills:docs-check-style`, and fall back to the bare name if the prefixed form is refused. About half set `disable-model-invocation: true`, and the prefixed form is what reaches those. If both name forms are refused, spawn a subagent that locates the skill's `SKILL.md` under `~/.claude/skills/*/`, `~/.claude/plugins/**/skills/**/`, or the local `skills/**/` tree and follows it verbatim. Names above are frontmatter names, which is what invocation needs; directory names differ and are only for finding files on disk.
+
+**Read the target skill's own `argument-hint` before calling it.** Most take one file or directory and glob `$ARGUMENTS`, so a space-separated list of targets reads as a single bad path — pass one target per call. Three break that shape: `docs-redirects` needs an old path *and* a new one, `docs-syntax-help` takes a question rather than a file, and `docs-validate-code-samples` accepts flags after its target. Handing a lone file path to those either errors or quietly checks the wrong thing, which looks the same as passing in the output.
 
 If `AGENTS.md` names a task-to-skill mapping that is not in this table, run that one too, and open a pull request here to add the row.
 
