@@ -146,6 +146,21 @@
         "Names the repository that owns the Kibana changelog, so whoever picks it up knows where the entry goes",
         "Notes that engineering confirmed the issue, and that no fix or workaround is currently available"
       ]
+    },
+    {
+      "id": 11,
+      "prompt": "On https://www.elastic.co/docs/deploy-manage/deploy/self-managed/installing-elasticsearch the third step says to run `bin/elasticsearch-setup-passwords` but that command was removed — it should be `bin/elasticsearch-reset-password`. Can you file this?",
+      "expected_output": "The pull request option raised immediately, before any field interview, with a choice offered and the handoff kept to a pointer if the requester decides to fix it themselves.",
+      "expectations": [
+        "Raises the pull request option early, before collecting template fields",
+        "Asks the requester to choose between filing the issue and making the change themselves, and waits for the answer",
+        "Does NOT run the full field interview before offering the choice",
+        "If the requester chooses to make the change, does NOT also file an issue for the same correction",
+        "If the requester chooses to make the change, hands over where the page source lives, a link to the syntax quick reference, and the exact text to change",
+        "Does NOT claim it will create a branch, edit the page, or open the pull request itself",
+        "Does NOT infer the repository file path from the URL slug",
+        "If the requester chooses to file instead, proceeds with the issue normally rather than pushing the pull request option again"
+      ]
     }
   ]
 }

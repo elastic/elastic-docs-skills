@@ -84,6 +84,26 @@ Each of these comes from the *Before creating an issue* section of the guidance.
 | Is it still relevant? | Ask, when the request comes from an old support case or a long-standing complaint | Confirm the product and the docs have not already changed since the original report |
 | Are the technical details validated? | Ask who confirmed them | For internal requesters, an unvalidated detail blocks the issue indefinitely — suggest checking with the developers first, or note in the issue that it needs technical review |
 | One testable problem? | Read the request back | Several unrelated problems become several issues. Propose the split with a title for each. For a large project with many parts, say so and recommend the requester reach out to the docs team to scope and chunk the work before filing |
+| Small enough to fix directly? | Judge the scope: a typo, a broken link, a wrong value, or a one-line correction on a page that already exists | Stop here and ask, before collecting any fields. See *When a pull request is the faster path* |
+
+### When a pull request is the faster path
+
+A typo, a broken link, a wrong value, or a one-line correction is usually faster to fix than to describe. Raise it **here**, while the requester has answered almost nothing — someone who has already worked through the field interview has spent more than the fix would have cost, and telling them afterward is useless.
+
+Ask which they want, and wait for the answer:
+
+- **File the issue** — continue to Step 3. Filing is always a valid choice. Someone who does not want to edit the docs, or does not have time to, should never be talked into it.
+- **Make the change themselves** — hand over what they need and stop. Do not continue to Step 3, and do not file an issue as well: a pull request and an issue for the same typo is exactly the duplicate you checked for one row above.
+
+The handoff is a pointer, not a walkthrough. This skill has no `Edit` and no `git`, so it cannot create a branch, change a page, or open a pull request, and implying otherwise strands the requester halfway. Give them three things and say you are stopping:
+
+- **Where the page lives.** Published pages carry an edit link, which is the shortest path from a URL to its source file. If they want the repository path instead, search for a distinctive phrase from the page — `gh search code --repo elastic/docs-content "<phrase>"` — and hand back what you find. Do not infer a file path from the URL slug; the two often differ.
+- **How to make the change**: the [syntax quick reference](https://www.elastic.co/docs/contribute-docs/syntax-quick-reference).
+- **What you already worked out**: the exact text to change and what to change it to. That is the part they would otherwise have to redo.
+
+Offer this **only** when the scope is genuinely obvious. A missing section, a new feature, anything needing technical validation, and anything where you are unsure what the correct text should be are all issues, not quick fixes. Never reach for this path to get out of a long interview.
+
+If they come back later and would rather file after all, pick up at Step 3.
 
 ## Step 3: Route the request
 
@@ -293,8 +313,6 @@ Then report the issue URL and what happens next: the docs team triages and prior
 - An internal requester can link the new public docs issue from the internal support case or private issue it came from, which puts a link in the issue's GitHub timeline for people inside Elastic.
 
 If `gh` is unauthenticated or the repository is unreachable, do not retry blindly. Hand back the title, labels, and body, and point the requester at the template so they can paste it in. A draft they can file themselves is a better outcome than a failed command.
-
-**A PR is sometimes the better answer.** For a typo, a broken link, or a small correction on a page the requester already has open, opening a pull request is faster than filing an issue. Mention it — see the [syntax quick reference](https://elastic.co/docs/contribute-docs/syntax-quick-reference) — but file the issue if that is what they want.
 
 ## References
 
