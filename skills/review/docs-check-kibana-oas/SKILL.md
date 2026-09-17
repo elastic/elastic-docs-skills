@@ -77,6 +77,8 @@ Then check out the PR branch:
 cd <KIBANA_DIR> && gh pr checkout <PR_NUMBER>
 ```
 
+If no local clone is found at either location, tell the user and ask them for the path to their Kibana checkout.
+
 Read the actual source files from this checkout for exact line numbers. Never compute line numbers from diff hunk headers.
 
 ### 3. Classify the changes
@@ -329,6 +331,8 @@ page_size: schema.maybe(
 ```
 
 When the default is set server-side (not in the schema), document it in the description instead: `'Sort order. The server defaults to descending if not specified.'`
+
+How to check: compare against sibling routes on the same resource. If a sibling documents its `page_size` default but the new route does not, flag it.
 
 What to flag:
 - ❌ Optional parameter with an undocumented default when the behavior changes based on the value
