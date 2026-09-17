@@ -20,6 +20,7 @@ The boundary that matters: this area owns the cross-solution behavior. When a ca
 | `explore-analyze/alerting/watcher/` | Watcher. Legacy, stack-only, and unavailable on serverless |
 | `explore-analyze/cases/` | The consolidated case documentation for **all** solutions. Core behavior lives here and nowhere else |
 | `explore-analyze/workflows/` | Covered by the `workflows.md` area file |
+| `explore-analyze/cases/` and solution case pages | **Delegate to `docs-draft-cases-docs` while that specialist is registered.** The Cases material below is a placement aid, not a drafting ruleset — it is there so an alerting request does not misfile case content. Drop this row when Cases becomes its own area file |
 
 Not this area, and the most common misfiling:
 
@@ -28,6 +29,7 @@ Not this area, and the most common misfiling:
 | `solutions/observability/incident-management/` | **Observability alerting is its own system, layered on {{kib}} alerting GA rather than a peer of it.** Observability owns the rule-type catalog — roughly 20 `create-*-rule.md` pages plus SLOs — and its own Alerts page, which aggregates Observability, {{ml}} anomaly detection, and {{stack-manage-app}} rules. A new Observability rule type goes here, not in `alerting/alerts/` |
 | `solutions/security/detect-and-alert/` | Security detection rules are a fourth system entirely, not a rule type of {{kib}} alerting |
 | `solutions/security/investigate/security-cases.md`, `solutions/observability/incident-management/observability-cases.md` | Solution-specific case extras only. See the Cases trap below |
+| `explore-analyze/ai-features/agent-builder/create-alerts.md` | Creating alerts from Agent Builder. Covered by the `agent-builder.md` area file, which owns the seam from its side |
 
 Snippets: `explore-analyze/_snippets/` for the docset, and `explore-analyze/workflows/_snippets/` for Workflows. There is no alerting- or cases-specific snippets directory, so shared prose in those two sections is currently duplicated.
 

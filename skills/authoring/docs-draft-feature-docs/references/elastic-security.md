@@ -22,7 +22,7 @@ The boundary that matters: Security owns the **narrative** under `solutions/secu
 | `solutions/security/endpoint-response-actions/` | Response actions and the command interface |
 | `solutions/security/advanced-entity-analytics/` | Entity risk scoring, anomaly detection, ML job requirements |
 | `solutions/security/cloud/` | Cloud security posture, workload protection, asset inventory. Has the area's only `_snippets/` directory |
-| `solutions/security/ai/` | AI Assistant, Attack Discovery, and related features |
+| `solutions/security/ai/` | AI Assistant, Attack Discovery, EASE, and related features. 30 files. **Load `ai-features.md` alongside this file** when drafting here — it owns the platform-or-solution placement rule, and `agent-builder.md` owns `ai/agent-builder/` |
 | `solutions/security/get-started/` | Quickstarts, the UI tour, onboarding, SIEM readiness |
 | `solutions/security/integrations/`, `dashboards/`, `esql-for-security/`, `mcp-app/` | As named |
 | `reference/security/` | `defend-advanced-settings.md`, `endpoint-command-reference.md`, `fields-and-object-schemas/`. Long lookup tables go here, not in the narrative |

@@ -176,6 +176,113 @@
         "Notes the preferred namespaced replacement for new workflows and cross-references it",
         "Checks the example against reference/cheat-sheet.md"
       ]
+    },
+    {
+      "id": 15,
+      "prompt": "The alerting:v2:enabled advanced setting has existed since 9.5 but isn't on the Kibana advanced settings reference page. Add it. It's a bool, defaults to false, technical preview on stack 9.5+ and serverless.",
+      "expected_output": "Loads kibana-settings-reference.md, recognizes the page publishes from elastic/kibana rather than docs-content, and edits the settings YAML rather than the Markdown shell. Treats the docs-content follow-up as a second, later PR.",
+      "expectations": [
+        "Identifies elastic/kibana as the owning repo and docs/reference/advanced-settings-global.yml as the target file, not a docs-content path",
+        "Adds a groups[].settings[] entry in YAML rather than writing prose into advanced-settings.md",
+        "Uses the full schema: setting, description, datatype: bool, default: false, and applies_to",
+        "Scopes applies_to with the deployment keys rather than only stack and serverless",
+        "Places the entry by Kibana UI order rather than alphabetically or at the end of the file",
+        "Makes no toc.yml change, since a new setting in an existing file needs none",
+        "Notes that the docs-content setup page edit is a separate PR that must land after the Kibana one publishes",
+        "Asks for approval before writing to a second repository"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Add a note about the new xpack.cases.analytics retention limit to the Cases settings page, and link it to the cases docs like the neighboring entries do.",
+      "expected_output": "Verifies the setting exists in the Cases plugin config before documenting it, and does not copy the stale cross-repo link path that the neighboring entries in cases-settings.yml use.",
+      "expectations": [
+        "Verifies the setting against the Cases plugin server config rather than trusting the request or existing entries",
+        "Resolves the cases link against the current docs-content tree, reaching explore-analyze/cases.md",
+        "Does not copy docs-content://explore-analyze/alerts-cases/cases.md from the neighboring entries, identifying it as stale and surviving only via a redirect",
+        "Edits cases-settings.yml rather than the 13-line cases-settings.md shell",
+        "Keeps the description in docs prose voice despite it being inside a YAML block scalar"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "We shipped a new built-in skill for Agent Builder that summarizes a host's recent activity. It's useful for Security folks triaging alerts. Please document it.",
+      "expected_output": "Adds a row to the built-in skills reference on the platform side rather than creating a page, verifies the skill against the agent_builder plugin registration, and resists the pull toward the Security tree just because the use case is Security-flavored.",
+      "expectations": [
+        "Loads agent-builder.md and treats explore-analyze/ai-features/agent-builder/ as the default home",
+        "Adds a row to builtin-skills-reference.md rather than creating a new page per built-in",
+        "Verifies the skill against x-pack/platform/plugins/shared/agent_builder rather than trusting the request",
+        "Declines to put it in solutions/security/ai/agent-builder/, noting that a Security-flavored use case does not make it Security content",
+        "Makes no toc.yml change, since a reference table row needs none",
+        "Uses skill in the glossary's sense, keeping it distinct from agent and tool"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Add a section to the AI-powered features page explaining how to set up the Security AI Assistant with Azure OpenAI, including the connector config steps and the model we recommend.",
+      "expected_output": "Pushes back on all three placement errors: the hub page is a catalog, connector setup already lives in llm-guides, and the recommended-model list belongs in the Security performance matrix. Nothing new belongs on the hub page beyond a link.",
+      "expectations": [
+        "Identifies explore-analyze/ai-features.md as a deliberately generic catalog and declines to add a full section there",
+        "Routes connector setup to ai-features/llm-guides/connect-to-azure-openai.md rather than restating it",
+        "Routes the model recommendation to solutions/security/ai/large-language-model-performance-matrix.md, using that filename rather than the Observability one",
+        "Verifies Security AI Assistant behavior against x-pack/solutions/security/plugins/elastic_assistant, not the Observability or Search assistant",
+        "Writes the Security AI Assistant name literally, since no substitution exists for it, while using {{obs-ai-assistant}} or {{agent-builder}} where those apply",
+        "Proposes the lightest change: link the existing pages rather than write new prose"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "context-engine.md isn't showing up in the nav on the AI features page. Looks like it got missed — can you add it to the toc?",
+      "expected_output": "Recognizes the page is deliberately hidden rather than omitted, and asks before promoting it instead of treating it as a bug.",
+      "expectations": [
+        "Finds the hidden: ai-features/context-engine.md entry in explore-analyze/toc.yml",
+        "Explains that hidden: is a deliberate unpublished state, not a missing entry",
+        "Does not change hidden: to file: without explicit approval",
+        "Notes that several entries across the docset are hidden, so the pattern is intentional"
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "New workflows feature: there's a `workflows:experimentalSteps` advanced setting that turns it on, and it adds a new action step that uses the ServiceNow connector. Document all of it.",
+      "expected_output": "Splits the deliverable across docs-content and elastic/kibana, orders the two pull requests so the Kibana reference publishes before the docs-content page that links to it, and treats the not-yet-resolvable cross-repo link as pending rather than broken.",
+      "expectations": [
+        "Loads workflows.md and kibana-settings-reference.md, recognizing the request spans both",
+        "Assigns the advanced setting to kibana/docs/reference/advanced-settings-*.yml and the authoring content to explore-analyze/workflows/",
+        "Greps the Kibana docs tree as well as docs-content when searching for existing coverage",
+        "Orders the Kibana pull request first because the docs-content page links to the new reference entry",
+        "States that the second pull request is blocked until the first publishes, not merely until it merges",
+        "Lists the kibana:// link as a pending cross-repo link rather than reporting it broken or pointing it at a placeholder",
+        "Takes a separate approval per repository rather than bundling them",
+        "Groups the output by repo so it is clear which files land where"
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "Draft the page for the new bulk-tag action. I've pointed EDITORIAL_PREFERENCES_PATH at the STE overlay. Also tighten up the two paragraphs above where the new content goes while you're in there.",
+      "expected_output": "Applies the overlay to the new prose only, declines to restyle the untouched paragraphs, and keeps the style guide ahead of the overlay if the two disagree.",
+      "expectations": [
+        "Reads the file at $EDITORIAL_PREFERENCES_PATH in Step 4 and applies it to the drafted prose",
+        "Declines to rewrite the two surrounding paragraphs, citing the new-prose-only scope and the lightest-change rule",
+        "Treats the overlay as additive, deferring to the Elastic style guide where they conflict and saying so rather than silently following the overlay",
+        "Does not apply the overlay to identifiers, CLI flags, or config keys",
+        "Still runs the Step 6 companion skills, since the overlay does not replace docs-check-style or Vale"
+      ]
+    },
+    {
+      "id": 22,
+      "prompt": "The draft looks good and I've approved the writes. Open the PR.",
+      "expected_output": "Drafts the description from the template in the target repo and from work already done, presents it for approval as part of asking about the PR, and does not fabricate preview links.",
+      "expectations": [
+        "Reads .github/PULL_REQUEST_TEMPLATE.md from the target repo and fills its sections rather than inventing a structure",
+        "Keeps the Summary to about a paragraph in plain user-facing language, and includes the placement decision and its reason",
+        "Links the issue with a Fixes reference, or says why there is no issue",
+        "Adds one Previews bullet per changed page saying what changed and what to check, noting version scoping where it applies",
+        "Surfaces pending links, missing anchors, and needed screenshots rather than leaving them for the reviewer to find",
+        "Answers the generative AI disclosure honestly, naming the tool",
+        "Does not fabricate preview URLs, noting the build posts them once the PR exists",
+        "Derives all of it from Steps 2 through 5 rather than re-gathering",
+        "Presents the description and takes an explicit approval before opening, and opens with --draft"
+      ]
     }
   ]
 }

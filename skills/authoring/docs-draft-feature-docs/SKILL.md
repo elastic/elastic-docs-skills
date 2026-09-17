@@ -1,7 +1,7 @@
 ---
 name: docs-draft-feature-docs
-version: 1.0.0
-description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads a per-area reference file for local conventions when one exists. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
+version: 1.1.0
+description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit, Write, WebFetch, CallMcpTool, Bash(gh *), Bash(git *), AskUserQuestion
@@ -54,16 +54,27 @@ When `AGENTS.md` and the contribution guide disagree, the guide wins — that is
 
 Do this once per machine, then reuse. Resolve in this order and stop at the first hit: environment variable, then `~/.config/elastic-docs/docs-draft-feature-docs.local.yml`, then ask.
 
+That config file uses one key per row of the table below, named after the variable in lower snake case, so `$DOCS_CONTENT_ROOT` is `docs_content_root`. Use those exact keys when writing it back, so a later hand-edit and a first run agree:
+
+```yaml
+docs_content_root: /path/to/docs-content
+kibana_root: /path/to/kibana
+editorial_preferences_path: /path/to/preferences.md   # optional
+docs_pitfalls_path: /path/to/pitfalls.md              # optional
+```
+
 | Path | Variable | Needed for |
 |---|---|---|
 | docs-content clone | `$DOCS_CONTENT_ROOT` | The baseline, sibling pages, `toc.yml`, snippets. Always required |
-| Product repo clones | `$KIBANA_ROOT`, `$ELASTICSEARCH_ROOT`, others as needed | Verifying claims at `HEAD` in Step 3 |
+| Product repo clones | `$KIBANA_ROOT`, `$ELASTICSEARCH_ROOT`, others as needed | Verifying claims at `HEAD` in Step 3, and **as the working tree** when the product repo owns the page |
 | Pitfalls checklist | `$DOCS_PITFALLS_PATH` | Optional. A personal list of doc-shaped mistakes to sweep for |
-| Editorial preferences | `$EDITORIAL_PREFERENCES_PATH` | Optional. Personal prose-craft preferences, complementary to the style guide |
+| Editorial preferences | `$EDITORIAL_PREFERENCES_PATH` | Optional. Prose-craft preferences, complementary to the style guide. Consumed in Step 4. Can point at `references/ste-overlay.md` or at the writer's own file |
+
+The last two rows are **per-writer, not per-area**. They tune how one person drafts, which is why they are opt-in and why the overlay that ships with this skill stays off until pointed at. Area reference files are the opposite: facts about a docs area that every writer needs, so Phase 1 loads them automatically. Never move a preference into an area file, or an area fact into a preference file.
 
 Existing files stay where they are — record the path, never move or overwrite. Write the resolved paths back to the config so later runs skip this phase. Do not hard-code a home directory or a username anywhere.
 
-The last two are personal files, not shared ones. They capture how one writer works. Area reference files capture facts about a docs area that every writer needs. Keep them separate.
+A product repo plays one of two roles, and confusing them wastes a whole pass. Usually it is **read-only**: you verify claims there and write the page in docs-content. Sometimes it **owns the page** and is where the edit lands — reference content often lives in the product repo's own `docs/` tree, with its own `docset.yml`, `toc.yml`, and `redirects.yml`. Step 1e settles which, and a published URL is not evidence: `elastic.co/docs/reference/kibana/` publishes from `elastic/kibana`, not from docs-content.
 
 ## Phase 1: Load the baseline
 
@@ -131,18 +142,28 @@ The honest answer that nothing needs documenting is a useful result, not a failu
 
 **A backport label is not a shipped release.** Neither is a merged pull request. Establish which released version actually carries the change before any version reaches the page, and say which evidence you used. Collect the deployment answers too — stack, serverless, and the deployment types — since the content is scoped, not versioned.
 
-### 1e. Confirm which repo owns the page
+### 1e. Confirm which repos own the work
 
-Do not assume docs-content. Narrative user documentation lives there, but reference content often lives in the product repo's own docs tree, and one change can need a companion pull request in a second repo. Confirm ownership now, because it decides where the branch goes.
+Do not assume docs-content, and do not assume a single owner. Narrative user documentation lives there, but reference content often lives in the product repo's own docs tree, so **one request routinely splits across two repos** — a Workflows change can need authoring content in docs-content, a setting in `kibana/docs/reference/`, and a connector page in the same Kibana tree.
+
+Split it the way Phase 1 splits a request across two areas: assign each deliverable to the repo that owns it, and say which half went where so nothing looks silently dropped.
+
+Then order the halves, because this decides more than where the branch goes:
+
+- **A page in repo A links to a page you are adding in repo B**, so B merges and publishes first. Otherwise A ships a link to a target that does not exist yet. Cross-repo links do not resolve against your local checkout, so nothing local will catch it.
+- **Neither side links to new content in the other**, so the order is free and they can go in parallel.
+
+State the order and the reason at the first approval gate. When the order forces a wait, say so plainly — the second pull request is blocked until the first publishes, not merely until it merges.
 
 ## Step 2: Place the content
 
 The baseline says find the canonical home and place each detail once. Start from the assumption that an existing page should absorb this, and make adding a page the deliberate exception.
 
-1. Search for what already exists: `search_docs`, `find_related_docs`, and `check_docs_coherence` on the elastic-docs MCP, plus `grep` across `$DOCS_CONTENT_ROOT` for the feature name and its identifiers.
-2. List the candidate pages you found, with what each one currently says.
-3. Propose **the lightest change that closes the gap** — a sentence in place beats a section, a section beats a page.
-4. Pause for sign-off when the information architecture is ambiguous, when the change spans several pages, or when you are proposing a new page.
+1. Search the published corpus with `search_docs`, `find_related_docs`, and `check_docs_coherence` on the elastic-docs MCP.
+2. Grep the local trees for the feature name and its identifiers — `$DOCS_CONTENT_ROOT` **and the docs tree of every product repo Step 1e named**. A grep limited to docs-content cannot see `kibana/docs/`, so it reports a gap that is already filled and you place a second copy.
+3. List the candidate pages you found, with what each one currently says.
+4. Propose **the lightest change that closes the gap** — a sentence in place beats a section, a section beats a page.
+5. Pause for sign-off when the information architecture is ambiguous, when the change spans several pages, or when you are proposing a new page.
 
 For content type, hand the proposal to `docs-content-type-checker` in classify mode and start from the matching template in `contribute-docs/content-types/_snippets/templates/`. When no content type genuinely fits, say so explicitly, describe the structure you are using instead, and why — do not force the page into the nearest type in silence.
 
@@ -170,15 +191,19 @@ Three moves the baseline leaves to your judgment:
 - **Translate the framing you were handed.** The input describes an implementation. Write what a reader can now do, see, configure, or avoid. This is the highest-value transformation in the process and nothing downstream will do it for you.
 - **Spend the reader's attention deliberately.** Every section earns its place against the task they came to do. Cut what exists only because the issue mentioned it.
 
+If `$EDITORIAL_PREFERENCES_PATH` resolved in Phase 0, read that file now and apply it to the prose you write. It is additive prose craft, so it never overrides the style guide, content types, or an area file — where it conflicts with the baseline, the baseline wins, and say so rather than silently following the preference. Apply it only to new prose: do not restyle surrounding copy you were not otherwise changing. An optional Simplified Technical English overlay ships at `references/ste-overlay.md` for writers who want one; it is off unless the variable points at it.
+
 Frontmatter follows `frontmatter.config.yml` and the conventions in the area file. Check the nearest `_snippets/` directory before writing shared prose. For `applies_to` values and badge placement, use `docs-applies-to-tagging` — collect the version, lifecycle, and deployment answers, and let that skill decide the tags.
 
 Where a screenshot is needed, name it and describe what it should show. Never generate one.
 
 ## Step 5: Navigation and links
 
-Add new pages to the right `toc.yml`. Navigation is per-docset and orchestrated by `docset.yml`, some sections have nested sub-tocs and some keep their whole tree inline, so confirm against the area file or the actual files rather than reasoning by analogy.
+Add new pages to the right `toc.yml`. Navigation is per-docset and orchestrated by `docset.yml`, some sections have nested sub-tocs and some keep their whole tree inline, so confirm against the area file or the actual files rather than reasoning by analogy. When the work spans repos, each repo has its own `toc.yml`, `docset.yml`, and `redirects.yml` — update the one in the repo you are editing.
 
 Add the page to its hub or index, add a short Related section, and resolve every outbound link. Moved, renamed, or deleted pages need `redirects.yml` — hand that to `docs-redirects`.
+
+**One class of link cannot resolve yet, and that is expected.** A cross-repo link to a page you are adding in the other repo has no target until that pull request publishes. Do not treat it as broken, and do not drop it or point it at a placeholder. List it as a pending cross-repo link, name the pull request it waits on, and carry it into the ordering from Step 1e. Every other unresolved link is a real defect.
 
 ## Step 6: Validate
 
@@ -200,13 +225,34 @@ Read the page below and answer:
 
 Act on the verdict: fix the issues once and re-run the test. If it still fails, stop and put the remaining gaps in front of the user rather than editing in circles.
 
+## Step 7: Draft the pull request description
+
+Compose it now, before gate 3, so the user approves the description along with the pull request. **Derive it from work already done** — Step 2's placement decision, Step 3's verification, Step 4's screenshot audit, Step 5's pending links. Do not re-gather anything.
+
+Read the template in the repo you are opening against, at `.github/PULL_REQUEST_TEMPLATE.md`, and fill its sections. Each repo has its own, so read the one that applies rather than reusing the last. Never invent or drop a template section.
+
+**Write it for the reviewer's decision.** They need to know what changed, where, and what to check — in plain language, short enough to read before opening the diff. A description that restates the page content wastes the one thing that is scarce.
+
+- **Summary.** One paragraph, and usually three sentences. What a reader can now do, in user terms rather than implementation terms. Any migration or compatibility fact a reviewer would otherwise flag, such as a feature replacing an older one while the old behavior keeps working. Then the placement decision and its reason — "to avoid duplicating this across pages, X now links to the canonical reference instead of repeating it" — because that is the judgment call most likely to be questioned. Close with `Fixes #<issue>.`, or say why there is no issue.
+- **One bullet per changed page**, under a `## Previews` heading. Name the page, then say what changed on it and why, so a reviewer knows what to look at on each. Note version scoping where it applies, since cumulative docs are easy to review wrongly. This heading is a convention rather than part of the template, and it is the section reviewers use most.
+- **A short note for anything deliberately incomplete.** Pending cross-repo or cross-pull-request links from Step 5, a missing anchor that lands elsewhere, a screenshot still needed. Name what unblocks it. Surfacing this beats a reviewer finding it.
+- **The generative AI disclosure**, answered honestly with the tool and model, because this skill drafted the content. `AI.md` governs this and the name on the pull request is accountable for every word.
+
+Do not fabricate preview URLs. Previews build automatically once the pull request exists and a bot posts the links, so write the bullets now and let the links arrive with the build.
+
+For the title, follow the convention in the target repo's recent merged history rather than inventing a format — in docs-content that is area tags then an imperative, as in `[Observability/Kibana][Alerting] Document per-alert snooze`. Check with `gh pr list --repo <owner/repo> --state merged --limit 10`.
+
+When the work spans repos, each pull request gets its own description written to its own repo's template, and each one says that the other exists.
+
 ## Approval gates
 
-Three gates. Never skip ahead, and never combine two into one question.
+Three gates. Never skip ahead, and never bundle two approvals into one question — including one gate-3 approval per repo.
 
-1. **Present.** Show the draft, the file paths you intend to write, the verification results, and the open questions. Nothing is written yet.
-2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change into the resolved checkout.
-3. **Pull request.** Only on a separate, explicit approval. Branch from `origin/main` in the repo that owns the page, and open it as a **draft** with `--draft`. The body gets a pending-links section for anything that cannot resolve until merge, and a screenshot audit listing what is still needed. Open companion pull requests in other repos only with the same explicit approval.
+1. **Present.** Show the draft, the file paths you intend to write, the verification results, and the open questions. When the work spans repos, show the per-repo split and the order from Step 1e here.
+2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change into the resolved checkout. Writing to a second repo is part of this gate only if its split was presented at gate 1.
+3. **Pull request.** Only on a separate, explicit approval, and show the Step 7 description as part of asking. Branch from `origin/main` in the repo that owns each half, and open as a **draft** with `--draft`, using the approved description as the body.
+
+Open the pull requests in the Step 1e order, and cross-reference them in both bodies so a reviewer seeing one knows the other exists. Do not open the blocked one early: it cannot pass its own link check until the first publishes.
 
 ## Output
 
@@ -217,12 +263,16 @@ Three gates. Never skip ahead, and never combine two into one question.
 5. **Draft** — the full content with frontmatter
 6. **Follow-ups** — navigation, cross-links, redirects, screenshots needed
 7. **Reader test** — verdict and what you changed
-8. **Open questions** — what still needs a human
+8. **Pull request** — the drafted title and description, ready to paste
+9. **Open questions** — what still needs a human
+
+When the work spans repos, group sections 3, 5, 6, and 8 by repo rather than merging them into one list, and lead the output with the split and the merge order. A reader who cannot tell which file lands in which repo cannot review either half.
 
 ## References
 
 - `references/index.md` — the area registry. Check it in Phase 1
 - `references/_template.md` — copy to add an area
+- `references/ste-overlay.md` — optional Simplified Technical English prose overlay. Opt in through `$EDITORIAL_PREFERENCES_PATH`; not loaded by default
 - Baseline: `AGENTS.md` and `contribute-docs/` in docs-content. Read at run time, never copied here
 
 Companion skills. Collect what they need; do not restate their rules.

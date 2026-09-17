@@ -2,11 +2,17 @@
 
 One or two sentences: what this area covers, and where its boundary sits against neighboring areas. The boundary matters more than the description — it is what stops a page from being drafted into the wrong docset.
 
+*If the area is not in docs-content, say so here, in bold, before anything else. A published URL under `elastic.co/docs/` is not evidence of which repo owns the page.*
+
+> *Required. Replace with: the repo and date you verified this file against. Add any restructure, migration, or rename already known to be coming, with the tracking issue and what it will make stale. A confident path that has since moved is the main way an area file does damage.*
+
 Fill all six headings below. Delete the guidance in italics as you go. Verify every path and label before it goes in, because this file becomes a source of truth for everyone who drafts here.
 
 ## Where content lives
 
-*The docs-content paths this area owns, and what belongs in each. Include the `_snippets/` directories to check before writing shared prose, and note any content that lives outside the obvious docset — for example, reference material under `reference/` while the narrative sits under `solutions/`.*
+*The paths this area owns, and what belongs in each. Name the repo when it is not docs-content. Include the `_snippets/` directories to check before writing shared prose, and note any content that lives outside the obvious docset — for example, reference material under `reference/` while the narrative sits under `solutions/`.*
+
+*Add a "Not this area" list for the paths people most often misfile into, with a one-line reason each. This is usually the most-used part of the file.*
 
 | Path | What belongs here |
 |---|---|
@@ -34,7 +40,9 @@ Fill all six headings below. Delete the guidance in italics as you go. Verify ev
 
 ## Navigation
 
-*Which `toc.yml` to edit, and where in it. Navigation is per-docset and orchestrated by `docset.yml` — some sections keep a whole tree inline in one file while others nest sub-tocs, so name the actual file and the actual parent entry. Note any hub or index page that also needs a link.*
+*Which `toc.yml` to edit, and where in it. Navigation is per-docset and orchestrated by `docset.yml` — some sections keep a whole tree inline in one file while others nest sub-tocs, so name the actual file and the actual parent entry. Note any hub or index page that also needs a link, and say when a change needs no navigation edit at all.*
+
+*Record the landing-page shape rather than assuming it: a sibling file next to the directory, an `index.md` inside it, or a name that matches neither. Note any `hidden:` entries, which look like omissions but are deliberate.*
 
 ## Known traps
 
