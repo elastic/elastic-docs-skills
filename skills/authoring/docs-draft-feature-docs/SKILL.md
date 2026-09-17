@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.2.0
+version: 2.3.0
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -239,6 +239,10 @@ Do this in two passes, in this order. Enumerate first, or you verify the few fac
 **Pass one.** List every concrete claim the draft will make: each UI string, menu path, field name, identifier, default value, limit, permission, and behavior.
 
 **Pass two.** Verify each one against the product source at `HEAD` in the relevant repo. Not the issue body, not the pull request description, and not the diff — a diff shows one change, while `HEAD` shows what users will actually meet. The area file's *Source of truth* section says which paths matter; the implementing pull request is supporting evidence, not the final word.
+
+**Confirm the clone is current before trusting it.** Fetch the product repo's remote-tracking ref and compare its date against the merge date of the implementing pull request. A clone a few days behind reports removed code as still present and new code as missing, and it does so silently — a confident wrong answer with nothing to flag. If it is behind the change you are verifying, fetch it or read the file through the GitHub API at `?ref=main`.
+
+**Verify the integration, not just the component.** A feature built on a shared package inherits everything that package documents, but the host app decides which capabilities are switched on. Check the call sites and the options the host passes. A capability the package ships and the host leaves disabled will otherwise read as verified.
 
 Because these docs are cumulative, also confirm each claim holds for the earlier supported versions the page covers. A statement that is true only on `main` will be wrong for most readers.
 
