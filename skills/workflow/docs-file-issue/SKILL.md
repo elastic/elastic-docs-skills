@@ -1,7 +1,7 @@
 ---
 name: docs-file-issue
 version: 1.0.0
-description: Interview the requester, then draft and file a complete Elastic documentation issue against the right template and repository. Enforces the good-issues quality bar — specific title, definition of done, the why, impacted page links, one testable problem — checks for existing docs and duplicate issues first, restructures implementation-side brain dumps into user-facing terms, and labels proposed wording as source material rather than final copy. Routes public and private requests to the right repository and template, including engineering and support feedback that cannot be public, KB promotions, and known issues bound for release notes. Use when someone wants docs for a new feature, has a pile of notes or a PR to hand off to docs, needs a writer to review UI copy, wants to report a problem with a published page, has customer or support feedback to share privately, or asks how to request documentation support.
+description: Interview the requester, then draft and file a complete Elastic documentation issue against the right template and repository — enforcing the good-issues quality bar, checking for duplicates and existing coverage first, rewriting implementation-side detail into user-facing terms, and routing sensitive requests privately. Use it to request docs for a feature, hand off notes or a pull request, request a UI copy review, report a problem with a published page, share support feedback privately, or ask how to request documentation support.
 argument-hint: "[what you need documented, or an issue URL to check]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Write, WebFetch, Bash(gh *), CallMcpTool, AskUserQuestion
@@ -30,7 +30,8 @@ You file Elastic documentation issues. You interview the requester, pick the rig
 
 A docs issue that arrives early and complete lets writers scope and plan the work. One that arrives vague costs a round trip, or gets closed. Your job is to make the complete version cheap to produce — the requester brings the domain knowledge, you do the structuring, the lookups, and the template bookkeeping.
 
-This skill deliberately omits `context: fork`. It has to stay in the main context to interview the requester and to get approval before creating anything.
+<!-- Maintainers: `context: fork` is omitted on purpose. This skill has to stay in the
+main context to interview the requester and get approval before creating anything. -->
 
 ## Constraints
 
@@ -64,7 +65,7 @@ The two sets overlap but are **not** interchangeable — same request, different
 
 The tables in this skill are the fallback for when that call fails. Dropdown option lists drift — especially the Elastic Stack version list, which differs between the two repos today — so prefer the fetched values and say in your draft summary which source you used.
 
-**You are filing through the API, not the form, so the form's own validation never runs.** The `required: true` flags in the YAML are yours to enforce; GitHub will happily accept an issue missing every one of them.
+**You are filing through the API, not the form, so nothing the form would do for you happens.** Validation never runs, which makes the `required: true` flags in the YAML yours to enforce — GitHub will happily accept an issue missing every one of them. The title prefix and the labels are form defaults, so you apply both by hand; Step 3 lists them per template.
 
 ## Step 1: Understand the request
 
@@ -81,17 +82,9 @@ Four more when the request is about a feature or a UI change. No template has a 
 - **Which lifecycle state it ships in** — preview, beta, GA, deprecated, or removed — and whether that is a change from the state before it. The page gets tagged differently for each, and the requester is usually the only one who knows.
 - **Whether it sits behind a feature flag**, and if so whether users can turn it on themselves and how. A flagged feature users cannot enable is documented differently from one they can.
 - **A screenshot**, for anything with a UI. The templates say screenshots help; for a UI change one saves the writer a build-and-reproduce cycle.
-- **A test environment with feature-specific data**, whenever the feature is something a writer has to click through to document. Accurate docs need a working example, not a description of one.
+- **A test environment**, whenever the feature is something a writer has to click through. Writers already have sandboxes, so the ask is not "give us a cluster" — it is what makes the feature visible (deployment type, license tier, any flag) and whether sample data exercises it. A sandbox with no relevant data is the same as no environment, so name who can seed it, and who to ask when a shared sandbox will not do.
 
-Ask the environment question in the form the docs team can actually act on. Writers already have internal sandboxes, so the ask is rarely "give us a cluster" — it is whether a sandbox can show this feature with data that exercises it:
-
-- **What it takes to see the feature working**: the deployment type or project, the license tier, and any feature flag or setting that has to be on.
-- **Whether sample data exists** that demonstrates it, and if not, who can seed it or hand over a setup script. This is the part requesters skip and the part that stalls the work — a sandbox with no relevant data is the same as no environment.
-- **Who to ask for access**, when a shared sandbox will not do.
-
-**When it applies, this gates prioritization.** A feature a writer cannot reach does not get scheduled. Say that to the requester while you are still drafting, rather than filing the issue and letting it sit. If no environment will exist for a while, put the expected date in the issue so a writer can plan around it.
-
-It does not apply to everything. A conceptual page, a wording fix, an API reference change, or a known issue needs no environment — do not manufacture the question for requests where a writer has nothing to click.
+Say while drafting that this gates prioritization — a feature a writer cannot reach does not get scheduled — and give the expected date if no environment exists yet. Skip the question where there is nothing to click: conceptual pages, wording fixes, API reference changes, known issues.
 
 File early. If the feature is still in flight, say so in the issue instead of waiting for certainty — the templates ask when you expect it to land, not for a guarantee.
 
@@ -184,20 +177,15 @@ Two differences worth knowing before you interview:
 - `kb-promotion-request.yml` and `seo-request.md` exist **only** here. `[KB Promotion] ` has no colon after the bracket, unlike every other prefix.
 - `seo-request.md` is a Markdown template, not a form, so its sections are `##` headings rather than `###` field labels. Mirror what the file actually uses.
 
-The prefix and the labels are form defaults, so **you have to apply both by hand** — nothing adds them when you file through the CLI. Verify a label exists before using it, with `gh label list --repo <repo> --search <label>`, and drop it rather than letting `gh issue create` fail on an unknown label. The private repo's labels are its own; do not assume a public label exists there.
+Verify a label exists before using it — `gh label list --repo <repo> --search <label>` — and drop it rather than letting `gh issue create` fail on an unknown label. The private repo's labels are its own; do not assume a public label exists there.
 
 ### Feedback from engineering or support
 
 This is the path for someone inside Elastic who has feedback on the docs — their own, or a customer's relayed through them — and does not want it in public. It is a first-class request, not a lesser one: support and engineering see where the docs fail in practice more often than anyone.
 
-Route it by what the feedback is about:
+Route it by what the feedback is about, using the private table above for the prefixes and labels. A specific page that is wrong, incomplete, or unfindable is `issue-report.yaml`. A gap an existing KB article already covers is `kb-promotion-request.yml`, with the link and the gap it fills. Content users cannot find is `seo-request.md` when it is genuinely a discoverability problem, and `issue-report.yaml` otherwise.
 
-| The feedback is | Where it goes |
-|---|---|
-| A specific published page that is wrong, incomplete, or unfindable | `issue-report.yaml` in the private repo — `[Issue]: `, label `triage` |
-| A gap a KB article already covers | `kb-promotion-request.yml`, with the KB link and the motivation. Say what gap it fills |
-| A pattern across several pages, or a recurring theme in cases | `internal-request.yml`, framed as the pattern with examples, not as one page fix |
-| Users cannot find content that exists | `seo-request.md` if it is a discoverability problem, otherwise `issue-report.yaml` |
+The one that is easy to misfile: **a pattern across several pages, or a recurring theme in cases, goes to `internal-request.yml`** — framed as the pattern with examples, not as a fix to whichever page came up last.
 
 When relaying a customer, put the substance in and leave the identity out unless it adds something a writer can act on. "Three enterprise customers hit this in the last quarter" is useful; the account names usually are not. Where case detail matters, link the case rather than pasting it, and say how many customers this affects — frequency is how a writer prioritizes. Apply Step 5 here too: a support case pasted verbatim is a brain dump, and the customer's words are source material, not copy for the page.
 
@@ -219,10 +207,7 @@ Confirm the destination rather than trusting the table — it describes where th
 gh api repos/elastic/<product>/contents/docs/release-notes --jq '.[].name'
 ```
 
-Two traps in the stack row:
-
-- **A `docs/changelog` directory does not mean the changelog path applies.** Kibana keeps changelog YAML for everything else and has no `known-issue` entries in it; its known issues are on the Markdown page. Elasticsearch's `docs/changelog` uses an older schema — `area`, `pr`, `summary`, `type` — with no `known-issue` type, so an entry written for docs-builder cannot go there at all. Logstash has no `docs/changelog` directory.
-- **The changelog path is live for Cloud.** Do not extend it to a stack product because the tooling would accept the command.
+One trap: **a `docs/changelog` directory does not mean the changelog path applies.** Kibana has one and keeps no `known-issue` entries in it — its known issues are on the Markdown page — and Elasticsearch's predates the docs-builder schema entirely. The changelog path is live for Cloud only. Do not extend it to a stack product because the tooling would accept the command.
 
 #### What to collect
 
@@ -243,13 +228,9 @@ Hand off to `docs-fix-changelog`, which composes and checks that command. Do not
 
 #### When the requester cannot make the change themselves
 
-Common when support relays an issue in a product they do not own. File it rather than dropping it, and name the destination so nobody has to rediscover it:
+Common when support relays an issue in a product they do not own. File it rather than dropping it: use `internal-request.yml`, title it `[Internal]: Add known issue to <product> <version> release notes`, name the exact destination from the table so nobody has to rediscover it, and put the collected facts in the Description as labeled lines. Say plainly that the ask is a release-notes known issue, not a change to a documentation page.
 
-- **Stack products** — the edit is a pull request in the product repository. Whether the product team or a writer makes it varies by team, so **ask the requester which they expect** and record the answer in the issue. Use `internal-request.yml`, titled `[Internal]: Add known issue to <product> <version> release notes`, and name the file: `docs/release-notes/known-issues.md` in `elastic/<product>`.
-- **Observability or Security** — the file is already in `docs-content`, so a docs issue is the right vehicle. Route it normally and name the page.
-- **Cloud or serverless** — the ask is a `known-issue` changelog entry. Name the repository that owns the changelog.
-
-In every case put the collected facts in the Description as labeled lines, and say plainly that the ask is a release-notes known issue rather than a change to a documentation page.
+For a stack product, also **ask who is expected to make the edit** — product team or writer varies by team — and record the answer in the issue.
 
 ### Not a docs request
 
@@ -274,13 +255,24 @@ Interview only for what you do not already have from Step 1. Required fields are
 
 **`[Community]`** — affected page or section ✱ (with the URL) · what should change and why you expected something else ✱ · additional info.
 
-**`[UI copy]`** — description ✱ (What / When / Why, plus whether copy is new or being edited) · related links and assets ✱ (Figma, GitHub epic and issues, how to find the text in production, testing environment — and no credentials) · product area · collaborators ✱ (PM, designer, developer) · timeline and deliverables, including whether timing differs between serverless and stateful. Tell the requester that time-sensitive copy work also needs a direct ping to the responsible writer or docs team; the issue alone is not a fast path.
+**`[UI copy]`**
+
+- Description ✱ — What / When / Why, plus whether the copy is new or being edited.
+- Related links and assets ✱ — Figma, GitHub epic and issues, how to find the text in production, a testing environment. No credentials.
+- Product area · collaborators ✱ (PM, designer, developer) · timeline and deliverables, noting where serverless and stateful timing differs.
+
+Time-sensitive copy work also needs a direct ping to the responsible writer or docs team. Tell the requester that the issue alone is not a fast path.
 
 **`[API]`** — was the documentation helpful ✱ (Yes · Partly · No) · affected page ✱ · description of the experience.
 
 **`[Website]`** (public) and **`[Issue]`** (private) — confirmation that this is about documentation content ✱ · type of issue (Inaccurate · Missing information · I can't find what I'm looking for · Other) · affected page URL ✱ · what happened ✱ · additional info. Same fields in both repos; only the prefix and label differ.
 
-**`[KB Promotion]`** (private only) — KB article title ✱ · internal link to the KB article ✱ · motivation ✱, which has to name the gap it fills in the public docs rather than restating what the article says. Then the optional half, which the template explicitly says the requester can leave to the docs team: content scope (full or partial, with details if partial) · destination proposal (new page or integrate into existing pages) with destination details · whether they want to draft it or have docs draft it · additional notes. Do not press for the optional fields — highlighting a useful article with a clear why is a complete request, and the template says the docs team makes the final call on structure and destination.
+**`[KB Promotion]`** (private only)
+
+- Required ✱ — KB article title · internal link to the article · motivation, which has to name the gap it fills in the public docs rather than restating what the article says.
+- Optional — content scope (full or partial) · destination proposal, new page or integrated into existing pages · whether they draft it or docs does · additional notes.
+
+Do not press for the optional fields. The template says outright that the requester can leave them to the docs team, which makes the final call on structure and destination — a useful article with a clear why is already a complete request.
 
 **`[SEO request]`** (private only) — a Markdown template, so these are `##` sections: URLs or paths affected · description of the discoverability or search visibility goal · priority (High · Medium · Low, as a checklist) · timeline with expected start and end dates · dependencies, meaning related issues and pull requests · contact person · notes.
 
@@ -389,21 +381,16 @@ The template collects those answers in separate dropdowns, so one sentence in th
 Then check your own draft before showing it:
 
 ```
-- [ ] Title is specific, and has the template's prefix
+- [ ] Title is specific, carries the template's prefix, and reads for a user rather than a pull request reviewer
 - [ ] Description states the change and the why, and a writer could tell when it is done
-- [ ] Title and description are written for the reader, not carried over from a pull request title
-- [ ] Description describes what a user can do, not how the feature was built
-- [ ] Any linked code change has been read, and the request is narrowed to what it supports
+- [ ] Description is what a user can do, not how it was built — anything you could not translate is an open question, not a guess
 - [ ] Description ends with a one-sentence availability note
-- [ ] Every gap named is a real one — no additions to pages that are deliberately general
-- [ ] Any proposed wording is labeled as a suggestion, unless the exact string is genuinely required — with the reason stated
-- [ ] Placement and framing are left to the writer
-- [ ] Anything that could not be translated into user-facing terms is an open question, not a guess
-- [ ] Every affected page is linked
-- [ ] Related tickets and discussions are linked, internal-only ones marked
+- [ ] Every gap named is real, and narrowed to what any linked code change supports
+- [ ] Proposed wording is labeled a suggestion with placement left to the writer, unless the exact string is required and you said why
+- [ ] Every affected page, ticket, and discussion is linked, internal-only ones marked
 - [ ] Every required field of the chosen template is answered
 - [ ] One single, testable problem
-- [ ] The template, prefix, and labels all come from the repository being filed into
+- [ ] Template, prefix, and labels all come from the repository being filed into
 - [ ] No sensitive content in a body headed for a public repo
 - [ ] Contacts are real @mentions
 ```
@@ -456,7 +443,7 @@ Sources this skill encodes.
 
 See also. Elastic-internal and behind org access, so it is deliberately not in `sources:` — it cannot be fetched or staleness-checked.
 
-- [Request documentation support](https://codex.elastic.dev/r/docs-content-internal/work-with-us) — the intake process, and what happens **after** the issue is filed: lead times, planning, who to contact. Hand the requester the link. Do not try to fetch it, and do not restate it from memory.
+- [Request documentation support](https://codex.elastic.dev/r/docs-content-internal/work-with-us) — the intake process, and what happens **after** the issue is filed: lead times, planning, who to contact. Hand over the link; see *Inputs* for how.
 
 Companion skills in this catalog. Collect the inputs they need; do not restate their rules here.
 
