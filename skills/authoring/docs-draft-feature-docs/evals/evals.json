@@ -4,13 +4,14 @@
     {
       "id": 1,
       "prompt": "Draft docs for a new slack.postMessage workflow step. It takes a channel and a message, and the output is available to later steps. It belongs in the Workflows step reference next to the other notification steps.",
-      "expected_output": "Recognizes explore-analyze/workflows/ as an area with a registered specialist skill, hands off to docs-draft-workflow-docs, and stops rather than producing its own draft.",
+      "expected_output": "Loads the workflows.md area file, verifies the step against the kbn-workflows spec under src/platform/ rather than inventing parameters, and drafts it into the right steps/ page while listing the index and cheat-sheet follow-ups.",
       "expectations": [
-        "Checks references/index.md for the target area before drafting",
-        "Identifies docs-draft-workflow-docs as the registered specialist for Workflows",
-        "Hands off to that skill and stops",
-        "Does NOT produce its own draft of the step reference alongside the handoff",
-        "Does NOT invent the step's parameters"
+        "Checks references/index.md and loads workflows.md for the target area",
+        "Verifies the step in src/platform/packages/shared/kbn-workflows/spec/ and does NOT search the removed x-pack/platform/plugins/shared/workflows path",
+        "Places it in explore-analyze/workflows/steps/ using the namespace page structure, with a parameter table and a YAML example",
+        "Lists the follow-up edits to reference/step-types.md and reference/cheat-sheet.md rather than stopping at the primary page",
+        "Uses lowercase dot notation for the namespaced step ID",
+        "Does NOT invent the step's parameters or output shape"
       ]
     },
     {
@@ -160,6 +161,20 @@
         "Proposes applies_to of stack: experimental 9.5, ga 9.6 with serverless: ga and delegates the tagging",
         "Flags the two system-flow diagrams as needing design work and does NOT generate replacements",
         "Does NOT present either GA date as confirmed"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Here's a workflow snippet for the docs. Clean it up and add it to the alert triage step page.\n\nsteps:\n  - name: step1\n    type: kibana.SetAlertsStatus\n    with:\n      alert_ids: \"{{ event.alerts }}\"\n      payload: \"{{ data | to_json }}\"",
+      "expected_output": "Fixes the real syntax errors against the cheat sheet — the array needs the ${{ }} form and to_json does not exist — while leaving the things that only look wrong alone. kibana.SetAlertsStatus is correctly PascalCase as a legacy step, and alert_ids must not be normalized.",
+      "expectations": [
+        "Corrects the array interpolation to the \"${{ event.alerts }}\" form",
+        "Replaces to_json with the json filter, noting that to_json does not exist",
+        "Renames step1 to a descriptive step name",
+        "Keeps kibana.SetAlertsStatus in PascalCase, identifying it as the legacy step where that casing is correct",
+        "Does NOT normalize alert_ids to ids or otherwise tidy implemented parameter names",
+        "Notes the preferred namespaced replacement for new workflows and cross-references it",
+        "Checks the example against reference/cheat-sheet.md"
       ]
     }
   ]

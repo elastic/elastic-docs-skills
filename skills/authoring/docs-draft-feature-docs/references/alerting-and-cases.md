@@ -1,10 +1,10 @@
-# Alerting, Cases, and Workflows
+# Alerting and Cases
 
-Three sections of the `explore-analyze/` docset that share one trait: each documents a **platform** capability that the solutions also surface in their own docs. Almost every mistake in this area is a placement mistake rather than a writing mistake.
+Two sections of the `explore-analyze/` docset that share one trait: each documents a **platform** capability that the solutions also surface in their own docs. Almost every mistake in this area is a placement mistake rather than a writing mistake.
 
 The boundary that matters: this area owns the cross-solution behavior. When a capability only exists inside Security or Observability, it belongs to that solution's page instead — see *Known traps* for the split, which is precise and already well established in the corpus.
 
-> **Workflows delegates.** `explore-analyze/workflows/` has a dedicated skill, `docs-draft-workflow-docs`, and the registry resolves specialists before area files. Hand Workflows drafting to it. Workflows appears here only for the boundary facts it shares with alerting, and for the source paths, since the specialist and this file must not disagree about those.
+> **Workflows is a sibling area file**, `workflows.md`, not a section of this one. The two meet at triggers and at `workflows-alerting.md`, so read both when drafting at that seam.
 >
 > **Alerting V2 is going GA, and this is the most volatile area in the catalog.** Verified against `docs-content` and `kibana` on 2026-09-16. Stack GA targets 9.6 on 2026-10-27, which the team considers more or less confirmed. Serverless GA lands first and its date is genuinely unsettled — the writer's current target is 2026-09-22 while [#920](https://github.com/elastic/docs-content-internal/issues/920) still says the week of the 9.6 release. **Treat both dates as unconfirmed and check the issues, not this file.** The work is tracked in [#920](https://github.com/elastic/docs-content-internal/issues/920), [#1652](https://github.com/elastic/docs-content-internal/issues/1652), and [#1738](https://github.com/elastic/docs-content-internal/issues/1738).
 >
@@ -19,7 +19,7 @@ The boundary that matters: this area owns the cross-solution behavior. When a ca
 | `explore-analyze/alerting/experimental-alerting-system/` | The ES\|QL-based experimental system. Deeply nested, with its own `rules/`, `alerts/`, `action-policies/`, `get-started/`, and glossary |
 | `explore-analyze/alerting/watcher/` | Watcher. Legacy, stack-only, and unavailable on serverless |
 | `explore-analyze/cases/` | The consolidated case documentation for **all** solutions. Core behavior lives here and nowhere else |
-| `explore-analyze/workflows/` | Delegate to `docs-draft-workflow-docs` |
+| `explore-analyze/workflows/` | Covered by the `workflows.md` area file |
 
 Not this area, and the most common misfiling:
 
@@ -93,4 +93,4 @@ Landing pages are siblings of their directories, not `index.md` inside them: `al
 - **Never search-replace "alert episode" to "alert".** Roughly 50 pages use the term and the pages that teach the data model need rewriting rather than swapping — the sentence "events that share `episode.id` belong to the same alert" is correct and a term pass would wreck it. The same applies to the two system-flow diagrams, which have **ALERT EPISODE** baked into the image and need design work, not new alt text. Do not generate replacements.
 - **Cases is documented once, with thin solution extras.** Core behavior goes in `explore-analyze/cases/`. A solution page documents only what that solution adds and links to the core — `observability-cases.md` is 16 lines and almost entirely a pointer. Copying core case behavior into a solution page is the single most likely review comment in this area.
 - **Watcher is `serverless: unavailable`.** Scope it that way; do not tag it like the rest of the area.
-- **Workflows and alerting meet, and the rename makes the seam worse.** The experimental system has a `workflows-alerting.md` page, and Workflows has its own trigger docs. V1 *alert triggers* and V2 *alert episode lifecycle triggers* both collapse to "alert triggers" once the object is renamed, so they need a system qualifier to stay distinct. Decide which section owns the page, then delegate the Workflows half to `docs-draft-workflow-docs`.
+- **Workflows and alerting meet, and the rename makes the seam worse.** The experimental system has a `workflows-alerting.md` page, and Workflows has its own trigger docs under `workflows/triggers/`. V1 *alert triggers* and V2 *alert episode lifecycle triggers* both collapse to "alert triggers" once the object is renamed, so they need a system qualifier to stay distinct. Decide which section owns the page, and load `workflows.md` for the Workflows half.

@@ -84,7 +84,9 @@ Then check `references/index.md` in this skill directory for the target area.
 - **An area file exists** — load it. Its six sections tell you where pages live, what settles a fact, what to read first, local conventions, what navigation to update, and the known traps.
 - **Neither exists** — continue anyway. Derive conventions from sibling pages in the target directory, and say in your output that no area file was available so the user knows what to add later.
 
-A request can straddle both. When it spans a specialist's directory and a neighboring one, split it: draft the part you own using the area file, and delegate the specialist's part. Say which half went where, so nothing looks silently dropped.
+A request can straddle two areas — two area files, or an area file and a specialist's directory. Split it: draft each part against the file that owns it, and delegate any specialist's part. Load both files when the areas name each other as a seam. Say which half went where, so nothing looks silently dropped.
+
+Before routing to a specialist, confirm it is installed. Delegating to a skill that is not on the machine fails, and falling back to the area file or sibling pages beats stopping.
 
 ## Inputs
 
