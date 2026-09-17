@@ -384,6 +384,32 @@
         "Flags that the area file's Navigation and Known traps sections need the refresh the entry called for, including the eval asserting Security navigation is inline in solutions/toc.yml",
         "Does NOT treat a closed tracking issue as evidence that the area file itself was updated"
       ]
+    },
+    {
+      "id": 31,
+      "prompt": "Document the removal of action policy tags. The implementing Kibana pull request merged two days ago. (Assume the local kibana clone's origin/main is older than that merge, and that the schema file the change deletes is still present in it.)",
+      "expected_output": "Notices the clone predates the change being verified, refuses to draw a conclusion from it, and reverifies through a fetch or the GitHub contents API — then reports the file as deleted rather than reporting that the removal has not shipped.",
+      "expectations": [
+        "Compares the product clone's remote-tracking ref against the implementing pull request's merge date before trusting the local tree as HEAD",
+        "Recognizes that the clone is older than the change under verification, so its absence or presence of code proves nothing",
+        "Reverifies by fetching the remote or by reading the path through the GitHub contents API at ?ref=main",
+        "Reports the deleted path as deleted, and says which source that conclusion came from",
+        "Does NOT conclude that the removal has not shipped yet, or that the issue should be held, on the strength of the stale clone",
+        "Does NOT silently treat the local checkout as HEAD"
+      ]
+    },
+    {
+      "id": 32,
+      "prompt": "Document the new rule change history UI. It's built on the shared @kbn/change-history-ui package, whose README lists restore, compare, and a configurable page size.",
+      "expected_output": "Separates what the shared package can do from what the host app switched on, checks the integration's call sites, finds restore left at its disabled default, and keeps it out of the draft.",
+      "expectations": [
+        "Treats the package README as a list of capabilities rather than as a description of shipped behavior",
+        "Checks the host integration's call sites and the options it passes, not just the package",
+        "Finds that the restore capability is left at its disabled default and is therefore unavailable to users",
+        "Omits restore from the draft, or states plainly that versions cannot be restored",
+        "Treats the package's default page size as unverified for this integration rather than stating it as fact",
+        "Does NOT document restore, or any other package capability, as available merely because the package supports it"
+      ]
     }
   ]
 }
