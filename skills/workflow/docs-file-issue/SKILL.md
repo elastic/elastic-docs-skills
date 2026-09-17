@@ -8,7 +8,6 @@ allowed-tools: Read, Grep, Glob, Write, WebFetch, Bash(gh *), CallMcpTool, AskUs
 sources:
   - https://www.elastic.co/docs/contribute-docs/how-to/good-issues
   - https://github.com/elastic/docs-content/tree/main/.github/ISSUE_TEMPLATE
-  - https://stunning-adventure-qrvr1k2.pages.github.io/ski-team/work-with-us/#request-documentation-support
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. See the NOTICE file distributed with
@@ -432,10 +431,15 @@ In both cases the draft survives, which is the point — a draft the requester c
 
 ## References
 
+Sources this skill encodes.
+
 - [How to create good docs issues](https://www.elastic.co/docs/contribute-docs/how-to/good-issues)
 - [Public issue templates](https://github.com/elastic/docs-content/tree/main/.github/ISSUE_TEMPLATE) — `elastic/docs-content`
 - [Private issue templates](https://github.com/elastic/docs-content-internal/tree/main/.github/ISSUE_TEMPLATE) — `elastic/docs-content-internal`
-- [Request documentation support](https://stunning-adventure-qrvr1k2.pages.github.io/ski-team/work-with-us/#request-documentation-support) — the internal process page, for the parts of the intake process that sit outside the issue itself
+
+See also. Elastic-internal and behind org access, so it is deliberately not in `sources:` — it cannot be fetched or staleness-checked.
+
+- [Request documentation support](https://stunning-adventure-qrvr1k2.pages.github.io/ski-team/work-with-us/#request-documentation-support) — what happens **after** the issue is filed: lead times, planning, who to contact. Hand the requester the link. Do not try to fetch it, and do not restate it from memory.
 
 Companion skills in this catalog. Collect the inputs they need; do not restate their rules here.
 
