@@ -1,12 +1,20 @@
+---
+area: Elastic Security
+verified: 2026-09-16
+verified_against:
+  - docs-content
+  - elastic/kibana
+  - elastic/detection-rules
+status: references/status.md#elastic-security-docset-restructure
+---
+
 # Elastic Security
 
 The Security solution: detections and alerts, investigation tools, Elastic Defend and endpoint response, entity analytics, cloud security, and the AI features inside Security.
 
 The boundary that matters: Security owns the **narrative** under `solutions/security/`, but its **reference** material lives under `reference/security/`, and anything about the underlying Elasticsearch or Kibana platform belongs to those areas instead. Detection rule *content* is a third place again — see *Known traps*.
 
-> **Recheck paths against the repo while the Security restructure is in flight.** Verified against `docs-content`, `kibana`, and `detection-rules` on 2026-09-16. The docset is being restructured around reader posture under [docs-content-internal#1541](https://github.com/elastic/docs-content-internal/issues/1541), shipping as a stack of pull requests with a deadline of 2026-10-31. Most of the change regroups `toc.yml` and keeps paths, but a few directories actually move — those are the ones whose pull requests need redirects. Mid-stack the repo is half-moved, so use `search_docs` and the local tree rather than any path written here, and refresh the *Navigation* and *Known traps* sections once the stack has merged.
->
-> Also update in that pass: the Elastic Security row in `index.md`, and the eval asserting that navigation lives in `solutions/toc.yml` with no per-solution toc, which holds only if the new wrapper sections do not adopt nested sub-tocs.
+> **The docset is being restructured, so treat every path below as a hint.** Read [`status.md`](status.md#elastic-security-docset-restructure) and resolve its tracking issue first. Mid-stack the repo is half-moved, so resolve paths with `search_docs` and the local tree rather than from this file.
 
 ## What belongs here, and what does not
 
@@ -17,7 +25,7 @@ The boundary that matters: Security owns the **narrative** under `solutions/secu
 | Detection rule content itself | The `elastic/detection-rules` repo. "Document a new rule" usually means no docs-content page at all |
 | An AI feature inside Security | Here, but **load `ai-features.md` alongside this file** — it owns the platform-or-solution placement rule, and `agent-builder.md` owns the Agent Builder pages |
 
-`solutions/security/cloud/_snippets/` is the only snippets directory in the area, so shared prose elsewhere in Security is currently duplicated rather than included. Check it before writing anything about cloud security, and do not assume an include exists for anything else.
+Check for a `_snippets/` directory next to what you are editing before writing shared prose. At last check `solutions/security/cloud/_snippets/` was the only one in the area, so read it before writing anything about cloud security and do not assume an include exists elsewhere.
 
 ## Source of truth
 

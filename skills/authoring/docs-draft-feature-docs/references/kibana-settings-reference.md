@@ -1,3 +1,10 @@
+---
+area: Kibana settings reference
+verified: 2026-09-16
+verified_against:
+  - elastic/kibana
+---
+
 # Kibana settings reference
 
 The Kibana advanced settings and `kibana.yml` configuration reference, published at `elastic.co/docs/reference/kibana/`.
@@ -6,7 +13,7 @@ The Kibana advanced settings and `kibana.yml` configuration reference, published
 
 The boundary that matters: this area owns **settings metadata** — what a setting is, its datatype, default, and availability. How to accomplish a task using a setting is narrative content and belongs in docs-content. When both are in play, the settings entry is the canonical home for the metadata and the narrative page links to it.
 
-> Verified against `elastic/kibana` on 2026-09-16. Scoped to the advanced settings pages and `docs/reference/configuration-reference/`. The rest of the Kibana repo's `docs/reference/` tree — connectors, audit events, commands, plugins, user activity, cloud — is out of scope and would need its own file. The repo-level facts below apply to all of it, so promote them to a shared file if a second Kibana-repo area appears.
+> Scoped to the advanced settings pages and `docs/reference/configuration-reference/`. The rest of the Kibana repo's `docs/reference/` tree — connectors, audit events, commands, plugins, user activity, cloud — is out of scope and would need its own file. The repo-level facts below apply to all of it, so promote them to a shared file if a second Kibana-repo area appears.
 
 ## What belongs here, and what does not
 
@@ -22,7 +29,7 @@ Advanced settings and `kibana.yml` settings are different things. Advanced setti
 
 Advanced settings split again by scope, into a space-level file and a global file. **Scope is a property of the setting's registration, not something to infer.** Read the `uiSettings` registration to find which one, and never pick a file by which is larger or busier.
 
-Shell-to-YAML pairing is usually one-to-one but is not guaranteed. `reporting-settings.md` renders five YAML files, none of which has an `.md` of its own, and the advanced settings shell renders two. When a page is split that way, which file a setting belongs in is a real decision.
+Shell-to-YAML pairing is usually one-to-one but is not guaranteed. Read the shell's `:::{settings}` directives to see what it renders: `reporting-settings.md` renders several YAML files, none of which has an `.md` of its own, and the advanced settings shell renders more than one. When a page is split that way, which file a setting belongs in is a real decision.
 
 ## Source of truth
 

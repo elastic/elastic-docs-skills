@@ -1,14 +1,21 @@
+---
+area: Alerting and Cases
+verified: 2026-09-16
+verified_against:
+  - docs-content
+  - elastic/kibana
+status: references/status.md#alerting-v2-ga
+---
+
 # Alerting and Cases
 
 Two sections of the `explore-analyze/` docset that share one trait: each documents a **platform** capability that the solutions also surface in their own docs. Almost every mistake in this area is a placement mistake rather than a writing mistake.
 
 The boundary that matters: this area owns the cross-solution behavior. When a capability exists only inside Security or Observability, it belongs to that solution's page instead.
 
+> **Alerting V2 is mid-GA-transition and its names are not frozen.** Read [`status.md`](status.md#alerting-v2-ga) and resolve its tracking issues before drafting any alerting page. The durable rules that survive the rename are below, in *Conventions* and *Known traps*.
+>
 > **Workflows is a sibling area file**, `workflows.md`, not a section of this one. The two meet at triggers and at `workflows-alerting.md`, so read both when drafting at that seam.
->
-> **Alerting V2 is going GA, and this is the most volatile area in the catalog.** Verified against `docs-content` and `kibana` on 2026-09-16. Stack GA targets 9.6 on 2026-10-27, which the team considers more or less confirmed. Serverless GA lands first and its date is genuinely unsettled: the writer's current target is 2026-09-22 while [#920](https://github.com/elastic/docs-content-internal/issues/920) still says the week of the 9.6 release. **Treat both dates as unconfirmed and check the issues, not this file.** The work is tracked in [#920](https://github.com/elastic/docs-content-internal/issues/920), [#1652](https://github.com/elastic/docs-content-internal/issues/1652), and [#1738](https://github.com/elastic/docs-content-internal/issues/1738).
->
-> The rename is **not yet safe to draft against.** Final system names, capitalization, and which UI strings still say Episode are blocked on scope finalization around 2026-10-06 ([#1758](https://github.com/elastic/docs-content-internal/issues/1758)). Until those are frozen, keep current 9.5 experimental language or mark new behavior as planned, and do not invent the new labels. The durable rules that survive the transition are in *Conventions*; the dates above are the part of this file that goes stale first.
 
 ## What belongs here, and what does not
 
@@ -23,7 +30,7 @@ The boundary that matters: this area owns the cross-solution behavior. When a ca
 
 While `docs-draft-cases-docs` is registered as a specialist, **delegate Cases drafting to it.** The Cases material in this file is a placement aid, not a drafting ruleset — it is here so that an alerting request does not misfile case content.
 
-There is no alerting- or cases-specific `_snippets/` directory, only the docset-level `explore-analyze/_snippets/`, so shared prose in those two sections is currently duplicated.
+Check for an alerting- or cases-specific `_snippets/` directory before writing shared prose. At last check there was none and only the docset-level `explore-analyze/_snippets/` existed, which means shared prose in these two sections is duplicated rather than included.
 
 ## Source of truth
 
@@ -53,7 +60,7 @@ Use the substitutions: `{{kib}}`, `{{stack-manage-app}}` for Stack Management, `
 - On any page naming two systems, qualify the object with the system in the same sentence.
 - Stored names stay unless engineering migrates them: `episode.id`, `episode.status`, `episode_id`, `episode_status`, and the `alerting.episode*` workflow trigger IDs. Prose says alert while code says `episode.*`, so add the one-line mapping the first time a query uses it.
 
-At GA the target tags are `stack: experimental 9.5, ga 9.6` with `serverless: ga`. Because these docs are cumulative, 9.5 keeps its experimental language in tagged sections rather than losing it, and `serverless: experimental` should not survive on a page describing the GA system. Let `docs-applies-to-tagging` set the values, including the inline ``{applies_to}`stack: ga 9.4+` `` role form that per-item availability in tables and lists uses.
+Because these docs are cumulative, the experimental version keeps its experimental language in tagged sections rather than losing it at GA, and `serverless: experimental` should not survive on a page describing the GA system. Let `docs-applies-to-tagging` set the values — which version carries GA is the part that moves — including the inline ``{applies_to}`stack: ga <version>+` `` role form that per-item availability in tables and lists uses.
 
 Cross-repo links use the `<repo>://` form, as in `detection-rules://index.md`. Reach for it instead of guessing a published URL.
 
@@ -67,9 +74,9 @@ Landing pages are siblings of their directories, not `index.md` inside them. The
 
 ## Known traps
 
-- **There are five alerting systems, not one.** {{kib}} alerting (GA, becoming Alerting V1), Observability alerting (built on top of it), the experimental ES|QL system (Alerting V2, going GA), Watcher (stack only), and Security detection rules (a separate product area). A request that says "add an alerting doc" names none of them. Start at `compare-alerting-systems.md`, but remember it compares only the three platform systems — Observability alerting and Security detection rules are not on it, so the routing page can look complete while omitting the two most likely answers for a solution request.
+- **"Alerting" names several separate systems, not one.** {{kib}} alerting (becoming Alerting V1), Observability alerting (built on top of it), the experimental ES|QL system (Alerting V2), Watcher (stack only), and Security detection rules (a separate product area). A request that says "add an alerting doc" names none of them. Start at `compare-alerting-systems.md`, but note that it compares only the platform systems — Observability alerting and Security detection rules are not on it, so the routing page can look complete while omitting the two most likely answers for a solution request.
 - **Observability alerting is a layer, not a peer.** It reuses the {{kib}} alerting framework and adds its own rule types and Alerts page. A framework-level change can therefore affect it without any Observability page mentioning it, and an Observability rule type is not a {{kib}} alerting rule type. Check both when a change touches the framework.
-- **Alerting V2's production status is version-dependent, and about to flip.** Today its pages say it is not ready for production. At GA that becomes false for serverless and 9.6 while staying true for 9.5, so it is a scoping problem rather than a sentence to delete. Until the names are frozen, do not draft the GA wording as fact; until GA ships, do not present V2 as the default answer to an alerting question.
+- **Alerting V2's production status is version-scoped, and the scoping flips at GA.** Treat "not ready for production" as a statement about specific versions rather than a sentence to keep or delete. [`status.md`](status.md#alerting-v2-ga) has the current rule.
 - **Never search-replace "alert episode" to "alert".** Dozens of pages use the term, and the pages that teach the data model need rewriting rather than swapping: the sentence "events that share `episode.id` belong to the same alert" is correct, and a term pass would wreck it. The same applies to the two system-flow diagrams, which have **ALERT EPISODE** baked into the image and need design work, not new alt text. Do not generate replacements.
 - **Cases is documented once, with thin solution extras.** Copying core case behavior into a solution page is the single most likely review comment in this area.
 - **Watcher is `serverless: unavailable`.** Scope it that way; do not tag it like the rest of the area.

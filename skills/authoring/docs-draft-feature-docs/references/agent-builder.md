@@ -1,8 +1,16 @@
+---
+area: Elastic Agent Builder
+verified: 2026-09-16
+verified_against:
+  - docs-content
+  - elastic/kibana
+---
+
 # Elastic Agent Builder
 
 The AI agent platform: agents, skills, tools, MCP and A2A servers, and programmatic access. Split from `ai-features.md`, which owns the hub page, the AI assistants, LLM connector guides, and Automatic Import. If a request touches both, load both.
 
-> Verified against docs-content and `elastic/kibana` on 2026-09-16. Agent Builder reached GA on stack 9.3 after a 9.2 preview and is GA on serverless, so it is moving quickly. Find pages with `search_docs`; this file does not inventory them.
+> This area went preview and then GA quickly and is still moving, so get availability from the plugin config rather than from a neighboring page's `applies_to`. Find pages with `search_docs`; this file does not inventory them.
 
 ## What belongs here, and what does not
 

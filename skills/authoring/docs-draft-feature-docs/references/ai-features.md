@@ -1,10 +1,18 @@
+---
+area: AI-powered features
+verified: 2026-09-16
+verified_against:
+  - docs-content
+  - elastic/kibana
+---
+
 # AI-powered features
 
 The AI features hub, the AI assistants, LLM connector guides, Automatic Import, and access management. Everything under `explore-analyze/ai-features/` except Agent Builder, which has its own file.
 
 **Placement is the main risk in this area, and it is a three-way decision rather than the usual two.** Nearly every AI feature has a platform home plus up to two solution-specific homes, and the assistants are owned by three different engineering teams in three different plugin trees.
 
-> Verified against docs-content and `elastic/kibana` on 2026-09-16. Pairs with `agent-builder.md`; load both if a request spans them. Find pages with `search_docs`; this file does not inventory them.
+> Pairs with `agent-builder.md`; load both if a request spans them. Find pages with `search_docs`; this file does not inventory them.
 
 ## What belongs here, and what does not
 

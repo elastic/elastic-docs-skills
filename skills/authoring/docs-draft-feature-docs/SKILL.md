@@ -1,10 +1,10 @@
 ---
 name: docs-draft-feature-docs
-version: 2.0.0
+version: 2.1.0
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Edit, Write, WebFetch, CallMcpTool, Skill, Agent, Bash(gh *), Bash(git *), AskUserQuestion
+allowed-tools: Read, Grep, Glob, Edit, Write, WebFetch, CallMcpTool, Skill, Agent, Bash(gh *), Bash(git *), Bash(date *), AskUserQuestion
 sources:
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs
   - https://www.elastic.co/docs/contribute-docs/style-guide
@@ -120,12 +120,27 @@ $DOCS_CONTENT_ROOT/frontmatter.config.yml
 Then check `references/index.md` in this skill directory for the target area.
 
 - **A specialist skill is registered for the area** — hand off and stop. Do not draft a second opinion.
-- **An area file exists** — load it. It tells you the area's boundary, which product source settles a fact, the local conventions, which navigation file to edit, and the known traps. It does not list pages; use `search_docs` for that.
+- **An area file exists** — load it. It tells you the area's boundary, which product source settles a fact, the local conventions, which navigation file to edit, and the known traps. It does not list pages; use `search_docs` for that. Check its age and any `status:` entry before relying on it, as below.
 - **Neither exists** — continue anyway. Derive conventions from sibling pages found through `find_related_docs`, and say in your output that no area file was available so the user knows what to add later.
 
 A request can straddle two areas — two area files, or an area file and a specialist's territory. Split it: draft each part against the file that owns it, and delegate any specialist's part. Say which half went where, so nothing looks silently dropped.
 
 Before routing to a specialist, confirm it is installed. Delegating to a skill that is not on the machine fails, and falling back to the area file or sibling pages beats stopping.
+
+### How much to trust the area file
+
+An area file is a snapshot, so check its age before relying on it. Read the frontmatter, get today's date with `date +%F`, and compare:
+
+| `verified` is | The file's paths and labels are | So |
+|---|---|---|
+| Within 90 days | Current enough to act on | Use them, and still verify any concrete claim in Step 6 |
+| Older than 90 days | Hints, not facts | Confirm each path and label against the repo or the MCP before you use it, and say in the output how old the file is |
+
+Ninety days is roughly a release and a half. A file older than that predates at least one minor, which is long enough for a plugin directory to move. Report the age either way, so a reader of your output knows what the draft rested on.
+
+**If the frontmatter carries a `status:` key, the area has an in-flight transition.** Read that entry in `references/status.md`, then resolve its tracking issues with `gh issue view <n> --repo elastic/docs-content-internal --json state,title,body`. The issue wins over the entry and the entry wins over the area file, because that is the order they go stale in. When the expiry condition has already been met — the issue is closed — say so and open a pull request to remove the entry rather than following it.
+
+Never carry a date out of `status.md` into a draft. The entries name events rather than dates for exactly this reason, and a release date is `docs-applies-to-tagging`'s answer from the plugin config, not this skill's.
 
 ## Step 3: Create the working branch
 
@@ -325,7 +340,7 @@ Open the pull requests in the Step 4e order, and cross-reference them in both bo
 
 ## Output
 
-1. **Setup** — paths used, whether the MCP was reachable, the branch created in each repo with its base and whether that checkout is a fork, and whether an area file was found
+1. **Setup** — paths used, whether the MCP was reachable, the branch created in each repo with its base and whether that checkout is a fork, and which area file was found with its age and any `status.md` entry you resolved
 2. **Intake** — scope, audience, deliverables with status, answered and open questions
 3. **Placement** — target pages, why this shape, content type and why
 4. **Verification** — verified with sources, contradicted, unverifiable
@@ -340,8 +355,9 @@ When the work spans repos, group sections 3, 5, 6, and 8 by repo rather than mer
 ## References
 
 - `references/index.md` — the area registry. Check it in Step 2
+- `references/status.md` — every in-flight transition, each with an expiry condition to resolve rather than a date to trust. Read it when an area file's frontmatter names it
 - `references/branch-setup.md` — the git recipe for Step 3 and for the gate-3 push
-- `references/_template.md` — copy to add an area. It states what belongs in an area file and what the MCP should answer instead
+- `references/_template.md` — copy to add an area. It states what belongs in an area file, what the MCP should answer instead, and the rules that keep a file from going stale
 - `references/ste-overlay.md` — optional Simplified Technical English prose overlay. Opt in through `$EDITORIAL_PREFERENCES_PATH`; not loaded by default
 - Baseline: `AGENTS.md` and `contribute-docs/` in docs-content. Read at run time, never copied here
 - Companion skills: the table in Step 9a. Collect what they need and do not restate their rules
