@@ -412,7 +412,23 @@ Then report the issue URL and what happens next: the docs team triages and prior
 - Unanswered feedback on an issue can get it closed, and reopening it after an edit is fine.
 - An internal requester can link the new public docs issue from the internal support case or private issue it came from, which puts a link in the issue's GitHub timeline for people inside Elastic.
 
-If `gh` is unauthenticated or the repository is unreachable, do not retry blindly. Hand back the title, labels, and body, and point the requester at the template so they can paste it in. A draft they can file themselves is a better outcome than a failed command.
+If `gh issue create` fails, **read the error before doing anything else**, and never resolve it by changing the repository on your own. Two failures land here and they need opposite responses.
+
+**The CLI is the problem.** `gh: Not logged into any GitHub hosts`, or a missing scope, or an SSO authorization error. The draft is fine and the requester's browser session probably works even though the token does not, so open the create page prefilled instead:
+
+```
+gh issue create --repo <owner/repo> --web \
+  --title "<prefix><title>" --body-file "$DRAFT"
+```
+
+`--web` builds a URL rather than calling the API, so it does not depend on the token. A long body can exceed the maximum URL length, and `gh` refuses rather than truncating — fall back to the paste below when it does.
+
+**The repository is unreachable.** `GraphQL: Could not resolve to a Repository with the name '<owner/repo>'`. GitHub returns 404 for a private repository you cannot see, so this message is **identical** whether the repository does not exist or the requester simply lacks access — and for `elastic/docs-content-internal` it is almost always access. Do not tell them to paste it into the template: they cannot open that repository in a browser either. Ask which they want:
+
+- **Get access first** — stop and keep the draft. Say what to request.
+- **File publicly instead** — only when the sensitive content can come out. Summarize the key points, link the internal source and mark it internal-only, then re-route through Step 3 for the public template, prefix, and labels. Never carry the private body across unchanged.
+
+In both cases the draft survives, which is the point — a draft the requester can file themselves beats a failed command. Hand back the title, the labels for them to add by hand, and the body. The body is formatted as `### Field label` blocks to mirror what GitHub produces from a submitted form, so it does not paste into a form's separate input boxes. It pastes into a blank issue, which `docs-content` still allows because no `config.yml` disables them.
 
 ## References
 
