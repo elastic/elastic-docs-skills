@@ -1,0 +1,73 @@
+{
+  "skill_name": "docs-check-kibana-oas",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this Kibana route definition for OAS compliance:\n\n```typescript\n// server/routes/agents.ts\nrouter.versioned.get({\n  path: '/api/agent_builder/agents/{agent_id}/conversations',\n  summary: 'Get all agent builder conversation history for a specific agent',\n  description: 'Returns all conversations associated with an agent.',\n  options: {\n    tags: ['access:agentBuilder'],\n    availability: {\n      since: '9.5.0',\n    },\n  },\n})\n.addVersion(\n  {\n    version: '2023-10-31',\n    validate: {\n      request: {\n        params: schema.object({\n          agent_id: schema.string(),\n        }),\n      },\n    },\n  },\n  handler\n)\n```",
+      "expected_output": "Flags missing stability in availability, summary over 45 chars, missing oas-tag, missing path param description, missing oasOperationObject, and notes the description lacks a narrative doc link",
+      "expectations": [
+        "Flags missing 'stability' in the availability block (rule 1)",
+        "Flags summary exceeds 45 characters (rule 2)",
+        "Flags missing 'oas-tag:' entry in the tags array (rule 5)",
+        "Flags agent_id path parameter missing meta.description (rule 6)",
+        "Flags missing oasOperationObject for response examples (rule 12)",
+        "Does NOT flag availability as entirely missing — it exists but is incomplete",
+        "Does NOT flag description as missing — it is present"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review this Kibana route for OAS compliance. The route was first added in 9.2.0 and is experimental. The PR adds a new 'reasoning_level' property in 9.6.0:\n\n```typescript\n// server/routes/conversations.ts\nrouter.versioned.post({\n  path: '/api/agent_builder/conversations',\n  summary: 'Create a conversation',\n  description: 'Create a new agent conversation.',\n  options: {\n    tags: ['access:agentBuilder', 'oas-tag:Agent builder'],\n    availability: {\n      stability: 'experimental',\n      since: '9.2.0',\n    },\n  },\n})\n.addVersion(\n  {\n    version: '2023-10-31',\n    validate: {\n      request: {\n        body: schema.object({\n          title: schema.string({\n            meta: { description: 'The conversation title.' },\n          }),\n          reasoning_level: schema.maybe(\n            schema.oneOf(\n              [schema.literal('low'), schema.literal('medium'), schema.literal('high')],\n              {\n                meta: {\n                  description: 'Reasoning effort level for the LLM.',\n                },\n              }\n            )\n          ),\n        }),\n      },\n    },\n    options: {\n      oasOperationObject: () => path.join(__dirname, 'examples/conversations_create.yaml'),\n    },\n  },\n  handler\n)\n```",
+      "expected_output": "Flags missing property-level availability on reasoning_level and suggests enum value descriptions for low/medium/high",
+      "expectations": [
+        "Flags reasoning_level as a new property on a 9.2.0 route that needs its own meta.availability with stability and since for 9.6.0 (rule 10)",
+        "Flags or suggests enum value descriptions for low/medium/high if their meaning is non-obvious (rule 8)",
+        "Does NOT flag route-level availability — stability and since are both present (rule 1)",
+        "Does NOT flag summary — it is under 45 characters and starts with a verb (rule 2)",
+        "Does NOT flag description as missing (rule 3)",
+        "Does NOT flag tags — oas-tag is present (rule 5)",
+        "Does NOT flag oasOperationObject as missing — it is present (rule 12)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review this fully compliant Kibana route for OAS compliance:\n\n```typescript\n// server/routes/attachments.ts\nrouter.versioned.get({\n  path: '/api/agent_builder/conversations/{conversation_id}/attachments/{attachment_id}',\n  summary: 'Get an attachment',\n  description: 'Get a single attachment by ID for a conversation. To learn more, refer to the [agent chat documentation](https://www.elastic.co/docs/explore-analyze/ai-features/agent-builder/chat).',\n  options: {\n    tags: ['access:agentBuilder', 'oas-tag:Agent builder'],\n    availability: {\n      stability: 'experimental',\n      since: '9.5.0',\n    },\n  },\n})\n.addVersion(\n  {\n    version: '2023-10-31',\n    validate: {\n      request: {\n        params: schema.object({\n          conversation_id: schema.string({\n            meta: { description: 'The unique identifier of the conversation.' },\n          }),\n          attachment_id: schema.string({\n            meta: { description: 'The unique identifier of the attachment.' },\n          }),\n        }),\n      },\n    },\n    options: {\n      oasOperationObject: () => path.join(__dirname, 'examples/attachments_get.yaml'),\n    },\n  },\n  handler\n)\n```",
+      "expected_output": "All rules pass. No required or suggested actions.",
+      "expectations": [
+        "Reports route-level availability as passing (stability and since both present)",
+        "Reports summary as passing (under 45 chars, starts with verb, sentence case)",
+        "Reports description as passing (present and includes narrative doc link)",
+        "Reports tags as passing (oas-tag present)",
+        "Reports path parameter descriptions as passing (both params have meta.description)",
+        "Reports example reference as passing (oasOperationObject present)",
+        "Does NOT produce any ❌ required actions",
+        "Verdict shows zero required actions"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Review this Kibana route for OAS compliance:\n\n```typescript\n// server/routes/tools.ts\nrouter.versioned.delete({\n  path: '/api/agent_builder/tools/{tool_id}',\n  options: {\n    tags: ['access:agentBuilder', 'oas-tag:Agent builder'],\n    availability: {\n      stability: 'experimental',\n      since: '9.5.0',\n    },\n  },\n})\n.addVersion(\n  {\n    version: '2023-10-31',\n    validate: {\n      request: {\n        params: schema.object({\n          tool_id: schema.string(),\n        }),\n      },\n    },\n  },\n  handler\n)\n```",
+      "expected_output": "Flags missing summary, missing description, missing path param description, and missing examples",
+      "expectations": [
+        "Flags missing summary as a required action (rule 2)",
+        "Flags missing description as a required action (rule 3)",
+        "Flags tool_id path parameter missing meta.description (rule 6)",
+        "Flags missing oasOperationObject for examples (rule 12)",
+        "Does NOT flag availability — stability and since are both present (rule 1)",
+        "Does NOT flag tags — oas-tag is present (rule 5)"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review this Kibana route for OAS compliance. A sibling route on the same resource has a deprecated property:\n\n```typescript\n// server/routes/agents.ts\nrouter.versioned.put({\n  path: '/api/agent_builder/agents/{agent_id}/access',\n  summary: 'Update access control',\n  description: 'Update the access control list for an agent.',\n  options: {\n    tags: ['access:agentBuilder', 'oas-tag:Agent builder'],\n    availability: {\n      stability: 'experimental',\n      since: '9.5.0',\n    },\n  },\n})\n.addVersion(\n  {\n    version: '2023-10-31',\n    validate: {\n      request: {\n        params: schema.object({\n          agent_id: schema.string({\n            meta: { description: 'The unique identifier of the agent.' },\n          }),\n        }),\n        body: schema.object({\n          entries: schema.arrayOf(\n            schema.object({\n              id: schema.maybe(schema.string({\n                meta: {\n                  description: 'The stable user profile ID.',\n                  availability: { stability: 'experimental', since: '9.6.0' },\n                },\n              })),\n              name: schema.maybe(schema.string({\n                meta: {\n                  description: 'Deprecated. Use id instead. Retained for backward compatibility.',\n                },\n              })),\n              access_level: schema.oneOf(\n                [schema.literal('read'), schema.literal('write'), schema.literal('admin')]\n              ),\n            })\n          ),\n        }),\n      },\n    },\n    options: {\n      oasOperationObject: () => path.join(__dirname, 'examples/agents_access_put.yaml'),\n    },\n  },\n  handler\n)\n```",
+      "expected_output": "Flags name as described-deprecated without deprecated marker, flags access_level enum without descriptions, flags entries and access_level missing meta.description",
+      "expectations": [
+        "Flags 'name' property as described-deprecated in text but missing a deprecated: true marker (rule 11)",
+        "Flags access_level oneOf values (read/write/admin) as lacking descriptions for non-obvious permission levels (rule 8)",
+        "Flags the entries arrayOf schema.object and access_level as missing meta.description (rule 7)",
+        "Does NOT flag 'id' — it has both description and property-level availability (rules 7, 10)",
+        "Does NOT flag route-level availability, summary, description, tags, path params, or examples as issues"
+      ]
+    }
+  ]
+}
