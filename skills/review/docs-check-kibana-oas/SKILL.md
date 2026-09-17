@@ -136,10 +136,10 @@ If you cannot compute the hash, link to the PR files page with the bare path.
 2. ❌ **Add description for `user_id` path param** — [agents.ts:140](<link>)
    Path parameters must have `meta: { description: '...' }`.
 
-3. ⚠️ **Add narrative doc link** — [attachments.ts:105](<link>)
+3. ❌ **Add narrative doc link** — [attachments.ts:105](<link>)
    Sibling conversation routes link to the agent chat docs. Consider adding a similar link.
 
-4. ⚠️ **Summary exceeds 45 characters** — [agents.ts:684](<link>)
+4. ❌ **Summary exceeds 45 characters** — [agents.ts:684](<link>)
    `'Get all agent builder conversation attachments for a user'` → shorten to ~40 chars.
 
 ### Passes
@@ -155,8 +155,7 @@ If you cannot compute the hash, link to the PR files page with the bare path.
 ```
 
 Rules:
-- ❌ for rule violations (required actions)
-- ⚠️ for convention gaps or pre-existing issues worth fixing (suggested actions)
+- ❌ for actions the author needs to address
 - ✅ for passes — list briefly, one line each
 - Tag pre-existing issues as "(pre-existing)" so the PR author knows what they introduced vs. inherited
 - Always include the before → after when the fix is a one-liner
@@ -217,17 +216,29 @@ Summary guidelines:
 
 What to flag:
 - ❌ `summary` missing
-- ⚠️ Summary exceeds 45 characters
-- ⚠️ Summary does not start with a verb
-- ⚠️ Summary uses title case or ends with a period
+- ❌ Summary exceeds 45 characters
+- ❌ Summary does not start with a verb
+- ❌ Summary uses title case or ends with a period
 
 ### 3. Route description
 
-Every new route MUST have a `description`. Descriptions explain purpose, impact, prerequisites, constraints, and usage guidance. They support markdown formatting.
+Every new route MUST have a `description`. Descriptions support markdown formatting and should cover:
+
+- **Purpose and impact**: what does this operation do and why would a user need it?
+- **Prerequisites or context**: what should users know before calling this endpoint?
+- **Constraints**: valid values, formats, size limits, rate limits
+- **Relationships**: how parameters interact, how multiple values are handled
+
+A good description adds detail beyond the summary. A bad description just restates it.
+
+Good: `'Create a new conversation with an agent. The conversation persists across sessions and can be shared with other users via access control. To learn more, refer to the [agent chat documentation](https://www.elastic.co/docs/...).'`
+
+Bad: `'Creates a conversation.'` (restates the summary, adds nothing)
 
 What to flag:
 - ❌ `description` missing
-- ⚠️ Description is just a copy of the summary (add detail)
+- ❌ Description is just a copy or restatement of the summary
+- ❌ Description omits constraints or prerequisites that a user would need
 
 ### 4. Narrative documentation link
 
@@ -243,7 +254,7 @@ description:
 How to check: compare against sibling routes. If other routes on the same resource include a "To learn more..." or "refer to the [docs](...)" link and the new route does not, flag it.
 
 What to flag:
-- ⚠️ Missing narrative doc link when siblings include one (warning, not error — the link might not exist yet for a brand-new feature)
+- ❌ Missing narrative doc link when siblings include one (warning, not error — the link might not exist yet for a brand-new feature)
 
 ### 5. Tags
 
@@ -256,8 +267,8 @@ Tag guidelines:
 
 What to flag:
 - ❌ No `oas-tag:*` in the tags array
-- ⚠️ Tag name uses inconsistent casing vs. sibling routes
-- ⚠️ Multiple `oas-tag:` entries on a single route
+- ❌ Tag name uses inconsistent casing vs. sibling routes
+- ❌ Multiple `oas-tag:` entries on a single route
 
 ### 6. Path parameter descriptions
 
@@ -280,23 +291,47 @@ What to flag:
 
 Every new request body, query, or response property MUST have `meta: { description: '...' }`.
 
+A good property description explains what the value controls, its format, and any constraints:
+
+- ❌ `'The page size.'` — vague, no constraints, no default
+- ✅ `'The maximum number of results to return. Must be between 1 and 1000. Defaults to 20.'`
+
 What to flag:
 - ❌ New property has no `meta` at all
 - ❌ `meta` exists but has no `description`
+- ❌ Description is a single generic phrase that restates the property name (for example, `'The name.'` on a property called `name`)
 
 ### 8. Enum value descriptions
 
-When a property uses `schema.oneOf` or `schema.literal` to define a fixed set of values, each non-obvious value should be described, either in the property description or in the individual schema options.
+When a property uses `schema.oneOf` or `schema.literal` to define a fixed set of values, each value should be described, either in the property description or in the individual schema options.
+
+Skip documenting values that are self-explanatory:
+- `true` / `false`, `asc` / `desc`, `enabled` / `disabled` — obvious from the name
+- `read` / `write` / `admin` — not obvious; what does `admin` grant beyond `write`?
+- `low` / `medium` / `high` — not obvious; what concretely changes at each level?
 
 What to flag:
-- ⚠️ Enum values with no descriptions when their meaning is not obvious from the name alone
+- ❌ Enum values with no descriptions when the meaning or behavioral difference is unclear from the name
 
 ### 9. Default values
 
 Optional parameters and properties should document their defaults. In Kibana route schemas, this means using `schema.maybe(schema.string({ defaultValue: '...' }))` or documenting the server-side default in the description.
 
+Correct pattern:
+
+```typescript
+page_size: schema.maybe(
+  schema.number({
+    defaultValue: 20,
+    meta: { description: 'Number of results per page. Defaults to 20.' },
+  })
+),
+```
+
+When the default is set server-side (not in the schema), document it in the description instead: `'Sort order. The server defaults to descending if not specified.'`
+
 What to flag:
-- ⚠️ Optional parameter with an undocumented default when the behavior changes based on the value
+- ❌ Optional parameter with an undocumented default when the behavior changes based on the value
 
 ### 10. Property-level availability
 
@@ -326,8 +361,8 @@ What to flag:
 Deprecated routes or properties should be marked. In Kibana, the route's `options` supports a `deprecated` flag, and property descriptions should explain the deprecation.
 
 What to flag:
-- ⚠️ A property or route is described as deprecated in comments or description text but has no `deprecated: true` marker
-- ⚠️ Deprecated property has no description explaining what to use instead
+- ❌ A property or route is described as deprecated in comments or description text but has no `deprecated: true` marker
+- ❌ Deprecated property has no description explaining what to use instead
 
 ### 12. Response examples
 
@@ -400,9 +435,9 @@ Example guidelines:
 - Consider adding `x-codeSamples` for cURL and Console examples
 
 What to flag:
-- ⚠️ No `oasOperationObject` reference (warning — strongly recommended)
-- ⚠️ Example file contains placeholder or empty values
-- ⚠️ No response example for the success case
+- ❌ No `oasOperationObject` reference (warning — strongly recommended)
+- ❌ Example file contains placeholder or empty values
+- ❌ No response example for the success case
 
 ### 13. Cross-check: generated YAML as a diagnostic signal
 
