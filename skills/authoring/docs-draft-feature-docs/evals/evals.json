@@ -19,7 +19,7 @@
       "prompt": "elastic/docs-content#8214 asks for a new page documenting the new 'Skip partial results' toggle in the query bar. The issue title is 'New page: Skip partial results'.",
       "expected_output": "Searches for existing pages covering the query bar before accepting the new-page framing, then proposes the lightest change that closes the gap — most likely a section or a few sentences on an existing page — and pauses for sign-off on placement.",
       "expectations": [
-        "Searches docs-content and the published corpus for existing coverage before proposing a destination",
+        "Searches the published corpus with the elastic-docs MCP first, using search_docs and find_related_docs, before greping the local tree",
         "Lists candidate existing pages with what each currently says",
         "Proposes a smaller change than a new page, or justifies a new page against those candidates",
         "Does NOT accept the issue's 'new page' framing without testing it",
@@ -46,7 +46,7 @@
         "Presents the draft and intended file paths before writing anything",
         "Asks for approval to write to disk as a separate step",
         "Asks for approval to open a pull request as a second, separate step",
-        "Does NOT write files during the presentation step, though the empty Phase 2 working branch already exists by then and that is expected",
+        "Does NOT write files during the presentation step, though the empty Step 3 working branch already exists by then and that is expected",
         "Does NOT push the branch or open the pull request until the separate gate 3 approval",
         "Does NOT treat 'open a PR when you're done' as approval of an unwritten draft",
         "Opens the pull request as a draft if and when approval is given"
@@ -128,7 +128,7 @@
     {
       "id": 11,
       "prompt": "We need to document a new alerting rule option: a burn rate threshold you can set per SLO. Add it to the alerting docs.",
-      "expected_output": "Loads the alerting area file, recognizes that 'the alerting docs' names none of the four systems, and routes via compare-alerting-systems.md. Concludes an SLO burn rate rule is Observability's, so it belongs in solutions/observability/incident-management/ rather than explore-analyze/alerting/alerts/.",
+      "expected_output": "Loads the alerting area file, recognizes that 'the alerting docs' names none of the five systems, and routes via compare-alerting-systems.md. Concludes an SLO burn rate rule is Observability's, so it belongs in solutions/observability/incident-management/ rather than explore-analyze/alerting/alerts/.",
       "expectations": [
         "Reads compare-alerting-systems.md before choosing a destination",
         "Establishes which of the five alerting systems the request means rather than assuming Kibana alerting",
@@ -181,10 +181,11 @@
     {
       "id": 15,
       "prompt": "The alerting:v2:enabled advanced setting has existed since 9.5 but isn't on the Kibana advanced settings reference page. Add it. It's a bool, defaults to false, technical preview on stack 9.5+ and serverless.",
-      "expected_output": "Loads kibana-settings-reference.md, recognizes the page publishes from elastic/kibana rather than docs-content, and edits the settings YAML rather than the Markdown shell. Treats the docs-content follow-up as a second, later PR.",
+      "expected_output": "Loads kibana-settings-reference.md, recognizes the page publishes from elastic/kibana rather than docs-content, and edits the settings YAML rather than the Markdown shell. Reads the setting's uiSettings registration to decide which scope file it belongs in, and treats the docs-content follow-up as a second, later PR.",
       "expectations": [
-        "Identifies elastic/kibana as the owning repo and docs/reference/advanced-settings-global.yml as the target file, not a docs-content path",
-        "Adds a groups[].settings[] entry in YAML rather than writing prose into advanced-settings.md",
+        "Identifies elastic/kibana as the owning repo and a docs/reference/advanced-settings-*.yml file as the target, not a docs-content path",
+        "Determines the scope from the setting's uiSettings registration rather than guessing between the space and global files",
+        "Adds a groups[].settings[] entry in YAML rather than writing prose into the Markdown shell",
         "Uses the full schema: setting, description, datatype: bool, default: false, and applies_to",
         "Scopes applies_to with the deployment keys rather than only stack and serverless",
         "Places the entry by Kibana UI order rather than alphabetically or at the end of the file",
@@ -200,8 +201,8 @@
       "expectations": [
         "Verifies the setting against the Cases plugin server config rather than trusting the request or existing entries",
         "Resolves the cases link against the current docs-content tree, reaching explore-analyze/cases.md",
-        "Does not copy docs-content://explore-analyze/alerts-cases/cases.md from the neighboring entries, identifying it as stale and surviving only via a redirect",
-        "Edits cases-settings.yml rather than the 13-line cases-settings.md shell",
+        "Does not copy a cross-repo link path from the neighboring entries without resolving it, since several are stale and survive only via a redirect",
+        "Edits cases-settings.yml rather than the cases-settings.md shell",
         "Keeps the description in docs prose voice despite it being inside a YAML block scalar"
       ]
     },
@@ -210,8 +211,8 @@
       "prompt": "We shipped a new built-in skill for Agent Builder that summarizes a host's recent activity. It's useful for Security folks triaging alerts. Please document it.",
       "expected_output": "Adds a row to the built-in skills reference on the platform side rather than creating a page, verifies the skill against the agent_builder plugin registration, and resists the pull toward the Security tree just because the use case is Security-flavored.",
       "expectations": [
-        "Loads agent-builder.md and treats explore-analyze/ai-features/agent-builder/ as the default home",
-        "Adds a row to builtin-skills-reference.md rather than creating a new page per built-in",
+        "Loads agent-builder.md and treats the platform tree under explore-analyze/ai-features/ as the default home",
+        "Finds the built-in skills reference page by searching rather than assuming its path, and adds a row to it rather than creating a new page per built-in",
         "Verifies the skill against x-pack/platform/plugins/shared/agent_builder rather than trusting the request",
         "Declines to put it in solutions/security/ai/agent-builder/, noting that a Security-flavored use case does not make it Security content",
         "Makes no toc.yml change, since a reference table row needs none",
@@ -262,11 +263,11 @@
       "prompt": "Draft the page for the new bulk-tag action. I've pointed EDITORIAL_PREFERENCES_PATH at the STE overlay. Also tighten up the two paragraphs above where the new content goes while you're in there.",
       "expected_output": "Applies the overlay to the new prose only, declines to restyle the untouched paragraphs, and keeps the style guide ahead of the overlay if the two disagree.",
       "expectations": [
-        "Reads the file at $EDITORIAL_PREFERENCES_PATH in Step 4 and applies it to the drafted prose",
+        "Reads the file at $EDITORIAL_PREFERENCES_PATH in Step 7 and applies it to the drafted prose",
         "Declines to rewrite the two surrounding paragraphs, citing the new-prose-only scope and the lightest-change rule",
         "Treats the overlay as additive, deferring to the Elastic style guide where they conflict and saying so rather than silently following the overlay",
         "Does not apply the overlay to identifiers, CLI flags, or config keys",
-        "Still runs the Step 6 companion skills, since the overlay does not replace docs-check-style or Vale"
+        "Still runs the Step 9a companion skills, since the overlay does not replace docs-check-style or Vale"
       ]
     },
     {
@@ -281,7 +282,7 @@
         "Surfaces pending links, missing anchors, and needed screenshots rather than leaving them for the reviewer to find",
         "Answers the generative AI disclosure honestly, naming the tool",
         "Does not fabricate preview URLs, noting the build posts them once the PR exists",
-        "Derives all of it from Steps 2 through 5 rather than re-gathering",
+        "Derives all of it from Steps 5 through 9 rather than re-gathering",
         "Presents the description and takes an explicit approval before opening, and opens with --draft"
       ]
     },
@@ -290,7 +291,7 @@
       "prompt": "Draft docs for the new Kibana task manager setting in elastic/kibana#201455. My kibana checkout is a fork.",
       "expected_output": "Creates the working branch before analyzing the issue, and bases it on the canonical remote rather than the fork's own default branch.",
       "expectations": [
-        "Creates the branch in Phase 2, before reading the issue and before proposing any change",
+        "Creates the branch in Step 3, before reading the issue and before proposing any change",
         "Identifies the canonical remote by URL match on github.com/elastic/ rather than by assuming the remote is named origin or upstream",
         "Bases the branch on the canonical remote's default branch, not origin/main, because origin is the fork and goes stale",
         "Fetches before branching and bases on the remote-tracking ref rather than the local branch of the same name",
@@ -314,11 +315,48 @@
     {
       "id": 25,
       "prompt": "Document the new internal retry counter. It has no UI and no setting.",
-      "expected_output": "Concludes no docs are needed, then cleans up the branch it created in Phase 2 instead of leaving it behind.",
+      "expected_output": "Concludes no docs are needed, then cleans up the branch it created in Step 3 instead of leaving it behind.",
       "expectations": [
-        "Concludes in Step 1c that nothing needs documenting",
+        "Concludes in Step 4c that nothing needs documenting",
         "Switches back off the working branch and deletes it, since the run wrote nothing and the branch is empty",
         "Does not write a page, a toc.yml entry, or a PR to justify the branch it already made"
+      ]
+    },
+    {
+      "id": 26,
+      "prompt": "Document the new 'Pause ingestion' control on the data streams page. Where does it go?",
+      "expected_output": "Uses the elastic-docs MCP to find the existing data streams coverage before touching a local tree, reads the candidates it returns, and uses the local checkout only for what the MCP cannot see.",
+      "expectations": [
+        "Calls search_docs and find_related_docs on the feature and on the reader's task before greping any repo",
+        "Reads the strongest candidates with get_document_by_url and includeBody: true rather than relying on titles and summaries",
+        "Uses the local trees for what the MCP cannot see — toc.yml, snippets, hidden: entries, and in-flight pages — rather than as the primary search",
+        "Locates the file behind a published page from the page slug rather than assuming a directory layout",
+        "Does NOT expect an area reference file to contain a page inventory"
+      ]
+    },
+    {
+      "id": 27,
+      "prompt": "Draft the new retention policy section. (Run this with the elastic-docs MCP server not configured.)",
+      "expected_output": "Falls back to WebFetch on the published URLs, still completes the placement search, and says in the output that MCP discovery was unavailable so the search was narrower.",
+      "expectations": [
+        "Detects that the elastic-docs MCP is unreachable rather than failing or silently skipping the placement search",
+        "Falls back to WebFetch on the published URLs with .md appended",
+        "States in the Setup section of the output that the MCP was unavailable and the placement search was narrower",
+        "Does NOT present the narrower search as a complete one",
+        "Still greps the local trees, which do not depend on the MCP"
+      ]
+    },
+    {
+      "id": 28,
+      "prompt": "The draft and the paths look right. Go ahead and write the files.",
+      "expected_output": "Writes onto the Step 3 branch, then runs docs-review-pr against the branch as a self-review before asking for the gate 3 approval, and reports its recommendation.",
+      "expectations": [
+        "Confirms it is on the Step 3 working branch before writing, rather than assuming",
+        "Runs docs-review-pr against the branch after the write and before asking about a pull request",
+        "Reports the review recommendation — approve, comment, or request changes — in the output",
+        "Fixes what the review raises rather than opening a pull request its own pre-review would have blocked",
+        "Names companion skills by their frontmatter names, such as docs-check-style, and reports any that are not installed as not checked rather than as clean",
+        "Does NOT treat the write approval as approval to open a pull request"
       ]
     }
   ]

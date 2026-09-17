@@ -1,10 +1,10 @@
 ---
 name: docs-draft-feature-docs
-version: 1.2.0
+version: 2.0.0
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Edit, Write, WebFetch, CallMcpTool, Bash(gh *), Bash(git *), AskUserQuestion
+allowed-tools: Read, Grep, Glob, Edit, Write, WebFetch, CallMcpTool, Skill, Agent, Bash(gh *), Bash(git *), AskUserQuestion
 sources:
   - https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs
   - https://www.elastic.co/docs/contribute-docs/style-guide
@@ -28,34 +28,61 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License. -->
 
-You draft Elastic documentation for any feature or feature area. One skill, one baseline, for every area — so a page about Security and a page about Fleet arrive at review with the same structure, scoping, and voice, regardless of who drafted them.
+You draft Elastic documentation for any feature or feature area. One skill and one baseline for every area, so that a page about Security and a page about Fleet arrive at review with the same structure, scoping, and voice.
 
 <!-- Maintainers: `context: fork` is omitted on purpose. This skill interviews the
 requester and takes approval before writing anything, so it stays in the main context. -->
 
-## The one rule that shapes everything else
+## The baseline
 
-**The baseline already exists. Read it, apply it, and never restate it here.**
+**Read the baseline, apply it, and never restate it here.**
 
-`AGENTS.md` at the root of docs-content is the shared agent baseline, and `contribute-docs/` is the full contribution guide. They cover the core principles, the style guide, cumulative docs, content types, and the PR checklist. A skill that keeps its own copy of those rules becomes one more version that drifts, which is the problem this skill exists to solve.
+`AGENTS.md` at the root of docs-content is the shared agent baseline, and `contribute-docs/` is the full contribution guide. Between them they cover the core principles, the style guide, cumulative docs, content types, and the PR checklist. A skill that keeps its own copy of those rules becomes a second version that drifts from them.
 
-So: this file contains the *process*, the per-area reference files contain *area facts*, and every rule about how Elastic docs should read comes from the baseline at run time.
+So this file holds the *process*, the area reference files hold *area facts*, and every rule about how Elastic docs should read is loaded from the baseline at run time. When `AGENTS.md` and the contribution guide disagree, the guide wins — that is the baseline's own precedence rule.
 
-When `AGENTS.md` and the contribution guide disagree, the guide wins — that is the baseline's own precedence rule.
+## Where facts come from
+
+Three sources, each answering something the other two cannot. Asking the wrong one produces a claim that looks verified and is not.
+
+| Source | What it knows | What it cannot tell you |
+|---|---|---|
+| **`elastic-docs` MCP** at `https://www.elastic.co/docs/_mcp/`, no auth | Every published page: what exists, what it says, how it is structured, and what it relates to | Anything unpublished: `toc.yml`, `docset.yml`, `redirects.yml`, `_snippets/`, `hidden:` pages, or a page in an unmerged pull request |
+| **Local checkouts** of docs-content and product repos | The files you are about to edit, plus navigation, redirects, and snippets | Nothing about the live site, and nothing about a repo you have not cloned |
+| **Product source at `HEAD`** | UI strings, defaults, parameter names, limits, and behavior | Which release carries the change — see Step 4d |
+
+**Find pages with the MCP rather than from a path list.** Do not encode a page inventory in this skill or in an area reference file when a search can find it and stay current. Area files record only what the MCP cannot answer: boundaries, product source paths, local conventions, navigation files, and known traps.
+
+| MCP tool | Use it to |
+|---|---|
+| `search_docs` | Find published pages on the topic. This is the first move in Step 5, and the answer to "does this already exist?" |
+| `find_related_docs` | Find the hub page, the siblings, and the cross-link targets around a topic |
+| `get_document_by_url` | Read a candidate page. Pass `includeBody: true`, or you get headings and summaries only |
+| `analyze_document_structure` | See a page's parent pages, which is how you place content in the hierarchy that already exists |
+| `check_docs_coherence` | Check whether the topic is already covered coherently before adding to it |
+| `find_docs_inconsistencies` | Find pages that already disagree with each other on this topic |
+
+To get from a published page to the file that produces it, read the page with `get_document_by_url`, then find the file by its slug — `rg --files -g '*<slug>*' <repo>`. Do not infer the owning repo from the URL; Step 4e settles that.
+
+If the MCP is not configured, fall back to WebFetch on the same URLs with `.md` appended, and say in the output that MCP discovery was unavailable so the placement search was narrower. Check reachability with `npx @modelcontextprotocol/inspector --url https://www.elastic.co/docs/_mcp/`.
 
 ## Constraints
 
-- **Never write a file or open a pull request without explicit approval.** See *Approval gates*. This matches the baseline's own statement that its conventions are not instructions to push or open PRs on your own. Creating the working branch in Phase 2 is the one exception, because an empty local branch changes nothing and is reversible.
-- **Never commit to, or write on, a default branch.** Phase 2 puts you on a working branch before anything else happens.
-- Never invent a UI label, a default value, a parameter name, or a behavior. Every concrete claim is verified in Step 3 or surfaced as an open question.
-- Never invent or generate a screenshot. Name the screenshot that is needed and where it goes.
+- **Never write a file or open a pull request without explicit approval.** See *Approval gates*. This matches the baseline's own statement that its conventions are not instructions to push or open pull requests on your own. Creating the working branch in Step 3 is the one exception, because an empty local branch changes nothing and is reversible.
+- **Never commit to, or write on, a default branch.** Step 3 puts you on a working branch before anything else happens.
+- Never invent a UI label, a default value, a parameter name, or a behavior. Every concrete claim is verified in Step 6 or surfaced as an open question.
+- Never invent or generate a screenshot. Name the screenshot that is needed and say where it goes.
 - An area reference file may **add** facts and narrow choices. It may never override the style guide, content types, cumulative-docs rules, or the approval gates.
 
-## Phase 0: Resolve paths
+## Inputs
+
+`$ARGUMENTS` is a doc issue URL or `owner/repo#number`, a product pull request, a page path, or a free-text description. If empty, ask what needs documenting.
+
+## Step 1: Resolve paths
 
 Do this once per machine, then reuse. Resolve in this order and stop at the first hit: environment variable, then `~/.config/elastic-docs/docs-draft-feature-docs.local.yml`, then ask.
 
-That config file uses one key per row of the table below, named after the variable in lower snake case, so `$DOCS_CONTENT_ROOT` is `docs_content_root`. Use those exact keys when writing it back, so a later hand-edit and a first run agree:
+The config file uses one key per row of the table below, named after the variable in lower snake case, so `$DOCS_CONTENT_ROOT` is `docs_content_root`. Use those exact keys when writing it back, so a later hand-edit and a first run agree:
 
 ```yaml
 docs_content_root: /path/to/docs-content
@@ -66,20 +93,20 @@ docs_pitfalls_path: /path/to/pitfalls.md              # optional
 
 | Path | Variable | Needed for |
 |---|---|---|
-| docs-content clone | `$DOCS_CONTENT_ROOT` | The baseline, sibling pages, `toc.yml`, snippets. Always required |
-| Product repo clones | `$KIBANA_ROOT`, `$ELASTICSEARCH_ROOT`, others as needed | Verifying claims at `HEAD` in Step 3, and **as the working tree** when the product repo owns the page |
+| docs-content clone | `$DOCS_CONTENT_ROOT` | The baseline, navigation, snippets, and the files you edit. Always required |
+| Product repo clones | `$KIBANA_ROOT`, `$ELASTICSEARCH_ROOT`, others as needed | Verifying claims at `HEAD` in Step 6, and **as the working tree** when the product repo owns the page |
 | Pitfalls checklist | `$DOCS_PITFALLS_PATH` | Optional. A personal list of doc-shaped mistakes to sweep for |
-| Editorial preferences | `$EDITORIAL_PREFERENCES_PATH` | Optional. Prose-craft preferences, complementary to the style guide. Consumed in Step 4. Can point at `references/ste-overlay.md` or at the writer's own file |
+| Editorial preferences | `$EDITORIAL_PREFERENCES_PATH` | Optional. Prose-craft preferences, complementary to the style guide. Consumed in Step 7. Can point at `references/ste-overlay.md` or at the writer's own file |
 
-The last two rows are **per-writer, not per-area**. They tune how one person drafts, which is why they are opt-in and why the overlay that ships with this skill stays off until pointed at. Area reference files are the opposite: facts about a docs area that every writer needs, so Phase 1 loads them automatically. Never move a preference into an area file, or an area fact into a preference file.
+The last two rows are **per-writer, not per-area**. They tune how one person drafts, which is why they are opt-in and why the overlay that ships with this skill stays off until pointed at. Area reference files are the opposite: facts about a docs area that every writer needs, so Step 2 loads them automatically. Never move a preference into an area file, or an area fact into a preference file.
 
-Existing files stay where they are — record the path, never move or overwrite. Write the resolved paths back to the config so later runs skip this phase. Do not hard-code a home directory or a username anywhere.
+Existing files stay where they are — record the path, never move or overwrite. Write the resolved paths back to the config so later runs skip this step. Do not hard-code a home directory or a username anywhere.
 
-A product repo plays one of two roles, and confusing them wastes a whole pass. Usually it is **read-only**: you verify claims there and write the page in docs-content. Sometimes it **owns the page** and is where the edit lands — reference content often lives in the product repo's own `docs/` tree, with its own `docset.yml`, `toc.yml`, and `redirects.yml`. Step 1e settles which, and a published URL is not evidence: `elastic.co/docs/reference/kibana/` publishes from `elastic/kibana`, not from docs-content.
+A product repo plays one of two roles, and confusing them wastes a whole pass. Usually it is **read-only**: you verify claims there and write the page in docs-content. Sometimes it **owns the page** and is where the edit lands, because reference content often lives in the product repo's own `docs/` tree with its own `docset.yml`, `toc.yml`, and `redirects.yml`. Step 4e settles which, and a published URL is not evidence: `elastic.co/docs/reference/kibana/` publishes from `elastic/kibana`, not from docs-content.
 
-## Phase 1: Load the baseline
+## Step 2: Load the baseline and the area file
 
-Unconditional. It runs whether or not an area file exists, and an area file cannot switch it off.
+Loading the baseline is unconditional. It runs whether or not an area file exists, and an area file cannot switch it off.
 
 ```
 $DOCS_CONTENT_ROOT/AGENTS.md
@@ -88,77 +115,34 @@ $DOCS_CONTENT_ROOT/contribute-docs/            # follow the links AGENTS.md give
 $DOCS_CONTENT_ROOT/frontmatter.config.yml
 ```
 
-`AI.md` is not optional reading here. It holds the drafts this skill produces to the same bar as hand-written ones and puts the name on the pull request in charge of every word. Say so when you hand over the draft.
+`AI.md` is not optional reading. It holds the drafts this skill produces to the same bar as hand-written ones and puts the name on the pull request in charge of every word. Say so when you hand over the draft.
 
 Then check `references/index.md` in this skill directory for the target area.
 
 - **A specialist skill is registered for the area** — hand off and stop. Do not draft a second opinion.
-- **An area file exists** — load it. Its six sections tell you where pages live, what settles a fact, what to read first, local conventions, what navigation to update, and the known traps.
-- **Neither exists** — continue anyway. Derive conventions from sibling pages in the target directory, and say in your output that no area file was available so the user knows what to add later.
+- **An area file exists** — load it. It tells you the area's boundary, which product source settles a fact, the local conventions, which navigation file to edit, and the known traps. It does not list pages; use `search_docs` for that.
+- **Neither exists** — continue anyway. Derive conventions from sibling pages found through `find_related_docs`, and say in your output that no area file was available so the user knows what to add later.
 
-A request can straddle two areas — two area files, or an area file and a specialist's directory. Split it: draft each part against the file that owns it, and delegate any specialist's part. Load both files when the areas name each other as a seam. Say which half went where, so nothing looks silently dropped.
+A request can straddle two areas — two area files, or an area file and a specialist's territory. Split it: draft each part against the file that owns it, and delegate any specialist's part. Say which half went where, so nothing looks silently dropped.
 
 Before routing to a specialist, confirm it is installed. Delegating to a skill that is not on the machine fails, and falling back to the area file or sibling pages beats stopping.
 
-## Inputs
-
-`$ARGUMENTS` is a doc issue URL or `owner/repo#number`, a product pull request, a page path, or a free-text description. If empty, ask what needs documenting.
-
-## Phase 2: Create the working branch
+## Step 3: Create the working branch
 
 Create it before reading the issue, so no draft, edit, or `toc.yml` change can land on the default branch. Unlike a file write or a pull request, a new local branch is empty and reversible, so this is not gated — but report what you created and what you based it on.
 
-### Find the base
+**Follow `references/branch-setup.md` for the commands.** The four rules it enforces:
 
-**Never assume `origin` is the canonical repo, and never assume the default branch is `main`.** When the checkout is a fork, `origin` is the writer's own copy, and `origin/main` is stale the moment the fork falls behind. Basing on it starts the work from old content without anything looking wrong.
+- **Resolve the canonical remote by URL**, matching `github.com/elastic/`, rather than trusting the name `origin`. On a fork, `origin/main` is the writer's own stale copy, and basing on it starts the work from old content with nothing looking wrong.
+- **Resolve the default branch** off that remote instead of assuming `main`, and base on the remote-tracking ref rather than the local branch of the same name.
+- **Stop and ask** on an uncommitted tree, a non-default branch, or a detached HEAD. Never stash, reset, or discard anything to clear the way.
+- **Pass `--no-track`** when creating the branch, so a stray `git pull` cannot merge the default branch into the work.
 
-Identify the canonical remote by URL rather than by name, because the name varies and a busy clone can carry dozens of collaborators' forks as remotes:
+Do this in `$DOCS_CONTENT_ROOT` now. When Step 4e names a second repo, branch there at that point the same way. If the run ends without writing anything — Step 4c concluded no docs are needed, or the user declined at gate 1 — switch back and delete the branch.
 
-```
-git -C <repo> remote -v | grep '(fetch)' | grep -E 'github\.com[:/]elastic/'
-```
+## Step 4: Understand the request
 
-| Result | What it means | Base on | Push to |
-|---|---|---|---|
-| One match, named `origin` | Direct clone | `origin` | `origin` |
-| One match under another name, usually `upstream` | Fork | that remote | `origin`, the fork |
-| No match | Fork with no canonical remote configured | Ask first | — |
-| Several matches | Ambiguous | Ask which is canonical | — |
-
-With no match, offer `git remote add upstream https://github.com/elastic/<repo>.git` rather than guessing. Branching from a fork's own default branch is a fallback the user chooses knowingly, not one you pick for them.
-
-Then fetch, and read the default branch off the canonical remote instead of hard-coding it:
-
-```
-git -C <repo> fetch <canonical>
-git -C <repo> symbolic-ref refs/remotes/<canonical>/HEAD    # fallback: gh repo view elastic/<repo> --json defaultBranchRef
-```
-
-Base on the remote-tracking ref `<canonical>/<default>`, never on the local branch of the same name — a local `main` is only as fresh as the last pull. The default branch is the right base in nearly every case; targeting a released version branch instead is an exception the user has to name.
-
-### Check the checkout is safe
-
-Stop and ask in each of these. Never stash, reset, or discard anything to clear the way.
-
-- **Uncommitted changes**, meaning `git status --porcelain` is non-empty. Switching carries them onto the new branch and mixes unrelated work into yours.
-- **Already on a non-default branch.** It may be one the user made for this exact task, or unrelated work in progress. Ask whether to use it or branch fresh.
-- **Detached HEAD.**
-
-### Create it
-
-Name it from the issue where there is one. `docs-issue-<number>-<short-slug>` is the clearest convention in use in docs-content, though naming there is not uniform, so check recent history before assuming a shape in another repo: `gh pr list --repo <owner/repo> --state merged --limit 20 --json headRefName`.
-
-```
-git -C <repo> switch -c <branch> <canonical>/<default>
-```
-
-Do this in `$DOCS_CONTENT_ROOT` now. When Step 1e names a second repo, branch there at that point the same way — each repo gets its own branch and its own base, since a fork on one side tells you nothing about the other.
-
-If the run ends without writing anything, because Step 1c concluded no docs are needed or the user declined at gate 1, switch back and delete the branch. It is empty, so nothing is lost.
-
-## Step 1: Understand the request
-
-### 1a. Read the issue and the code
+### 4a. Read the issue and the code
 
 For a doc issue, read it with `gh issue view <n> --repo <owner/repo> --json title,body,comments,labels`. Extract the writer brief — scope, target pages, acceptance criteria, suggested work — and track every deliverable through to the draft as addressed, deferred, or blocked.
 
@@ -171,15 +155,15 @@ gh pr diff <n> --repo <owner/repo>
 
 Pass the number with `--repo`, or a full URL. The shorthand `gh pr view elastic/kibana#12345` does **not** work — `gh` reads it as a branch name.
 
-**One pull request is rarely the whole change.** Search for siblings before concluding: by the same author around the same date, by shared issue reference, by the feature flag or identifier name, and by the linked epic. A follow-up PR that renamed the setting makes the first diff misleading.
+**One pull request is rarely the whole change.** Search for siblings before concluding: by the same author around the same date, by shared issue reference, by the feature flag or identifier name, and by the linked epic. A follow-up pull request that renamed the setting makes the first diff misleading.
 
-### 1b. Classify the open questions
+### 4b. Classify the open questions
 
-Sort every unknown into resolved, unresolved, or researchable. Answer the researchable ones yourself in Step 3. Ask the user the unresolved ones and **do not draft until they are answered**, or until the user says to proceed on stated assumptions, which you then record in the output.
+Sort every unknown into resolved, unresolved, or researchable. Answer the researchable ones yourself in Step 6. Ask the user the unresolved ones and **do not draft until they are answered**, or until the user says to proceed on stated assumptions, which you then record in the output.
 
 Ask for an audience you can actually write to. "Operators" is not enough. Get the technical level, the role, and whether this is a day-0 task or something a user reaches later.
 
-### 1c. Decide whether to document at all
+### 4c. Decide whether to document at all
 
 | The change | What to do |
 |---|---|
@@ -189,17 +173,17 @@ Ask for an audience you can actually write to. "Operators" is not enough. Get th
 | A workflow gained a step or option users would otherwise miss | Real gap. Draft it |
 | A page is deliberately general and the request adds specifics | Usually not a gap. Say so |
 
-The honest answer that nothing needs documenting is a useful result, not a failure.
+Concluding that nothing needs documenting is a valid result. Report it and stop rather than finding something to write.
 
-### 1d. Establish the availability floor
+### 4d. Establish the availability floor
 
 **A backport label is not a shipped release.** Neither is a merged pull request. Establish which released version actually carries the change before any version reaches the page, and say which evidence you used. Collect the deployment answers too — stack, serverless, and the deployment types — since the content is scoped, not versioned.
 
-### 1e. Confirm which repos own the work
+### 4e. Confirm which repos own the work
 
 Do not assume docs-content, and do not assume a single owner. Narrative user documentation lives there, but reference content often lives in the product repo's own docs tree, so **one request routinely splits across two repos** — a Workflows change can need authoring content in docs-content, a setting in `kibana/docs/reference/`, and a connector page in the same Kibana tree.
 
-Split it the way Phase 1 splits a request across two areas: assign each deliverable to the repo that owns it, and say which half went where so nothing looks silently dropped. Then run Phase 2 in each newly named repo, resolving its canonical remote and base separately.
+Split it the way Step 2 splits a request across two areas: assign each deliverable to the repo that owns it, and say which half went where so nothing looks silently dropped. Then run Step 3 in each newly named repo, resolving its canonical remote and base separately.
 
 Then order the halves, because this decides more than where the branch goes:
 
@@ -208,21 +192,21 @@ Then order the halves, because this decides more than where the branch goes:
 
 State the order and the reason at the first approval gate. When the order forces a wait, say so plainly — the second pull request is blocked until the first publishes, not merely until it merges.
 
-## Step 2: Place the content
+## Step 5: Place the content
 
 The baseline says find the canonical home and place each detail once. Start from the assumption that an existing page should absorb this, and make adding a page the deliberate exception.
 
-1. Search the published corpus with `search_docs`, `find_related_docs`, and `check_docs_coherence` on the elastic-docs MCP.
-2. Grep the local trees for the feature name and its identifiers — `$DOCS_CONTENT_ROOT` **and the docs tree of every product repo Step 1e named**. A grep limited to docs-content cannot see `kibana/docs/`, so it reports a gap that is already filled and you place a second copy.
-3. List the candidate pages you found, with what each one currently says.
-4. Propose **the lightest change that closes the gap** — a sentence in place beats a section, a section beats a page.
+1. **Search the published corpus first**, with `search_docs` on the feature name and on the reader's task, then `find_related_docs` for the hub and siblings, then `check_docs_coherence` on the topic. Read the best candidates with `get_document_by_url` and `includeBody: true`, and use `analyze_document_structure` to see what each one's parents are.
+2. **Then grep the local trees** for the feature name and its identifiers, in `$DOCS_CONTENT_ROOT` **and the docs tree of every product repo Step 4e named**. This catches what the MCP cannot see: pages that are `hidden:`, unpublished, or in flight. A grep limited to docs-content cannot see `kibana/docs/`, so it reports a gap that is already filled and you place a second copy.
+3. List the candidate pages you found, with what each one currently says and its URL or path.
+4. Propose **the lightest change that closes the gap**: a sentence in place, then a section, then a new page, in that order of preference.
 5. Pause for sign-off when the information architecture is ambiguous, when the change spans several pages, or when you are proposing a new page.
 
 For content type, hand the proposal to `docs-content-type-checker` in classify mode and start from the matching template in `contribute-docs/content-types/_snippets/templates/`. When no content type genuinely fits, say so explicitly, describe the structure you are using instead, and why — do not force the page into the nearest type in silence.
 
-## Step 3: Enumerate the claims, then verify them
+## Step 6: Enumerate the claims, then verify them
 
-Do this in two passes, in this order. Enumerating first is what stops you from verifying the three facts you happened to notice and waving the rest through.
+Do this in two passes, in this order. Enumerate first, or you verify the few facts you happened to notice and wave the rest through.
 
 **Pass one.** List every concrete claim the draft will make: each UI string, menu path, field name, identifier, default value, limit, permission, and behavior.
 
@@ -232,37 +216,61 @@ Because these docs are cumulative, also confirm each claim holds for the earlier
 
 Report the result as three lists: verified with where you checked, contradicted with what you found instead, and unverifiable. **Unverifiable facts go in the output as open questions. They never go in the draft as prose.**
 
-Then sweep the pitfalls checklist from Phase 0, if there is one.
+Then sweep the pitfalls checklist from Step 1, if there is one.
 
-## Step 4: Draft
+## Step 7: Draft
 
-Quality is a property of the drafting, not a checklist run afterward. Apply the baseline's core principles and style guide **as you write** — drafting freely and cleaning up in Step 6 produces a page that passes the linters and still reads like a changelog entry.
+Apply the baseline's core principles and style guide **as you write**. Drafting freely and cleaning up in Step 9 produces a page that passes the linters and still reads like a changelog entry. The rubric your draft will be measured against in Step 9 is the review checklist in `docs-review-pr`, at `references/review-criteria.md` in that skill — read it if you want to know what the reviewer will look for.
 
 Three moves the baseline leaves to your judgment:
 
 - **Order for progressive disclosure.** What it is, then how to use it, then the edge cases. The content-type template gives you the sections; the sequence and weight inside them are yours.
-- **Translate the framing you were handed.** The input describes an implementation. Write what a reader can now do, see, configure, or avoid. This is the highest-value transformation in the process and nothing downstream will do it for you.
-- **Spend the reader's attention deliberately.** Every section earns its place against the task they came to do. Cut what exists only because the issue mentioned it.
+- **Translate the framing you were handed.** The input describes an implementation. Write what a reader can now do, see, configure, or avoid. Nothing downstream will do this for you.
+- **Cut what does not serve the reader's task**, including anything that exists only because the issue mentioned it.
 
-If `$EDITORIAL_PREFERENCES_PATH` resolved in Phase 0, read that file now and apply it to the prose you write. It is additive prose craft, so it never overrides the style guide, content types, or an area file — where it conflicts with the baseline, the baseline wins, and say so rather than silently following the preference. Apply it only to new prose: do not restyle surrounding copy you were not otherwise changing. An optional Simplified Technical English overlay ships at `references/ste-overlay.md` for writers who want one; it is off unless the variable points at it.
+If `$EDITORIAL_PREFERENCES_PATH` resolved in Step 1, read that file now and apply it to the prose you write. It is additive prose craft, so it never overrides the style guide, content types, or an area file — where it conflicts with the baseline, the baseline wins, and say so rather than silently following the preference. Apply it only to new prose: do not restyle surrounding copy you were not otherwise changing. An optional Simplified Technical English overlay ships at `references/ste-overlay.md`; it stays off unless the variable points at it.
 
 Frontmatter follows `frontmatter.config.yml` and the conventions in the area file. Check the nearest `_snippets/` directory before writing shared prose. For `applies_to` values and badge placement, use `docs-applies-to-tagging` — collect the version, lifecycle, and deployment answers, and let that skill decide the tags.
 
 Where a screenshot is needed, name it and describe what it should show. Never generate one.
 
-## Step 5: Navigation and links
+## Step 8: Navigation and links
 
-Add new pages to the right `toc.yml`. Navigation is per-docset and orchestrated by `docset.yml`, some sections have nested sub-tocs and some keep their whole tree inline, so confirm against the area file or the actual files rather than reasoning by analogy. When the work spans repos, each repo has its own `toc.yml`, `docset.yml`, and `redirects.yml` — update the one in the repo you are editing.
+Add new pages to the right `toc.yml`. Navigation is per-docset and orchestrated by `docset.yml`, some sections have nested sub-tocs and some keep their whole tree inline, so confirm against the area file or the actual files rather than reasoning by analogy. The MCP cannot help here — navigation is not published. When the work spans repos, each repo has its own `toc.yml`, `docset.yml`, and `redirects.yml`, so update the one in the repo you are editing.
 
-Add the page to its hub or index, add a short Related section, and resolve every outbound link. Moved, renamed, or deleted pages need `redirects.yml` — hand that to `docs-redirects`.
+Add the page to its hub or index, add a short Related section, and resolve every outbound link with `get_document_by_url`. Moved, renamed, or deleted pages need `redirects.yml` — hand that to `docs-redirects`.
 
-**One class of link cannot resolve yet, and that is expected.** A cross-repo link to a page you are adding in the other repo has no target until that pull request publishes. Do not treat it as broken, and do not drop it or point it at a placeholder. List it as a pending cross-repo link, name the pull request it waits on, and carry it into the ordering from Step 1e. Every other unresolved link is a real defect.
+**One class of link cannot resolve yet, and that is expected.** A cross-repo link to a page you are adding in the other repo has no target until that pull request publishes. Do not treat it as broken, and do not drop it or point it at a placeholder. List it as a pending cross-repo link, name the pull request it waits on, and carry it into the ordering from Step 4e. Every other unresolved link is a real defect.
 
-## Step 6: Validate
+## Step 9: Validate
 
-Orchestrate the companion skills; do not reimplement their rules. **The handoff list is the task-to-skill table in `AGENTS.md`** — read it rather than trusting a list here, so this stays correct as the baseline changes. Invoke each one that is installed, and do not fail when one is missing. Run Vale if it is available.
+Two passes, because the draft and the branch are checkable in different ways. Orchestrate the skills below; never reimplement their rules.
 
-Then run a reader test in an isolated subagent. Paste the block below as the subagent's first message, verbatim and with the placeholders filled. Send no other context — the value depends on the reader not having seen you write the page.
+### 9a. Check the draft, before gate 1
+
+Invoke each of these on the draft. Run the ones that apply, and do not fail when one is not installed — report it as not checked instead.
+
+| Skill | What it decides | Run it when |
+|---|---|---|
+| `docs-content-type-checker` | Which content type the page is, and whether its structure matches | Always. Also used in classify mode in Step 5 |
+| `docs-applies-to-tagging` | The `applies_to` values and where the badges go | The page is version- or deployment-scoped, which is almost always |
+| `docs-page-opening-optimizer` | The H1, the opening paragraph, and the requirements section | Always, for a new page or a rewritten opening |
+| `docs-check-style` | Style guide compliance, and runs Vale when it is available | Always |
+| `docs-flag-jargon-skill` | Jargon and unexplained terms | Always |
+| `docs-check-contradictions` | New content that conflicts with pages elsewhere in the corpus | Always. "Place it once" fails quietly when another page already says something different |
+| `docs-syntax-help` | MyST and Elastic directive syntax | The draft uses admonitions, tabs, applies-switches, includes, or settings directives |
+| `docs-validate-code-samples` | Whether code and YAML samples are valid and runnable | The draft contains a code block |
+| `docs-frontmatter-description` | The `description` field, for search | Always |
+| `docs-frontmatter-audit` | The rest of the frontmatter against the repo schema | Always |
+| `docs-redirects` | The `redirects.yml` entries for anything moved, renamed, or deleted | Step 8 moved, renamed, or deleted a page |
+
+**How to invoke one.** Use the `Skill` tool with the plugin-prefixed frontmatter name, `elastic-docs-skills:docs-check-style`, and fall back to the bare name if the prefixed form is refused. Most of these set `disable-model-invocation: true`, and the prefixed form is what reaches them. Pass **one target per call** — these skills glob `$ARGUMENTS`, so a space-separated list is read as one bad path. If both name forms are refused, spawn a subagent that locates the skill's `SKILL.md` under `~/.claude/skills/*/`, `~/.claude/plugins/**/skills/**/`, or the local `skills/**/` tree and follows it verbatim. Names above are frontmatter names, which is what invocation needs; directory names differ and are only for finding files on disk.
+
+If `AGENTS.md` names a task-to-skill mapping that is not in this table, run that one too, and open a pull request here to add the row.
+
+### 9b. Read the draft as its audience
+
+Run a reader test in an isolated subagent. Paste the block below as the subagent's first message, verbatim and with the placeholders filled. Send no other context, because the value depends on the reader not having seen you write the page.
 
 ```
 You are <audience, with technical level and role>.
@@ -278,18 +286,26 @@ Read the page below and answer:
 
 Act on the verdict: fix the issues once and re-run the test. If it still fails, stop and put the remaining gaps in front of the user rather than editing in circles.
 
-## Step 7: Draft the pull request description
+### 9c. Review the branch, after gate 2 and before gate 3
 
-Compose it now, before gate 3, so the user approves the description along with the pull request. **Derive it from work already done** — Step 2's placement decision, Step 3's verification, Step 4's screenshot audit, Step 5's pending links. Do not re-gather anything.
+Once the files are written, run `docs-review-pr` against the branch — with no argument, it reviews the current branch against its base. It returns the docs team review checklist with an approve, comment, or request-changes call, and it is read-only, so it cannot undo the write.
+
+This re-runs most of the 9a table against real files rather than a draft in the conversation, which is where frontmatter, includes, and link resolution actually get exercised. It does not cover `docs-page-opening-optimizer`, `docs-syntax-help`, `docs-frontmatter-description`, or `docs-redirects`, so 9a is still the only pass those get.
+
+Fix what it raises, then go to gate 3. Report its recommendation in the output: opening a pull request that your own pre-review would have blocked wastes the reviewer's first pass. When it is not installed, say so and note that the checklist review did not run.
+
+## Step 10: Draft the pull request description
+
+Compose it now, before gate 3, so the user approves the description along with the pull request. **Derive it from work already done** — Step 5's placement decision, Step 6's verification, Step 7's screenshot audit, Step 8's pending links, Step 9's review. Do not re-gather anything.
 
 Read the template in the repo you are opening against, at `.github/PULL_REQUEST_TEMPLATE.md`, and fill its sections. Each repo has its own, so read the one that applies rather than reusing the last. Never invent or drop a template section.
 
-**Write it for the reviewer's decision.** They need to know what changed, where, and what to check — in plain language, short enough to read before opening the diff. A description that restates the page content wastes the one thing that is scarce.
+**Write it for the reviewer's decision.** They need to know what changed, where, and what to check, in plain language and short enough to read before opening the diff. A description that restates the page content wastes the reviewer's time.
 
-- **Summary.** One paragraph, and usually three sentences. What a reader can now do, in user terms rather than implementation terms. Any migration or compatibility fact a reviewer would otherwise flag, such as a feature replacing an older one while the old behavior keeps working. Then the placement decision and its reason — "to avoid duplicating this across pages, X now links to the canonical reference instead of repeating it" — because that is the judgment call most likely to be questioned. Close with `Fixes #<issue>.`, or say why there is no issue.
+- **Summary.** One paragraph, usually three sentences. What a reader can now do, in user terms rather than implementation terms. Any migration or compatibility fact a reviewer would otherwise flag, such as a feature replacing an older one while the old behavior keeps working. Then the placement decision and its reason — "to avoid duplicating this across pages, X now links to the canonical reference instead of repeating it" — because that is the judgment call most likely to be questioned. Close with `Fixes #<issue>.`, or say why there is no issue.
 - **One bullet per changed page**, under a `## Previews` heading. Name the page, then say what changed on it and why, so a reviewer knows what to look at on each. Note version scoping where it applies, since cumulative docs are easy to review wrongly. This heading is a convention rather than part of the template, and it is the section reviewers use most.
-- **A short note for anything deliberately incomplete.** Pending cross-repo or cross-pull-request links from Step 5, a missing anchor that lands elsewhere, a screenshot still needed. Name what unblocks it. Surfacing this beats a reviewer finding it.
-- **The generative AI disclosure**, answered honestly with the tool and model, because this skill drafted the content. `AI.md` governs this and the name on the pull request is accountable for every word.
+- **A short note for anything deliberately incomplete.** Pending cross-repo or cross-pull-request links from Step 8, a missing anchor that lands elsewhere, a screenshot still needed. Name what unblocks each one, rather than letting a reviewer find it.
+- **The generative AI disclosure**, answered honestly with the tool and model, because this skill drafted the content. `AI.md` governs this, and the name on the pull request is accountable for every word.
 
 Do not fabricate preview URLs. Previews build automatically once the pull request exists and a bot posts the links, so write the bullets now and let the links arrive with the build.
 
@@ -299,23 +315,23 @@ When the work spans repos, each pull request gets its own description written to
 
 ## Approval gates
 
-Three gates. Never skip ahead, and never bundle two approvals into one question — including one gate-3 approval per repo.
+Three gates. Never skip ahead, and never bundle two approvals into one question, including one gate-3 approval per repo.
 
-1. **Present.** Show the draft, the file paths you intend to write, the verification results, and the open questions. When the work spans repos, show the per-repo split and the order from Step 1e here.
-2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change onto the Phase 2 branch. Confirm you are on it first, rather than assuming — a gate 1 that ran long is enough time for a branch to change underneath you. Writing to a second repo is part of this gate only if its split was presented at gate 1.
-3. **Pull request.** Only on a separate, explicit approval, and show the Step 7 description as part of asking. The branch already exists from Phase 2, so push it and open the pull request as a **draft** with `--draft`, using the approved description as the body. Push to the fork and open against the canonical repo when the checkout is a fork, which means `--repo elastic/<repo> --head <fork-owner>:<branch>`.
+1. **Present.** Show the draft, the file paths you intend to write, the verification results, the Step 9a and 9b results, and the open questions. When the work spans repos, show the per-repo split and the order from Step 4e here.
+2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change onto the Step 3 branch. Confirm you are on it first, rather than assuming — a gate 1 that ran long is enough time for a branch to change underneath you. Writing to a second repo is part of this gate only if its split was presented at gate 1. Then run Step 9c.
+3. **Pull request.** Only on a separate, explicit approval, and show the Step 10 description and the Step 9c recommendation as part of asking. The branch already exists from Step 3, so push it and open the pull request as a **draft**, using the approved description as the body. `references/branch-setup.md` has the push recipe, including the fork case.
 
-Open the pull requests in the Step 1e order, and cross-reference them in both bodies so a reviewer seeing one knows the other exists. Do not open the blocked one early: it cannot pass its own link check until the first publishes.
+Open the pull requests in the Step 4e order, and cross-reference them in both bodies so a reviewer seeing one knows the other exists. Do not open the blocked one early: it cannot pass its own link check until the first publishes.
 
 ## Output
 
-1. **Setup** — paths used, the branch created in each repo with its base and whether that checkout is a fork, and whether an area file was found
+1. **Setup** — paths used, whether the MCP was reachable, the branch created in each repo with its base and whether that checkout is a fork, and whether an area file was found
 2. **Intake** — scope, audience, deliverables with status, answered and open questions
 3. **Placement** — target pages, why this shape, content type and why
 4. **Verification** — verified with sources, contradicted, unverifiable
 5. **Draft** — the full content with frontmatter
 6. **Follow-ups** — navigation, cross-links, redirects, screenshots needed
-7. **Reader test** — verdict and what you changed
+7. **Validation** — which skills ran, which were not installed, the reader test verdict, and what you changed
 8. **Pull request** — the drafted title and description, ready to paste
 9. **Open questions** — what still needs a human
 
@@ -323,15 +339,9 @@ When the work spans repos, group sections 3, 5, 6, and 8 by repo rather than mer
 
 ## References
 
-- `references/index.md` — the area registry. Check it in Phase 1
-- `references/_template.md` — copy to add an area
+- `references/index.md` — the area registry. Check it in Step 2
+- `references/branch-setup.md` — the git recipe for Step 3 and for the gate-3 push
+- `references/_template.md` — copy to add an area. It states what belongs in an area file and what the MCP should answer instead
 - `references/ste-overlay.md` — optional Simplified Technical English prose overlay. Opt in through `$EDITORIAL_PREFERENCES_PATH`; not loaded by default
 - Baseline: `AGENTS.md` and `contribute-docs/` in docs-content. Read at run time, never copied here
-
-Companion skills. Collect what they need; do not restate their rules.
-
-- `docs-applies-to-tagging` — turns version, lifecycle, and deployment answers into tags and places the badges
-- `docs-content-type-checker` — classifies the page and validates its structure
-- `docs-page-opening-optimizer` — H1, opening paragraph, requirements section
-- `docs-check-contradictions` — catches new content that conflicts with pages elsewhere in the corpus. Run it in Step 6, because "place it once" fails quietly when another page already says something different
-- `docs-check-style`, `docs-flag-jargon-skill`, `docs-syntax-help`, `docs-validate-code-samples`, `docs-frontmatter-audit`, `docs-frontmatter-description`, `docs-redirects` — as the `AGENTS.md` table directs
+- Companion skills: the table in Step 9a. Collect what they need and do not restate their rules
