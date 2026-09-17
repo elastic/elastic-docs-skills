@@ -419,9 +419,10 @@ If `gh` is unauthenticated or the repository is unreachable, do not retry blindl
 - [How to create good docs issues](https://www.elastic.co/docs/contribute-docs/how-to/good-issues)
 - [Public issue templates](https://github.com/elastic/docs-content/tree/main/.github/ISSUE_TEMPLATE) — `elastic/docs-content`
 - [Private issue templates](https://github.com/elastic/docs-content-internal/tree/main/.github/ISSUE_TEMPLATE) — `elastic/docs-content-internal`
+- [Request documentation support](https://stunning-adventure-qrvr1k2.pages.github.io/ski-team/work-with-us/#request-documentation-support) — the internal process page, for the parts of the intake process that sit outside the issue itself
+
 Companion skills in this catalog. Collect the inputs they need; do not restate their rules here.
 
 - `docs-fix-changelog` — composes the `known-issue` changelog entry, which is the Cloud and serverless destination only
 - `docs-applies-to-tagging` — turns the version, lifecycle, and deployment answers into `applies_to` tags
 - `docs-content-type-checker` — the content type definitions that decide what a proposed new page should be
-- [Request documentation support](https://stunning-adventure-qrvr1k2.pages.github.io/ski-team/work-with-us/#request-documentation-support) — the internal process page, for the parts of the intake process that sit outside the issue itself
