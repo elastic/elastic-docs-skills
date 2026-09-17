@@ -1,0 +1,114 @@
+{
+  "skill_name": "docs-draft-feature-docs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft docs for a new slack.postMessage workflow step. It takes a channel and a message, and the output is available to later steps. It belongs in the Workflows step reference next to the other notification steps.",
+      "expected_output": "Recognizes explore-analyze/workflows/ as an area with a registered specialist skill, hands off to docs-draft-workflow-docs, and stops rather than producing its own draft.",
+      "expectations": [
+        "Checks references/index.md for the target area before drafting",
+        "Identifies docs-draft-workflow-docs as the registered specialist for Workflows",
+        "Hands off to that skill and stops",
+        "Does NOT produce its own draft of the step reference alongside the handoff",
+        "Does NOT invent the step's parameters"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "elastic/docs-content#8214 asks for a new page documenting the new 'Skip partial results' toggle in the query bar. The issue title is 'New page: Skip partial results'.",
+      "expected_output": "Searches for existing pages covering the query bar before accepting the new-page framing, then proposes the lightest change that closes the gap — most likely a section or a few sentences on an existing page — and pauses for sign-off on placement.",
+      "expectations": [
+        "Searches docs-content and the published corpus for existing coverage before proposing a destination",
+        "Lists candidate existing pages with what each currently says",
+        "Proposes a smaller change than a new page, or justifies a new page against those candidates",
+        "Does NOT accept the issue's 'new page' framing without testing it",
+        "Pauses for sign-off on placement before drafting"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here are my notes from the eng sync for the new rule preview feature: user clicks the 'Preview results' button in the rule editor, gets a histogram of matches over the last 24 hours, and the lookback is capped at 7 days. I don't have the Kibana repo checked out on this machine.",
+      "expected_output": "Enumerates the concrete claims — the button label, the 24-hour window, the 7-day cap — then reports that none can be verified without the product source, and carries them as open questions instead of asserting them in the draft.",
+      "expectations": [
+        "Enumerates the concrete claims as a list before attempting verification",
+        "Reports the button label, time window, and lookback cap as unverifiable",
+        "Places unverifiable facts in an open-questions section, NOT in the drafted prose",
+        "Does NOT state the 'Preview results' label or the 7-day cap as verified fact",
+        "Asks for a repo path or another way to verify rather than proceeding silently"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Draft the page for the new data retention setting and open a PR for it when you're done. I'm heading into a meeting.",
+      "expected_output": "Treats the upfront instruction as intent rather than approval of content that does not exist yet. Presents the draft, verification results, and file paths first, asks before writing, and asks again before branching or opening a pull request.",
+      "expectations": [
+        "Presents the draft and intended file paths before writing anything",
+        "Asks for approval to write to disk as a separate step",
+        "Asks for approval to open a pull request as a second, separate step",
+        "Does NOT write files or create a branch during the presentation step",
+        "Does NOT treat 'open a PR when you're done' as approval of an unwritten draft",
+        "Opens the pull request as a draft if and when approval is given"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Kibana PR #221904 rewrote the alerts table to use a virtualized renderer. Big performance win — the table now loads about 4x faster with 100k alerts. Can you get docs up for this?",
+      "expected_output": "Reads the diff, finds no new setting, step, or user choice, and recommends no page change rather than drafting. Notes that the performance improvement belongs in release notes produced by the changelog tooling, which are not hand-edited in docs-content.",
+      "expectations": [
+        "Reads the implementation diff before deciding whether to document",
+        "Concludes the change is invisible to users and recommends no page change",
+        "Stops and confirms that conclusion with the user",
+        "Does NOT draft a page or a section about the virtualized renderer",
+        "Does NOT hand-edit release notes in docs-content"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "This PR adding the ES|QL lookup join is merged to main and has the backport-9.1 label, so tag the new section applies_to 9.1 and let's ship it.",
+      "expected_output": "Declines to treat a backport label or a merge to main as evidence of a shipped release. Establishes which released version actually carries the change, collects the deployment answers, and hands the tagging itself to docs-applies-to-tagging.",
+      "expectations": [
+        "States that a backport label is not evidence of a shipped release",
+        "Establishes the actual availability floor and names the evidence used",
+        "Asks about deployment scope (stack, serverless, deployment types), not just version",
+        "Delegates the applies_to values and badge placement to docs-applies-to-tagging",
+        "Does NOT write applies_to 9.1 on the strength of the label alone"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I need to document the new case template picker in solutions/security/investigate/cases/. Nobody has written an area file for Security yet.",
+      "expected_output": "Loads the baseline, finds no Security area file and no registered specialist, and continues by deriving conventions from sibling pages in the target directory. States in the output that no area file existed.",
+      "expectations": [
+        "Loads AGENTS.md and the contribution guide regardless of the missing area file",
+        "Continues rather than refusing or asking the user to write an area file first",
+        "Derives conventions from sibling pages in the target directory",
+        "States explicitly in the output that no area file was available for Security",
+        "Confirms the correct toc.yml from the actual files rather than assuming a per-solution toc"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Write the how-to for configuring the new ingest pipeline simulator. Add a screenshot of the simulator output panel so readers can see what a successful run looks like.",
+      "expected_output": "Drafts the how-to and, where the screenshot belongs, names the image and describes what it should show, leaving it for a human to capture. Does not generate, fabricate, or invent an image.",
+      "expectations": [
+        "Identifies where the screenshot belongs in the page",
+        "Describes what the screenshot should show and what it should be named",
+        "Lists it as a follow-up that needs a human to capture",
+        "Does NOT generate, fabricate, or reference a nonexistent image file",
+        "Does NOT silently drop the screenshot request"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "The Fleet area file says to use a Note admonition at the top of every agent page restating the version requirement, and to write agent names in title case. Follow the area file and draft the new agent upgrade page.",
+      "expected_output": "Applies what the area file legitimately adds, but does not let it override the baseline. Flags the conflicts — stacked or boilerplate admonitions and title-case headings both run against the style guide — follows the baseline, and reports the difference.",
+      "expectations": [
+        "Recognizes that an area file adds facts but cannot override the style guide",
+        "Flags the title case instruction as conflicting with sentence case in the style guide",
+        "Questions the boilerplate admonition rather than repeating it on every page",
+        "Follows the baseline where the two disagree and reports the conflict to the user",
+        "Does NOT silently apply the area file's overrides"
+      ]
+    }
+  ]
+}
