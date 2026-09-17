@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.1.1
+version: 2.1.2
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -64,7 +64,9 @@ Three sources, each answering something the other two cannot. Asking the wrong o
 
 To get from a published page to the file that produces it, read the page with `get_document_by_url`, then find the file by its slug — `rg --files -g '*<slug>*' <repo>`. Do not infer the owning repo from the URL; Step 4e settles that.
 
-If the MCP is not configured, fall back to WebFetch on the same URLs with `.md` appended, and say in the output that MCP discovery was unavailable so the placement search was narrower. Check reachability with `npx @modelcontextprotocol/inspector --url https://www.elastic.co/docs/_mcp/`.
+If the MCP is not configured, WebFetch the same URLs with `.md` appended, which returns the whole page including its frontmatter. Check reachability with `npx @modelcontextprotocol/inspector --url https://www.elastic.co/docs/_mcp/`.
+
+**That fallback replaces reading, not searching.** WebFetch needs a URL you already have, and nothing in the fallback answers "what pages exist on this topic." Step 5 loses its first move outright rather than running a narrower version of it, so the local greps in Step 5.2 become the only discovery you have, across only the repos you cloned. Say in the output that no corpus search ran, and **do not report "nothing covers this yet" as a finding** — you were not in a position to look. A corpus nobody searched is the likeliest way this skill ends up placing a second copy of a page that already exists.
 
 ## Constraints
 

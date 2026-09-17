@@ -338,12 +338,13 @@
     {
       "id": 27,
       "prompt": "Draft the new retention policy section. (Run this with the elastic-docs MCP server not configured.)",
-      "expected_output": "Falls back to WebFetch on the published URLs, still completes the placement search, and says in the output that MCP discovery was unavailable so the search was narrower.",
+      "expected_output": "Uses WebFetch to read published pages by URL, recognizes that no corpus search is available at all, falls back to the local greps for discovery, and refuses to report that nothing covers the topic yet.",
       "expectations": [
         "Detects that the elastic-docs MCP is unreachable rather than failing or silently skipping the placement search",
         "Falls back to WebFetch on the published URLs with .md appended",
-        "States in the Setup section of the output that the MCP was unavailable and the placement search was narrower",
-        "Does NOT present the narrower search as a complete one",
+        "States in the Setup section of the output that the MCP was unavailable and that no corpus search ran",
+        "Does NOT describe the fallback as a narrower or partial search, because WebFetch reads a known URL and cannot search at all",
+        "Does NOT report 'nothing covers this yet' or an equivalent absence claim as a finding",
         "Still greps the local trees, which do not depend on the MCP"
       ]
     },
