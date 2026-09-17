@@ -161,6 +161,36 @@
         "Does NOT infer the repository file path from the URL slug",
         "If the requester chooses to file instead, proceeds with the issue normally rather than pushing the pull request option again"
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "File a docs issue for this: we added a new Discover toolbar button that exports the current query as an ES|QL snippet, plus a setting to change the default export format, shipping in 9.5. It's all in elastic/kibana#201455.",
+      "expected_output": "The linked pull request read and compared against the claim, with the request narrowed to what the diff actually supports and the unconfirmed part called out rather than filed as fact.",
+      "expectations": [
+        "Reads the linked Kibana pull request, including its diff, rather than taking the description on faith",
+        "Passes the pull request number with --repo, or uses a full URL, rather than the 'gh pr view elastic/kibana#201455' shorthand",
+        "Compares each claimed user-facing change against what the diff shows",
+        "If the diff supports only part of the claim, narrows the request to that part and says in the issue which part could not be confirmed",
+        "Cross-checks the branch the pull request landed on against the stated 9.5 release",
+        "Notes whether the pull request is merged, and does not present unmerged behavior as settled",
+        "Does NOT treat a claim that is simply absent from the diff as proof the claim is false",
+        "Does NOT state that the request is technically correct because the diff agreed with it",
+        "Writes the title from the user's perspective rather than reusing the pull request title"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "The Dashboards overview page says you can save panels to the library but it never mentions that Markdown panels support this now. Please file an issue to add 'including Markdown panels' to that sentence. Also, the Options List control docs still say the default search technique is Prefix, but we changed the default to Contains in 9.4.",
+      "expected_output": "The second item filed as a real gap with the current wording quoted; the first pushed back on, because the overview page is deliberately general.",
+      "expectations": [
+        "Identifies the changed default from Prefix to Contains as a real gap, because the page now states something false",
+        "Pushes back on adding 'including Markdown panels' to the overview sentence, explaining that the page is correct at the level of abstraction it chose",
+        "Does NOT file a request to add the Markdown specific to the deliberately general sentence just because the requester asked for it",
+        "Quotes what the Options List page currently says, so the writer can find the wording",
+        "Ends the description with a plain availability note covering 9.4 and serverless applicability",
+        "Treats the two items separately rather than bundling them into one issue",
+        "Does NOT pad the issue with every other page that mentions panels or controls"
+      ]
     }
   ]
 }

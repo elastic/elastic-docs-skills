@@ -71,6 +71,12 @@ Get a concrete answer to each of these before drafting. Ask follow-ups until you
 - **Where**: which published pages are affected, if any.
 - **Who** to ask when a writer has questions.
 
+Three more when the request is about a feature or a UI change. No template has a field for them, so they go in the description, or in **Additional info** where the template offers one. Ask anyway — they are cheap for the requester to answer and expensive for a writer to work out:
+
+- **Which lifecycle state it ships in** — preview, beta, GA, deprecated, or removed — and whether that is a change from the state before it. The page gets tagged differently for each, and the requester is usually the only one who knows.
+- **Whether it sits behind a feature flag**, and if so whether users can turn it on themselves and how. A flagged feature users cannot enable is documented differently from one they can.
+- **A screenshot**, for anything with a UI. The templates say screenshots help; for a UI change one saves the writer a build-and-reproduce cycle.
+
 File early. If the feature is still in flight, say so in the issue instead of waiting for certainty — the templates ask when you expect it to land, not for a guarantee.
 
 ## Step 2: Run the pre-flight checks
@@ -81,10 +87,22 @@ Each of these comes from the *Before creating an issue* section of the guidance.
 |---|---|---|
 | Does the content already exist? | `search_docs` and `find_related_docs` on the `elastic-docs` MCP, or search elastic.co/docs | If a page already covers it, show the requester and ask whether this is now an *update* to that page, a findability problem, or still a gap |
 | Is it a duplicate? | `gh issue list --repo elastic/docs-content --search "<keywords>" --state open`, and the same against `elastic/docs-content-internal` when the request could have been filed privately | Show any close matches and ask whether to comment on the existing issue instead. Two issues for one problem is worse than one good one. A public issue and a private one about the same page is the duplicate that hides easiest — check both |
+| Did the product PR already document it? | When the request links an implementation PR, check whether that PR also changed user-facing docs: `gh pr view <n> --repo <owner/repo> --json files` | Read the docs files it touched before drawing a conclusion. Real coverage makes the issue unnecessary, or much narrower than requested. A README, a developer guide, a test fixture, or release-note text is not user documentation, and a `docs/` path alone proves nothing |
 | Is it still relevant? | Ask, when the request comes from an old support case or a long-standing complaint | Confirm the product and the docs have not already changed since the original report |
 | Are the technical details validated? | Ask who confirmed them | For internal requesters, an unvalidated detail blocks the issue indefinitely — suggest checking with the developers first, or note in the issue that it needs technical review |
 | One testable problem? | Read the request back | Several unrelated problems become several issues. Propose the split with a title for each. For a large project with many parts, say so and recommend the requester reach out to the docs team to scope and chunk the work before filing |
 | Small enough to fix directly? | Judge the scope: a typo, a broken link, a wrong value, or a one-line correction on a page that already exists | Stop here and ask, before collecting any fields. See *When a pull request is the faster path* |
+
+### Whether the gap is real
+
+The docs search tells you what a page says today. Before writing a request to add something to it, check that the omission is a mistake rather than a decision.
+
+- **A page that stays general on purpose is not missing anything.** If it says "save panels to the library" without naming which panel types, do not ask for "including Markdown" to be added. The page is correct at the level of abstraction it chose, and adding to it is how an overloaded page becomes more overloaded.
+- **A page that now states something false is a real gap.** A documented default that changed, a described behavior that no longer matches, a step that no longer exists. File those.
+- **A workflow that gained a step or an option** users would otherwise miss is a real gap too.
+- **Do not pad.** One or two real gaps make a better issue than five marginal ones, and a request listing every page that mentions the feature reads as noise. If the honest answer is that nothing is missing, say so — that is a useful result, not a failed search.
+
+When you do name a gap, quote what the page says today. A writer who can see the current wording next to what it should say does not have to go find it first.
 
 ### When a pull request is the faster path
 
@@ -238,6 +256,32 @@ Four rules hold this together:
 - **A fact you could not translate becomes an explicit open question** in the issue. One line a writer can resolve beats a paragraph they have to decode.
 - **Drop nothing silently.** If something in the dump has no place in the issue, say so when you present the draft, so the requester can overrule you.
 
+### Check the request against the code it points to
+
+When the request links an implementation pull request or commit, read it. A linked code change pins the repository, the ref, and the version, which makes it the one claim you can check without guessing which source to trust. Skip this whole section when no code change is linked, and never go hunting for one.
+
+```
+gh pr view <n> --repo <owner/repo> --json title,body,state,mergedAt,baseRefName,files
+gh pr diff <n> --repo <owner/repo>
+```
+
+Pass the number with `--repo`, or a full PR URL. The shorthand `gh pr view elastic/kibana#12345` does **not** work — `gh` reads it as a branch name and reports no PR found, which looks like a missing pull request rather than a bad command.
+
+Then compare what the requester says shipped against what the diff shows:
+
+| The diff | What to do |
+|---|---|
+| Supports the claim | File it as described |
+| Supports part of it, or less than claimed | Narrow the request to what the diff shows, and say in the issue which part you could not confirm |
+| Shows an older state than the request describes | Ask whether the request is still current before filing |
+| Is a refactor, a test change, or internal-only work that does not match the claim | Stop and ask. Do not scope docs work for a user-facing change the code does not show |
+
+Three things to get right, because each is a way to be confidently wrong:
+
+- **Version.** The pull request's `baseRefName` says which branch it landed on. Cross-check that against the release the requester gave you. A request tagged 9.4 describing a change that landed on 8.19 is worth catching before a writer plans around it.
+- **Absence proves nothing.** A claim missing from the diff is not false — the diff is one change, not the whole product. Only a direct conflict is worth raising.
+- **Matching is not verification.** Say what matched and where. An unmerged pull request describes intended behavior that can still change, so note that in the issue rather than presenting it as settled. Never write that a request is technically correct because a diff agreed with it.
+
 ### Treat proposed wording as source material, not as final copy
 
 Sometimes a requester writes the exact paragraph they want added, and sometimes that is precisely what the docs need. Often it is another paragraph on a page that is already overloaded — and a writer who is overwhelmed, new to that area of the docs, or not in a position to push back will paste it in unquestioned. Separate the information from the wording so that the choice stays open:
@@ -245,6 +289,8 @@ Sometimes a requester writes the exact paragraph they want added, and sometimes 
 - The **substance** goes in the Description, as facts.
 - The requester's text goes under a clearly labeled `**Suggested wording**`, presented as a suggestion to the writer and never as the change being requested. The labeling is the whole guard — text that arrives looking like a decision gets treated as one.
 - The Description states **what the reader needs to accomplish**, which is what lets the writer own placement and framing. A page or section the requester has in mind is recorded as a suggestion, and the issue says plainly that placement is the writer's call.
+
+**When the request asks for a whole new page**, give the writer what they need to judge that without making the call yourself. Run `find_related_docs` on the topic and list the closest existing pages in the issue. Often one of them should gain a section instead, which is the smaller change and the cheaper one to maintain — but that is the writer's decision. The issue's job is to surface the candidates, not to pre-empt the choice. If the request really is a new page, `docs-content-type-checker` has the definitions that decide whether it is a how-to, an overview, a tutorial, or troubleshooting.
 
 Ask why the text is verbatim, because the answer changes how it is filed:
 
@@ -270,7 +316,22 @@ Write the draft to a scratch file so you can file it with `--body-file`; a multi
 | Website Link in Elastic OpenTelemetry logs tutorial is broken | Website some-doc-url |
 | Python code snippet is not valid in tutorial X | This docs is wrong1!1 |
 
+Specific is one axis. **Written for the reader** is the other, and it is the one a handoff from engineering usually fails, because the request arrives carrying the pull request's title — which was written for reviewers. Reframe it as what a user can now do:
+
+| ✅ User-facing | ❌ Dev-facing |
+|---|---|
+| Save Markdown panels to the Visualize library | Add library support for Markdown embeddable |
+| Options List controls now default to Contains search | Change default search technique in optionsList |
+
+If you could not confirm part of the request against the linked code, title only the part you could.
+
 **Description.** It needs a definition of done — the change the requester wants to see — and the why behind it. "This doc must be improved" gives a writer nothing to build or to verify. "A customer had trouble with a recent Kafka change; a note in the documentation would have helped them resolve it faster and prevented a support ticket" gives them both.
+
+**Availability.** Close the description with one plain sentence saying where and when the change applies, built from the deployment method and release answers you already collected:
+
+> Applies from 9.5.0 and in serverless. · Stack only, from 9.5.0 — not available in serverless. · Serverless only. · Applies from 9.5.0 (technical preview) and in serverless.
+
+The template collects those answers in separate dropdowns, so one sentence in the description saves the writer reassembling them, and gives `docs-applies-to-tagging` what it needs to choose the tags. Do not guess the serverless half: if the requester does not know, write that it is unconfirmed rather than implying it applies everywhere.
 
 **Links.** Every affected documentation page, plus the tickets and discussions the request came out of. For internal requesters, summarize the key points of an internal thread instead of relying on a link only some readers can open, and mark internal-only links as such. For community requesters, link the public discussion, forum post, or blog post that gives the background.
 
@@ -279,7 +340,11 @@ Then check your own draft before showing it:
 ```
 - [ ] Title is specific, and has the template's prefix
 - [ ] Description states the change and the why, and a writer could tell when it is done
+- [ ] Title and description are written for the reader, not carried over from a pull request title
 - [ ] Description describes what a user can do, not how the feature was built
+- [ ] Any linked code change has been read, and the request is narrowed to what it supports
+- [ ] Description ends with a one-sentence availability note
+- [ ] Every gap named is a real one — no additions to pages that are deliberately general
 - [ ] Any proposed wording is labeled as a suggestion, unless the exact string is genuinely required — with the reason stated
 - [ ] Placement and framing are left to the writer
 - [ ] Anything that could not be translated into user-facing terms is an open question, not a guess
@@ -319,5 +384,9 @@ If `gh` is unauthenticated or the repository is unreachable, do not retry blindl
 - [How to create good docs issues](https://www.elastic.co/docs/contribute-docs/how-to/good-issues)
 - [Public issue templates](https://github.com/elastic/docs-content/tree/main/.github/ISSUE_TEMPLATE) — `elastic/docs-content`
 - [Private issue templates](https://github.com/elastic/docs-content-internal/tree/main/.github/ISSUE_TEMPLATE) — `elastic/docs-content-internal`
-- `docs-fix-changelog` in this catalog — composes the `known-issue` changelog entry that release notes are built from
+Companion skills in this catalog. Collect the inputs they need; do not restate their rules here.
+
+- `docs-fix-changelog` — composes the `known-issue` changelog entry that release notes are built from
+- `docs-applies-to-tagging` — turns the version, lifecycle, and deployment answers into `applies_to` tags
+- `docs-content-type-checker` — the content type definitions that decide what a proposed new page should be
 - [Request documentation support](https://stunning-adventure-qrvr1k2.pages.github.io/ski-team/work-with-us/#request-documentation-support) — the internal process page, for the parts of the intake process that sit outside the issue itself
