@@ -39,6 +39,7 @@ Workflows lives under `src/platform/`, not `x-pack/`. The old `x-pack/platform/p
 |---|---|
 | Step parameters, YAML schema | `src/platform/packages/shared/kbn-workflows/spec/` — `schema.ts`, plus the `spec/elasticsearch/` and `spec/kibana/` namespace directories |
 | Built-in steps and triggers | `spec/builtin_step_definitions.ts`, `spec/builtin_trigger_definitions.ts` |
+| An `alerting.*` trigger | `x-pack/platform/plugins/shared/alerting_v2/common/workflows/triggers/`, one file per trigger. These are **not** in `spec/builtin_trigger_definitions.ts`, so checking there finds nothing and looks like the trigger does not exist. `rg "TriggerId = '"` over that directory lists every ID |
 | Workflow inputs | `spec/builtin_workflow_input_definitions.ts` |
 | Deprecated and renamed steps | `spec/deprecated_step_metadata.ts` — check this before documenting any step as current |
 | Schema-valid example YAML | `spec/examples/`. Prefer these over the `elastic/workflows` library, which is useful for realistic scenarios but not authoritative on schema |

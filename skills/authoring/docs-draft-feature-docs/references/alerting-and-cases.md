@@ -42,6 +42,7 @@ Platform plugins sit under `x-pack/platform/plugins/shared/`. Workflows is the e
 | Alerting framework, rule execution, rule types | `alerting/` |
 | Observability alerting and its rule types | `x-pack/solutions/observability/plugins/observability_alerting/`, plus `apm/`, `infra/`, and `synthetics/` in the same tree, which register their own rule types |
 | The experimental system | `alerting_v2/` — **a separate plugin.** Searching `alerting/` for experimental behavior finds nothing and looks like the feature is absent |
+| The workflow triggers it emits | `alerting_v2/common/workflows/triggers/`, one file per trigger; `rg "TriggerId = '"` lists the IDs. Workflows' own `builtin_trigger_definitions.ts` does not carry them, which is the seam `workflows.md` describes |
 | Connector and action types | `stack_connectors/` for individual connectors, `actions/` for the framework |
 | Cases behavior, fields, templates | `cases/` |
 | Watcher | The `elastic/elasticsearch` repo, not Kibana |

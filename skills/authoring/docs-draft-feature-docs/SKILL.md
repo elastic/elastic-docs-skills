@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.1.0
+version: 2.1.1
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -118,6 +118,8 @@ $DOCS_CONTENT_ROOT/frontmatter.config.yml
 `AI.md` is not optional reading. It holds the drafts this skill produces to the same bar as hand-written ones and puts the name on the pull request in charge of every word. Say so when you hand over the draft.
 
 Then check `references/index.md` in this skill directory for the target area.
+
+Naming the area takes the request in hand, so skim `$ARGUMENTS` first — the title and body, when it is an issue. That skim is not Step 4: the full intake, the open questions, and the decision about whether to document at all still happen there, after the branch exists. Read just enough to know which file to open.
 
 - **A specialist skill is registered for the area** — hand off and stop. Do not draft a second opinion.
 - **An area file exists** — load it. It tells you the area's boundary, which product source settles a fact, the local conventions, which navigation file to edit, and the known traps. It does not list pages; use `search_docs` for that. Check its age and any `status:` entry before relying on it, as below.
@@ -304,6 +306,8 @@ Act on the verdict: fix the issues once and re-run the test. If it still fails, 
 ### 9c. Review the branch, after gate 2 and before gate 3
 
 Once the files are written, run `docs-review-pr` against the branch — with no argument, it reviews the current branch against its base. It returns the docs team review checklist with an approve, comment, or request-changes call, and it is read-only, so it cannot undo the write.
+
+**Fetch first, and compare against the merge base** — `git diff <base>...HEAD`, three dots, not two. Two dots compare the branch tip to the base tip, so everything the base gained since you branched reads as a file you changed. One commit of drift is enough to bury the files you actually touched in unrelated ones, and the review then spends its attention on those. When the branch is behind, say so rather than reviewing through the noise.
 
 This re-runs most of the 9a table against real files rather than a draft in the conversation, which is where frontmatter, includes, and link resolution actually get exercised. It does not cover `docs-page-opening-optimizer`, `docs-syntax-help`, `docs-frontmatter-description`, or `docs-redirects`, so 9a is still the only pass those get.
 
