@@ -76,13 +76,13 @@
     },
     {
       "id": 7,
-      "prompt": "I need to document the new case template picker in solutions/security/investigate/cases/. Nobody has written an area file for Security yet.",
-      "expected_output": "Loads the baseline, finds no Security area file and no registered specialist, and continues by deriving conventions from sibling pages in the target directory. States in the output that no area file existed.",
+      "prompt": "I need to document a new SLO burn rate alert option under solutions/observability/. There's no area file for Observability yet.",
+      "expected_output": "Loads the baseline, finds no Observability area file and no registered specialist, and continues by deriving conventions from sibling pages in the target directory. States in the output that no area file existed.",
       "expectations": [
         "Loads AGENTS.md and the contribution guide regardless of the missing area file",
         "Continues rather than refusing or asking the user to write an area file first",
         "Derives conventions from sibling pages in the target directory",
-        "States explicitly in the output that no area file was available for Security",
+        "States explicitly in the output that no area file was available for Observability",
         "Confirms the correct toc.yml from the actual files rather than assuming a per-solution toc"
       ]
     },
@@ -108,6 +108,43 @@
         "Questions the boilerplate admonition rather than repeating it on every page",
         "Follows the baseline where the two disagree and reports the conflict to the user",
         "Does NOT silently apply the area file's overrides"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Support keeps hitting a gap: there's nothing documented about the new endpoint isolation exception list. Write it up. I think it's a detection rules thing.",
+      "expected_output": "Loads the Elastic Security area file, corrects the mistaken framing that this is detection rule content, separates Elastic Defend from Elastic Endpoint and from rule content, and verifies against the current Kibana plugin path rather than the stale one.",
+      "expectations": [
+        "Loads references/elastic-security.md for the area",
+        "Challenges the 'detection rules thing' framing and distinguishes Defend, Endpoint, and rule content",
+        "Verifies under x-pack/solutions/security/plugins/security_solution/, not the stale x-pack/plugins path",
+        "Targets solutions/security/ and picks between the configure and manage Defend directories deliberately",
+        "Plans the toc entry in solutions/toc.yml and does NOT propose creating solutions/security/toc.yml",
+        "Does NOT add mapped_pages to a brand-new page"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "We need to document a new alerting rule option: a burn rate threshold you can set per SLO. Add it to the alerting docs.",
+      "expected_output": "Loads the alerting area file, recognizes that 'the alerting docs' names none of the four systems, and routes via compare-alerting-systems.md. Concludes an SLO burn rate rule is Observability's, so it belongs in solutions/observability/incident-management/ rather than explore-analyze/alerting/alerts/.",
+      "expectations": [
+        "Reads compare-alerting-systems.md before choosing a destination",
+        "Establishes which of the four alerting systems the request means rather than assuming Kibana alerting",
+        "Places the rule type in solutions/observability/incident-management/ beside the other create-*-rule.md pages",
+        "Does NOT add an Observability rule type to explore-analyze/alerting/alerts/",
+        "Does NOT draft it against the experimental alerting system or present that system as production-ready"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Cases now supports a custom severity field. Please document how to create one, add it to the Security cases page since that's where our users are, and include the full field configuration steps.",
+      "expected_output": "Loads the area file and pushes back on the placement. Core case behavior belongs in explore-analyze/cases/, with the Security page only linking to it, so the requested destination would duplicate platform content into a solution page.",
+      "expectations": [
+        "Identifies explore-analyze/cases/ as the canonical home for core case behavior",
+        "Explains that solution case pages document only solution-specific extras and link to the core",
+        "Declines to put the full configuration steps in solutions/security/investigate/security-cases.md",
+        "Verifies the field against x-pack/platform/plugins/shared/cases/",
+        "Does NOT duplicate the steps across both the platform and Security pages"
       ]
     }
   ]

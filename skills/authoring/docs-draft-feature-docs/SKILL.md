@@ -84,6 +84,8 @@ Then check `references/index.md` in this skill directory for the target area.
 - **An area file exists** — load it. Its six sections tell you where pages live, what settles a fact, what to read first, local conventions, what navigation to update, and the known traps.
 - **Neither exists** — continue anyway. Derive conventions from sibling pages in the target directory, and say in your output that no area file was available so the user knows what to add later.
 
+A request can straddle both. When it spans a specialist's directory and a neighboring one, split it: draft the part you own using the area file, and delegate the specialist's part. Say which half went where, so nothing looks silently dropped.
+
 ## Inputs
 
 `$ARGUMENTS` is a doc issue URL or `owner/repo#number`, a product pull request, a page path, or a free-text description. If empty, ask what needs documenting.
