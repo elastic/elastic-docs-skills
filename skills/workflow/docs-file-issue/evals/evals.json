@@ -231,6 +231,30 @@
         "Does NOT summarize or invent lead times, planning cadence, or contacts from memory",
         "If they take the offer, continues into Step 1 and interviews for a feature request rather than starting over"
       ]
+    },
+    {
+      "id": 17,
+      "prompt": "We're adding a new anomaly detection job wizard to the ML app in 9.5. It walks users through picking a data view, choosing a job type, and setting the bucket span. Can docs cover it? Implementation PR is elastic/kibana#210044.",
+      "expected_output": "Collects test environment and sample data availability alongside the usual feature questions, and puts it in Resources.",
+      "expectations": [
+        "Asks for a test environment, since this is a UI workflow a writer has to click through",
+        "Asks specifically whether sample data exists that exercises the wizard, not just whether a cluster is available",
+        "Asks what the feature needs to be visible: deployment type or project, license tier, and any feature flag or setting",
+        "Tells the requester that a writer who cannot reach a working example means the request does not get prioritized",
+        "Places the environment details under Resources rather than Additional info",
+        "Still collects lifecycle state, feature flag status, and a screenshot"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "The docs for the ES|QL STATS command say the default limit is 1000 rows, but we changed it to 10000 in 9.4. Can you get that corrected?",
+      "expected_output": "Files the correction without asking for a test environment, since there is nothing to click through.",
+      "expectations": [
+        "Does NOT ask for a test environment or sample data for a reference value correction",
+        "Treats this as a real gap, because the page now states something false",
+        "Quotes what the page says today next to the corrected value",
+        "Considers whether a pull request is the faster path, given this is a one-line correction on an existing page"
+      ]
     }
   ]
 }

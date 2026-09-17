@@ -76,11 +76,22 @@ Get a concrete answer to each of these before drafting. Ask follow-ups until you
 - **Where**: which published pages are affected, if any.
 - **Who** to ask when a writer has questions.
 
-Three more when the request is about a feature or a UI change. No template has a field for them, so they go in the description, or in **Additional info** where the template offers one. Ask anyway — they are cheap for the requester to answer and expensive for a writer to work out:
+Four more when the request is about a feature or a UI change. No template has a field for any of them, so they go in the description, or in **Additional info** where the template offers one — except the test environment, which belongs in **Resources**. Ask anyway — they are cheap for the requester to answer and expensive for a writer to work out:
 
 - **Which lifecycle state it ships in** — preview, beta, GA, deprecated, or removed — and whether that is a change from the state before it. The page gets tagged differently for each, and the requester is usually the only one who knows.
 - **Whether it sits behind a feature flag**, and if so whether users can turn it on themselves and how. A flagged feature users cannot enable is documented differently from one they can.
 - **A screenshot**, for anything with a UI. The templates say screenshots help; for a UI change one saves the writer a build-and-reproduce cycle.
+- **A test environment with feature-specific data**, whenever the feature is something a writer has to click through to document. Accurate docs need a working example, not a description of one.
+
+Ask the environment question in the form the docs team can actually act on. Writers already have internal sandboxes, so the ask is rarely "give us a cluster" — it is whether a sandbox can show this feature with data that exercises it:
+
+- **What it takes to see the feature working**: the deployment type or project, the license tier, and any feature flag or setting that has to be on.
+- **Whether sample data exists** that demonstrates it, and if not, who can seed it or hand over a setup script. This is the part requesters skip and the part that stalls the work — a sandbox with no relevant data is the same as no environment.
+- **Who to ask for access**, when a shared sandbox will not do.
+
+**When it applies, this gates prioritization.** A feature a writer cannot reach does not get scheduled. Say that to the requester while you are still drafting, rather than filing the issue and letting it sit. If no environment will exist for a while, put the expected date in the issue so a writer can plan around it.
+
+It does not apply to everything. A conceptual page, a wording fix, an API reference change, or a known issue needs no environment — do not manufacture the question for requests where a writer has nothing to click.
 
 File early. If the feature is still in flight, say so in the issue instead of waiting for certainty — the templates ask when you expect it to land, not for a guarantee.
 
@@ -253,7 +264,7 @@ Interview only for what you do not already have from Step 1. Required fields are
 | Field | Heading in the body | Notes |
 |---|---|---|
 | Description ✱ | `### Description` | Structure it as What / When / Why, which is the placeholder the form suggests |
-| Resources ✱ | `### Resources` | Implementation PR, scoping issue, internal design doc. Mark internal-only links as internal |
+| Resources ✱ | `### Resources` | Implementation PR, scoping issue, internal design doc. Mark internal-only links as internal. For a feature a writer has to click through, also how to reach a test environment with data that exercises it — see Step 1 |
 | Deployment methods ✱ | `### Which deployment methods does this change impact?` | Elastic On-Prem and Cloud (all) · On-Prem only (ECE, ECK, or self-managed) · Elastic Cloud (Hosted and Serverless) only · Cloud Hosted only · Cloud Serverless only · Unknown |
 | Feature differences | `### Feature differences` | Required in practice when more than one deployment method is affected — tell the requester the tagging depends on it |
 | Stack release ✱ | `### What Elastic Stack release is this request related to?` | `N/A` for serverless-only work. Confirm the live option list; do not offer a version the template no longer lists |
