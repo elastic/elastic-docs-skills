@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.4.0
+version: 2.4.1
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -204,7 +204,9 @@ Ask for an audience you can actually write to. "Operators" is not enough. Get th
 
 Concluding that nothing needs documenting is a valid result. Report it and stop rather than finding something to write.
 
-**"Remove X" is a scoping request, not a deletion.** When a feature, field, or setting goes away, the content usually stays — the docs are cumulative, and readers on the versions that still have it still need it. Keep the content and add a `removed` tag, which `docs-applies-to-tagging` owns. Deleting outright is only correct when no supported version has the feature, most often because it only ever existed in an unversioned product. Confirm which case applies against the cumulative-docs removal guidance rather than inferring it.
+**"Remove X" is a scoping request, not a deletion.** When a feature, field, or setting goes away, the content usually stays — the docs are cumulative, and readers on the versions that still have it still need it. Keep the content and add a `removed` tag, which `docs-applies-to-tagging` owns.
+
+The removal scenarios name two cases where the content can go instead: the feature was only ever beta or technical preview, or it only ever existed in an unversioned product. Both are permissions rather than instructions, so scoping is never the wrong answer and deleting sometimes is. Check the case against those scenarios rather than inferring it, and when the feature's lifecycle is not one they name — `experimental`, for instance — scope it and say which reading you took, rather than deleting on an analogy you made yourself.
 
 This is the request shape where doing literally what the issue asks is most often wrong. "Remove the tags section" describes the product change, not the edit to make, and deleting the section produces a clean-looking pull request that quietly takes documentation away from readers on supported versions.
 

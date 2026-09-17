@@ -416,9 +416,10 @@
       "prompt": "Pick up this doc issue: the Tags field is being removed from action policies in 9.6. The issue says to remove the \"## Add tags to categorize the action policy [policy-tags]\" section, and to check the other pages under action-policies/ for any remaining tags references. The feature was only ever experimental, and is available on both stack and serverless.",
       "expected_output": "Treats the removal as a scoping change rather than a deletion, keeps the section for readers on the version that still has the field, hands the tag values to docs-applies-to-tagging, and leaves the unrelated rule-tags and triage-tag references alone.",
       "expectations": [
-        "Keeps the section rather than deleting it, because readers on the earlier supported version still have the field",
+        "Keeps the section and scopes it rather than deleting it, because readers on the earlier supported version still have the field",
         "Adds a removed applies_to tag, and hands the lifecycle, version, and deployment answers to docs-applies-to-tagging rather than composing the tag itself",
-        "Checks the cumulative-docs removal guidance to decide between scoping and deleting instead of inferring which case applies",
+        "Checks the cumulative-docs removal scenarios to decide between scoping and deleting instead of inferring which case applies",
+        "Recognizes that experimental is not one of the lifecycles the removal scenarios name, and says which reading it took instead of deleting on its own analogy to beta or technical preview",
         "Treats the issue's \"remove the section\" wording as a description of the product change rather than as the edit to make",
         "Leaves rule.tags and the tag triage action untouched, identifying them as different concepts from action policy tags",
         "Does NOT delete the section, and does NOT report a deletion as the completed work",
