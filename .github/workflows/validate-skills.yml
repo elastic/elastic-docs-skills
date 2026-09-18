@@ -96,6 +96,102 @@ jobs:
             ((errors++))
           fi
 
+          # Validate area reference files: verification metadata and status.md wiring.
+          # Age is a warning, not an error — a file ageing out should nag, not block unrelated PRs.
+          if ! python3 - <<'PY'
+          import datetime
+          import re
+          from pathlib import Path
+
+          STALE_DAYS = 90
+          today = datetime.date.today()
+          errors = []
+          warnings = []
+
+          for ref in sorted(Path("skills").glob("*/*/references/*.md")):
+              text = ref.read_text()
+              match = re.match(r"^---\n(.+?)\n---", text, re.DOTALL)
+              if not match:
+                  continue
+
+              block = match.group(1)
+              # Area files are the ones that declare an 'area:' key. Templates and
+              # other reference files are exempt by not declaring one.
+              if not re.search(r"^area:", block, re.MULTILINE):
+                  continue
+              if ref.name.startswith("_"):
+                  continue
+
+              verified = re.search(r"^verified:\s*(\S+)", block, re.MULTILINE)
+              if not verified:
+                  errors.append(f"{ref}: area file missing 'verified:' date")
+              else:
+                  try:
+                      when = datetime.date.fromisoformat(verified.group(1))
+                  except ValueError:
+                      errors.append(f"{ref}: 'verified: {verified.group(1)}' is not an ISO date (YYYY-MM-DD)")
+                  else:
+                      age = (today - when).days
+                      if age > STALE_DAYS:
+                          warnings.append(
+                              f"{ref}: verified {age} days ago; re-check its paths and bump 'verified:'"
+                          )
+
+              if not re.search(r"^verified_against:\s*$", block, re.MULTILINE):
+                  errors.append(f"{ref}: area file missing 'verified_against:' list")
+
+              status = re.search(r"^status:\s*(\S+)", block, re.MULTILINE)
+              if status:
+                  target = status.group(1)
+                  if "#" not in target:
+                      errors.append(f"{ref}: 'status: {target}' must point at an anchor in status.md")
+                  else:
+                      _, _, anchor = target.partition("#")
+                      status_file = ref.parent / "status.md"
+                      if not status_file.exists():
+                          errors.append(f"{ref}: 'status:' set but {status_file} does not exist")
+                      else:
+                          slugs = {
+                              re.sub(r"[^a-z0-9]+", "-", h.lower()).strip("-")
+                              for h in re.findall(r"^## (.+)$", status_file.read_text(), re.MULTILINE)
+                          }
+                          if anchor not in slugs:
+                              errors.append(
+                                  f"{ref}: 'status:' anchor '{anchor}' matches no heading in status.md"
+                              )
+
+          # Every status.md entry needs a checkable expiry condition rather than a date.
+          for status_file in sorted(Path("skills").glob("*/*/references/status.md")):
+              body = status_file.read_text()
+              for section in re.split(r"^## ", body, flags=re.MULTILINE)[1:]:
+                  title = section.splitlines()[0].strip()
+                  if title.lower().startswith("adding an entry"):
+                      continue
+                  if "expires when" not in section.lower():
+                      errors.append(f"{status_file}: entry '{title}' has no 'Expires when:' condition")
+                  if re.search(r"\b20\d{2}-\d{2}-\d{2}\b", section):
+                      errors.append(
+                          f"{status_file}: entry '{title}' contains a hard date; use an expiry condition instead"
+                      )
+
+          for w in warnings:
+              print(f"::warning::{w}")
+          for e in errors:
+              print(f"::error::{e}")
+
+          area_files = [
+              p for p in Path("skills").glob("*/*/references/*.md")
+              if not p.name.startswith("_")
+              and re.search(r"^---\n.*?^area:", p.read_text(), re.DOTALL | re.MULTILINE)
+          ]
+          print(f"Validated {len(area_files)} area reference files.")
+          if errors:
+              raise SystemExit(1)
+          PY
+          then
+            ((errors++))
+          fi
+
           # Validate eval files
           while IFS= read -r eval_file; do
             echo "Checking $eval_file..."

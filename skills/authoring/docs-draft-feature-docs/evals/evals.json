@@ -1,0 +1,497 @@
+{
+  "skill_name": "docs-draft-feature-docs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft docs for a new slack.postMessage workflow step. It takes a channel and a message, and the output is available to later steps. It belongs in the Workflows step reference next to the other notification steps.",
+      "expected_output": "Loads the workflows.md area file, verifies the step against the kbn-workflows spec under src/platform/ rather than inventing parameters, and drafts it into the right steps/ page while listing the index and cheat-sheet follow-ups.",
+      "expectations": [
+        "Checks references/index.md and loads workflows.md for the target area",
+        "Verifies the step in src/platform/packages/shared/kbn-workflows/spec/ and does NOT search the removed x-pack/platform/plugins/shared/workflows path",
+        "Places it in explore-analyze/workflows/steps/ using the namespace page structure, with a parameter table and a YAML example",
+        "Lists the follow-up edits to reference/step-types.md and reference/cheat-sheet.md rather than stopping at the primary page",
+        "Uses lowercase dot notation for the namespaced step ID",
+        "Does NOT invent the step's parameters or output shape"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "elastic/docs-content#8214 asks for a new page documenting the new 'Skip partial results' toggle in the query bar. The issue title is 'New page: Skip partial results'.",
+      "expected_output": "Searches for existing pages covering the query bar before accepting the new-page framing, then proposes the lightest change that closes the gap — most likely a section or a few sentences on an existing page — and pauses for sign-off on placement.",
+      "expectations": [
+        "Searches the published corpus with the elastic-docs MCP first, using search_docs and find_related_docs, before greping the local tree",
+        "Lists candidate existing pages with what each currently says",
+        "Proposes a smaller change than a new page, or justifies a new page against those candidates",
+        "Does NOT accept the issue's 'new page' framing without testing it",
+        "Pauses for sign-off on placement before drafting"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here are my notes from the eng sync for the new rule preview feature: user clicks the 'Preview results' button in the rule editor, gets a histogram of matches over the last 24 hours, and the lookback is capped at 7 days. I don't have the Kibana repo checked out on this machine.",
+      "expected_output": "Enumerates the concrete claims — the button label, the 24-hour window, the 7-day cap — then reports that none can be verified without the product source, and carries them as open questions instead of asserting them in the draft.",
+      "expectations": [
+        "Enumerates the concrete claims as a list before attempting verification",
+        "Reports the button label, time window, and lookback cap as unverifiable",
+        "Places unverifiable facts in an open-questions section, NOT in the drafted prose",
+        "Does NOT state the 'Preview results' label or the 7-day cap as verified fact",
+        "Asks for a repo path or another way to verify rather than proceeding silently"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Draft the page for the new data retention setting and open a PR for it when you're done. I'm heading into a meeting.",
+      "expected_output": "Treats the upfront instruction as intent rather than approval of content that does not exist yet. Presents the draft, verification results, and file paths first, asks before writing, and asks again before pushing and opening a pull request.",
+      "expectations": [
+        "Presents the draft and intended file paths before writing anything",
+        "Asks for approval to write to disk as a separate step",
+        "Asks for approval to open a pull request as a second, separate step",
+        "Does NOT write files during the presentation step, though the empty Step 3 working branch already exists by then and that is expected",
+        "Does NOT push the branch or open the pull request until the separate gate 3 approval",
+        "Does NOT treat 'open a PR when you're done' as approval of an unwritten draft",
+        "Opens the pull request as a draft if and when approval is given"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Kibana PR #221904 rewrote the alerts table to use a virtualized renderer. Big performance win — the table now loads about 4x faster with 100k alerts. Can you get docs up for this?",
+      "expected_output": "Reads the diff, finds no new setting, step, or user choice, and recommends no page change rather than drafting. Notes that the performance improvement belongs in release notes produced by the changelog tooling, which are not hand-edited in docs-content.",
+      "expectations": [
+        "Reads the implementation diff before deciding whether to document",
+        "Concludes the change is invisible to users and recommends no page change",
+        "Stops and confirms that conclusion with the user",
+        "Does NOT draft a page or a section about the virtualized renderer",
+        "Does NOT hand-edit release notes in docs-content"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "This PR adding the ES|QL lookup join is merged to main and has the backport-9.1 label, so tag the new section applies_to 9.1 and let's ship it.",
+      "expected_output": "Declines to treat a backport label or a merge to main as evidence of a shipped release. Establishes which released version actually carries the change, collects the deployment answers, and hands the tagging itself to docs-applies-to-tagging.",
+      "expectations": [
+        "States that a backport label is not evidence of a shipped release",
+        "Establishes the actual availability floor and names the evidence used",
+        "Asks about deployment scope (stack, serverless, deployment types), not just version",
+        "Delegates the applies_to values and badge placement to docs-applies-to-tagging",
+        "Does NOT write applies_to 9.1 on the strength of the label alone"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I need to document a new SLO burn rate alert option under solutions/observability/. There's no area file for Observability yet.",
+      "expected_output": "Loads the baseline, finds no Observability area file and no registered specialist, and continues by deriving conventions from sibling pages in the target directory. States in the output that no area file existed.",
+      "expectations": [
+        "Loads AGENTS.md and the contribution guide regardless of the missing area file",
+        "Continues rather than refusing or asking the user to write an area file first",
+        "Derives conventions from sibling pages in the target directory",
+        "States explicitly in the output that no area file was available for Observability",
+        "Confirms the correct toc.yml from the actual files rather than assuming a per-solution toc"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Write the how-to for configuring the new ingest pipeline simulator. Add a screenshot of the simulator output panel so readers can see what a successful run looks like.",
+      "expected_output": "Drafts the how-to and, where the screenshot belongs, names the image and describes what it should show, leaving it for a human to capture. Does not generate, fabricate, or invent an image.",
+      "expectations": [
+        "Identifies where the screenshot belongs in the page",
+        "Describes what the screenshot should show and what it should be named",
+        "Lists it as a follow-up that needs a human to capture",
+        "Does NOT generate, fabricate, or reference a nonexistent image file",
+        "Does NOT silently drop the screenshot request"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "The Fleet area file says to use a Note admonition at the top of every agent page restating the version requirement, and to write agent names in title case. Follow the area file and draft the new agent upgrade page.",
+      "expected_output": "Applies what the area file legitimately adds, but does not let it override the baseline. Flags the conflicts — stacked or boilerplate admonitions and title-case headings both run against the style guide — follows the baseline, and reports the difference.",
+      "expectations": [
+        "Recognizes that an area file adds facts but cannot override the style guide",
+        "Flags the title case instruction as conflicting with sentence case in the style guide",
+        "Questions the boilerplate admonition rather than repeating it on every page",
+        "Follows the baseline where the two disagree and reports the conflict to the user",
+        "Does NOT silently apply the area file's overrides"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Support keeps hitting a gap: there's nothing documented about the new endpoint isolation exception list. Write it up. I think it's a detection rules thing.",
+      "expected_output": "Loads the Elastic Security area file, corrects the mistaken framing that this is detection rule content, separates Elastic Defend from Elastic Endpoint and from rule content, and verifies against the current Kibana plugin path rather than the stale one.",
+      "expectations": [
+        "Loads references/elastic-security.md for the area",
+        "Challenges the 'detection rules thing' framing and distinguishes Defend, Endpoint, and rule content",
+        "Verifies under x-pack/solutions/security/plugins/security_solution/, not the stale x-pack/plugins path",
+        "Targets solutions/security/ and picks between the configure and manage Defend directories deliberately",
+        "Plans the toc entry in solutions/toc.yml and does NOT propose creating solutions/security/toc.yml",
+        "Does NOT add mapped_pages to a brand-new page"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "We need to document a new alerting rule option: a burn rate threshold you can set per SLO. Add it to the alerting docs.",
+      "expected_output": "Loads the alerting area file, recognizes that 'the alerting docs' names none of the separate alerting systems, and routes via compare-alerting-systems.md. Concludes an SLO burn rate rule is Observability's, so it belongs in solutions/observability/incident-management/ rather than explore-analyze/alerting/alerts/.",
+      "expectations": [
+        "Reads compare-alerting-systems.md before choosing a destination",
+        "Establishes which alerting system the request means rather than assuming Kibana alerting, naming the candidates rather than relying on a count",
+        "Recognizes that compare-alerting-systems.md omits Observability alerting, so it is a starting point and not a complete map",
+        "Places the rule type in solutions/observability/incident-management/ beside the other create-*-rule.md pages",
+        "Does NOT add an Observability rule type to explore-analyze/alerting/alerts/",
+        "Does NOT draft it against the experimental alerting system or present that system as production-ready"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Cases now supports a custom severity field. Please document how to create one, add it to the Security cases page since that's where our users are, and include the full field configuration steps.",
+      "expected_output": "Loads the area file and pushes back on the placement. Core case behavior belongs in explore-analyze/cases/, with the Security page only linking to it, so the requested destination would duplicate platform content into a solution page.",
+      "expectations": [
+        "Identifies explore-analyze/cases/ as the canonical home for core case behavior",
+        "Explains that solution case pages document only solution-specific extras and link to the core",
+        "Declines to put the full configuration steps in solutions/security/investigate/security-cases.md",
+        "Verifies the field against x-pack/platform/plugins/shared/cases/",
+        "Does NOT duplicate the steps across both the platform and Security pages"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Alerting v2 is going GA, so let's get ahead of it. Rename the experimental alerting system to Alerting V2 across the docset, swap alert episode to alert everywhere, and drop the not-ready-for-production caveats.",
+      "expected_output": "Declines to execute the sweep yet. Reads the status.md entry and resolves its tracking issue, finds the names are not frozen, and explains that a term pass would break the pages that teach the data model and that the caveats are still true for the experimental version because the docs are cumulative.",
+      "expectations": [
+        "Follows the status: key in the area file's frontmatter to the status.md entry, and resolves its tracking issue with gh rather than trusting the file",
+        "States that the system names and UI labels are not yet frozen and declines to draft them as fact",
+        "Refuses a blanket search-replace of alert episode to alert, and explains that the data-model pages need rewriting instead",
+        "Preserves rule event, signal, and series as distinct terms, and keeps stored episode.* fields and alerting.episode* trigger IDs",
+        "Treats the production caveats as version-scoped rather than deleting them, because the page serves both the experimental and GA versions",
+        "Delegates applies_to to docs-applies-to-tagging and gets the GA version from the plugin config rather than from the area file",
+        "Flags the two system-flow diagrams as needing design work and does NOT generate replacements",
+        "Does NOT carry a release date out of status.md into the draft, since the entry names events rather than dates"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Here's a workflow snippet for the docs. Clean it up and add it to the alert triage step page.\n\nsteps:\n  - name: step1\n    type: kibana.SetAlertsStatus\n    with:\n      alert_ids: \"{{ event.alerts }}\"\n      payload: \"{{ data | to_json }}\"",
+      "expected_output": "Fixes the real syntax errors against the cheat sheet — the array needs the ${{ }} form and to_json does not exist — while leaving the things that only look wrong alone. kibana.SetAlertsStatus is correctly PascalCase as a legacy step, and alert_ids must not be normalized.",
+      "expectations": [
+        "Corrects the array interpolation to the \"${{ event.alerts }}\" form",
+        "Replaces to_json with the json filter, noting that to_json does not exist",
+        "Renames step1 to a descriptive step name",
+        "Keeps kibana.SetAlertsStatus in PascalCase, identifying it as the legacy step where that casing is correct",
+        "Does NOT normalize alert_ids to ids or otherwise tidy implemented parameter names",
+        "Notes the preferred namespaced replacement for new workflows and cross-references it",
+        "Checks the example against reference/cheat-sheet.md"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "The alerting:v2:enabled advanced setting has existed since 9.5 but isn't on the Kibana advanced settings reference page. Add it. It's a bool, defaults to false, technical preview on stack 9.5+ and serverless.",
+      "expected_output": "Loads kibana-settings-reference.md, recognizes the page publishes from elastic/kibana rather than docs-content, and edits the settings YAML rather than the Markdown shell. Reads the setting's uiSettings registration to decide which scope file it belongs in, and treats the docs-content follow-up as a second, later PR.",
+      "expectations": [
+        "Identifies elastic/kibana as the owning repo and a docs/reference/advanced-settings-*.yml file as the target, not a docs-content path",
+        "Determines the scope from the setting's uiSettings registration rather than guessing between the space and global files",
+        "Adds a groups[].settings[] entry in YAML rather than writing prose into the Markdown shell",
+        "Uses the full schema: setting, description, datatype: bool, default: false, and applies_to",
+        "Scopes applies_to with the deployment keys rather than only stack and serverless",
+        "Places the entry by Kibana UI order rather than alphabetically or at the end of the file",
+        "Makes no toc.yml change, since a new setting in an existing file needs none",
+        "Notes that the docs-content setup page edit is a separate PR that must land after the Kibana one publishes",
+        "Asks for approval before writing to a second repository"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Add a note about the new xpack.cases.analytics retention limit to the Cases settings page, and link it to the cases docs like the neighboring entries do.",
+      "expected_output": "Verifies the setting exists in the Cases plugin config before documenting it, and does not copy the stale cross-repo link path that the neighboring entries in cases-settings.yml use.",
+      "expectations": [
+        "Verifies the setting against the Cases plugin server config rather than trusting the request or existing entries",
+        "Resolves the cases link against the current docs-content tree, reaching explore-analyze/cases.md",
+        "Does not copy a cross-repo link path from the neighboring entries without resolving it, since several are stale and survive only via a redirect",
+        "Edits cases-settings.yml rather than the cases-settings.md shell",
+        "Keeps the description in docs prose voice despite it being inside a YAML block scalar"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "We shipped a new built-in skill for Agent Builder that summarizes a host's recent activity. It's useful for Security folks triaging alerts. Please document it.",
+      "expected_output": "Adds a row to the built-in skills reference on the platform side rather than creating a page, verifies the skill against the agent_builder plugin registration, and resists the pull toward the Security tree just because the use case is Security-flavored.",
+      "expectations": [
+        "Loads agent-builder.md and treats the platform tree under explore-analyze/ai-features/ as the default home",
+        "Finds the built-in skills reference page by searching rather than assuming its path, and adds a row to it rather than creating a new page per built-in",
+        "Verifies the skill against x-pack/platform/plugins/shared/agent_builder rather than trusting the request",
+        "Declines to put it in solutions/security/ai/agent-builder/, noting that a Security-flavored use case does not make it Security content",
+        "Makes no toc.yml change, since a reference table row needs none",
+        "Uses skill in the glossary's sense, keeping it distinct from agent and tool"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Add a section to the AI-powered features page explaining how to set up the Security AI Assistant with Azure OpenAI, including the connector config steps and the model we recommend.",
+      "expected_output": "Pushes back on all three placement errors: the hub page is a catalog, connector setup already lives in llm-guides, and the recommended-model list belongs in the Security performance matrix. Nothing new belongs on the hub page beyond a link.",
+      "expectations": [
+        "Identifies explore-analyze/ai-features.md as a deliberately generic catalog and declines to add a full section there",
+        "Routes connector setup to ai-features/llm-guides/connect-to-azure-openai.md rather than restating it",
+        "Routes the model recommendation to solutions/security/ai/large-language-model-performance-matrix.md, using that filename rather than the Observability one",
+        "Verifies Security AI Assistant behavior against x-pack/solutions/security/plugins/elastic_assistant, not the Observability or Search assistant",
+        "Writes the Security AI Assistant name literally, since no substitution exists for it, while using {{obs-ai-assistant}} or {{agent-builder}} where those apply",
+        "Proposes the lightest change: link the existing pages rather than write new prose"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "context-engine.md isn't showing up in the nav on the AI features page. Looks like it got missed — can you add it to the toc?",
+      "expected_output": "Recognizes the page is deliberately hidden rather than omitted, and asks before promoting it instead of treating it as a bug.",
+      "expectations": [
+        "Finds the hidden: ai-features/context-engine.md entry in explore-analyze/toc.yml",
+        "Explains that hidden: is a deliberate unpublished state, not a missing entry",
+        "Does not change hidden: to file: without explicit approval",
+        "Notes that several entries across the docset are hidden, so the pattern is intentional"
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "New workflows feature: there's a `workflows:experimentalSteps` advanced setting that turns it on, and it adds a new action step that uses the ServiceNow connector. Document all of it.",
+      "expected_output": "Splits the deliverable across docs-content and elastic/kibana, orders the two pull requests so the Kibana reference publishes before the docs-content page that links to it, and treats the not-yet-resolvable cross-repo link as pending rather than broken.",
+      "expectations": [
+        "Loads workflows.md and kibana-settings-reference.md, recognizing the request spans both",
+        "Assigns the advanced setting to kibana/docs/reference/advanced-settings-*.yml and the authoring content to explore-analyze/workflows/",
+        "Greps the Kibana docs tree as well as docs-content when searching for existing coverage",
+        "Orders the Kibana pull request first because the docs-content page links to the new reference entry",
+        "States that the second pull request is blocked until the first publishes, not merely until it merges",
+        "Lists the kibana:// link as a pending cross-repo link rather than reporting it broken or pointing it at a placeholder",
+        "Takes a separate approval per repository rather than bundling them",
+        "Groups the output by repo so it is clear which files land where"
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "Draft the page for the new bulk-tag action. I've pointed EDITORIAL_PREFERENCES_PATH at the STE overlay. Also tighten up the two paragraphs above where the new content goes while you're in there.",
+      "expected_output": "Applies the overlay to the new prose only, declines to restyle the untouched paragraphs, and keeps the style guide ahead of the overlay if the two disagree.",
+      "expectations": [
+        "Reads the file at $EDITORIAL_PREFERENCES_PATH in Step 7 and applies it to the drafted prose",
+        "Declines to rewrite the two surrounding paragraphs, citing the new-prose-only scope and the lightest-change rule",
+        "Treats the overlay as additive, deferring to the Elastic style guide where they conflict and saying so rather than silently following the overlay",
+        "Does not apply the overlay to identifiers, CLI flags, or config keys",
+        "Still runs the Step 9a companion skills, since the overlay does not replace docs-check-style or Vale"
+      ]
+    },
+    {
+      "id": 22,
+      "prompt": "The draft looks good and I've approved the writes. Open the PR.",
+      "expected_output": "Drafts the description from the template in the target repo and from work already done, presents it for approval as part of asking about the PR, and does not fabricate preview links.",
+      "expectations": [
+        "Reads .github/PULL_REQUEST_TEMPLATE.md from the target repo and fills its sections rather than inventing a structure",
+        "Keeps the Summary to about a paragraph in plain user-facing language, and includes the placement decision and its reason",
+        "Links the issue with a Fixes reference, or says why there is no issue",
+        "Adds one Previews bullet per changed page saying what changed and what to check, noting version scoping where it applies",
+        "Surfaces pending links, missing anchors, and needed screenshots rather than leaving them for the reviewer to find",
+        "Answers the generative AI disclosure honestly, naming the tool",
+        "Does not fabricate preview URLs, noting the build posts them once the PR exists",
+        "Derives all of it from Steps 5 through 9 rather than re-gathering",
+        "Presents the description and takes an explicit approval before opening, and opens with --draft"
+      ]
+    },
+    {
+      "id": 23,
+      "prompt": "Draft docs for the new Kibana task manager setting in elastic/kibana#201455. My kibana checkout is a fork.",
+      "expected_output": "Creates the working branch before analyzing the issue, and bases it on the canonical remote rather than the fork's own default branch.",
+      "expectations": [
+        "Creates the branch in Step 3, before reading the issue and before proposing any change",
+        "Identifies the canonical remote by URL match on github.com/elastic/ rather than by assuming the remote is named origin or upstream",
+        "Bases the branch on the canonical remote's default branch, not origin/main, because origin is the fork and goes stale",
+        "Fetches before branching and bases on the remote-tracking ref rather than the local branch of the same name",
+        "Resolves the default branch instead of hard-coding main",
+        "Reports the branch, its base, and that the checkout is a fork",
+        "At gate 3, pushes to the fork and opens the PR against elastic/kibana with a fork-owner-qualified head"
+      ]
+    },
+    {
+      "id": 24,
+      "prompt": "Pick up docs-content issue 8241 and draft it. (Run this with uncommitted changes in docs-content and while sitting on an unrelated feature branch.)",
+      "expected_output": "Stops and asks before touching the checkout, rather than stashing the changes or branching on top of unrelated work.",
+      "expectations": [
+        "Detects the non-empty working tree and stops rather than continuing",
+        "Never stashes, resets, or discards the uncommitted changes to clear the way",
+        "Notices it is already on a non-default branch and asks whether to use it or branch fresh, rather than assuming either",
+        "Does not begin analyzing the issue until the checkout question is settled",
+        "Explains that switching would carry the uncommitted work onto the new branch"
+      ]
+    },
+    {
+      "id": 25,
+      "prompt": "Document the new internal retry counter. It has no UI and no setting.",
+      "expected_output": "Concludes no docs are needed, then cleans up the branch it created in Step 3 instead of leaving it behind.",
+      "expectations": [
+        "Concludes in Step 4c that nothing needs documenting",
+        "Switches back off the working branch and deletes it, since the run wrote nothing and the branch is empty",
+        "Does not write a page, a toc.yml entry, or a PR to justify the branch it already made"
+      ]
+    },
+    {
+      "id": 26,
+      "prompt": "Document the new 'Pause ingestion' control on the data streams page. Where does it go?",
+      "expected_output": "Uses the elastic-docs MCP to find the existing data streams coverage before touching a local tree, reads the candidates it returns, and uses the local checkout only for what the MCP cannot see.",
+      "expectations": [
+        "Calls search_docs and find_related_docs on the feature and on the reader's task before greping any repo",
+        "Reads the strongest candidates with get_document_by_url and includeBody: true rather than relying on titles and summaries",
+        "Uses the local trees for what the MCP cannot see — toc.yml, snippets, hidden: entries, and in-flight pages — rather than as the primary search",
+        "Locates the file behind a published page from the page slug rather than assuming a directory layout",
+        "Does NOT expect an area reference file to contain a page inventory"
+      ]
+    },
+    {
+      "id": 27,
+      "prompt": "Draft the new retention policy section. (Run this with the elastic-docs MCP server not configured.)",
+      "expected_output": "Uses WebFetch to read published pages by URL, recognizes that no corpus search is available at all, falls back to the local greps for discovery, and refuses to report that nothing covers the topic yet.",
+      "expectations": [
+        "Detects that the elastic-docs MCP is unreachable rather than failing or silently skipping the placement search",
+        "Falls back to WebFetch on the published URLs with .md appended",
+        "States in the Setup section of the output that the MCP was unavailable and that no corpus search ran",
+        "Does NOT describe the fallback as a narrower or partial search, because WebFetch reads a known URL and cannot search at all",
+        "Does NOT report 'nothing covers this yet' or an equivalent absence claim as a finding",
+        "Still greps the local trees, which do not depend on the MCP"
+      ]
+    },
+    {
+      "id": 28,
+      "prompt": "The draft and the paths look right. Go ahead and write the files.",
+      "expected_output": "Writes onto the Step 3 branch, then runs docs-review-pr against the branch as a self-review before asking for the gate 3 approval, and reports its recommendation.",
+      "expectations": [
+        "Confirms it is on the Step 3 working branch before writing, rather than assuming",
+        "Commits the writes on the working branch before running docs-review-pr, because the review diffs commits",
+        "Runs docs-review-pr against the branch after the write and before asking about a pull request",
+        "Reports the review recommendation — approve, comment, or request changes — in the output",
+        "Fixes what the review raises rather than opening a pull request its own pre-review would have blocked",
+        "Names companion skills by their frontmatter names, such as docs-check-style, and reports any that are not installed as not checked rather than as clean",
+        "Does NOT treat the write approval as approval to open a pull request"
+      ]
+    },
+    {
+      "id": 29,
+      "prompt": "Document the new bulk close action on the Cases page. (Assume the area file's frontmatter reads verified: 2024-02-01.)",
+      "expected_output": "Notices the area file is well over 90 days old, demotes its paths and labels to hints, reverifies each one against the repo or the MCP before using it, and reports the file's age in the output.",
+      "expectations": [
+        "Reads the verified date from the area file frontmatter and compares it against today's date rather than assuming the file is current",
+        "Treats the file's paths and labels as hints rather than facts, and confirms each against the repo or the MCP before using it",
+        "States the age of the area file in the Setup section of the output",
+        "Still applies the file's durable judgment — the boundary and the known traps — rather than discarding the file wholesale",
+        "Does NOT silently draft against a stale path, and does NOT bump the verified date without rechecking the file"
+      ]
+    },
+    {
+      "id": 30,
+      "prompt": "Draft the Security page for the new entity risk panel. (Assume issue #1541 is now closed.)",
+      "expected_output": "Follows the status: key to the restructure entry, resolves the tracking issue, finds it closed, and reports the entry as expired rather than following it — then uses the current tree instead of the entry's mid-restructure advice.",
+      "expectations": [
+        "Resolves the status.md entry's tracking issue with gh rather than taking the entry at face value",
+        "Recognizes the expiry condition has been met and reports the entry as stale, proposing a pull request to remove it",
+        "Resolves paths against the current repo and the MCP rather than following the entry's mid-restructure guidance",
+        "Flags that the area file's Navigation and Known traps sections need the refresh the entry called for, including the eval asserting Security navigation is inline in solutions/toc.yml",
+        "Does NOT treat a closed tracking issue as evidence that the area file itself was updated"
+      ]
+    },
+    {
+      "id": 31,
+      "prompt": "Document the removal of action policy tags. The implementing Kibana pull request merged two days ago. (Assume the local kibana clone's origin/main is older than that merge, and that the schema file the change deletes is still present in it.)",
+      "expected_output": "Notices the clone predates the change being verified, refuses to draw a conclusion from it, and reverifies through a fetch or the GitHub contents API — then reports the file as deleted rather than reporting that the removal has not shipped.",
+      "expectations": [
+        "Compares the product clone's remote-tracking ref against the implementing pull request's merge date before trusting the local tree as HEAD",
+        "Recognizes that the clone is older than the change under verification, so its absence or presence of code proves nothing",
+        "Reverifies by fetching the remote or by reading the path through the GitHub contents API at ?ref=main",
+        "Reports the deleted path as deleted, and says which source that conclusion came from",
+        "Does NOT conclude that the removal has not shipped yet, or that the issue should be held, on the strength of the stale clone",
+        "Does NOT silently treat the local checkout as HEAD"
+      ]
+    },
+    {
+      "id": 32,
+      "prompt": "Document the new rule change history UI. It's built on the shared @kbn/change-history-ui package, whose README lists restore, compare, and a configurable page size.",
+      "expected_output": "Separates what the shared package can do from what the host app switched on, checks the integration's call sites, finds restore left at its disabled default, and keeps it out of the draft.",
+      "expectations": [
+        "Treats the package README as a list of capabilities rather than as a description of shipped behavior",
+        "Checks the host integration's call sites and the options it passes, not just the package",
+        "Finds that the restore capability is left at its disabled default and is therefore unavailable to users",
+        "Omits restore from the draft, or states plainly that versions cannot be restored",
+        "Treats the package's default page size as unverified for this integration rather than stating it as fact",
+        "Does NOT document restore, or any other package capability, as available merely because the package supports it"
+      ]
+    },
+    {
+      "id": 33,
+      "prompt": "Pick up this doc issue: the Tags field is being removed from action policies in 9.6. The issue says to remove the \"## Add tags to categorize the action policy [policy-tags]\" section, and to check the other pages under action-policies/ for any remaining tags references. The feature was only ever experimental, and is available on both stack and serverless.",
+      "expected_output": "Treats the removal as a scoping change rather than a deletion, keeps the section for readers on the version that still has the field, hands the tag values to docs-applies-to-tagging, and leaves the unrelated rule-tags and triage-tag references alone.",
+      "expectations": [
+        "Keeps the section and scopes it rather than deleting it, because readers on the earlier supported version still have the field",
+        "Adds a removed applies_to tag, and hands the lifecycle, version, and deployment answers to docs-applies-to-tagging rather than composing the tag itself",
+        "Checks the cumulative-docs removal scenarios to decide between scoping and deleting instead of inferring which case applies",
+        "Recognizes that experimental is not one of the lifecycles the removal scenarios name, and says which reading it took instead of deleting on its own analogy to beta or technical preview",
+        "Treats the issue's \"remove the section\" wording as a description of the product change rather than as the edit to make",
+        "Leaves rule.tags and the tag triage action untouched, identifying them as different concepts from action policy tags",
+        "Does NOT delete the section, and does NOT report a deletion as the completed work",
+        "Does NOT write the version number into the prose next to the badge"
+      ]
+    },
+    {
+      "id": 34,
+      "prompt": "Pick up this doc issue: it adds 8 new event-driven workflow triggers under the security.* namespace so workflows can react when alert status, tags, or assignees change. The issue is labeled release_note:feature, the availability table says Stack v9.6.0 and Serverless, and the feature flag row reads \"None — active by default\". Document them on the event-driven triggers reference page alongside the existing Cases triggers.",
+      "expected_output": "Reads the trigger registrations in the product source to find the declared stability before choosing a lifecycle, treats the release-note label and the unqualified version as descriptions of a shipped feature rather than evidence of general availability, and hands the declared value to docs-applies-to-tagging.",
+      "expectations": [
+        "Reads the trigger registrations in the product source at HEAD to find the declared stability or maturity field before choosing a lifecycle",
+        "Treats the release_note:feature label, the unqualified version, and \"active by default\" as descriptions of something that shipped rather than as evidence that it is generally available",
+        "Lets the value declared in the code outrank how the issue reads when the two disagree",
+        "Hands the lifecycle, version, and deployment answers to docs-applies-to-tagging rather than composing the applies_to block itself",
+        "Verifies the trigger IDs against the source instead of copying them from the issue",
+        "Mirrors the existing Cases triggers structure on the page rather than adding a new page",
+        "Does NOT tag the triggers as generally available on the strength of the issue's framing",
+        "Does NOT write the version number into the prose next to the badge"
+      ]
+    },
+    {
+      "id": 35,
+      "prompt": "Pick up this doc issue: a Kibana feature privilege category was renamed from \"Alerting\" to \"Alerting V2\" in the Roles UI. The availability table says Stack 9.5.3 and 9.6.0 plus serverless, and the issue says the change applies from 9.5.3 and 9.6.0. The page to update is scoped applies_to stack: experimental 9.5+ and serverless: experimental, and its tables also name several other privilege categories.",
+      "expected_output": "Treats the patch-level availability as a question for docs-applies-to-tagging rather than a value to copy onto the page, establishes which patches actually shipped, and accepts that the resolution may be that no tag is needed at all.",
+      "expectations": [
+        "Treats the patch release in the availability table as a question for docs-applies-to-tagging rather than a value to carry onto the page",
+        "Establishes which patch releases actually shipped rather than trusting the issue's version list or the merged backport",
+        "Accepts that the resolution can be that the page needs no applies_to tag at all",
+        "Changes only the references to the renamed category and leaves the other privilege categories alone, including on a line that names two of them",
+        "Leaves the existing section anchors unchanged because they are link targets",
+        "Reports the parts of the writer brief that turn out not to apply instead of silently dropping them",
+        "Does NOT write a patch-level version into an applies_to tag",
+        "Does NOT add version-scoped phrasing for a difference that readers on the covered versions cannot encounter"
+      ]
+    },
+    {
+      "id": 36,
+      "prompt": "Draft docs for the new alert grouping toggle. No docs-content or kibana path is configured on this machine, and there is no ~/.config/elastic-docs/docs-draft-feature-docs.local.yml.",
+      "expected_output": "Asks for the path to an existing clone, does not create a temporary checkout, and writes the answered path to the config before continuing.",
+      "expectations": [
+        "Asks the user for the path to an existing docs-content clone rather than cloning one",
+        "Does NOT git clone docs-content, kibana, or any other repo into a temporary directory",
+        "Does NOT proceed on a path it will not write to the config",
+        "Writes the resolved paths to ~/.config/elastic-docs/docs-draft-feature-docs.local.yml after they are confirmed",
+        "Does NOT skip writing the config because the path looks temporary or because caching it might pollute future runs"
+      ]
+    },
+    {
+      "id": 37,
+      "prompt": "The draft of the APM Logs page links to the canonical log source configuration instead of repeating those steps. Run the reader test.",
+      "expected_output": "Treats following those links as how the reader uses the page, and does not fail the test for refusing to duplicate a canonical procedure.",
+      "expectations": [
+        "Runs the Step 9b reader test",
+        "Instructs the reader-test subagent that links the page itself provides to canonical procedures are how the reader continues, not missing content",
+        "Does NOT treat a page that links out instead of duplicating a procedure as a FAIL",
+        "Does NOT get stuck claiming the reader-test instruction conflicts with place-each-detail-once",
+        "Still FAILs if the page is missing a step, a fact, or a link the reader needs"
+      ]
+    },
+    {
+      "id": 38,
+      "prompt": "The files are written onto the working branch. Open the pull request.",
+      "expected_output": "Commits the gate-2 writes on the working branch before reviewing or pushing, and refuses to open a pull request from an empty commit list.",
+      "expectations": [
+        "Commits the files written at gate 2 onto the Step 3 working branch before running Step 9c",
+        "Confirms the current branch is the working branch, not the default branch, before committing",
+        "Stages only the files this run wrote, not git add -A",
+        "Does NOT treat the constraint against committing to a default branch as a ban on committing at all",
+        "Does NOT push or open a pull request while the writes are still uncommitted, because there is then nothing to push"
+      ]
+    }
+  ]
+}
