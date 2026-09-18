@@ -1,6 +1,6 @@
 ---
 name: docs-file-issue
-version: 1.0.0
+version: 1.1.0
 description: Interview the requester, then draft and file a complete Elastic documentation issue against the right template and repository — enforcing the good-issues quality bar, checking for duplicates and existing coverage first, rewriting implementation-side detail into user-facing terms, and routing sensitive requests privately. Use it to request docs for a feature, hand off notes or a pull request, request a UI copy review, report a problem with a published page, share support feedback privately, or ask how to request documentation support.
 argument-hint: "[what you need documented, or an issue URL to check]"
 disable-model-invocation: true
@@ -77,9 +77,10 @@ Get a concrete answer to each of these before drafting. Ask follow-ups until you
 - **Where**: which published pages are affected, if any.
 - **Who** to ask when a writer has questions.
 
-Four more when the request is about a feature or a UI change. No template has a field for any of them, so they go in the description, or in **Additional info** where the template offers one — except the test environment, which belongs in **Resources**. Ask anyway — they are cheap for the requester to answer and expensive for a writer to work out:
+Five more when the request is about a feature or a UI change. No template has a field for any of them, so they go in the description, or in **Additional info** where the template offers one — except the test environment, which belongs in **Resources**. Ask anyway — they are cheap for the requester to answer and expensive for a writer to work out:
 
 - **Which lifecycle state it ships in** — preview, beta, GA, deprecated, or removed — and whether that is a change from the state before it. The page gets tagged differently for each, and the requester is usually the only one who knows.
+- **What it replaces**, whenever the change alters something that already exists: the previous label, default, location, or behavior, and which releases still ship it. A rename is two facts, not one — the old value is still correct for anyone on an earlier release, and a writer needs both to tag the page. See *When the change replaces something already documented*.
 - **Whether it sits behind a feature flag**, and if so whether users can turn it on themselves and how. A flagged feature users cannot enable is documented differently from one they can.
 - **A screenshot**, for anything with a UI. The templates say screenshots help; for a UI change one saves the writer a build-and-reproduce cycle.
 - **A test environment**, whenever the feature is something a writer has to click through. Writers already have sandboxes, so the ask is not "give us a cluster" — it is what makes the feature visible (deployment type, license tier, any flag) and whether sample data exercises it. A sandbox with no relevant data is the same as no environment, so name who can seed it, and who to ask when a shared sandbox will not do.
@@ -112,6 +113,19 @@ The docs search tells you what a page says today. Before writing a request to ad
 - **Do not pad.** One or two real gaps make a better issue than five marginal ones, and a request listing every page that mentions the feature reads as noise. If the honest answer is that nothing is missing, say so — that is a useful result, not a failed search.
 
 When you do name a gap, quote what the page says today. A writer who can see the current wording next to what it should say does not have to go find it first.
+
+### When the change replaces something already documented
+
+A rename, a moved control, a changed default, or a new label on something that already exists is not a blank space in the docs. It is a page that is now correct for some readers and wrong for others. Filed as "update the page to say X," it fixes the readers on the new release by breaking the ones who are not.
+
+This is the case the *when it shipped* questions in Step 1 do not catch on their own, because a single ship date describes new behavior arriving, not old behavior being superseded. Two things decide how it gets filed:
+
+- **Which releases still ship the old value.** A patch-level backport is the one that hides. A change that lands for 9.6.0 and is backported to `9.5` ships in a patch, so everyone on 9.5.0 through that patch still sees the old value — and the page covers all of them. Get the boundary from the version labels and the backport, not from the branch alone: `gh pr view <n> --repo <owner/repo> --json labels,baseRefName`, then the backport pull request.
+- **Whether the page is cumulative.** Most Elastic pages cover a range of Stack versions and serverless at once, so the old value has to stay next to the new one rather than be overwritten.
+
+When both hold, say so in the issue: name the old value with the releases that still have it, the new value with the releases and deployment types that have it, and that the ask is a version-scoped split rather than a replacement. "Change every *Alerting* to *Alerting V2*" is the request that sends a 9.5.3 reader to a category their Roles UI does not have.
+
+`docs-applies-to-tagging` owns the tag syntax; do not write tags here. What it cannot derive from one "applies from" version is the pair — both values and both ranges — so that is what the issue has to carry.
 
 ### When a pull request is the faster path
 
@@ -321,7 +335,7 @@ Then compare what the requester says shipped against what the diff shows:
 
 Three things to get right, because each is a way to be confidently wrong:
 
-- **Version.** The pull request's `baseRefName` says which branch it landed on. Cross-check that against the release the requester gave you. A request tagged 9.4 describing a change that landed on 8.19 is worth catching before a writer plans around it.
+- **Version.** The pull request's `baseRefName` says which branch it landed on. Cross-check that against the release the requester gave you. A request tagged 9.4 describing a change that landed on 8.19 is worth catching before a writer plans around it. Read the version labels and any backport alongside the branch: a change on `main` for 9.6.0 that is also backported to `9.5` arrives in a patch, which splits an already-released minor into before and after.
 - **Absence proves nothing.** A claim missing from the diff is not false — the diff is one change, not the whole product. Only a direct conflict is worth raising.
 - **Matching is not verification.** Say what matched and where. An unmerged pull request describes intended behavior that can still change, so note that in the issue rather than presenting it as settled. Never write that a request is technically correct because a diff agreed with it.
 
@@ -376,6 +390,10 @@ If you could not confirm part of the request against the linked code, title only
 
 The template collects those answers in separate dropdowns, so one sentence in the description saves the writer reassembling them, and gives `docs-applies-to-tagging` what it needs to choose the tags. Do not guess the serverless half: if the requester does not know, write that it is unconfirmed rather than implying it applies everywhere.
 
+One sentence is not enough when the change replaces something already documented, because "applies from" reads as an addition. Give both states, and keep the patch boundary in it:
+
+> The Roles UI category is **Alerting V2** from 9.5.4 and 9.6.0, and in serverless. Stack 9.5.0 through 9.5.3 still show **Alerting**.
+
 **Links.** Every affected documentation page, plus the tickets and discussions the request came out of. For internal requesters, summarize the key points of an internal thread instead of relying on a link only some readers can open, and mark internal-only links as such. For community requesters, link the public discussion, forum post, or blog post that gives the background.
 
 Then check your own draft before showing it:
@@ -385,6 +403,7 @@ Then check your own draft before showing it:
 - [ ] Description states the change and the why, and a writer could tell when it is done
 - [ ] Description is what a user can do, not how it was built — anything you could not translate is an open question, not a guess
 - [ ] Description ends with a one-sentence availability note
+- [ ] If the change replaces something already documented, the old value and the releases that still ship it are in the issue, and the suggested edit asks for a version-scoped split rather than a rewrite
 - [ ] Every gap named is real, and narrowed to what any linked code change supports
 - [ ] Proposed wording is labeled a suggestion with placement left to the writer, unless the exact string is required and you said why
 - [ ] Every affected page, ticket, and discussion is linked, internal-only ones marked
@@ -448,5 +467,5 @@ See also. Elastic-internal and behind org access, so it is deliberately not in `
 Companion skills in this catalog. Collect the inputs they need; do not restate their rules here.
 
 - `docs-fix-changelog` — composes the `known-issue` changelog entry, which is the Cloud and serverless destination only
-- `docs-applies-to-tagging` — turns the version, lifecycle, and deployment answers into `applies_to` tags
+- `docs-applies-to-tagging` — turns the version, lifecycle, and deployment answers into `applies_to` tags. When something changed rather than arrived, it needs both states: the previous value and the releases that still ship it, alongside the new one
 - `docs-content-type-checker` — the content type definitions that decide what a proposed new page should be

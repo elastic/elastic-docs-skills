@@ -255,6 +255,21 @@
         "Quotes what the page says today next to the corrected value",
         "Considers whether a pull request is the faster path, given this is a one-line correction on an existing page"
       ]
+    },
+    {
+      "id": 19,
+      "prompt": "We renamed a category in the Kibana privileges picker under Stack Management > Roles. It used to read 'Alerting' and now reads 'Alerting V2'. Implementation PR is elastic/kibana#288163, labeled v9.6.0 and v9.5.4, and it was backported to 9.5 in elastic/kibana#288506. The configure-access page still tells people to look under Alerting. Can you file this?",
+      "expected_output": "An issue that carries both category names with the releases each applies to, and asks for a version-scoped split of the existing page rather than a find-and-replace.",
+      "expectations": [
+        "Establishes that Stack releases earlier than 9.5.4 still show the old 'Alerting' category, rather than describing the change only as arriving in 9.5.4 and 9.6.0",
+        "Reads the version labels and the backport pull request, not just baseRefName, to work out that an already-released minor is split into before and after",
+        "Availability note names both states, for example 'Alerting V2' from 9.5.4, 9.6.0, and serverless while 9.5.0 through 9.5.3 still show 'Alerting'",
+        "Suggested edits ask for the old value to be kept and the new value scoped with applies_to, because the page is cumulative across versions and serverless",
+        "Does NOT ask for every occurrence of 'Alerting' on the page to be replaced with 'Alerting V2'",
+        "Quotes the current wording on the configure-access page next to what it should say",
+        "Hands docs-applies-to-tagging both values and both version ranges without writing the applies_to syntax itself",
+        "Checks elastic/docs-content and elastic/docs-content-internal for an existing issue on this rename before drafting a new one"
+      ]
     }
   ]
 }
