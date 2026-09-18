@@ -354,6 +354,7 @@
       "expected_output": "Writes onto the Step 3 branch, then runs docs-review-pr against the branch as a self-review before asking for the gate 3 approval, and reports its recommendation.",
       "expectations": [
         "Confirms it is on the Step 3 working branch before writing, rather than assuming",
+        "Commits the writes on the working branch before running docs-review-pr, because the review diffs commits",
         "Runs docs-review-pr against the branch after the write and before asking about a pull request",
         "Reports the review recommendation — approve, comment, or request changes — in the output",
         "Fixes what the review raises rather than opening a pull request its own pre-review would have blocked",
@@ -454,6 +455,42 @@
         "Reports the parts of the writer brief that turn out not to apply instead of silently dropping them",
         "Does NOT write a patch-level version into an applies_to tag",
         "Does NOT add version-scoped phrasing for a difference that readers on the covered versions cannot encounter"
+      ]
+    },
+    {
+      "id": 36,
+      "prompt": "Draft docs for the new alert grouping toggle. No docs-content or kibana path is configured on this machine, and there is no ~/.config/elastic-docs/docs-draft-feature-docs.local.yml.",
+      "expected_output": "Asks for the path to an existing clone, does not create a temporary checkout, and writes the answered path to the config before continuing.",
+      "expectations": [
+        "Asks the user for the path to an existing docs-content clone rather than cloning one",
+        "Does NOT git clone docs-content, kibana, or any other repo into a temporary directory",
+        "Does NOT proceed on a path it will not write to the config",
+        "Writes the resolved paths to ~/.config/elastic-docs/docs-draft-feature-docs.local.yml after they are confirmed",
+        "Does NOT skip writing the config because the path looks temporary or because caching it might pollute future runs"
+      ]
+    },
+    {
+      "id": 37,
+      "prompt": "The draft of the APM Logs page links to the canonical log source configuration instead of repeating those steps. Run the reader test.",
+      "expected_output": "Treats following those links as how the reader uses the page, and does not fail the test for refusing to duplicate a canonical procedure.",
+      "expectations": [
+        "Runs the Step 9b reader test",
+        "Instructs the reader-test subagent that links the page itself provides to canonical procedures are how the reader continues, not missing content",
+        "Does NOT treat a page that links out instead of duplicating a procedure as a FAIL",
+        "Does NOT get stuck claiming the reader-test instruction conflicts with place-each-detail-once",
+        "Still FAILs if the page is missing a step, a fact, or a link the reader needs"
+      ]
+    },
+    {
+      "id": 38,
+      "prompt": "The files are written onto the working branch. Open the pull request.",
+      "expected_output": "Commits the gate-2 writes on the working branch before reviewing or pushing, and refuses to open a pull request from an empty commit list.",
+      "expectations": [
+        "Commits the files written at gate 2 onto the Step 3 working branch before running Step 9c",
+        "Confirms the current branch is the working branch, not the default branch, before committing",
+        "Stages only the files this run wrote, not git add -A",
+        "Does NOT treat the constraint against committing to a default branch as a ban on committing at all",
+        "Does NOT push or open a pull request while the writes are still uncommitted, because there is then nothing to push"
       ]
     }
   ]

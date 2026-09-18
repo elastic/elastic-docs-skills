@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.5.0
+version: 2.5.1
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -71,7 +71,7 @@ If the MCP is not configured, WebFetch the same URLs with `.md` appended, which 
 ## Constraints
 
 - **Never write a file or open a pull request without explicit approval.** See *Approval gates*. This matches the baseline's own statement that its conventions are not instructions to push or open pull requests on your own. Creating the working branch in Step 3 is the one exception, because an empty local branch changes nothing and is reversible.
-- **Never commit to, or write on, a default branch.** Step 3 puts you on a working branch before anything else happens.
+- **Never commit to, or write on, a default branch.** Step 3 puts you on a working branch before anything else happens. After gate 2, commit on that working branch — the prohibition is the default branch, not committing.
 - Never invent a UI label, a default value, a parameter name, or a behavior. Every concrete claim is verified in Step 6 or surfaced as an open question.
 - Never invent or generate a screenshot. Name the screenshot that is needed and say where it goes.
 - An area reference file may **add** facts and narrow choices. It may never override the style guide, content types, cumulative-docs rules, or the approval gates.
@@ -83,6 +83,10 @@ If the MCP is not configured, WebFetch the same URLs with `.md` appended, which 
 ## Step 1: Resolve paths
 
 Do this once per machine, then reuse. Resolve in this order and stop at the first hit: environment variable, then `~/.config/elastic-docs/docs-draft-feature-docs.local.yml`, then ask.
+
+**Ask means ask.** Do not clone a repo to fill a missing path, and do not create a temporary checkout. You may *propose* an existing path you found on disk, but the user has to confirm it before it counts as a hit. A clone you make for this run is the wrong tree: it is not the writer's working copy, it takes minutes, and you will correctly refuse to cache it, which means the next run pays the same cost. If no existing clone is on the machine, stop and wait for one.
+
+A path you will not write to the config is not a resolved path. Keep asking. Do not proceed on a checkout you refuse to cache, and do not skip the write because the path looks temporary — if it looks temporary, it is the wrong path. Skipping the write is what makes "once per machine" false.
 
 The config file uses one key per row of the table below, named after the variable in lower snake case, so `$DOCS_CONTENT_ROOT` is `docs_content_root`. Use those exact keys when writing it back, so a later hand-edit and a first run agree:
 
@@ -102,7 +106,7 @@ docs_pitfalls_path: /path/to/pitfalls.md              # optional
 
 The last two rows are **per-writer, not per-area**. They tune how one person drafts, which is why they are opt-in and why the overlay that ships with this skill stays off until pointed at. Area reference files are the opposite: facts about a docs area that every writer needs, so Step 2 loads them automatically. Never move a preference into an area file, or an area fact into a preference file.
 
-Existing files stay where they are — record the path, never move or overwrite. Write the resolved paths back to the config so later runs skip this step. Do not hard-code a home directory or a username anywhere.
+Existing files stay where they are — record the path, never move or overwrite. Write the resolved paths back to the config so later runs skip this step. Do not hard-code a home directory or a username anywhere. The same rule applies when a later step needs a product repo that was not resolved here: ask, then write it back. Never clone it in.
 
 A product repo plays one of two roles, and confusing them wastes a whole pass. Usually it is **read-only**: you verify claims there and write the page in docs-content. Sometimes it **owns the page** and is where the edit lands, because reference content often lives in the product repo's own `docs/` tree with its own `docset.yml`, `toc.yml`, and `redirects.yml`. Step 4e settles which, and a published URL is not evidence: `elastic.co/docs/reference/kibana/` publishes from `elastic/kibana`, not from docs-content.
 
@@ -317,11 +321,13 @@ If `AGENTS.md` names a task-to-skill mapping that is not in this table, run that
 
 Run a reader test in an isolated subagent. Paste the block below as the subagent's first message, verbatim and with the placeholders filled. Send no other context, because the value depends on the reader not having seen you write the page.
 
+The test asks whether the reader can do the task *from* this page, which includes following links the page itself provides. It does not ask whether the page is self-contained. A page that points at a canonical procedure instead of copying it is doing what Step 5 required, and that is a PASS unless the link is missing or the reader cannot tell where to go.
+
 ```
 You are <audience, with technical level and role>.
 Your goal is <what they are trying to accomplish>.
 Read the page below and answer:
-1. Can you accomplish your goal using only this page? Answer PASS or FAIL.
+1. Can you accomplish your goal from this page, following any links it provides to canonical procedures? Answer PASS or FAIL. A link to a procedure that lives elsewhere is how you continue, not a gap.
 2. What is the first sentence that confused you, if any?
 3. What did you expect to find that is missing?
 4. Which terms were unfamiliar or undefined?
@@ -329,13 +335,13 @@ Read the page below and answer:
 <the drafted page>
 ```
 
-Act on the verdict: fix the issues once and re-run the test. If it still fails, stop and put the remaining gaps in front of the user rather than editing in circles.
+Act on the verdict: fix a missing step, fact, or link once and re-run. If the FAIL is that the page linked instead of duplicating, the test was applied wrongly — that is a PASS. If it still fails for a real gap, stop and put the remaining gaps in front of the user rather than editing in circles.
 
 ### 9c. Review the branch, after gate 2 and before gate 3
 
-Once the files are written, run `docs-review-pr` against the branch — with no argument, it reviews the current branch against its base. It returns the docs team review checklist with an approve, comment, or request-changes call, and it is read-only, so it cannot undo the write.
+Once the files are written **and committed**, run `docs-review-pr` against the branch — with no argument, it reviews the current branch against its base. It returns the docs team review checklist with an approve, comment, or request-changes call, and it is read-only, so it cannot undo the write.
 
-**Fetch first, and compare against the merge base** — `git diff <base>...HEAD`, three dots, not two. Two dots compare the branch tip to the base tip, so everything the base gained since you branched reads as a file you changed. One commit of drift is enough to bury the files you actually touched in unrelated ones, and the review then spends its attention on those. When the branch is behind, say so rather than reviewing through the noise.
+**Fetch first, and compare against the merge base** — `git diff <base>...HEAD`, three dots, not two. Two dots compare the branch tip to the base tip, so everything the base gained since you branched reads as a file you changed. One commit of drift is enough to bury the files you actually touched in unrelated ones, and the review then spends its attention on those. When the branch is behind, say so rather than reviewing through the noise. The review diffs commits. If that diff is empty after the write, you skipped the commit — go back and make it before reviewing.
 
 This re-runs most of the 9a table against real files rather than a draft in the conversation, which is where frontmatter, includes, and link resolution actually get exercised. It does not cover `docs-page-opening-optimizer`, `docs-syntax-help`, `docs-frontmatter-description`, or `docs-redirects`, so 9a is still the only pass those get.
 
@@ -365,8 +371,8 @@ When the work spans repos, each pull request gets its own description written to
 Three gates. Never skip ahead, and never bundle two approvals into one question, including one gate-3 approval per repo.
 
 1. **Present.** Show the draft, the file paths you intend to write, the verification results, the Step 9a and 9b results, and the open questions. When the work spans repos, show the per-repo split and the order from Step 4e here.
-2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change onto the Step 3 branch. Confirm you are on it first, rather than assuming — a gate 1 that ran long is enough time for a branch to change underneath you. Writing to a second repo is part of this gate only if its split was presented at gate 1. Then run Step 9c.
-3. **Pull request.** Only on a separate, explicit approval, and show the Step 10 description and the Step 9c recommendation as part of asking. The branch already exists from Step 3, so push it and open the pull request as a **draft**, using the approved description as the body. `references/branch-setup.md` has the push recipe, including the fork case.
+2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change onto the Step 3 branch. Confirm you are on it first, rather than assuming — a gate 1 that ran long is enough time for a branch to change underneath you. Writing to a second repo is part of this gate only if its split was presented at gate 1. **Then commit**, because Step 9c and gate 3 both look at commits, not at the working tree — uncommitted writes are invisible to `git diff <base>...HEAD` and there is nothing to push. `references/branch-setup.md` has the commit recipe. Then run Step 9c.
+3. **Pull request.** Only on a separate, explicit approval, and show the Step 10 description and the Step 9c recommendation as part of asking. The branch already exists from Step 3 and the commit from gate 2, so push that commit and open the pull request as a **draft**, using the approved description as the body. `references/branch-setup.md` has the push recipe, including the fork case. Do not push while the writes are still uncommitted.
 
 Open the pull requests in the Step 4e order, and cross-reference them in both bodies so a reviewer seeing one knows the other exists. Do not open the blocked one early: it cannot pass its own link check until the first publishes.
 
@@ -388,7 +394,7 @@ When the work spans repos, group sections 3, 5, 6, and 8 by repo rather than mer
 
 - `references/index.md` — the area registry. Check it in Step 2
 - `references/status.md` — every in-flight transition, each with an expiry condition to resolve rather than a date to trust. Read it when an area file's frontmatter names it
-- `references/branch-setup.md` — the git recipe for Step 3 and for the gate-3 push
+- `references/branch-setup.md` — the git recipe for Step 3, the gate-2 commit, and the gate-3 push
 - `references/_template.md` — copy to add an area. It states what belongs in an area file, what the MCP should answer instead, and the rules that keep a file from going stale
 - `references/ste-overlay.md` — optional Simplified Technical English prose overlay. Opt in through `$EDITORIAL_PREFERENCES_PATH`; not loaded by default
 - Baseline: `AGENTS.md` and `contribute-docs/` in docs-content. Read at run time, never copied here

@@ -55,9 +55,27 @@ git -C <repo> switch --no-track -c <branch> <canonical>/<default>
 
 If Step 4c concludes no docs are needed, or the user declines at gate 1, switch back and delete the branch. It is empty, so nothing is lost.
 
+## Commit after gate 2
+
+The write is not done until it is committed. Step 9c diffs commits, and gate 3 pushes commits. An uncommitted working tree means both of those see an empty branch.
+
+Confirm you are on the Step 3 working branch, not the default branch, then:
+
+```
+git -C <repo> add -- <paths you wrote>
+git -C <repo> status
+git -C <repo> commit -m "<message>"
+```
+
+Stage only the files this run wrote. Do not `git add -A` or `git commit -a`, which would pick up unrelated dirty files that Step 3 already refused to carry onto the branch.
+
+The message follows the target repo's recent commits rather than a format you invent.
+
+Never commit on the default branch. If `git branch --show-current` is the default, stop — the write landed in the wrong place.
+
 ## Pushing at gate 3
 
-Push the existing branch rather than creating a new one. When the checkout is a fork, push to the fork and open the pull request against the canonical repo:
+Push the existing branch rather than creating a new one. The commit from gate 2 has to exist first; `git push` of a branch with no commits of its own has nothing for a pull request to show. When the checkout is a fork, push to the fork and open the pull request against the canonical repo:
 
 ```
 gh pr create --draft --repo elastic/<repo> --head <fork-owner>:<branch>
