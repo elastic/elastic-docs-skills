@@ -28,6 +28,7 @@ tools:
 
 safe-outputs:
   add-comment:
+    hide-older-comments: true
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. See the NOTICE file distributed with
@@ -114,10 +115,6 @@ If a skill has no evals:
 
 ⚠️ No evals found. Consider adding `evals/evals.json` with test cases.
 ```
-
-## Comment idempotency
-
-Before posting, search existing PR comments for one that starts with `## Skill Eval Results`. If found, **update that comment** instead of creating a new one. This prevents duplicate comments on re-runs.
 
 ## Important notes
 
