@@ -28,7 +28,6 @@ tools:
 
 safe-outputs:
   add-comment:
-    hide-older-comments: true
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. See the NOTICE file distributed with
@@ -89,9 +88,11 @@ For each eval, record:
 - Overall pass rate
 - Any notable observations
 
-## Comment format
+## Posting results
 
-Post a single comment with this structure:
+**If all expectations pass and all evals ran successfully**: do not post a comment. Use `noop` instead.
+
+**If any expectation fails**, post a comment with this structure:
 
 ```
 ## Skill Eval Results
@@ -105,16 +106,10 @@ Post a single comment with this structure:
 
 **Overall**: X/Y expectations passed (Z%)
 
-<Brief assessment of skill quality based on eval results>
+<Brief assessment of what failed and why>
 ```
 
-If a skill has no evals:
-
-```
-### <skill-name>
-
-⚠️ No evals found. Consider adding `evals/evals.json` with test cases.
-```
+If a skill has no evals, use `noop` — do not post a comment.
 
 ## Important notes
 

@@ -4,8 +4,7 @@ description: |
   documentation and skill-validator criteria. Posts a PR comment with findings.
 
 on:
-  pull_request:
-    paths: ['skills/**']
+  slash_command: "review"
 
 permissions:
   contents: read
@@ -26,7 +25,6 @@ tools:
 
 safe-outputs:
   add-comment:
-    hide-older-comments: true
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. See the NOTICE file distributed with
