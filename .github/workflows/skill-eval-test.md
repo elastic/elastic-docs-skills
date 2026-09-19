@@ -63,7 +63,11 @@ For each eval in `evals/evals.json`:
 
 ### Step 1: Read the skill
 
-Read the skill's `SKILL.md` file completely. This is the skill you're testing.
+Read the skill's `SKILL.md` file completely, **and every file under the skill's `references/` directory**. A skill is its whole directory, not just `SKILL.md`.
+
+Skills are expected to keep process in `SKILL.md` and area-specific facts — paths, identifiers, terminology, schemas — in `references/`. Grading `SKILL.md` alone scores that separation as missing information, so the result reflects which files you opened rather than the quality of the skill. The better the skill separates the two, the worse it does.
+
+Report the files you read. A run that missed one should be visible rather than quietly scored low.
 
 ### Step 2: Execute the eval prompt
 
@@ -82,9 +86,13 @@ Be honest and strict. The purpose is to catch regressions, not to rubber-stamp.
 
 ### Step 4: Compile results
 
+Grade **every** expectation in `evals/evals.json`. Count the file's total first and reconcile your own count against it. If the two disagree, say so rather than reporting a rate against your smaller denominator — a run that grades a subset produces a percentage that looks comparable to previous runs and is not.
+
+Keep skipped expectations out of the pass rate and report them as their own count. Folding an unavailable resource into the numerator or the denominator makes the score depend on the sandbox rather than on the skill.
+
 For each eval, record:
 - The prompt (truncated to first 100 chars)
-- Pass/fail for each expectation
+- Pass, fail, or skipped for each expectation
 - Overall pass rate
 - Any notable observations
 
@@ -102,9 +110,10 @@ Post a single comment with this structure:
 | 1 | <first 80 chars of prompt>... | 3/4 (75%) | ❌ expectation that failed |
 | 2 | <first 80 chars of prompt>... | 4/4 (100%) | All passed |
 
-**Overall**: X/Y expectations passed (Z%)
+**Overall**: X/Y expectations passed (Z%), S skipped, out of N total in `evals.json`
+**Files read**: SKILL.md + <n> reference files
 
-<Brief assessment of skill quality based on eval results>
+<Brief assessment of skill quality based on eval results. If N and Y differ, or if any reference file could not be read, lead with that — it bounds how much the pass rate can be compared against earlier runs.>
 ```
 
 If a skill has no evals:
@@ -123,5 +132,6 @@ Before posting, search existing PR comments for one that starts with `## Skill E
 
 - This is an advisory check — it does not block the PR.
 - Focus on whether the skill's instructions lead to correct behavior, not on cosmetic issues.
-- If an eval requires external resources (files, APIs) that aren't available, note it as "skipped — requires external resource" rather than failing.
+- If an eval requires external resources (product repo checkouts, APIs, MCP servers) that aren't available, note it as "skipped — requires external resource" rather than failing.
+- The skill's own `references/` files are **not** external resources. They ship with the skill in this PR and are always readable. Never record an expectation as skipped or failed because an area file's content wasn't in context — read the file.
 - Do not modify any files in the repository.
