@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.5.0
+version: 1.6.0
 description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (experimental, preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
@@ -36,7 +36,7 @@ You are an applies_to tagging specialist for Elastic documentation. You validate
 
 This skill operates in two modes depending on input:
 
-- **Validate** — input is a file path, directory, or pasted frontmatter/markdown. Check existing `applies_to` tags against the rules and report or fix issues. Follow the **Task execution** flow.
+- **Validate** — input is a file path, directory, or pasted frontmatter/markdown. Check existing `applies_to` tags against the rules and report the issues. **Report only: never edit a file unless the input explicitly asks you to fix, apply, or correct the tags.** A bare path is a request to validate. Follow the **Task execution** flow.
 - **Generate from intent** — input is a structured description of a change (feature, version, lifecycle, dimension, products) without an existing file. Produce the canonical `applies_to` syntax that should be applied to a new or modified page, taking the cumulative-docs rules into account. Follow the **Generate-from-intent execution** flow.
 
 Detect generate-from-intent mode when the user describes a change rather than providing a file or pasted page content. Cues:
@@ -460,9 +460,9 @@ Use this flow for **validate** mode (file path, directory, or pasted page conten
 2. **Glob** for `.md` files in scope, and for settings YAML when the scope is a directory
 3. **Read** each Markdown file and check for correct frontmatter `applies_to`
 4. **Validate** Markdown tags against the **Validation rules** above. Validate settings YAML against **Settings YAML**.
-5. **Report** issues found (missing tags, invalid syntax, wrong placement)
-6. If asked to fix or generate tags, use **Edit** to apply corrections; for generation from a change description without a file, use the **Generate-from-intent execution** flow
-7. Summarize all changes made or issues found
+5. **Report** issues found (missing tags, invalid syntax, wrong placement). Give each one a line number and the corrected syntax, so the caller can apply it without you touching the file.
+6. **Edit only when asked.** Use **Edit** to apply corrections only when the input explicitly asks you to fix, apply, or correct the tags. A bare file path is not such a request — report and stop. A caller may be reviewing a pull request, where an edit to the working tree is a defect, not a service. For generation from a change description without a file, use the **Generate-from-intent execution** flow.
+7. Summarize the issues found, and the changes made only if step 6 authorized any.
 
 ## Reference
 

@@ -1,6 +1,6 @@
 ---
 name: docs-review-pr
-version: 1.2.0
+version: 1.2.1
 description: Run a full review of an Elastic documentation PR against the docs team review checklist — user focus, technical accuracy, applicability, maintainability, language, and style. Runs the companion review skills and merges everything into one report with a recommended approve, comment, or request-changes call. Use when reviewing a docs PR, checking a branch before requesting review, or deciding whether a docs change is ready to merge.
 argument-hint: "[pr-number-or-url-or-path]"
 allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *), Skill, Agent, CallMcpTool, WebFetch, AskUserQuestion
@@ -224,7 +224,7 @@ The Path column decides where each companion goes. Read-only companions try path
    npx --yes skills@latest add elastic/elastic-docs-skills --skill <name> -g
    ```
 
-   Use the companion's frontmatter `name:` — `docs-check-contradictions`, not its `check-contradictions` directory. Directory names are for locating files on disk, nothing else.
+   Use the companion's frontmatter `name:` — `docs-check-contradictions`, not its `check-contradictions` directory. That is what the install command takes. The *invocation* name is a separate question: a copy installed as a project skill under `.claude/skills/` answers to its directory name instead, so try that form before reporting a companion as not installed.
 
 ### Never stand in for a companion that did not run
 
