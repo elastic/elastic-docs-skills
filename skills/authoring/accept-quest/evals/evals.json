@@ -1,0 +1,47 @@
+{
+  "skill_name": "docs-accept-quest",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Accept docs quest for elastic/docs-content#9999. I already have docs-content at ~/work/docs-content, pitfalls at ~/work/docs-pitfalls.md, and editorial preferences at ~/work/editorial-preferences.md.",
+      "expected_output": "Phase 0 records the three provided paths in docs-accept-quest.local.yml without copying or moving the existing files, then proceeds to read the issue.",
+      "expectations": [
+        "Asks for unresolved writer paths only when they are not already provided",
+        "Does not overwrite or relocate existing pitfalls or editorial preference files",
+        "Writes or updates ~/.config/elastic-docs/docs-accept-quest.local.yml (or workspace local config) with the three paths",
+        "Continues to Phase 1 issue intake after paths are resolved"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Accept docs quest elastic/docs-content#1234 for a Kibana UI change with a linked implementation PR. Paths are already configured.",
+      "expected_output": "Triangulates the linked PR and sibling PRs, proposes a docs plan, verifies UI strings at HEAD, sweeps the pitfalls checklist, and opens a draft PR.",
+      "expectations": [
+        "Reads the docs issue and linked product PR diff as the primary source of truth",
+        "Searches for sibling/follow-up PRs before drafting",
+        "Verifies UI labels against product source at HEAD, not issue prose",
+        "Reads $DOCS_PITFALLS_PATH and $EDITORIAL_PREFERENCES_PATH during verification and drafting",
+        "Opens a draft PR on elastic/docs-content"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "First run of docs-accept-quest with no local config and no env vars. I do not have pitfalls or editorial preference files yet. docs-content is at /tmp/docs-content.",
+      "expected_output": "Seeds pitfalls and editorial preferences from the bundled example files to chosen paths, writes local config, then continues.",
+      "expectations": [
+        "Offers to copy pitfalls.examples.md and editorial-preferences.example.md to user-chosen paths",
+        "Does not invent hard-coded ~/Documents/github paths",
+        "Persists resolved paths so the next run skips first-run setup"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The docs issue says docs may not be needed for an invisible automatic change with no new user-facing control.",
+      "expected_output": "Runs the whether-to-document gate and recommends no docs or release note only before drafting.",
+      "expectations": [
+        "Surfaces the whether-to-document gate before drafting",
+        "Does not open a docs PR until the user confirms documentation is warranted"
+      ]
+    }
+  ]
+}
