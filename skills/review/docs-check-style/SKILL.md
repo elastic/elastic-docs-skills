@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.3.0
+version: 1.4.0
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when the user asks to check, lint, or review docs for voice, tone, grammar, formatting, accessibility, or word choice issues, or when a docs review runs. Do not trigger on ordinary drafting or editing.
 argument-hint: <file-or-directory>
 context: fork
@@ -41,15 +41,17 @@ You are a style reviewer for Elastic documentation. Your job is to check docs ag
 
 Use the Elastic docs MCP `get_document_by_url` tool with `includeBody: true` to fetch the style guide pages listed in `sources`. If the MCP is unavailable, fetch the `.md` page URLs directly. Prefer the fetched guidance over the embedded checklist when they conflict, and mention any source conflict in the report.
 
-## Step 2: Run Vale
+## Step 2: Get Vale findings
 
-Run the Vale CLI:
+If the input names a file that already holds Vale output for the target, read that file instead of running the CLI, and say so in your report. A caller running in CI often computes Vale once for every file under review and passes the path.
+
+Otherwise run the Vale CLI:
 
 ```
 vale --output=line $ARGUMENTS
 ```
 
-If Vale is not installed, skip this step and note it in your report. Proceed with manual review.
+If the CLI is not on `PATH`, look for the binary before concluding Vale is unavailable — a CI runner may install it outside `PATH`, for example at `/tmp/gh-aw/bin/vale`. When there is neither pre-computed output nor a binary, skip this step, note it in your report, and proceed with manual review.
 
 ## Step 3: Read the document(s)
 
