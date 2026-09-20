@@ -1,9 +1,8 @@
 ---
 name: docs-review-pr
-version: 1.1.0
+version: 1.2.0
 description: Run a full review of an Elastic documentation PR against the docs team review checklist — user focus, technical accuracy, applicability, maintainability, language, and style. Runs the companion review skills and merges everything into one report with a recommended approve, comment, or request-changes call. Use when reviewing a docs PR, checking a branch before requesting review, or deciding whether a docs change is ready to merge.
 argument-hint: "[pr-number-or-url-or-path]"
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *), Skill, Agent, CallMcpTool, WebFetch, AskUserQuestion
 sources:
   - https://www.elastic.co/docs/contribute-docs/content-types
@@ -202,11 +201,11 @@ Every companion maps onto one of the six report sections. Nothing produces a sev
 
 ### How to dispatch
 
-Most companions set `disable-model-invocation: true`. That hides them from the model's skill listing when they are installed standalone, but it does not hide them when they are installed as part of the `elastic-docs-skills` plugin — the plugin-prefixed form stays invocable.
+Companions are model-invocable, so the `Skill` tool can reach them whether they are installed standalone or as part of the `elastic-docs-skills` plugin. The one exception is `docs-validate-code-samples`, which keeps `disable-model-invocation: true` because it can write files; it always takes the subagent path, which reads its `SKILL.md` from disk and is not affected by the flag.
 
 The Path column decides where each companion goes. Read-only companions try path 1 and drop to path 2 if it fails; write-capable companions go straight to path 2. Record which path each one actually used, and report it.
 
-1. **`Skill` tool** — read-only companions only, per the Path column. Pass one file to review as `args`. Use the plugin-prefixed frontmatter name, `elastic-docs-skills:docs-content-type-checker`, which is the form the README documents. Fall back to the bare name if the prefixed one is refused. The prefixed form is what reaches a companion that sets `disable-model-invocation: true`.
+1. **`Skill` tool** — read-only companions only, per the Path column. Pass one file to review as `args`. Use the plugin-prefixed frontmatter name, `elastic-docs-skills:docs-content-type-checker`, which is the form the README documents. Fall back to the bare name if the prefixed one is refused. A copy installed as a project skill under `.claude/skills/` answers to its directory name, not its frontmatter `name`, so try that form last.
 
    **A companion that declares `Edit` or `Write` never goes down this path.** `args` is the only thing you control on a `Skill` call, and asking politely for validation is not a guarantee: `docs-applies-to-tagging` treats a file path as validate mode, and validate mode still reports or fixes. The subagent spawn prompt is the only channel that can actually forbid a write, so `applies-to-tagging` and `docs-validate-code-samples` always use path 2, even when the `Skill` tool would accept them.
 

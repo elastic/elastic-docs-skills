@@ -1,9 +1,8 @@
 ---
 name: docs-check-style
-version: 1.2.1
-description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when writing, editing, or reviewing docs to catch voice, tone, grammar, formatting, accessibility, and word choice issues.
+version: 1.3.0
+description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when the user asks to check, lint, or review docs for voice, tone, grammar, formatting, accessibility, or word choice issues, or when a docs review runs. Do not trigger on ordinary drafting or editing.
 argument-hint: <file-or-directory>
-disable-model-invocation: true
 context: fork
 allowed-tools: Read, Grep, Glob, Bash(vale *), CallMcpTool, WebFetch
 sources:
