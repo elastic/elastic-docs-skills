@@ -1,6 +1,6 @@
 ---
 name: docs-draft-workflow-docs
-version: 1.1.8
+version: 1.1.9
 description: Draft or update Elastic Workflows documentation pages in explore-analyze/workflows/ — step references, use cases, how-tos, concepts, and overviews. Use when writing Workflows docs, documenting a step type, turning workflow YAML into documentation, drafting from a doc issue in docs-content or docs-content-internal, or creating a new page under the Workflows docset.
 argument-hint: <doc-issue-url-or-page-idea-or-file-path>
 disable-model-invocation: true
@@ -82,10 +82,10 @@ This skill works standalone. These optional resources from the [elastic-docs-ski
 | Resource | How to use | Used in |
 |----------|------------|---------|
 | **elastic-docs MCP** | Public HTTP endpoint: `https://www.elastic.co/docs/_mcp/` (no auth). Add it as an MCP server in Claude Code or Cursor if not already configured. Test: `npx @modelcontextprotocol/inspector --url https://www.elastic.co/docs/_mcp/` | Step 2 |
-| **content-type-checker** | `/content-type-checker` — catalog: [skills/authoring/content-type-checker](https://github.com/elastic/elastic-docs-skills/tree/main/skills/authoring/content-type-checker) | Steps 1, 6 |
+| **docs-content-type-checker** | `/docs-content-type-checker` — catalog: [skills/authoring/docs-content-type-checker](https://github.com/elastic/elastic-docs-skills/tree/main/skills/authoring/docs-content-type-checker) | Steps 1, 6 |
 | **docs-syntax-help** | `/docs-syntax-help` — catalog: [skills/authoring/docs-syntax-help](https://github.com/elastic/elastic-docs-skills/tree/main/skills/authoring/docs-syntax-help) | Step 4 |
 
-Install a companion skill: `npx skills@latest add elastic/elastic-docs-skills --skill content-type-checker -g`
+Install a companion skill: `npx skills@latest add elastic/elastic-docs-skills --skill docs-content-type-checker -g`
 
 When the elastic-docs MCP is unavailable, fall back to **WebFetch** on `https://www.elastic.co/docs/...` URLs for the same research steps.
 
@@ -267,7 +267,7 @@ Determine which page type to draft. Use the **intake summary** and **suggested d
 | **Tutorial** | `explore-analyze/workflows/get-started/` | Tutorial | Build your first workflow |
 | **Hub / overview** | `explore-analyze/workflows/` or a section index | Overview | Workflows, Use cases |
 
-Run [`/content-type-checker`](https://github.com/elastic/elastic-docs-skills/tree/main/skills/authoring/content-type-checker) in classify mode when the page type is ambiguous — skip if not installed.
+Run [`/docs-content-type-checker`](https://github.com/elastic/elastic-docs-skills/tree/main/skills/authoring/docs-content-type-checker) in classify mode when the page type is ambiguous — skip if not installed.
 
 ## Step 2: Research before writing
 
@@ -506,7 +506,7 @@ After drafting:
 
 Before presenting the draft:
 
-1. Run [`/content-type-checker`](https://github.com/elastic/elastic-docs-skills/tree/main/skills/authoring/content-type-checker) on the draft if installed — otherwise spot-check structure against the page-type templates in Step 4
+1. Run [`/docs-content-type-checker`](https://github.com/elastic/elastic-docs-skills/tree/main/skills/authoring/docs-content-type-checker) on the draft if installed — otherwise spot-check structure against the page-type templates in Step 4
 2. Validate outbound links — use elastic-docs MCP `get_document_by_url` (or WebFetch) to resolve each cross-link in the draft when a file path is available
 3. Spot-check YAML examples against the cheat sheet gotchas list
 4. Confirm step types and parameter names against Kibana source
