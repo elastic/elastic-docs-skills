@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.6.0
+version: 1.6.1
 description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (experimental, preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
@@ -120,7 +120,7 @@ Use only **one dimension** at page level:
 
 | Dimension | Keys |
 |-----------|------|
-| Stack/Serverless | `stack`, `serverless` (subkeys: `security`, `elasticsearch`, `observability`) |
+| Stack/Serverless | `stack`, `serverless` (subkeys: `security`, `elasticsearch`, `observability`, `vectordb`) |
 | Deployment | `deployment` (subkeys: `ech`, `ece`, `eck`, `self`), `serverless` |
 | Product | `product` (subkeys: APM agents, EDOT SDKs, tools — see [full key reference](https://www.elastic.co/docs/contribute-docs/how-to/cumulative-docs/reference)) |
 
@@ -181,10 +181,13 @@ Similarly, multiple keys in a single directive are reordered consistently: Stack
 
 On each setting entry:
 
-- `stack` carries lifecycle and version.
-- `ech`, `ece`, `eck`, `self`, and `serverless` are support flags: `ga` or `unavailable`. Always list all five.
+- `stack` carries lifecycle and version. A new setting includes a version (`ga 9.4+` or `preview 9.5+`); omit it only if the setting was added before 9.0. Tag at the minor (`ga 9.4+`), not the patch. If the target minor is unreleased, still write the version — docs show **Planned** until it ships.
+- `ech`, `ece`, `eck`, `self`, and `serverless` are support flags: `ga` or `unavailable`. Never a version. Never `preview`, `experimental`, `deprecated`, or `removed`. Always list all five.
 - `ga` on a deployment key means the setting is supported there. It does not mean the setting is generally available.
 - `stack: preview` plus `ech: ga` is correct.
+- Some settings exist on only some serverless projects (common for Advanced Settings). When that's the case, nest project keys under `serverless` instead of writing a scalar `serverless: ga`/`serverless: unavailable`. The nestable keys are `elasticsearch`, `observability`, `security`, and `vectordb`. Write `ga` on the projects that include the setting — these are support flags, never a version, never `preview`/`experimental`/`deprecated`/`removed`. Do not nest `workplace_ai`; that project type never shipped and docs-builder has no `workplace_ai` key. Don't mix a scalar `serverless:` with nested project keys in the same entry.
+- Child settings inherit the parent's `applies_to` when they omit the field. If a child sets `applies_to`, that map replaces the parent — it does not merge keys.
+- When removing a setting that existed on Elastic Stack, keep the YAML entry (earlier-version readers still need to find the key). Append `removed` and the version on `stack`; keep the same `ga`/`unavailable` values on the deployment keys — never write `removed` on `ech`, `ece`, `eck`, or `self`. If the setting leaves serverless but still exists on Stack, write `serverless: unavailable`. If the setting existed only on serverless and is removed, delete the entry.
 
 Do not apply these body-Markdown rules to that YAML: mixed dimensions, lifecycle symmetry between `stack` and deployment keys, or missing page-level frontmatter.
 
@@ -390,7 +393,7 @@ From the user's prompt, pull the following. Ask **one** focused clarifying quest
 - **Dimension** — stack/serverless, deployment, or product. If both stack and serverless apply, use stack/serverless. Use only one dimension at page level.
 - **Lifecycle per key** — experimental, preview, beta, ga, deprecated, removed, or unavailable.
 - **Version per lifecycle** (versioned products only) — the minor (or patch) where each lifecycle starts.
-- **Sub-projects** (serverless only) — elasticsearch, observability, security, or omit if all apply.
+- **Sub-projects** (serverless only) — elasticsearch, observability, security, vectordb, or omit if all apply.
 - **Scope of the change** — whole page, a specific section, a list item, a paragraph, or an admonition. Determines which level of annotation to generate.
 - **Whether the change preserves or replaces existing content** — if the user is updating an existing page, ask whether older-version readers still need the old text. Apply the **Cumulative documentation rules** above.
 - **Settings YAML** — if the change is a `{settings}` YAML entry, follow **Settings YAML** instead of the page-level mixed-dimensions rule.
