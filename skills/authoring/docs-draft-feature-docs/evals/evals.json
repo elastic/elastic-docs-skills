@@ -261,14 +261,15 @@
     },
     {
       "id": 21,
-      "prompt": "Draft the page for the new bulk-tag action. I've pointed EDITORIAL_PREFERENCES_PATH at the STE overlay. Also tighten up the two paragraphs above where the new content goes while you're in there.",
-      "expected_output": "Applies the overlay to the new prose only, declines to restyle the untouched paragraphs, and keeps the style guide ahead of the overlay if the two disagree.",
+      "prompt": "Draft the page for the new bulk-tag action. I've pointed EDITORIAL_PREFERENCES_PATH at the shipped editorial preferences file. Also tighten up the two paragraphs that come before where the new content goes while you're in there.",
+      "expected_output": "Applies the preferences to the new prose only, declines to restyle the untouched paragraphs, and keeps the style guide ahead of the preferences if the two disagree.",
       "expectations": [
         "Reads the file at $EDITORIAL_PREFERENCES_PATH in Step 7 and applies it to the drafted prose",
-        "Declines to rewrite the two surrounding paragraphs, citing the new-prose-only scope and the lightest-change rule",
-        "Treats the overlay as additive, deferring to the Elastic style guide where they conflict and saying so rather than silently following the overlay",
-        "Does not apply the overlay to identifiers, CLI flags, or config keys",
-        "Still runs the Step 9a companion skills, since the overlay does not replace docs-check-style or Vale"
+        "Re-reads it in the Step 9b pass and sweeps the added and changed lines against it",
+        "Declines to rewrite the two surrounding paragraphs, citing the new-prose-only scope and the lightest-change rule, including during the Step 9b sweep",
+        "Treats the preferences as additive, deferring to the Elastic style guide where they conflict and saying so rather than silently following the preference",
+        "Does not apply the preferences to identifiers, CLI flags, or config keys",
+        "Still runs the Step 9a companion skills, since the preferences file does not replace docs-check-style or Vale"
       ]
     },
     {
@@ -474,7 +475,7 @@
       "prompt": "The draft of the APM Logs page links to the canonical log source configuration instead of repeating those steps. Run the reader test.",
       "expected_output": "Treats following those links as how the reader uses the page, and does not fail the test for refusing to duplicate a canonical procedure.",
       "expectations": [
-        "Runs the Step 9b reader test",
+        "Runs the Step 9c reader test",
         "Instructs the reader-test subagent that links the page itself provides to canonical procedures are how the reader continues, not missing content",
         "Does NOT treat a page that links out instead of duplicating a procedure as a FAIL",
         "Does NOT get stuck claiming the reader-test instruction conflicts with place-each-detail-once",
@@ -491,6 +492,22 @@
         "Stages only the files this run wrote, not git add -A",
         "Does NOT treat the constraint against committing to a default branch as a ban on committing at all",
         "Does NOT push or open a pull request while the writes are still uncommitted, because there is then nothing to push"
+      ]
+    },
+    {
+      "id": 39,
+      "prompt": "Document the new JSON view mode in Discover. It's a value in the View mode setting under Display options, next to the default Table value, and it shows each document as an expandable tree. No EDITORIAL_PREFERENCES_PATH is configured on this machine.",
+      "expected_output": "Opens on what the reader can now do rather than on the Display options popover, and still runs the Step 9b user-oriented pass even though no preferences file is configured, because that pass is part of the skill rather than an opt-in preference.",
+      "expectations": [
+        "Heads and opens the section with the reader's job — inspecting a document as a tree — rather than with the View mode control or the Display options popover",
+        "Puts the control and its location in the how-to sentence rather than in the opening",
+        "Runs the Step 9b pass on the added and changed lines even with no $EDITORIAL_PREFERENCES_PATH configured",
+        "Rewrites any line that only names controls, maps the popover, or contrasts JSON with what the Table mode shows",
+        "Says what happens to the reader's data or results, not only how the control looks",
+        "Reports in the Validation output what the pass rewrote",
+        "Does NOT treat the verified i18n labels and the Table default as the outline for the section",
+        "Does NOT skip the pass on the grounds that no preferences file was resolved in Step 1",
+        "Does NOT apply the pass to surrounding prose it was not otherwise changing"
       ]
     }
   ]

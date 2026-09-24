@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.5.1
+version: 2.6.0
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -93,7 +93,7 @@ The config file uses one key per row of the table below, named after the variabl
 ```yaml
 docs_content_root: /path/to/docs-content
 kibana_root: /path/to/kibana
-editorial_preferences_path: /path/to/preferences.md   # optional
+editorial_preferences_path: /path/to/preferences.md   # optional; can point at references/editorial-preferences.md
 docs_pitfalls_path: /path/to/pitfalls.md              # optional
 ```
 
@@ -102,7 +102,7 @@ docs_pitfalls_path: /path/to/pitfalls.md              # optional
 | docs-content clone | `$DOCS_CONTENT_ROOT` | The baseline, navigation, snippets, and the files you edit. Always required |
 | Product repo clones | `$KIBANA_ROOT`, `$ELASTICSEARCH_ROOT`, others as needed | Verifying claims at `HEAD` in Step 6, and **as the working tree** when the product repo owns the page |
 | Pitfalls checklist | `$DOCS_PITFALLS_PATH` | Optional. A personal list of doc-shaped mistakes to sweep for |
-| Editorial preferences | `$EDITORIAL_PREFERENCES_PATH` | Optional. Prose-craft preferences, complementary to the style guide. Consumed in Step 7. Can point at `references/ste-overlay.md` or at the writer's own file |
+| Editorial preferences | `$EDITORIAL_PREFERENCES_PATH` | Optional. Prose-craft preferences, complementary to the style guide. Consumed in Step 7 and again in Step 9b. Can point at `references/editorial-preferences.md` or at the writer's own file |
 
 The last two rows are **per-writer, not per-area**. They tune how one person drafts, which is why they are opt-in and why the overlay that ships with this skill stays off until pointed at. Area reference files are the opposite: facts about a docs area that every writer needs, so Step 2 loads them automatically. Never move a preference into an area file, or an area fact into a preference file.
 
@@ -275,7 +275,9 @@ Three moves the baseline leaves to your judgment:
 - **Translate the framing you were handed.** The input describes an implementation. Write what a reader can now do, see, configure, or avoid. Nothing downstream will do this for you.
 - **Cut what does not serve the reader's task**, including anything that exists only because the issue mentioned it.
 
-If `$EDITORIAL_PREFERENCES_PATH` resolved in Step 1, read that file now and apply it to the prose you write. It is additive prose craft, so it never overrides the style guide, content types, or an area file — where it conflicts with the baseline, the baseline wins, and say so rather than silently following the preference. Apply it only to new prose: do not restyle surrounding copy you were not otherwise changing. An optional Simplified Technical English overlay ships at `references/ste-overlay.md`; it stays off unless the variable points at it.
+**Open on the reader's job, not on the control.** A new option or mode gets a heading and a first sentence that name what the reader can now do — `View documents as JSON`, not `Switch the view mode`. The control goes in the how-to sentence that follows. The labels, defaults, and ranges you verified in Step 6 are a checklist the draft must not contradict; they are not an outline, and a parenthetical list of every verified action label is still an outline. Step 9b checks this line by line, so writing it this way the first time is cheaper than rewriting it there.
+
+If `$EDITORIAL_PREFERENCES_PATH` resolved in Step 1, read that file now and apply it to the prose you write. It is additive prose craft, so it never overrides the style guide, content types, or an area file — where it conflicts with the baseline, the baseline wins, and say so rather than silently following the preference. Apply it only to new prose: do not restyle surrounding copy you were not otherwise changing. A preferences file with drafting defaults and a Simplified Technical English overlay ships at `references/editorial-preferences.md`; it stays off unless the variable points at it.
 
 Frontmatter follows `frontmatter.config.yml` and the conventions in the area file. Check the nearest `_snippets/` directory before writing shared prose. For `applies_to` values and badge placement, use `docs-applies-to-tagging` — collect the version, lifecycle, and deployment answers, and let that skill decide the tags, including whether the page needs any.
 
@@ -291,7 +293,7 @@ Add the page to its hub or index, add a short Related section, and resolve every
 
 ## Step 9: Validate
 
-Two passes, because the draft and the branch are checkable in different ways. Orchestrate the skills below; never reimplement their rules.
+Four passes. Three check the draft before gate 1, and the fourth checks the committed branch. Orchestrate the skills in 9a; never reimplement their rules.
 
 ### 9a. Check the draft, before gate 1
 
@@ -317,7 +319,29 @@ Invoke each of these on the draft. Run the ones that apply, and do not fail when
 
 If `AGENTS.md` names a task-to-skill mapping that is not in this table, run that one too, and open a pull request here to add the row.
 
-### 9b. Read the draft as its audience
+### 9b. Read every new line as the reader's line
+
+The skills in 9a check the draft against rules. This pass checks each line against the reader, applying the plain language principles of ISO 24495-1 — relevant, findable, understandable, usable. Run it on the **added and changed lines only**, after the draft exists. It is not the outline you write from, and it does not override a content-type template, a settings reference that must list every value, or a how-to's numbered spine. A how-to may still number its steps and a reference page may still list every setting; the pass only asks whether each new line is one a reader would use.
+
+Re-read every added or changed sentence as someone who came to do a job, and ask four questions:
+
+| | The question | The fix |
+|---|---|---|
+| **Findable** | Does the first sentence of the section or list say what the reader gets? | If context comes first, move the outcome ahead of it |
+| **Relevant** | Does the line say something the reader cannot get from the step, heading, or UI a few lines away? | Cut the repeat, unless the list is a reference set |
+| **Understandable** | Does the line lead with the concrete noun, or with a wrapper like "the current view" or "the settings"? | Lead with the concrete noun |
+| **Usable** | Does the line say what happens to the reader's data or results, rather than only how the control looks? | Add the outcome — or, when Step 6 could not verify it, carry it as an open question instead |
+
+Rewrite any line that only names controls or object types, maps a popover, contrasts with another mode's internals, dumps sibling action labels in parentheses, or speaks as writer IA ("this section covers," "X and Y are in [section]").
+
+- Don't: `Use **View mode** in **Display options** to show the table as **Table** or **JSON**. **Table** is the default.`
+- Do: `To inspect documents as a tree, set **View mode** to **JSON**.`
+- Don't: `A saved Discover session stores **View mode** and the JSON display settings.`
+- Do: `If you save the session in **JSON** view, you get the same tree and the same **Lines shown** values when you open it again.`
+
+Finish by sweeping the same added and changed lines for the drafting rules that leak while writing: passive voice, em dashes, joining semicolons, hedges, and synonym switches. When `$EDITORIAL_PREFERENCES_PATH` resolved, re-read that file here and sweep against it too, still on the diff only. Report what you rewrote, so a reader of the output can see the pass ran.
+
+### 9c. Read the draft as its audience
 
 Run a reader test in an isolated subagent. Paste the block below as the subagent's first message, verbatim and with the placeholders filled. Send no other context, because the value depends on the reader not having seen you write the page.
 
@@ -337,7 +361,7 @@ Read the page below and answer:
 
 Act on the verdict: fix a missing step, fact, or link once and re-run. If the FAIL is that the page linked instead of duplicating, the test was applied wrongly — that is a PASS. If it still fails for a real gap, stop and put the remaining gaps in front of the user rather than editing in circles.
 
-### 9c. Review the branch, after gate 2 and before gate 3
+### 9d. Review the branch, after gate 2 and before gate 3
 
 Once the files are written **and committed**, run `docs-review-pr` against the branch — with no argument, it reviews the current branch against its base. It returns the docs team review checklist with an approve, comment, or request-changes call, and it is read-only, so it cannot undo the write.
 
@@ -345,7 +369,7 @@ Once the files are written **and committed**, run `docs-review-pr` against the b
 
 This re-runs most of the 9a table against real files rather than a draft in the conversation, which is where frontmatter, includes, and link resolution actually get exercised. It does not cover `docs-page-opening-optimizer`, `docs-syntax-help`, `docs-frontmatter-description`, or `docs-redirects`, so 9a is still the only pass those get.
 
-Fix what it raises, then go to gate 3. Report its recommendation in the output: opening a pull request that your own pre-review would have blocked wastes the reviewer's first pass. When it is not installed, say so and note that the checklist review did not run.
+Fix what it raises, then go to gate 3. When a fix rewrites prose rather than metadata, re-run 9b on the lines you changed — a repair made at this point never went through the pass. Report its recommendation in the output: opening a pull request that your own pre-review would have blocked wastes the reviewer's first pass. When it is not installed, say so and note that the checklist review did not run.
 
 ## Step 10: Draft the pull request description
 
@@ -370,9 +394,9 @@ When the work spans repos, each pull request gets its own description written to
 
 Three gates. Never skip ahead, and never bundle two approvals into one question, including one gate-3 approval per repo.
 
-1. **Present.** Show the draft, the file paths you intend to write, the verification results, the Step 9a and 9b results, and the open questions. When the work spans repos, show the per-repo split and the order from Step 4e here.
-2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change onto the Step 3 branch. Confirm you are on it first, rather than assuming — a gate 1 that ran long is enough time for a branch to change underneath you. Writing to a second repo is part of this gate only if its split was presented at gate 1. **Then commit**, because Step 9c and gate 3 both look at commits, not at the working tree — uncommitted writes are invisible to `git diff <base>...HEAD` and there is nothing to push. `references/branch-setup.md` has the commit recipe. Then run Step 9c.
-3. **Pull request.** Only on a separate, explicit approval, and show the Step 10 description and the Step 9c recommendation as part of asking. The branch already exists from Step 3 and the commit from gate 2, so push that commit and open the pull request as a **draft**, using the approved description as the body. `references/branch-setup.md` has the push recipe, including the fork case. Do not push while the writes are still uncommitted.
+1. **Present.** Show the draft, the file paths you intend to write, the verification results, the Step 9a, 9b, and 9c results, and the open questions. When the work spans repos, show the per-repo split and the order from Step 4e here.
+2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change onto the Step 3 branch. Confirm you are on it first, rather than assuming — a gate 1 that ran long is enough time for a branch to change underneath you. Writing to a second repo is part of this gate only if its split was presented at gate 1. **Then commit**, because Step 9d and gate 3 both look at commits, not at the working tree — uncommitted writes are invisible to `git diff <base>...HEAD` and there is nothing to push. `references/branch-setup.md` has the commit recipe. Then run Step 9d.
+3. **Pull request.** Only on a separate, explicit approval, and show the Step 10 description and the Step 9d recommendation as part of asking. The branch already exists from Step 3 and the commit from gate 2, so push that commit and open the pull request as a **draft**, using the approved description as the body. `references/branch-setup.md` has the push recipe, including the fork case. Do not push while the writes are still uncommitted.
 
 Open the pull requests in the Step 4e order, and cross-reference them in both bodies so a reviewer seeing one knows the other exists. Do not open the blocked one early: it cannot pass its own link check until the first publishes.
 
@@ -384,7 +408,7 @@ Open the pull requests in the Step 4e order, and cross-reference them in both bo
 4. **Verification** — verified with sources, contradicted, unverifiable
 5. **Draft** — the full content with frontmatter
 6. **Follow-ups** — navigation, cross-links, redirects, screenshots needed
-7. **Validation** — which skills ran, which were not installed, the reader test verdict, and what you changed
+7. **Validation** — which skills ran, which were not installed, what the Step 9b pass rewrote, the reader test verdict, and what you changed
 8. **Pull request** — the drafted title and description, ready to paste
 9. **Open questions** — what still needs a human
 
@@ -396,6 +420,6 @@ When the work spans repos, group sections 3, 5, 6, and 8 by repo rather than mer
 - `references/status.md` — every in-flight transition, each with an expiry condition to resolve rather than a date to trust. Read it when an area file's frontmatter names it
 - `references/branch-setup.md` — the git recipe for Step 3, the gate-2 commit, and the gate-3 push
 - `references/_template.md` — copy to add an area. It states what belongs in an area file, what the MCP should answer instead, and the rules that keep a file from going stale
-- `references/ste-overlay.md` — optional Simplified Technical English prose overlay. Opt in through `$EDITORIAL_PREFERENCES_PATH`; not loaded by default
+- `references/editorial-preferences.md` — optional prose-craft and drafting preferences, including a Simplified Technical English overlay. Opt in through `$EDITORIAL_PREFERENCES_PATH`; not loaded by default
 - Baseline: `AGENTS.md` and `contribute-docs/` in docs-content. Read at run time, never copied here
 - Companion skills: the table in Step 9a. Collect what they need and do not restate their rules
