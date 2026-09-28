@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.1.0
+version: 1.1.1
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 context: fork
@@ -454,6 +454,8 @@ Usage: `{{product-name}}`
 **Version operators**: `{{version.stack | M}}` (major only), `{{version.stack | M.x}}` (major.x), `{{version.stack | M.M}}` (major.minor), `{{version.stack | M+1}}` (next major), `{{version.stack | M.M+1}}` (next minor)
 
 **In code blocks**: Use `subs=true` flag. **Inline code**: Use `` {subs=true}`text {{var}}` `` role.
+
+**Product substitutions**: Defined in `products.yml` by key (for example `apm-agent-dotnet: { display: 'APM .NET Agent' }`). Use `{{product.id}}` to render a product's display name, or the shorthand `{{.id}}` (equivalent to `{{product.id}}`).
 
 ## Version variables
 

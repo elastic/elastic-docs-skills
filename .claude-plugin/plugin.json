@@ -1,7 +1,7 @@
 {
   "name": "elastic-docs-skills",
   "description": "Claude Code skills for Elastic documentation workflows \u2014 authoring, review, changelogs, and publishing.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": {
     "name": "Elastic"
   },
