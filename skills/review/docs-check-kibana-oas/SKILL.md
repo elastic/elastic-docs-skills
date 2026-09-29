@@ -1,6 +1,6 @@
 ---
 name: docs-check-kibana-oas
-version: 1.0.0
+version: 1.0.1
 description: >
   Review a Kibana PR for OpenAPI Spec (OAS) and API docs compliance against the
   Elastic API docs checklist, core guidelines, and Kibana quickstart. Checks
@@ -443,7 +443,29 @@ What to flag:
 - ❌ Example file contains placeholder or empty values
 - ❌ No response example for the success case
 
-### 13. Cross-check: generated YAML as a diagnostic signal
+### 13. Operation ID (advisory only — do not include in the Actions list)
+
+Public routes can optionally set an explicit `operationId`. SDK and CLI generators use this ID as the method/command name; if omitted, the generator derives one from the method and path (for example, `post-foo`), which is often unclear.
+
+Correct pattern:
+
+```typescript
+router.versioned.post({
+  path: '/api/foo',
+  access: 'public',
+  summary: 'Create a foo resource',
+  operationId: 'create-foo',
+  options: { ... },
+});
+```
+
+Guidelines:
+- Use kebab-case `verb-resource` names, for example `create-foo`, `get-foo`, `delete-foo`.
+- Keep operation IDs stable across versions of the same route — don't rename gratuitously.
+
+This is a suggestion, not a compliance rule — do not add it to the ❌ Actions list or count it against the verdict. Only raise it as a one-line side note ("Consider adding an explicit `operationId`") when the user specifically asks about SDK/CLI generation, operation IDs, or when a route in the diff already sets one inconsistently with the kebab-case `verb-resource` convention.
+
+### 14. Cross-check: generated YAML as a diagnostic signal
 
 The YAML files under `oas_docs/output/` are auto-generated. Never suggest editing the YAML directly. Every fix goes in the TypeScript source.
 

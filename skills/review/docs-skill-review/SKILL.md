@@ -1,6 +1,6 @@
 ---
 name: docs-skill-review
-version: 1.3.1
+version: 1.3.2
 description: Review an Elastic agent skill against official documentation for accuracy, completeness, and coverage gaps. Use when a writer wants to review, audit, or validate a skill from a repository of agent skills.
 disable-model-invocation: true
 argument-hint: <path-to-skill-folder-or-SKILL.md>
@@ -185,10 +185,12 @@ Before checking frontmatter, look for a repo-level conventions file (`AGENTS.md`
 - Required metadata fields (e.g., `metadata.author`, `metadata.version`).
 - Any other constraints the repo enforces.
 
+If no conventions file defines a naming pattern, note that Anthropic's best practices recommend gerund-form names (`processing-pdfs`) as the primary convention, with noun-phrase or action-oriented alternatives (`pdf-processing`, `process-pdfs`) also acceptable — but do not flag a repo's existing kebab-case convention as wrong when a conventions file overrides it.
+
 **Universal rules** (always apply):
 
-- `name` is present, kebab-case, and matches the skill's folder name.
-- `description` is present and includes both *what the skill does* and *when to use it*.
+- `name` is present, kebab-case, matches the skill's folder name, is 64 characters or fewer, contains only lowercase letters/numbers/hyphens, has no XML tags, and does not contain the reserved words "anthropic" or "claude".
+- `description` is present, non-empty, 1,024 characters or fewer, contains no XML tags, and includes both *what the skill does* and *when to use it*.
 - `description` is written in third person ("Executes queries...", not "I help you execute queries").
 - `version` or `metadata.version` is present and follows SemVer.
 
