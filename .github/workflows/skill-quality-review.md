@@ -4,8 +4,7 @@ description: |
   documentation and skill-validator criteria. Posts a PR comment with findings.
 
 on:
-  pull_request:
-    paths: ['skills/**']
+  slash_command: "review"
 
 permissions:
   contents: read
@@ -120,6 +119,3 @@ Looks good — clear trigger, actionable instructions, appropriate scope.
 
 Do not nitpick formatting or stylistic preferences. Focus on issues that would affect the skill's effectiveness when used by an agent.
 
-## Comment idempotency
-
-Before posting, search existing PR comments for one that starts with `## Skill Quality Review`. If found, **update that comment** instead of creating a new one. This prevents duplicate comments on re-runs.

@@ -75,6 +75,16 @@ jobs:
                       errors.append(f"{skill_md}: name '{name}' must be kebab-case")
                   if not name.startswith("docs-"):
                       errors.append(f"{skill_md}: name '{name}' must start with 'docs-'")
+                  # The directory name is the invocation name for a skill installed
+                  # as a project skill (.claude/skills/) or by elastic-docs-utils,
+                  # while install.sh and npx keys off the frontmatter name. They have
+                  # to agree, or the same skill answers to two different names
+                  # depending on how it was installed.
+                  directory = skill_md.parent.name
+                  if directory != name:
+                      errors.append(
+                          f"{skill_md}: directory '{directory}' must match name '{name}'"
+                      )
                   names.setdefault(name, []).append(str(skill_md))
 
               version = fields.get("version", "")

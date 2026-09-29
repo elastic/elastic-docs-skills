@@ -15,7 +15,10 @@ Sources: [content types](https://www.elastic.co/docs/contribute-docs/content-typ
 ### Content completeness
 
 - The change serves a real user task, goal, or intent.
-- The benefit of the feature or path is stated, not only its mechanics.
+- The benefit of the feature or path is stated, not only its mechanics. Apply this check at three specific locations:
+  - **Page intro or short description:** Does the opening paragraph answer not just "what this does" but "why a user would choose this over doing nothing or an alternative"? A mechanistic explanation is not a benefit statement.
+  - **Each option or decision point:** When the page presents a choice (method A vs. method B, index-time vs. search-time), does the text near the decision point state the tradeoff, not just describe both options?
+  - **Title promise:** Does the page deliver on what its title implies? If the title says "search with synonyms," does the page show search behavior, not only setup steps?
 - Every page the change affects is assessed and updated, including reference pages that use a newly introduced concept.
 - A new feature is contextualized on its parent page, against the surrounding product landscape.
 
@@ -39,6 +42,7 @@ Sources: [content types](https://www.elastic.co/docs/contribute-docs/content-typ
 
 - Content is ordered and located the way a reader would need it.
 - The page discloses progressively.
+- Warnings and cautions appear before the step or content they warn about, not after.
 - Conceptual choices use contrasting pairs.
 - Options carry value propositions near the decision point.
 - Branching decisions use nested navigation where that helps.
@@ -110,7 +114,7 @@ Sources: [redirects](https://docs-v3-preview.elastic.dev/elastic/docs-builder/tr
 
 ### Single source of truth
 
-- No procedure or value is duplicated from somewhere it already lives. A cross-reference or a snippet is better.
+- No procedure or value is duplicated from somewhere it already lives. A cross-reference or a snippet is better. To check this in path mode (no diff): when a section embeds reference material — parameter descriptions, format explanations, API syntax, full procedures — run `find_related_docs` or `search_docs` for that topic. If a dedicated reference page covers it, flag the section as a duplication candidate and report the URL of the authoritative source. When reviewing Fleet, error handling, or tutorial content inline in an overview or how-to, check whether those topics have dedicated child pages; if so, the inline content should be a summary plus a cross-reference, not a full procedure.
 
 ### Repository hygiene
 
@@ -141,6 +145,7 @@ Sources: [grammar and spelling](https://www.elastic.co/docs/contribute-docs/styl
 - Wording is minimal and the tone is informational.
 - Terms are used consistently, and ambiguous terms follow the word choice guidance.
 - No promotional language or superlatives.
+- Avoid exact counts in prose: "there are N formats" or "there are N methods" become incorrect whenever content changes. Prefer "the following formats are available:" or "each method is described below."
 
 ### Variables
 
@@ -174,7 +179,7 @@ Avoid: directional terms, Latinisms, parentheses cruft, italics or bold for emph
 
 - Formatting is consistent.
 - Admonitions are used sparingly, roughly three or fewer in one area, so they still stand out.
-- No admonitions are stacked back to back. Merge them into one callout or into the narrative.
+- No admonitions are stacked back to back. Merge them into one callout or into the narrative. After flagging individual admonitions, scan for consecutive pairs — two admonitions separated only by whitespace count as stacked even if each looks fine in isolation.
 
 ### Links, accessibility, and preview
 

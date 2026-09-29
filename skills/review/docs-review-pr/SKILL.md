@@ -1,9 +1,8 @@
 ---
 name: docs-review-pr
-version: 1.0.0
+version: 1.2.1
 description: Run a full review of an Elastic documentation PR against the docs team review checklist — user focus, technical accuracy, applicability, maintainability, language, and style. Runs the companion review skills and merges everything into one report with a recommended approve, comment, or request-changes call. Use when reviewing a docs PR, checking a branch before requesting review, or deciding whether a docs change is ready to merge.
 argument-hint: "[pr-number-or-url-or-path]"
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *), Skill, Agent, CallMcpTool, WebFetch, AskUserQuestion
 sources:
   - https://www.elastic.co/docs/contribute-docs/content-types
@@ -202,11 +201,11 @@ Every companion maps onto one of the six report sections. Nothing produces a sev
 
 ### How to dispatch
 
-Most companions set `disable-model-invocation: true`. That hides them from the model's skill listing when they are installed standalone, but it does not hide them when they are installed as part of the `elastic-docs-skills` plugin — the plugin-prefixed form stays invocable.
+Companions are model-invocable, so the `Skill` tool can reach them whether they are installed standalone or as part of the `elastic-docs-skills` plugin. The one exception is `docs-validate-code-samples`, which keeps `disable-model-invocation: true` because it can write files; it always takes the subagent path, which reads its `SKILL.md` from disk and is not affected by the flag.
 
 The Path column decides where each companion goes. Read-only companions try path 1 and drop to path 2 if it fails; write-capable companions go straight to path 2. Record which path each one actually used, and report it.
 
-1. **`Skill` tool** — read-only companions only, per the Path column. Pass one file to review as `args`. Use the plugin-prefixed frontmatter name, `elastic-docs-skills:docs-content-type-checker`, which is the form the README documents. Fall back to the bare name if the prefixed one is refused. The prefixed form is what reaches a companion that sets `disable-model-invocation: true`.
+1. **`Skill` tool** — read-only companions only, per the Path column. Pass one file to review as `args`. Use the plugin-prefixed frontmatter name, `elastic-docs-skills:docs-content-type-checker`, which is the form the README documents. Fall back to the bare name if the prefixed one is refused. A copy installed as a project skill under `.claude/skills/` answers to its directory name, not its frontmatter `name`, so try that form last.
 
    **A companion that declares `Edit` or `Write` never goes down this path.** `args` is the only thing you control on a `Skill` call, and asking politely for validation is not a guarantee: `docs-applies-to-tagging` treats a file path as validate mode, and validate mode still reports or fixes. The subagent spawn prompt is the only channel that can actually forbid a write, so `applies-to-tagging` and `docs-validate-code-samples` always use path 2, even when the `Skill` tool would accept them.
 
@@ -225,7 +224,7 @@ The Path column decides where each companion goes. Read-only companions try path
    npx --yes skills@latest add elastic/elastic-docs-skills --skill <name> -g
    ```
 
-   Use the companion's frontmatter `name:` — `docs-check-contradictions`, not its `check-contradictions` directory. Directory names are for locating files on disk, nothing else.
+   Use the companion's frontmatter `name:` — `docs-check-contradictions`, not its `check-contradictions` directory. That is what the install command takes. The *invocation* name is a separate question: a copy installed as a project skill under `.claude/skills/` answers to its directory name instead, so try that form before reporting a companion as not installed.
 
 ### Never stand in for a companion that did not run
 
@@ -260,7 +259,7 @@ This is your own contribution to the review. Scope every finding to what the PR 
 - Change serves the user's task and sits in the correct place on the page.
 - Paragraphs are short, and lists, tables, and admonitions break up dense content.
 - Lead-in sentences set topic boundaries and tell the reader how to think about what follows.
-- The benefit of the feature or path is stated, not only its mechanics.
+- The benefit of the feature or path is stated, not only its mechanics. Check this in three places: the intro/description (user benefit, not just mechanics), each decision point (tradeoff, not just description of both options), and the title (does the page deliver what the title promises?).
 - All impacted pages are assessed and updated, including reference pages that use a newly introduced concept.
 - A new feature is contextualized on its parent page against the product landscape.
 - **The page declares its content type in frontmatter as `type:`.** When `docs-content-type-checker` identifies the page as a how-to, tutorial, overview, or troubleshooting page and the frontmatter carries no `type:` field, recommend adding it — naming the type it should be. Do this for edited pages, not only new ones: an existing page never passed through a template, so the field is the one most often missing. Recommend it even when nothing consumes the field yet. Structural findings about a content type without the tag that names it leave the reader to infer what you already determined.
@@ -271,6 +270,7 @@ This is your own contribution to the review. Scope every finding to what the PR 
 - Cross-references point into the page from its parents, so users are not stranded. Grep the repo for links into any new or moved page.
 - Headings run about 50–60 characters where practical, and describe the page distinctly from similar ones.
 - The page discloses progressively: the reader gets what they need in the order they need it.
+- Warnings and cautions appear before the step or content they warn about, not after.
 - Conceptual choices use contrasting pairs, options carry value propositions near the decision point, and branching decisions use nested navigation.
 - No existing page already covers this ground. Check with the `elastic-docs` MCP tool `find_related_docs` on the page topic.
 
@@ -315,7 +315,7 @@ Four things to get right, because each is a way to be confidently wrong:
 
 ### Maintainability and repository hygiene
 
-- No procedure or value is duplicated from somewhere it already lives. A cross-reference or a snippet is better.
+- No procedure or value is duplicated from somewhere it already lives. A cross-reference or a snippet is better. When a section embeds reference material (parameter descriptions, format explanations, API syntax, full procedures), use `find_related_docs` or `search_docs` to check whether a dedicated page already covers it. Flag intra-page duplication too — read Option 1 and Option 2, or Method A and Method B, side by side.
 - No remaining page links to or references a deleted or moved page by its old path. Grep the repo for the old path and for its anchors.
 - No deleted image or snippet is still referenced by another page. Grep the repo for each removed asset path.
 - Every renamed, moved, or deleted page has a matching redirect entry, including renamed anchors. Flag a missing one High, because it breaks live links. The file is `redirects.yml` or `_redirects.yml`, next to the content set's `docset.yml` or `_docset.yml` — check both names before reporting one missing, or you will raise false findings.
@@ -330,7 +330,7 @@ Four things to get right, because each is a way to be confidently wrong:
 ### Preview cleanliness
 
 - No literal `{{` reaches the rendered output, and every substitution resolves.
-- No admonitions are stacked back to back. Merge them into one callout or into the narrative.
+- No admonitions are stacked back to back. Merge them into one callout or into the narrative. Scan for consecutive pairs — two admonitions separated only by whitespace count as stacked even if each looks fine individually.
 - Roughly three or fewer admonitions sit in one area, so they still stand out.
 - No stray bullets, leftover comments, or broken tables and tabsets appear.
 - Badges render, and section- or line-level `applies_to` tags work alongside page-level tags.
