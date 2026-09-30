@@ -148,7 +148,7 @@ Ninety days is roughly a release and a half. A file older than that predates at 
 
 **If the frontmatter carries a `status:` key, the area has an in-flight transition.** Read that entry in `references/status.md`, then resolve its tracking issues with `gh issue view <n> --repo elastic/docs-content-internal --json state,title,body`. The issue wins over the entry and the entry wins over the area file, because that is the order they go stale in. When the expiry condition has already been met — the issue is closed — say so and open a pull request to remove the entry rather than following it.
 
-An entry may instead carry a **fast path**: a manual confirmation that the issue is still open, good until a stated freshness window. While that window holds, skip the live `gh issue view` call and follow the entry as if you'd just resolved it — but say in the output that you took the fast path rather than checking live, and once the window has passed, ignore the fast path and resolve the issue live as usual.
+An entry may instead carry a **fast path**: a manual confirmation that the issue is still open, with no date attached. While that line is present, skip the live `gh issue view` call and follow the entry as if you'd just resolved it — but say in the output that you took the fast path rather than checking live. It stays valid until whoever added it removes it, so if a run finds evidence it may be stale (the issue title or linked pull requests suggest it closed), say so rather than trusting the fast path blindly.
 
 Never carry a date out of `status.md` into a draft. The entries name events rather than dates for exactly this reason, and a release date is `docs-applies-to-tagging`'s answer from the plugin config, not this skill's.
 

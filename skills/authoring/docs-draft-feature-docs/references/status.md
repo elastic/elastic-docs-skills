@@ -6,7 +6,7 @@ Everything in this skill that has a shelf life. Area files hold durable facts; a
 
 No dates. A date is a guess about when an event will happen, and it goes wrong without anything looking wrong. The event itself is checkable.
 
-An entry may add a **Fast path**, a named person's manual confirmation that the issue is still open, good until a stated freshness window. It exists to skip the live `gh issue view` round trip for someone who already knows the answer, not to replace the expiry condition above — the fast path only ever confirms *open*, never *closed*, and it lapses back to the live check on its own once the window passes. Whoever adds one is on the hook for removing it (and re-checking the entry properly) when the underlying event actually happens, rather than leaving it to expire and silently falling back to the live check.
+An entry may add a **Fast path**, a named person's manual confirmation that the issue is still open. It exists to skip the live `gh issue view` round trip for someone who already knows the answer, not to replace the expiry condition above — the fast path only ever confirms *open*, never *closed*, and it carries no date of its own, since a written date is exactly what this file exists to avoid. Whoever adds one is on the hook for removing it (and re-checking the entry properly) when the underlying event actually happens; name a real backstop — a scheduled check, a calendar reminder — outside this file rather than encoding one here.
 
 ## Alerting V2 GA
 
@@ -84,8 +84,8 @@ On close, rewrite the terminology bullets in `alerting-and-cases.md` for the obj
 
 **Areas:** `elastic-security.md`.
 **Expires when:** [#1541](https://github.com/elastic/docs-content-internal/issues/1541) closes, meaning the pull request stack has fully merged.
-**Fast path:** Confirmed still open by nastasha.solomon@elastic.co on 2026-09-30 — no PRs are landing in the restructured TOC before then, only in the current structure on main. Good through 2026-10-14. Skip the live issue check and treat this entry as open until that date; past it, ignore this line and resolve #1541 live as usual.
-<!-- When #1541 actually closes, remove this whole entry per "Adding an entry" below — not just this fast-path line. Letting the fast path merely expire on 2026-10-14 falls back to a live check, but leaves the entry itself stale until someone removes it by hand. -->
+**Fast path:** Confirmed still open by nastasha.solomon@elastic.co — no PRs are landing in the restructured TOC yet, only in the current structure on main. Skip the live issue check and treat this entry as open until this line is removed.
+<!-- A scheduled daily check of #1541 (task "security-restructure-skill-update-reminder") notifies nastasha.solomon@elastic.co when it closes. When that happens, remove this whole entry per "Adding an entry" below — not just this fast-path line. -->
 
 The Security docset is being reorganized around reader posture, shipping as a stack of pull requests. Most of the change regroups `toc.yml` and keeps paths, but a few directories actually move.
 
