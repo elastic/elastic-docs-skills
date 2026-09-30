@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.6.1
+version: 1.6.2
 description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (experimental, preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
@@ -191,7 +191,7 @@ On each setting entry:
 
 Do not apply these body-Markdown rules to that YAML: mixed dimensions, lifecycle symmetry between `stack` and deployment keys, or missing page-level frontmatter.
 
-If the task is adding or changing a Kibana `kibana.yml` or Advanced Settings key, use `kibana-settings-docs` when that skill is available.
+If the task is adding or changing a Kibana `kibana.yml` or Advanced Settings key, use `docs-kibana-settings`.
 
 ## Validation rules
 
