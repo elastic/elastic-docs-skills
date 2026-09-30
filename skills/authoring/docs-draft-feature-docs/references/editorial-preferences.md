@@ -39,7 +39,6 @@ Apply these on every draft.
 - Second person, present tense, active voice. Sentence case for headings.
 - **A new option or mode leads with the user's job.** Before the first sentence, answer three questions: what is this option, what does it help the reader do, and what can they do with it. Open with that. The draft is user-oriented when a reader who came for that job can see themselves in the heading and the opening. Do not open by walking the settings popover, listing every sibling control, or treating the new value as equal to the default. The heading names the job (`View documents as JSON`), not only the control (`Switch the view mode`); the control belongs in the how-to sentence.
 - **Verified labels are a checklist, not an outline.** The i18n strings, defaults, and ranges you confirmed in Step 6 must all be true. They do not set paragraph order. Matching a sibling section's structure is not enough when the new capability has its own job, and a parenthetical list of every verified action label is still an outline.
-- **Capitalize the first word after a colon**, including in list-item descriptions, because Elastic docs use American English. If the next token is code, an identifier, or a quoted UI string, lead with a real word instead of recapitalizing it.
 - Bold UI element names: **Save**, **Add panel**, **Settings**. Icon-only controls take the icon role: `` {icon}`gear` **Settings** ``.
 - Use "can" for capability, "might" for possibility, "may" for permission.
 - Never stack consecutive admonitions. If two would land back to back, the content belongs in the prose.
@@ -94,7 +93,6 @@ Safety warnings, non-obvious gotchas, and version-scoped prose that fits no inli
   - Don't: `` [Data in another cluster](#id): `cluster:index` syntax for {{ccs}} ``
   - Do: `` [Data in another cluster](#id): Use `cluster:index` syntax for {{ccs}} ``
 
-- Separate menu and navigation steps with ` → `, never `>` or `=>`: **Add** → **Controls** → **Variable control**. Vale checks this as `Elastic.MenuArrows` and `Elastic.MenuArrowsBold`. Leave `>` inside code and queries alone.
 - Do not add icons to text-labeled buttons unless the product actually shows one.
 - Do not reach for an admonition when the content can flow into the prose. Admonitions are for situational, off-the-main-path content.
 - Frame limitations constructively: prefer "X doesn't work with Y" or "Y is required for X" over a list of things that are "not supported."
