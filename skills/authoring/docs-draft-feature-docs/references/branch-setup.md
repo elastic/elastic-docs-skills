@@ -57,7 +57,7 @@ If Step 4c concludes no docs are needed, or the user declines at gate 1, switch 
 
 ## Commit after gate 2
 
-The write is not done until it is committed. Step 9c diffs commits, and gate 3 pushes commits. An uncommitted working tree means both of those see an empty branch.
+The write is not done until it is committed. Step 9d diffs commits, and gate 3 pushes commits. An uncommitted working tree means both of those see an empty branch.
 
 Confirm you are on the Step 3 working branch, not the default branch, then:
 

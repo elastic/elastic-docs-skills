@@ -135,7 +135,7 @@
         "Recognizes that compare-alerting-systems.md omits Observability alerting, so it is a starting point and not a complete map",
         "Places the rule type in solutions/observability/incident-management/ beside the other create-*-rule.md pages",
         "Does NOT add an Observability rule type to explore-analyze/alerting/alerts/",
-        "Does NOT draft it against the experimental alerting system or present that system as production-ready"
+        "Does NOT draft it against Alerting V2, the ES|QL-based system, since an SLO burn rate rule belongs to Observability alerting"
       ]
     },
     {
@@ -153,15 +153,17 @@
     {
       "id": 13,
       "prompt": "Alerting v2 is going GA, so let's get ahead of it. Rename the experimental alerting system to Alerting V2 across the docset, swap alert episode to alert everywhere, and drop the not-ready-for-production caveats.",
-      "expected_output": "Declines to execute the sweep yet. Reads the status.md entry and resolves its tracking issue, finds the names are not frozen, and explains that a term pass would break the pages that teach the data model and that the caveats are still true for the experimental version because the docs are cumulative.",
+      "expected_output": "Declines to run the sweep. Follows the area file's status: key to the Alerting V2 GA entry and resolves each sub-entry's tracking issue on its own. Explains that a system rename is an edit to the docset.yml substitutions rather than a text sweep, that a term pass would break the data-model pages while the rename still follows the product, and that the caveats are not a sweep target, because the restructure removed them on purpose and the lifecycle badges carry maturity.",
       "expectations": [
-        "Follows the status: key in the area file's frontmatter to the status.md entry, and resolves its tracking issue with gh rather than trusting the file",
-        "States that the system names and UI labels are not yet frozen and declines to draft them as fact",
+        "Follows the status: key in the area file's frontmatter to the status.md entry, and resolves each sub-entry's tracking issue with gh rather than trusting the file",
+        "Treats the sub-entries as expiring separately, so confirmed names do not end the rename or Stack GA sub-entries",
+        "Treats a system rename as an edit to the docset.yml substitutions rather than a text sweep, never types Alerting V2 or another system name into page prose, and checks question 20 in #1758 before treating a working name as final",
         "Refuses a blanket search-replace of alert episode to alert, and explains that the data-model pages need rewriting instead",
-        "Preserves rule event, signal, and series as distinct terms, and keeps stored episode.* fields and alerting.episode* trigger IDs",
-        "Treats the production caveats as version-scoped rather than deleting them, because the page serves both the experimental and GA versions",
-        "Delegates applies_to to docs-applies-to-tagging and gets the GA version from the plugin config rather than from the area file",
-        "Flags the two system-flow diagrams as needing design work and does NOT generate replacements",
+        "Preserves rule event, signal, and series as distinct terms, and quotes the field and trigger names that HEAD actually uses rather than inferring renamed ones",
+        "Recognizes that the restructure removed the production-readiness sentences on purpose because the lifecycle badges carry maturity, and does NOT add scoped replacements",
+        "Keeps the experimental lifecycle on the stack version that shipped with it, and delegates applies_to values to docs-applies-to-tagging rather than taking a version from status.md",
+        "Checks which pull requests in the #1880 stack have merged before editing files in the section, because a docset-wide sweep collides with the open stack",
+        "Does NOT generate replacements for the two system-flow diagrams, which the restructure removes rather than redraws",
         "Does NOT carry a release date out of status.md into the draft, since the entry names events rather than dates"
       ]
     },
@@ -181,8 +183,8 @@
     },
     {
       "id": 15,
-      "prompt": "The alerting:v2:enabled advanced setting has existed since 9.5 but isn't on the Kibana advanced settings reference page. Add it. It's a bool, defaults to false, technical preview on stack 9.5+ and serverless.",
-      "expected_output": "Loads kibana-settings-reference.md, recognizes the page publishes from elastic/kibana rather than docs-content, and edits the settings YAML rather than the Markdown shell. Reads the setting's uiSettings registration to decide which scope file it belongs in, and treats the docs-content follow-up as a second, later PR.",
+      "prompt": "The dashboard:showPanelBorders advanced setting shipped in 9.5 but isn't on the Kibana advanced settings reference page. Add it, and link to the new entry from the docs-content page about dashboard panel settings. It's a bool, defaults to false, technical preview on stack 9.5+ and serverless. (Assume the setting is registered in Kibana's uiSettings at HEAD and has no entry in any docs/reference/advanced-settings-*.yml file.)",
+      "expected_output": "Loads kibana-settings-reference.md, recognizes the reference page publishes from elastic/kibana rather than docs-content, and edits the settings YAML rather than the Markdown shell. Reads the setting's uiSettings registration to decide which scope file it belongs in, and treats the docs-content link as a second, later PR.",
       "expectations": [
         "Identifies elastic/kibana as the owning repo and a docs/reference/advanced-settings-*.yml file as the target, not a docs-content path",
         "Determines the scope from the setting's uiSettings registration rather than guessing between the space and global files",
@@ -191,7 +193,7 @@
         "Scopes applies_to with the deployment keys rather than only stack and serverless",
         "Places the entry by Kibana UI order rather than alphabetically or at the end of the file",
         "Makes no toc.yml change, since a new setting in an existing file needs none",
-        "Notes that the docs-content setup page edit is a separate PR that must land after the Kibana one publishes",
+        "Notes that the docs-content link is a separate PR that must land after the Kibana one publishes",
         "Asks for approval before writing to a second repository"
       ]
     },
@@ -487,7 +489,7 @@
       "prompt": "The files are written onto the working branch. Open the pull request.",
       "expected_output": "Commits the gate-2 writes on the working branch before reviewing or pushing, and refuses to open a pull request from an empty commit list.",
       "expectations": [
-        "Commits the files written at gate 2 onto the Step 3 working branch before running Step 9c",
+        "Commits the files written at gate 2 onto the Step 3 working branch before running Step 9d",
         "Confirms the current branch is the working branch, not the default branch, before committing",
         "Stages only the files this run wrote, not git add -A",
         "Does NOT treat the constraint against committing to a default branch as a ban on committing at all",
@@ -508,6 +510,68 @@
         "Does NOT treat the verified i18n labels and the Table default as the outline for the section",
         "Does NOT skip the pass on the grounds that no preferences file was resolved in Step 1",
         "Does NOT apply the pass to surrounding prose it was not otherwise changing"
+      ]
+    },
+    {
+      "id": 40,
+      "prompt": "Draft a new page in the Alerting V2 section explaining how to snooze a series. The area file says every page in the section opens with an include of the shared system note snippet. (Assume the snippet exists on main.)",
+      "expected_output": "Opens the page with the system note include and leaves the system name out of the page opening. Does not flag the include as boilerplate, because it identifies which alerting system the page documents, which no applies_to value can express, and its wording lives once in the snippet.",
+      "expectations": [
+        "Opens the page with an include of the shared system note directly under the H1, rather than copying the note's text",
+        "Does NOT flag the include as boilerplate under the Step 2 rule, because it identifies which system the page documents, which no applies_to value can express, and its wording lives once in the snippet",
+        "Leaves the system name out of the H1, the description, and the first sentence, because the note carries it",
+        "Resolves the section's current path and toc.yml parent from main rather than from the area file, since the restructure moves and regroups the section",
+        "Treats snoozing as per series rather than per alert, following the area file's terminology"
+      ]
+    },
+    {
+      "id": 41,
+      "prompt": "Draft docs for the new Snooze all action in the alerts table. It snoozes every alert that matches the current filters.",
+      "expected_output": "Runs only the Step 9b pass on the draft before gate 1. Skips the Step 9c reader test because the user did not ask for one, offers it in one line at gate 1, reports it as not requested in the Validation output, and holds the Step 9a companion skills for Step 9d.",
+      "expectations": [
+        "Does NOT spawn a reader-test subagent, because the user did not ask for a reader test",
+        "Still runs the Step 9b pass on the draft before gate 1",
+        "Adds one line at gate 1 saying what the reader test checks and that the user can ask for it before approving",
+        "Reports the reader test as not requested in the Validation output, rather than leaving it out",
+        "Does NOT stop before gate 1 to ask whether to run the reader test",
+        "Does NOT run the Step 9a companion skills on the draft before gate 1",
+        "Says at gate 1 that the companion checks run after the write, in Step 9d, so their absence is not read as a pass"
+      ]
+    },
+    {
+      "id": 42,
+      "prompt": "The new page and the paths look right. Go ahead and write the files.",
+      "expected_output": "Commits the approved files, then runs docs-review-pr and, in the same batch, the Step 9a skills it does not cover, so every companion skill runs once. Commits the fixes as one follow-up commit and shows the findings and that commit's diff at gate 3.",
+      "expectations": [
+        "Runs the Step 9a companion skills once, in Step 9d after the gate 2 commit, and does NOT run any of them a second time",
+        "Dispatches docs-page-opening-optimizer and docs-frontmatter-description in the same message as the companions docs-review-pr dispatches, rather than after the review finishes",
+        "Sends those skills to subagents whose prompt carries the read-only instruction, never through the Skill tool, because each declares Edit",
+        "Reports those skills in its own Validation output and leaves the docs-review-pr run table at seven rows",
+        "Commits the fixes as one follow-up commit on the same branch, and shows the findings and that commit's diff at gate 3 before asking to push",
+        "Asks before writing a file that gate 2 did not approve",
+        "Does NOT push or open a pull request without the separate gate 3 approval"
+      ]
+    },
+    {
+      "id": 43,
+      "prompt": "Write the files. docs-review-pr isn't installed on this machine.",
+      "expected_output": "Runs the whole Step 9a table itself in Step 9d against the committed files, so the companion skills still run once, and says that the checklist review did not run.",
+      "expectations": [
+        "Runs every applicable Step 9a skill in Step 9d against the committed files, rather than skipping the companion checks because docs-review-pr is missing",
+        "Sends every skill that declares Edit or Write to a subagent with the read-only instruction",
+        "States that the docs-review-pr checklist review did not run, and does NOT present a review recommendation of its own",
+        "Does NOT go back and run the companion skills on the draft instead"
+      ]
+    },
+    {
+      "id": 44,
+      "prompt": "Draft docs for the new Snooze all action in the alerts table, with a reader test.",
+      "expected_output": "Treats 'with a reader test' as the request that turns on Step 9c, runs it before gate 1, and shows the verdict at gate 1.",
+      "expectations": [
+        "Treats 'with a reader test' as a request to run Step 9c, not as part of what needs documenting",
+        "Runs the Step 9c reader test before gate 1, pasting the block as the only message to an isolated subagent",
+        "Shows the reader test verdict at gate 1",
+        "Does NOT offer the reader test at gate 1 as though it had not run"
       ]
     }
   ]

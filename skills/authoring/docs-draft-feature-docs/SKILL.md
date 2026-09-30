@@ -1,8 +1,8 @@
 ---
 name: docs-draft-feature-docs
-version: 2.6.0
+version: 2.7.0
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
-argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
+argument-hint: "[doc issue URL, product PR, page path, or what needs documenting] [with a reader test]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit, Write, WebFetch, CallMcpTool, Skill, Agent, Bash(gh *), Bash(git *), Bash(date *), AskUserQuestion
 sources:
@@ -159,6 +159,8 @@ The precedence rule itself is in *Constraints*. What it does not spell out is wh
 
 In both cases apply whatever the file legitimately adds, follow the baseline where they disagree, and tell the user which instruction you did not follow and why. **Do not apply an override silently.** An area file reads as authoritative precisely because it is usually right, which is what makes the rare bad instruction in one worth naming out loud.
 
+**One convention looks like boilerplate and is not:** a shared snippet, included at the top of every page in a section, that tells the reader which of two similar systems the page documents. No `applies_to` value can say that, and because the wording lives once in the snippet, the include places nothing twice. Follow it when the area file records it. The exception is that narrow — a snippet whose job is to restate a version, deployment, lifecycle, or caveat is still boilerplate however it is included, because each of those already has a proper home.
+
 ## Step 3: Create the working branch
 
 Create it before reading the issue, so no draft, edit, or `toc.yml` change can land on the default branch. Unlike a file write or a pull request, a new local branch is empty and reversible, so this is not gated — but report what you created and what you based it on.
@@ -293,11 +295,17 @@ Add the page to its hub or index, add a short Related section, and resolve every
 
 ## Step 9: Validate
 
-Four passes. Three check the draft before gate 1, and the fourth checks the committed branch. Orchestrate the skills in 9a; never reimplement their rules.
+Step 9 runs in this order:
 
-### 9a. Check the draft, before gate 1
+1. **9b, before gate 1.** You re-read every new line of the draft as the reader.
+2. **9c, before gate 1, only when the user asks.** A fresh subagent tries to do the task from the page.
+3. **9d, after the gate 2 commit.** `docs-review-pr` and the companion skills listed in 9a review the branch.
 
-Invoke each of these on the draft. Run the ones that apply, and do not fail when one is not installed — report it as not checked instead.
+Call the companion skills rather than copying their rules into this file.
+
+### 9a. Companion skills
+
+Step 9d runs these once, against the committed files. Do not also run them on the draft: that doubles the slowest part of the run, and only real files exercise frontmatter, includes, and link resolution. Run the ones that apply. When one is not installed, report it as not checked rather than failing.
 
 | Skill | What it decides | Run it when |
 |---|---|---|
@@ -313,7 +321,13 @@ Invoke each of these on the draft. Run the ones that apply, and do not fail when
 | `docs-frontmatter-audit` | The rest of the frontmatter against the repo schema | Always |
 | `docs-redirects` | The `redirects.yml` entries for anything moved, renamed, or deleted | Step 8 moved, renamed, or deleted a page |
 
-**How to invoke one.** Use the `Skill` tool with the plugin-prefixed frontmatter name, `elastic-docs-skills:docs-check-style`, and fall back to the bare name if the prefixed form is refused. About half set `disable-model-invocation: true`, and the prefixed form is what reaches those. If both name forms are refused, spawn a subagent that locates the skill's `SKILL.md` under `~/.claude/skills/*/`, `~/.claude/plugins/**/skills/**/`, or the local `skills/**/` tree and follows it verbatim. Names above are frontmatter names, which is what invocation needs; directory names differ and are only for finding files on disk.
+**How to invoke one.** These checks run against your working tree, so they must not write anything:
+
+- **A skill with `Edit` or `Write` in its `allowed-tools`** runs as a subagent, because only a subagent prompt can forbid a write. The subagent finds the skill's `SKILL.md` under `~/.claude/skills/*/`, `~/.claude/plugins/**/skills/**/`, or the local `skills/**/` tree and follows it verbatim.
+- **Any other skill** can use the `Skill` tool. Try the plugin-prefixed name first, such as `elastic-docs-skills:docs-check-style`, then the bare name. If neither name works, use a subagent.
+- **Every subagent prompt** includes this line from `docs-review-pr`, verbatim: *Do not Edit or Write any file. Do not modify the working tree. Return findings only.*
+
+The table uses frontmatter names, which is what invocation needs. Directory names differ and are only for finding files on disk.
 
 **Read the target skill's own `argument-hint` before calling it.** Most take one file or directory and glob `$ARGUMENTS`, so a space-separated list of targets reads as a single bad path — pass one target per call. Three break that shape: `docs-redirects` needs an old path *and* a new one, `docs-syntax-help` takes a question rather than a file, and `docs-validate-code-samples` accepts flags after its target. Handing a lone file path to those either errors or quietly checks the wrong thing, which looks the same as passing in the output.
 
@@ -321,7 +335,7 @@ If `AGENTS.md` names a task-to-skill mapping that is not in this table, run that
 
 ### 9b. Read every new line as the reader's line
 
-The skills in 9a check the draft against rules. This pass checks each line against the reader, applying the plain language principles of ISO 24495-1 — relevant, findable, understandable, usable. Run it on the **added and changed lines only**, after the draft exists. It is not the outline you write from, and it does not override a content-type template, a settings reference that must list every value, or a how-to's numbered spine. A how-to may still number its steps and a reference page may still list every setting; the pass only asks whether each new line is one a reader would use.
+The 9a skills check the files against rules. This pass checks each line of the draft against the reader, applying the plain language principles of ISO 24495-1 — relevant, findable, understandable, usable. Run it on the **added and changed lines only**, after the draft exists. It is not the outline you write from, and it does not override a content-type template, a settings reference that must list every value, or a how-to's numbered spine. A how-to may still number its steps and a reference page may still list every setting; the pass only asks whether each new line is one a reader would use.
 
 Re-read every added or changed sentence as someone who came to do a job, and ask four questions:
 
@@ -341,9 +355,9 @@ Rewrite any line that only names controls or object types, maps a popover, contr
 
 Finish by sweeping the same added and changed lines for the drafting rules that leak while writing: passive voice, em dashes, joining semicolons, hedges, and synonym switches. When `$EDITORIAL_PREFERENCES_PATH` resolved, re-read that file here and sweep against it too, still on the diff only. Report what you rewrote, so a reader of the output can see the pass ran.
 
-### 9c. Read the draft as its audience
+### 9c. Read the draft as its audience, when asked
 
-Run a reader test in an isolated subagent. Paste the block below as the subagent's first message, verbatim and with the placeholders filled. Send no other context, because the value depends on the reader not having seen you write the page.
+Run this only when the user asks for it, because it adds a subagent round. Paste the block below verbatim, with the placeholders filled, as the only message to a fresh subagent. The test only works if the reader has not seen you write the page.
 
 The test asks whether the reader can do the task *from* this page, which includes following links the page itself provides. It does not ask whether the page is self-contained. A page that points at a canonical procedure instead of copying it is doing what Step 5 required, and that is a PASS unless the link is missing or the reader cannot tell where to go.
 
@@ -367,9 +381,22 @@ Once the files are written **and committed**, run `docs-review-pr` against the b
 
 **Fetch first, and compare against the merge base** — `git diff <base>...HEAD`, three dots, not two. Two dots compare the branch tip to the base tip, so everything the base gained since you branched reads as a file you changed. One commit of drift is enough to bury the files you actually touched in unrelated ones, and the review then spends its attention on those. When the branch is behind, say so rather than reviewing through the noise. The review diffs commits. If that diff is empty after the write, you skipped the commit — go back and make it before reviewing.
 
-This re-runs most of the 9a table against real files rather than a draft in the conversation, which is where frontmatter, includes, and link resolution actually get exercised. It does not cover `docs-page-opening-optimizer`, `docs-syntax-help`, `docs-frontmatter-description`, or `docs-redirects`, so 9a is still the only pass those get.
+`docs-review-pr` runs most of the 9a skills itself. It does not run `docs-page-opening-optimizer`, `docs-syntax-help`, `docs-frontmatter-description`, or `docs-redirects`, so run the ones that apply yourself:
 
-Fix what it raises, then go to gate 3. When a fix rewrites prose rather than metadata, re-run 9b on the lines you changed — a repair made at this point never went through the pass. Report its recommendation in the output: opening a pull request that your own pre-review would have blocked wastes the reviewer's first pass. When it is not installed, say so and note that the checklist review did not run.
+- Start them in the same message as the skills `docs-review-pr` starts in its Step 3, so everything runs in parallel.
+- Run each as a subagent, as 9a describes, because all four can edit files.
+- Report their findings in this skill's output, not in the `docs-review-pr` run table.
+
+If `docs-review-pr` is not installed, run the whole 9a table yourself, all in one message, and say that the checklist review did not run.
+
+Then act on the findings:
+
+- **Fixes:** make them in one follow-up commit on the same branch, so gate 3 can show them as their own diff.
+- **New files:** ask before writing a file that gate 2 did not approve.
+- **Decisions:** when a finding needs a decision rather than a fix, such as one that undoes a choice the user made at gate 1, raise it at gate 3 instead of fixing it.
+- **Rewritten prose:** re-run 9b on any line a fix rewrote, because that line never went through the pass.
+
+Report the `docs-review-pr` recommendation in the output. Opening a pull request that your own pre-review would have blocked wastes the reviewer's first pass.
 
 ## Step 10: Draft the pull request description
 
@@ -394,9 +421,11 @@ When the work spans repos, each pull request gets its own description written to
 
 Three gates. Never skip ahead, and never bundle two approvals into one question, including one gate-3 approval per repo.
 
-1. **Present.** Show the draft, the file paths you intend to write, the verification results, the Step 9a, 9b, and 9c results, and the open questions. When the work spans repos, show the per-repo split and the order from Step 4e here.
+1. **Present.** Show the draft, the file paths you intend to write, the verification results, the Step 9b results, the Step 9c verdict if it ran, and the open questions. When the work spans repos, show the per-repo split and the order from Step 4e. Then say what has not run yet, so no one mistakes a missing result for a pass:
+   - The companion checks, which run in Step 9d after the write.
+   - The reader test, unless the user asked for it. Say in one line what it checks, and that the user can ask for it before approving.
 2. **Write.** On approval, write the page, the `toc.yml` entry, and any `redirects.yml` change onto the Step 3 branch. Confirm you are on it first, rather than assuming — a gate 1 that ran long is enough time for a branch to change underneath you. Writing to a second repo is part of this gate only if its split was presented at gate 1. **Then commit**, because Step 9d and gate 3 both look at commits, not at the working tree — uncommitted writes are invisible to `git diff <base>...HEAD` and there is nothing to push. `references/branch-setup.md` has the commit recipe. Then run Step 9d.
-3. **Pull request.** Only on a separate, explicit approval, and show the Step 10 description and the Step 9d recommendation as part of asking. The branch already exists from Step 3 and the commit from gate 2, so push that commit and open the pull request as a **draft**, using the approved description as the body. `references/branch-setup.md` has the push recipe, including the fork case. Do not push while the writes are still uncommitted.
+3. **Pull request.** Only on a separate, explicit approval. When you ask, show the Step 10 description, the Step 9d findings and recommendation, and the diff of the Step 9d fix commit, if there is one. The branch already has the gate 2 commit and any Step 9d fixes, so push it and open the pull request as a **draft**, with the approved description as the body. `references/branch-setup.md` has the push recipe, including the fork case. Do not push while the writes are still uncommitted.
 
 Open the pull requests in the Step 4e order, and cross-reference them in both bodies so a reviewer seeing one knows the other exists. Do not open the blocked one early: it cannot pass its own link check until the first publishes.
 
@@ -408,7 +437,7 @@ Open the pull requests in the Step 4e order, and cross-reference them in both bo
 4. **Verification** — verified with sources, contradicted, unverifiable
 5. **Draft** — the full content with frontmatter
 6. **Follow-ups** — navigation, cross-links, redirects, screenshots needed
-7. **Validation** — which skills ran, which were not installed, what the Step 9b pass rewrote, the reader test verdict, and what you changed
+7. **Validation** — what the Step 9b pass rewrote, the reader test verdict or that it was not requested, which skills ran in Step 9d and which were not installed, and what the Step 9d fixes changed
 8. **Pull request** — the drafted title and description, ready to paste
 9. **Open questions** — what still needs a human
 
