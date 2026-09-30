@@ -1,6 +1,6 @@
 ---
 name: docs-file-issue
-version: 1.1.0
+version: 1.1.1
 description: Interview the requester, then draft and file a complete Elastic documentation issue against the right template and repository — enforcing the good-issues quality bar, checking for duplicates and existing coverage first, rewriting implementation-side detail into user-facing terms, and routing sensitive requests privately. Use it to request docs for a feature, hand off notes or a pull request, request a UI copy review, report a problem with a published page, share support feedback privately, or ask how to request documentation support.
 argument-hint: "[what you need documented, or an issue URL to check]"
 disable-model-invocation: true
@@ -39,6 +39,7 @@ main context to interview the requester and get approval before creating anythin
 - Write only to a scratch draft file (`mktemp`). Never modify the working tree.
 - Never invent a field value. Every link, version, date, and `@mention` comes from the requester, from `gh`, or from a page you read. An unanswered field is a question, not a guess.
 - Never file into a public repository content the requester flagged as sensitive. See *Route the request*.
+- **Narrate Steps 0 through 2 as they happen; do not batch them.** Report the template you loaded, what the pre-flight checks turned up, and what you verified against a linked PR as you go — and ask a follow-up the moment you hit one, rather than running every check silently and presenting a wall of findings with every open question saved up for one message at the end. The requester should be able to follow the interview as a conversation, not receive a research report.
 
 ## Inputs
 
