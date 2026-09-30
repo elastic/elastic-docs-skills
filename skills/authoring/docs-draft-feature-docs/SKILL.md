@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.6.0
+version: 2.7.0
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting]"
 disable-model-invocation: true
@@ -147,6 +147,8 @@ An area file is a snapshot, so check its age before relying on it. Read the fron
 Ninety days is roughly a release and a half. A file older than that predates at least one minor, which is long enough for a plugin directory to move. Report the age either way, so a reader of your output knows what the draft rested on.
 
 **If the frontmatter carries a `status:` key, the area has an in-flight transition.** Read that entry in `references/status.md`, then resolve its tracking issues with `gh issue view <n> --repo elastic/docs-content-internal --json state,title,body`. The issue wins over the entry and the entry wins over the area file, because that is the order they go stale in. When the expiry condition has already been met — the issue is closed — say so and open a pull request to remove the entry rather than following it.
+
+An entry may instead carry a **fast path**: a manual confirmation that the issue is still open, good until a stated freshness window. While that window holds, skip the live `gh issue view` call and follow the entry as if you'd just resolved it — but say in the output that you took the fast path rather than checking live, and once the window has passed, ignore the fast path and resolve the issue live as usual.
 
 Never carry a date out of `status.md` into a draft. The entries name events rather than dates for exactly this reason, and a release date is `docs-applies-to-tagging`'s answer from the plugin config, not this skill's.
 
@@ -402,7 +404,7 @@ Open the pull requests in the Step 4e order, and cross-reference them in both bo
 
 ## Output
 
-1. **Setup** — paths used, whether the MCP was reachable, the branch created in each repo with its base and whether that checkout is a fork, and which area file was found with its age and any `status.md` entry you resolved
+1. **Setup** — paths used, whether the MCP was reachable, the branch created in each repo with its base and whether that checkout is a fork, and which area file was found with its age and any `status.md` entry you resolved or fast-pathed
 2. **Intake** — scope, audience, deliverables with status, answered and open questions
 3. **Placement** — target pages, why this shape, content type and why
 4. **Verification** — verified with sources, contradicted, unverifiable
