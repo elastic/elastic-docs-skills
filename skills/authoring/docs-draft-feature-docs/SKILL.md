@@ -93,7 +93,7 @@ The config file uses one key per row of the table below, named after the variabl
 ```yaml
 docs_content_root: /path/to/docs-content
 kibana_root: /path/to/kibana
-editorial_preferences_path: /path/to/preferences.md   # optional; can point at references/editorial-preferences.md
+editorial_preferences_path: /path/to/preferences.md   # optional
 docs_pitfalls_path: /path/to/pitfalls.md              # optional
 ```
 
@@ -102,7 +102,7 @@ docs_pitfalls_path: /path/to/pitfalls.md              # optional
 | docs-content clone | `$DOCS_CONTENT_ROOT` | The baseline, navigation, snippets, and the files you edit. Always required |
 | Product repo clones | `$KIBANA_ROOT`, `$ELASTICSEARCH_ROOT`, others as needed | Verifying claims at `HEAD` in Step 6, and **as the working tree** when the product repo owns the page |
 | Pitfalls checklist | `$DOCS_PITFALLS_PATH` | Optional. A personal list of doc-shaped mistakes to sweep for |
-| Editorial preferences | `$EDITORIAL_PREFERENCES_PATH` | Optional. Prose-craft preferences, complementary to the style guide. Consumed in Step 7 and again in Step 9b. Can point at `references/editorial-preferences.md` or at the writer's own file |
+| Editorial preferences | `$EDITORIAL_PREFERENCES_PATH` | Optional. Prose-craft preferences, complementary to the style guide. Consumed in Step 7 and again in Step 9b. Can point at `references/ste-overlay.md` or at the writer's own file |
 
 The last two rows are **per-writer, not per-area**. They tune how one person drafts, which is why they are opt-in and why the overlay that ships with this skill stays off until pointed at. Area reference files are the opposite: facts about a docs area that every writer needs, so Step 2 loads them automatically. Never move a preference into an area file, or an area fact into a preference file.
 
@@ -281,7 +281,7 @@ Three moves the baseline leaves to your judgment:
 
 **Open on the reader's job, not on the control.** A new option or mode gets a heading and a first sentence that name what the reader can now do — `View documents as JSON`, not `Switch the view mode`. The control goes in the how-to sentence that follows. The labels, defaults, and ranges you verified in Step 6 are a checklist the draft must not contradict; they are not an outline, and a parenthetical list of every verified action label is still an outline. Step 9b checks this line by line, so writing it this way the first time is cheaper than rewriting it there.
 
-If `$EDITORIAL_PREFERENCES_PATH` resolved in Step 1, read that file now and apply it to the prose you write. It is additive prose craft, so it never overrides the style guide, content types, or an area file — where it conflicts with the baseline, the baseline wins, and say so rather than silently following the preference. Apply it only to new prose: do not restyle surrounding copy you were not otherwise changing. A preferences file with drafting defaults and a Simplified Technical English overlay ships at `references/editorial-preferences.md`; it stays off unless the variable points at it.
+If `$EDITORIAL_PREFERENCES_PATH` resolved in Step 1, read that file now and apply it to the prose you write. It is additive prose craft, so it never overrides the style guide, content types, or an area file — where it conflicts with the baseline, the baseline wins, and say so rather than silently following the preference. Apply it only to new prose: do not restyle surrounding copy you were not otherwise changing. An optional Simplified Technical English overlay ships at `references/ste-overlay.md`; it stays off unless the variable points at it.
 
 Frontmatter follows `frontmatter.config.yml` and the conventions in the area file. Check the nearest `_snippets/` directory before writing shared prose. For `applies_to` values and badge placement, use `docs-applies-to-tagging` — collect the version, lifecycle, and deployment answers, and let that skill decide the tags, including whether the page needs any.
 
@@ -451,6 +451,6 @@ When the work spans repos, group sections 3, 5, 6, and 8 by repo rather than mer
 - `references/status.md` — every in-flight transition, each with an expiry condition to resolve rather than a date to trust. Read it when an area file's frontmatter names it
 - `references/branch-setup.md` — the git recipe for Step 3, the gate-2 commit, and the gate-3 push
 - `references/_template.md` — copy to add an area. It states what belongs in an area file, what the MCP should answer instead, and the rules that keep a file from going stale
-- `references/editorial-preferences.md` — optional prose-craft and drafting preferences, including a Simplified Technical English overlay. Opt in through `$EDITORIAL_PREFERENCES_PATH`; not loaded by default
+- `references/ste-overlay.md` — optional Simplified Technical English prose overlay. Opt in through `$EDITORIAL_PREFERENCES_PATH`; not loaded by default
 - Baseline: `AGENTS.md` and `contribute-docs/` in docs-content. Read at run time, never copied here
 - Companion skills: the table in Step 9a. Collect what they need and do not restate their rules
