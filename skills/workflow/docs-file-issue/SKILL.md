@@ -1,6 +1,6 @@
 ---
 name: docs-file-issue
-version: 1.1.1
+version: 1.1.2
 description: Interview the requester, then draft and file a complete Elastic documentation issue against the right template and repository — enforcing the good-issues quality bar, checking for duplicates and existing coverage first, rewriting implementation-side detail into user-facing terms, and routing sensitive requests privately. Use it to request docs for a feature, hand off notes or a pull request, request a UI copy review, report a problem with a published page, share support feedback privately, or ask how to request documentation support.
 argument-hint: "[what you need documented, or an issue URL to check]"
 disable-model-invocation: true
@@ -39,7 +39,7 @@ main context to interview the requester and get approval before creating anythin
 - Write only to a scratch draft file (`mktemp`). Never modify the working tree.
 - Never invent a field value. Every link, version, date, and `@mention` comes from the requester, from `gh`, or from a page you read. An unanswered field is a question, not a guess.
 - Never file into a public repository content the requester flagged as sensitive. See *Route the request*.
-- **Narrate Steps 0 through 2 as they happen; do not batch them.** Report the template you loaded, what the pre-flight checks turned up, and what you verified against a linked PR as you go — and ask a follow-up the moment you hit one, rather than running every check silently and presenting a wall of findings with every open question saved up for one message at the end. The requester should be able to follow the interview as a conversation, not receive a research report.
+- **Narrate Steps 0–2 as they happen, and ask follow-ups as they come up.** Don't run every check silently and dump the findings and every open question into one message at the end — the requester should experience this as a conversation, not a research report.
 
 ## Inputs
 
@@ -62,7 +62,7 @@ gh api repos/<owner/repo>/contents/.github/ISSUE_TEMPLATE/<file> --jq .content |
 gh api repos/<owner/repo>/contents/.github/ISSUE_TEMPLATE --jq '.[].name'    # when unsure of the filename
 ```
 
-The two sets overlap but are **not** interchangeable — same request, different filename, prefix, and labels depending on the repository. Step 3 has both tables. Decide the repository first, then load its template; loading the public template and filing it privately produces an issue with the wrong prefix and labels, which drops out of whatever the repo's triage is keyed on.
+The two sets overlap but are **not** interchangeable — same request, different filename, prefix, and labels depending on the repository (both tables are in Step 3). Decide the repository first, then load its template: loading the public template but filing privately produces the wrong prefix and labels, which drops out of that repo's triage.
 
 The tables in this skill are the fallback for when that call fails. Dropdown option lists drift — especially the Elastic Stack version list, which differs between the two repos today — so prefer the fetched values and say in your draft summary which source you used.
 
@@ -137,7 +137,7 @@ Ask which they want, and wait for the answer:
 - **File the issue** — continue to Step 3. Filing is always a valid choice. Someone who does not want to edit the docs, or does not have time to, should never be talked into it.
 - **Make the change themselves** — hand over what they need and stop. Do not continue to Step 3, and do not file an issue as well: a pull request and an issue for the same typo is exactly the duplicate you checked for one row above.
 
-The handoff is a pointer, not a walkthrough. This skill has no `Edit` and no `git`, so it cannot create a branch, change a page, or open a pull request, and implying otherwise strands the requester halfway. Give them three things and say you are stopping:
+The handoff is a pointer, not a walkthrough — this skill has no `Edit` or `git`, so it can't create a branch, change a page, or open a pull request. Give them three things and say you're stopping:
 
 - **Where the page lives.** Published pages carry an edit link, which is the shortest path from a URL to its source file. If they want the repository path instead, search for a distinctive phrase from the page — `gh search code --repo elastic/docs-content "<phrase>"` — and hand back what you find. Do not infer a file path from the URL slug; the two often differ.
 - **How to make the change**: the [syntax quick reference](https://www.elastic.co/docs/contribute-docs/syntax-quick-reference).
@@ -153,7 +153,7 @@ Two decisions, in this order: which repository, then which template. Pick the te
 
 ### Which repository
 
-Default to the public `elastic/docs-content`. Filing publicly is the norm, and most requests belong there even when they originate from an internal thread or a support case.
+Default to the public `elastic/docs-content` — most requests belong there, even ones that originate from an internal thread or a support case.
 
 Choose the private `elastic/docs-content-internal` when the issue body itself has to carry something that cannot be public:
 
@@ -309,7 +309,7 @@ For each fact in the dump, ask what it lets a user do, see, configure, or avoid.
 
 Four rules hold this together:
 
-- **Never guess the user-facing behavior.** If you cannot derive it from what the requester gave you, it is a question for them. A plausible-sounding invention is worse than a blank, because the writer cannot tell it apart from a fact.
+- **Never guess the user-facing behavior.** A plausible-sounding invention is worse than a blank, because the writer can't tell it apart from a fact — if you can't derive it from what the requester gave you, ask.
 - **Move implementation detail, do not discard it.** PR links, design docs, and flag names go under Resources, where they are depth for a writer who wants it rather than a wall in front of the request. Tell the requester what you moved and where.
 - **A fact you could not translate becomes an explicit open question** in the issue. One line a writer can resolve beats a paragraph they have to decode.
 - **Drop nothing silently.** If something in the dump has no place in the issue, say so when you present the draft, so the requester can overrule you.
@@ -336,7 +336,7 @@ Then compare what the requester says shipped against what the diff shows:
 
 Three things to get right, because each is a way to be confidently wrong:
 
-- **Version.** The pull request's `baseRefName` says which branch it landed on. Cross-check that against the release the requester gave you. A request tagged 9.4 describing a change that landed on 8.19 is worth catching before a writer plans around it. Read the version labels and any backport alongside the branch: a change on `main` for 9.6.0 that is also backported to `9.5` arrives in a patch, which splits an already-released minor into before and after.
+- **Version.** The pull request's `baseRefName` says which branch it landed on. Cross-check that, plus its version labels and any backport, against the release the requester gave you — a request tagged 9.4 describing a change that landed on 8.19 is worth catching before a writer plans around it. See *When the change replaces something already documented* for why a backport matters here.
 - **Absence proves nothing.** A claim missing from the diff is not false — the diff is one change, not the whole product. Only a direct conflict is worth raising.
 - **Matching is not verification.** Say what matched and where. An unmerged pull request describes intended behavior that can still change, so note that in the issue rather than presenting it as settled. Never write that a request is technically correct because a diff agreed with it.
 
@@ -374,7 +374,7 @@ Write the draft to a scratch file so you can file it with `--body-file`; a multi
 | Website Link in Elastic OpenTelemetry logs tutorial is broken | Website some-doc-url |
 | Python code snippet is not valid in tutorial X | This docs is wrong1!1 |
 
-Specific is one axis. **Written for the reader** is the other, and it is the one a handoff from engineering usually fails, because the request arrives carrying the pull request's title — which was written for reviewers. Reframe it as what a user can now do:
+Specific is one axis; **written for the reader** is the other — the one an engineering handoff usually fails, since the request often carries the pull request's title, written for reviewers. Reframe it as what a user can now do:
 
 | ✅ User-facing | ❌ Dev-facing |
 |---|---|
@@ -391,7 +391,7 @@ If you could not confirm part of the request against the linked code, title only
 
 The template collects those answers in separate dropdowns, so one sentence in the description saves the writer reassembling them, and gives `docs-applies-to-tagging` what it needs to choose the tags. Do not guess the serverless half: if the requester does not know, write that it is unconfirmed rather than implying it applies everywhere.
 
-One sentence is not enough when the change replaces something already documented, because "applies from" reads as an addition. Give both states, and keep the patch boundary in it:
+When the change replaces something already documented (see Step 2), one sentence isn't enough — give both states, with the patch boundary:
 
 > The Roles UI category is **Alerting V2** from 9.5.4 and 9.6.0, and in serverless. Stack 9.5.0 through 9.5.3 still show **Alerting**.
 
@@ -451,7 +451,7 @@ gh issue create --repo <owner/repo> --web \
 - **Get access first** — stop and keep the draft. Say what to request.
 - **File publicly instead** — only when the sensitive content can come out. Summarize the key points, link the internal source and mark it internal-only, then re-route through Step 3 for the public template, prefix, and labels. Never carry the private body across unchanged.
 
-In both cases the draft survives, which is the point — a draft the requester can file themselves beats a failed command. Hand back the title, the labels for them to add by hand, and the body. The body is formatted as `### Field label` blocks to mirror what GitHub produces from a submitted form, so it does not paste into a form's separate input boxes. It pastes into a blank issue, which `docs-content` still allows because no `config.yml` disables them.
+In both cases the draft survives, which is the point — a draft the requester can file themselves beats a failed command. Hand back the title, the labels to add by hand, and the body in Step 6's `### Field label` format. It won't paste into a form's separate input boxes, but it pastes into a blank issue, which `docs-content` still allows.
 
 ## References
 
