@@ -1,0 +1,46 @@
+{
+  "skill_name": "docs-kibana-settings",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I added uiSettings.register({ 'observability:enableInspectEsQueries': { name, value: false, category: ['observability'], schema } }) in a Kibana plugin. Where do I document it?",
+      "expected_output": "Classify as space-level Advanced Settings and add the entry to docs/reference/advanced-settings-space.yml in the Observability group, not configuration-reference YAML.",
+      "expectations": [
+        "Identifies uiSettings.register as space-level Advanced Settings (scope namespace)",
+        "Points to docs/reference/advanced-settings-space.yml, not configuration-reference",
+        "Does not tell the author to document the key as a kibana.yml setting"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We're adding xpack.fleet.agents.enabled to the Kibana config schema. Should I write ech: ga because Cloud users can set Kibana settings?",
+      "expected_output": "No. Grep the Elastic Cloud Hosted user-settings allowlist in elastic/cloud under scala-services/adminconsole/src/main/resources/settings/kibana/. Write ech: ga only if the key is listed. Write ech: unavailable if it is not. Do not infer from the published Cloud settings page.",
+      "expectations": [
+        "Requires grepping the Cloud user-settings allowlist, not assuming Cloud support",
+        "Names scala-services/adminconsole/src/main/resources/settings/kibana/ as the allowlist path",
+        "Does not recommend node scripts/check_kibana_settings.js for the ech decision",
+        "Does not infer ech: ga from the published Cloud settings page"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "This Advanced Settings ID is in observability_project/index.ts but not in common/index.ts. Should I write serverless: ga?",
+      "expected_output": "No. Nest observability: ga under serverless. Do not write a scalar serverless: ga. Map observability_project to observability.",
+      "expectations": [
+        "Does NOT write a scalar serverless: ga",
+        "Nests observability under serverless with ga",
+        "Mentions checking common/index.ts first, then the project allowlists"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I added a kibana.yml schema field xpack.ml.enabled. A teammate put it in advanced-settings-space.yml next to the ML UI settings. Is that right?",
+      "expected_output": "No. kibana.yml keys go in docs/reference/configuration-reference/. Do not document a kibana.yml key in Advanced Settings YAML.",
+      "expectations": [
+        "Rejects documenting a kibana.yml key in advanced-settings-space.yml",
+        "Points to configuration-reference YAML instead",
+        "Does not treat a config-schema field as uiSettings"
+      ]
+    }
+  ]
+}
