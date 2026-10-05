@@ -1,6 +1,6 @@
 ---
 name: docs-applies-to-tagging
-version: 1.6.2
+version: 1.7.0
 description: Validate and generate applies_to tags in Elastic documentation, including for cumulative docs across versions and deployment types. Use when writing new docs pages, reviewing existing pages for correct applies_to usage, deciding whether to preserve or replace existing version-scoped content, or when content changes lifecycle state (experimental, preview, beta, GA, deprecated, removed).
 argument-hint: <file-or-directory-or-intent>
 context: fork
@@ -85,9 +85,14 @@ serverless: unavailable
 ```
 ````
 
-**Inline**:
+**Inline** (never mid-paragraph — only at the very start of a paragraph, start of a list item, end of a definition term, or inside a table cell):
 ```markdown
-Some text {applies_to}`stack: ga 9.1+` more text.
+{applies_to}`stack: ga 9.1+` This sentence applies from 9.1 onward.
+```
+
+```markdown
+- {applies_to}`serverless: ga` This item applies to all serverless projects.
+- {applies_to}`stack: ga 9.1+` This item applies from Stack 9.1 onward.
 ```
 
 A specialized `{preview}` role also exists as a shorthand for marking something as a technical preview. It takes the version as its argument:
@@ -209,6 +214,7 @@ When validating, check for these errors:
 10. **Heading annotations** — section-level only, never use inline annotations with headings; the block goes on the line directly below the heading, with no blank line between them
 11. **Version numbers in prose** — never write versions in text next to applies_to badges
 12. **Patch-level tags** — tags should be at the minor (`stack: ga 9.4`), not the patch (`stack: ga 9.4.2`); flag patch-level tags and the redundant same-minor bullets they often create
+13. **Mid-paragraph inline tags** — an inline `{applies_to}` tag must never appear mid-paragraph. Valid positions are: the very start of a paragraph, the start of a list item, the end of a definition term, or inside a table cell. Any tag that follows prose text within the same paragraph is invalid, whether it sits between sentences, after a sentence, or mid-sentence
 
 ## Guidelines for tagging
 
@@ -265,7 +271,7 @@ Pick the form that matches what the change is scoped to:
 
 - **Section level** — fenced `{applies_to}` block immediately after the heading, when the change is relevant to a section.
 - **Page level** — YAML frontmatter, when the change scopes the whole page.
-- **Inline** — only at start of a paragraph, list item, end of a definition term, or inside a table cell. Never mid-sentence in running prose, and never floating between sentences in a paragraph (scope becomes ambiguous).
+- **Inline** — **never mid-paragraph.** Valid positions: the start of a new paragraph, the start of a list item, the end of a definition term, or inside a table cell. If any prose text precedes the tag within the same paragraph, the tag is mid-paragraph and invalid. This is absolute: no exceptions for "just one sentence before it" or physical adjacency to the sentence the tag is meant to cover.
   - **Don't repeat an inline tag before a second sentence in the same paragraph to "extend" its scope.** A tag placed right after a period and before the next sentence is the floating-between-sentences case above, even though it visually sits next to the sentence it's meant to cover.
     - ❌ `{applies_to}`stack: preview 9.6+`` Use coordinator mode for this. {applies_to}`stack: preview 9.6+`` It also does this other thing.`
     - ✅ Merge into one sentence so a single tag pair unambiguously covers the whole thing: `{applies_to}`stack: preview 9.6+`` Use coordinator mode for this, which also does the other thing.`
@@ -438,9 +444,14 @@ Produce the right form based on scope:
   stack: ga 9.5+
   ```
   ````
-- **Inline** (paragraph, list item, definition term, table cell):
+- **Inline** (paragraph-initial, list item, definition term, table cell — never mid-paragraph):
   ```markdown
-  Some text {applies_to}`stack: ga 9.5+` more text.
+  {applies_to}`stack: ga 9.5+` This sentence applies from 9.5 onward.
+  ```
+
+  ```markdown
+  - {applies_to}`serverless: ga` Serverless item.
+  - {applies_to}`stack: ga 9.5+` Stack 9.5+ item.
   ```
 - **Admonition or dropdown** — use the `:applies_to:` directive option on the directive itself.
 - **Settings YAML entry** — the map form in **Settings YAML**. List `stack` plus all five support keys.
