@@ -196,7 +196,7 @@ On each setting entry:
 
 Do not apply these body-Markdown rules to that YAML: mixed dimensions, lifecycle symmetry between `stack` and deployment keys, or missing page-level frontmatter.
 
-If the task is adding or changing a Kibana `kibana.yml` or Advanced Settings key, use `kibana-settings-docs` when that skill is available.
+If the task is adding or changing a Kibana `kibana.yml` or Advanced Settings key, use `docs-kibana-settings`.
 
 ## Validation rules
 
