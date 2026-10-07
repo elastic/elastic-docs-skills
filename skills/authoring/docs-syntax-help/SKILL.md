@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.1.1
+version: 1.2.0
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 context: fork
@@ -153,7 +153,7 @@ Anti-pattern: `[Create and manage {{kib}} alerting rules](create-manage-rules.md
 
 **Cross-repository**: `[Text](kibana://path/to/page.md)` — link text is **mandatory**; omitting it causes the link to fail.
 
-**External**: `[Text](https://example.com)` — bare `https://` URLs (not `http://`) are automatically converted to clickable links that open in a new tab. Autolinks are not rendered inside code blocks or inline code. Bare URL autolinks pointing to `elastic.co/docs` trigger a build hint to use a cross-repository or relative link instead.
+**External**: `[Text](https://example.com)` — automatic URL linking (bare URLs rendering as clickable links) is **not supported**. Always wrap URLs in standard Markdown link syntax with explicit link text, even for external links.
 
 **Reference-style**:
 ```
@@ -580,6 +580,7 @@ Use `* * *` for horizontal rules.
 | `subs=true` on regular inline code | Use `` {subs=true}`code` `` role syntax |
 | Mixing explicit and automatic callouts in a code block | Use only one callout type per block |
 | Explicit callout count mismatch | Number of `<N>` markers must equal the list item count |
+| Bare URL expected to auto-link | Not supported — always wrap URLs in `[Text](url)` syntax |
 
 ## How to help
 
