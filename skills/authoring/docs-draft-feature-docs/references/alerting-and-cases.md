@@ -13,7 +13,7 @@ Two sections of the `explore-analyze/` docset that share one trait: each documen
 
 The boundary that matters: this area owns the cross-solution behavior. When a capability exists only inside Security or Observability, it belongs to that solution's page instead.
 
-> **Alerting V2, now named Kibana Universal Alerting, is mid-GA-transition.** Its names are final, but its section is still moving and the docs outside it are still catching up with the *alert episode* to *alert* rename, each on its own schedule. Read [`status.md`](status.md#alerting-v2-ga) and resolve each sub-entry's tracking issue before drafting any alerting page. Paths in this file describe `main` at last check. The durable rules that survive all of it are below, in *Conventions* and *Known traps*.
+> **Alerting V2, now named Kibana Universal Alerting, is mid-GA-transition.** Its names are final, but its section move, its follow-up pages, and its Stack release each finish on their own schedule. Read [`status.md`](status.md#alerting-v2-ga) and resolve each sub-entry's tracking issue before drafting any alerting page. Paths in this file describe the layout after the section move, elastic/docs-content#8516; `status.md` says what `main` has until it merges. The durable rules that survive all of it are below, in *Conventions* and *Known traps*.
 >
 > **Workflows is a sibling area file**, `workflows.md`, not a section of this one. The two meet at triggers and at `workflows-alerting.md`, so read both when drafting at that seam.
 
@@ -30,7 +30,7 @@ The boundary that matters: this area owns the cross-solution behavior. When a ca
 
 While `docs-draft-cases-docs` is registered as a specialist, **delegate Cases drafting to it.** The Cases material in this file is a placement aid, not a drafting ruleset — it is here so that an alerting request does not misfile case content.
 
-Check for an alerting- or cases-specific `_snippets/` directory before writing shared prose. At last check `main` had none beyond the docset-level `explore-analyze/_snippets/`, so shared prose in these two sections was duplicated rather than included. The restructure in `status.md` adds one to the Universal Alerting section, holding the system note described in *Conventions*.
+Check for an alerting- or cases-specific `_snippets/` directory before writing shared prose. The Universal Alerting section has one, `alerting/esql/_snippets/`, holding the system note described in *Conventions*. Elsewhere, at last check, `main` had none beyond the docset-level `explore-analyze/_snippets/`, so shared prose in Classic Alerting and Cases was duplicated rather than included.
 
 ## Source of truth
 
@@ -41,11 +41,12 @@ Platform plugins sit under `x-pack/platform/plugins/shared/`. Workflows is the e
 | Classic Alerting's Rules and Connectors UI labels | `triggers_actions_ui/` — this is the UI for both, so most Classic Alerting label questions end here rather than in the framework plugin |
 | Classic Alerting framework, rule execution, rule types | `alerting/` |
 | Observability alerting and its rule types | `x-pack/solutions/observability/plugins/observability_alerting/`, plus `apm/`, `infra/`, and `synthetics/` in the same tree, which register their own rule types |
-| Kibana Universal Alerting | `alerting_v2/` — **a separate plugin.** Searching `alerting/` for Universal Alerting behavior finds nothing and looks like the feature is absent. The plugin and its i18n IDs (`xpack.alertingVTwo.*`) keep the V2 name, so search for that rather than the product name |
+| Kibana Universal Alerting | `alerting_v2/` — **a separate plugin.** Searching `alerting/` for Universal Alerting behavior finds nothing and looks like the feature is absent. The plugin, its settings (`alerting:v2:*`), and its i18n IDs keep the V2 name, so search for that rather than the product name. Most i18n IDs are `xpack.alertingV2.*`, but the workflow triggers use `xpack.alertingVTwo.*` |
 | The workflow triggers it emits | `alerting_v2/common/workflows/triggers/`, one file per trigger; `rg "= 'alerting\."` lists the IDs. The constants are named two ways, `RuleCreatedTriggerId` for rule triggers and `ALERT_ACKED_TRIGGER_ID` for alert triggers, so a search for either style alone misses half of them. Workflows' own `builtin_trigger_definitions.ts` does not carry them, which is the seam `workflows.md` describes |
 | Connector and action types | `stack_connectors/` for individual connectors, `actions/` for the framework |
 | Cases behavior, fields, templates | `cases/` |
 | Watcher | The `elastic/elasticsearch` repo, not Kibana |
+| In-product links to these pages | `src/platform/packages/shared/kbn-doc-links/src/get_doc_links.ts`, outside the plugins. A moved page keeps these links working only through its redirect, so name them as a Kibana follow-up when a page moves |
 
 ## Conventions
 
@@ -58,7 +59,7 @@ Use the substitutions: `{{kib}}`, `{{stack-manage-app}}` for Stack Management, `
 **Terminology, and why a term pass is not a search-replace.** These distinctions held before the rename and hold after it, so they are the safest thing to rely on:
 
 - The **alert** is the lifecycle object an operator triages on the **Alerts** page. Stack 9.5 called it an *alert episode*; Serverless and later Stack versions call it an *alert*, the same word Classic Alerting uses for its own object, so the system name now carries the disambiguation. The section says so once, in a sentence scoped to 9.5 in the overview and the glossary, and no other page adds a rename note.
-- A **rule event** is one append-only evaluation document in `.rule-events`. A rule event with `type: alert` belongs to an alert; one with `type: signal` does not. **Never call a rule event an alert** — that collision is the reason the rename needs care.
+- A **rule event** is one append-only evaluation document in `.rule-events`. A rule event with `type: alert` belongs to an alert; one with `type: signal` does not. **Never call a rule event an alert** — that collision is the reason the rename needs care. The rule form labels the two modes **Detect and respond** and **Collect evidence**, which were **Alert** and **Signal** in 9.5, while the stored `type` values stay `alert` and `signal`.
 - A **series** groups recurrences over time via `group_hash` and can contain many alerts. It is not a synonym for alert, and snoozing and unsnoozing happen per series.
 - **Both systems call their object an alert,** so on any page naming both, qualify each alert with its system in the same sentence.
 - **Stored names were renamed with the object, but not uniformly.** Quote the name `HEAD` uses and never infer one from the pattern. Where prose and code use different words, add the one-line mapping the first time a query uses the field. At last check:
@@ -83,7 +84,7 @@ Model pages: `alerting/compare-alerting-systems.md`, the routing page, which you
 
 `explore-analyze/toc.yml`, one inline file with no per-section toc. The three parents are `- file: alerting.md`, `- file: cases.md`, and `- file: workflows.md`, in that order near the end of the file.
 
-Landing pages are mostly siblings of their directories, not `index.md` inside them, but check the actual file: the restructure in `status.md` moves the Universal Alerting landing page, `system-overview.md`, inside its folder. That tree nests several levels deep and is being regrouped, so resolve its current path and place a new page against its actual parent entry rather than by counting indentation.
+Landing pages are mostly siblings of their directories, not `index.md` inside them, but check the actual file. The Universal Alerting section lives at `alerting/esql/`, and its entry point, `alerting/esql/system-overview.md`, sits inside that folder. Its children are `get-started.md`, `setup.md`, `manage.md`, `rules.md`, `alerts.md`, and `notifications-actions.md`, each a sibling of its folder where it has one. *About action policies* is the exception: it lives inside `action-policies/` and sits under `notifications-actions.md` in the toc, next to `workflows-alerting.md`. The tree nests several levels deep, so place a new page against its actual parent entry rather than by counting indentation. Classic Alerting's landing page is `alerting/alerts.md`.
 
 ## Known traps
 
@@ -92,6 +93,7 @@ Landing pages are mostly siblings of their directories, not `index.md` inside th
 - **Observability alerting is a layer, not a peer.** It reuses the Classic Alerting framework and adds its own rule types and Alerts page. A framework-level change can therefore affect it without any Observability page mentioning it, and an Observability rule type is not a Classic Alerting rule type. Check both when a change touches the framework.
 - **Universal Alerting's maturity differs by deployment and version, and the badges carry it.** Do not write a sentence about production readiness, and do not keep one for the experimental version either. The restructure removed them on purpose, and the `applies_to` values that `docs-applies-to-tagging` sets already say it.
 - **Never search-replace "alert episode" to "alert".** The 9.5-scoped sentences have to keep *alert episode*, ES|QL examples keep `episode.*` on purpose, and file names and heading IDs such as `triage-alert-episodes.md` and `[alert-episode-lifecycle]` keep *episode* so existing links still resolve. The pages that teach the data model need rewriting rather than swapping: the sentence "events that share `episode.id` belong to the same alert" is still correct, and a term pass would wreck it.
+- **A change to Universal Alerting reaches past its section.** The names, the "alert" rename, and the section's links also appear on `alerting.md`, `alerting/compare-alerting-systems.md`, Classic Alerting's `alerting/alerts.md`, the three workflow trigger pages (`workflows/triggers.md`, `triggers/alert-triggers.md`, and `triggers/event-driven-triggers.md`), `query-filter/languages/esql-kibana.md`, Agent Builder's `create-alerts.md`, and Security's `detect-and-alert.md`. When a change touches what the system is called or where its pages live, check those pages too.
 - **Cases is documented once, with thin solution extras.** Copying core case behavior into a solution page is the single most likely review comment in this area.
 - **Watcher is `serverless: unavailable`.** Scope it that way; do not tag it like the rest of the area.
 - **Workflows and alerting meet, and the rename made the seam worse.** Classic Alerting's *alert triggers* and Universal Alerting's alert lifecycle triggers (`alerting.actions.alert*`) are both "alert triggers" now that both systems call their object an alert, so they need a system qualifier to stay distinct. Decide which section owns the page, and load `workflows.md` for the Workflows half.
