@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.7.0
+version: 2.7.1
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting] [with a reader test]"
 disable-model-invocation: true
@@ -161,7 +161,7 @@ The precedence rule itself is in *Constraints*. What it does not spell out is wh
 
 In both cases apply whatever the file legitimately adds, follow the baseline where they disagree, and tell the user which instruction you did not follow and why. **Do not apply an override silently.** An area file reads as authoritative precisely because it is usually right, which is what makes the rare bad instruction in one worth naming out loud.
 
-**One convention looks like boilerplate and is not:** a shared snippet, included at the top of every page in a section, that tells the reader which of two similar systems the page documents. No `applies_to` value can say that, and because the wording lives once in the snippet, the include places nothing twice. Follow it when the area file records it. The exception is that narrow — a snippet whose job is to restate a version, deployment, lifecycle, or caveat is still boilerplate however it is included, because each of those already has a proper home.
+**One convention looks like boilerplate and is not:** a shared snippet, included under the H1 of a section's landing pages, that tells the reader which of two similar systems the section documents. No `applies_to` value can say that, and because the wording lives once in the snippet, the include places nothing twice. Follow it when the area file records it, and only on the pages the area file names. The same note on every page in the section is boilerplate again: it repeats itself page after page, and the first sentence naming the system does the job better. The exception is that narrow — a snippet whose job is to restate a version, deployment, lifecycle, or caveat is still boilerplate however it is included, because each of those already has a proper home.
 
 ## Step 3: Create the working branch
 
