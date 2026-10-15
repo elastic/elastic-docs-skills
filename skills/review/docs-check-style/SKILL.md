@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.4.0
+version: 1.5.0
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when the user asks to check, lint, or review docs for voice, tone, grammar, formatting, accessibility, or word choice issues, or when a docs review runs. Do not trigger on ordinary drafting or editing.
 argument-hint: <file-or-directory>
 context: fork
@@ -69,7 +69,7 @@ Check every document against the rules below. Categorize each issue by area.
 - **Present tense**: Write in present tense. Avoid "will," "would," "should," "could," "currently," "now."
 - **Second person**: Use "you/your/yours." Never use "I/me/my." Use "we" sparingly ("we recommend" is OK).
 - **No "please"**: Remove "please" from instructions. Exception: when users must wait or face inconvenience.
-- **Contractions**: Use them for conversational tone. Don't mix contractions with spelled-out equivalents in the same context. Avoid ambiguous contractions ("there'd," "it'll," "they'd").
+- **Contractions**: Use them for conversational tone. Don't mix contractions with spelled-out equivalents in the same context. Avoid ambiguous contractions ("there'd," "it'll," "they'd"). Don't contract "Elastic" to replace "Elastic is" (e.g., not "Elastic's excited to release...").
 - **Concise sentences**: Limit conjunctions to two per sentence. Prefer simple present over gerunds in prose.
 - **Informational tone**: Most docs should be direct, neutral, and scannable. Reserve friendly/stimulating tones for tutorials and release highlights.
 
@@ -136,7 +136,9 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Hyphens**: Compound adjectives before nouns (real-time results), two vowels together (re-enable), self-/ex-/all- prefixes. No hyphen for predicate adjectives ("up to date") or adverbs ending in -ly ("newly installed").
 - **Gerunds**: Use in top-level task titles. Use action verbs in lower-level titles. Avoid gerunds in prepositional phrases ("how to configure" not "on configuring").
 - **Noun vs. verb compounds**: backup/back up, login/log in, setup/set up, startup/start up.
-- **Quotation marks**: Use double quotation marks to quote error messages or introduce an unfamiliar term on first use only. Do **not** use quotation marks for code/commands (use monospace instead), for emphasis (use bold or italic), or for product/feature/UI names. Place commas and periods **inside** closing quotation marks. Place colons, semicolons, question marks, and exclamation points **outside** closing quotation marks (unless part of the quoted material). Use single quotation marks only for quotations within quotations.
+- **Quotation marks**: Use double quotation marks to quote error messages or introduce an unfamiliar term on first use only. Do **not** use quotation marks for code/commands (use monospace instead), for emphasis (use bold or italic), or for product/feature/UI names. Place commas and periods **inside** closing quotation marks. Place colons, semicolons, question marks, and exclamation points **outside** closing quotation marks (unless part of the quoted material). Exception: when quoting exact values users must enter or match precisely (config values, API parameters, code strings), place punctuation outside — prefer code formatting for these instead. Use single quotation marks only for quotations within quotations.
+- **Dashes**: Use en dashes for ranges (e.g., "1–3 values") and when a compound adjective includes an open compound (e.g., "Windows 10–compatible"). Use em dashes for a break in the flow of a sentence.
+- **Ordinals**: Don't use ordinal indicators (st, nd, rd, th) with dates — "March 5," not "March 5th."
 
 ### Formatting
 
@@ -172,7 +174,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Keys**: "Press Enter" / "Press Command+Alt+L."
 - **Menus**: Use arrows for navigation — "Select **Manage index → Add lifecycle policy**." Do **not** use the verbs "open" or "close" for menus; use "From the menu,..." instead. Refer to the element as "menu" — not "dropdown menu" or "dropdown list."
 - **Icons**: Reference by tooltip text, include inline icon. Avoid parentheses around icons.
-- **Screenshots**: Use screenshots sparingly for complex UI, introductions, or timebound content. Check that screenshots use a consistent aspect ratio, 100% zoom, only essential UI, a screenshot border when appropriate, accessible alt text, and no sensitive information.
+- **Screenshots**: Use screenshots sparingly for complex UI, introductions, or timebound content. Check that screenshots use a consistent aspect ratio, 100% zoom, only essential UI (excluding the navigation menu, breadcrumbs, header, application menu, and global search field whenever possible, since these change frequently), a screenshot border when appropriate, accessible alt text, and no sensitive information.
 - **Procedures**: 5–9 steps. Focus on use cases, not piece-by-piece UI description. Eliminate obvious steps.
 - **Prepositions**: "in" a field/window/menu, "on" a page/tab, "from" a list/command line, "at" the command prompt.
 - **Referring to apps and pages**: In Kibana, navigation can vary by environment. Use solution-agnostic patterns when directing users to apps or pages: "Find **APP** in the navigation menu or use the [global search field]." When the app is only reachable via search: "To open **APP**, find **PARENT** in the navigation menu or use the global search field." Flag instructions that assume a fixed navigation path without offering the search alternative.

@@ -1,6 +1,6 @@
 ---
 name: docs-redirects
-version: 1.0.5
+version: 1.0.6
 description: Create and manage redirects in Elastic documentation when pages are moved, renamed, or deleted. Use when moving docs pages, renaming files, restructuring content, or when the user asks about redirects.
 argument-hint: <old-path> <new-path>
 context: fork
@@ -39,6 +39,10 @@ Trigger this skill when:
 Redirects are configured in `redirects.yml` (or `_redirects.yml`), located next to the `docset.yml` (or `_docset.yml`) file in each content set. All paths are **relative to the `redirects.yml` file location**.
 
 Redirects only work within Elastic Docs V3 content sets. They cannot target external URLs.
+
+Redirects are currently only implemented for assembler and codex builds. **Isolated builds do not process `_redirects.yml` at deploy time** — if the content set builds in isolation, a redirect entry will not take effect, and you should say so when adding one there.
+
+For legacy `elastic.co/guide` (AsciiDoc) redirects, this skill does not apply — open a [web team request](http://ela.st/web-request) instead.
 
 ## Syntax reference
 
