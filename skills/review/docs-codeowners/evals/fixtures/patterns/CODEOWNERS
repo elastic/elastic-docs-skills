@@ -1,0 +1,6 @@
+# Cloud-style glob plus a pattern that clears an earlier owner.
+
+* @elastic/platform
+**/*.yaml @elastic/cloud-docs
+/deploy/ @elastic/cloud-docs
+/deploy/generated/

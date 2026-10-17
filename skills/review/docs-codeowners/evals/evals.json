@@ -1,0 +1,59 @@
+{
+  "skill_name": "docs-codeowners",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Which files triggered a review for @elastic/developer-docs? Use the offline fixture at skills/review/docs-codeowners/evals/fixtures/pr-8516 (CODEOWNERS and files.json). Repo elastic/docs-content, base ref main, CODEOWNERS source .github/CODEOWNERS, PR 8516. Do not call gh. Do not review the prose.",
+      "expected_output": "Runs the matcher on the fixture. Reports the two developer-docs files as the trigger, the observability near miss, and docset.yml under @elastic/docs. Chooses comprehensive for the pull request and keeps the other files in the shared review.",
+      "expectations": [
+        "Runs scripts/match_codeowners.py on the pr-8516 fixture and does not call gh",
+        "Lists explore-analyze/ai-features/agent-builder/create-alerts.md as a trigger owned only by @elastic/developer-docs, with pattern /explore-analyze/ai-features/agent-builder/",
+        "Lists explore-analyze/query-filter/languages/esql-kibana.md as a trigger whose owners include both @elastic/developer-docs and @elastic/ski-docs",
+        "Gives a one-line summary of each trigger patch",
+        "Names solutions/observability/nightshift/get-started.md as a file that did not trigger the request because /solutions/observability/ replaced the earlier /solutions/ rule",
+        "Does not list docset.yml as a trigger, and groups it with @elastic/docs",
+        "Chooses comprehensive for the pull request because of the added alerting page, and says the owned files are small edits inside that larger change",
+        "Points at the full review checklist",
+        "Says the other files are still part of the shared review on docs-content, and does not tell the reviewer to skip them",
+        "Does not review prose and does not run docs-review-pr"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Which files requested review from @elastic/cloud-docs? Use the offline fixture at skills/review/docs-codeowners/evals/fixtures/patterns (CODEOWNERS and files.json). Repo elastic/cloud, base ref main, CODEOWNERS source CODEOWNERS. Do not call gh.",
+      "expected_output": "Reports config/settings.yaml as the trigger via the **/*.yaml rule. Does not treat config/settings.md as a trigger. Because the repo is not docs-content, calls the trigger list the required-review scope and does not add a docs-content review tier or shared-review paragraph.",
+      "expectations": [
+        "Runs the matcher on the patterns fixture without calling gh",
+        "Lists config/settings.yaml as a trigger with winning pattern **/*.yaml and owner @elastic/cloud-docs",
+        "Does not list config/settings.md as a trigger",
+        "States that the trigger files are the required-review scope",
+        "Does not choose a trivial, light-touch, or comprehensive review tier",
+        "Does not say the other files remain part of a shared docs-content review"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Did @elastic/cloud-docs get a review request for deploy/generated/index.md? Use the offline fixture at skills/review/docs-codeowners/evals/fixtures/patterns (CODEOWNERS and files.json). Repo elastic/cloud, base ref main, CODEOWNERS source CODEOWNERS. Do not call gh.",
+      "expected_output": "Reports deploy/generated/index.md as a near miss: /deploy/ listed @elastic/cloud-docs, and the later owner-less /deploy/generated/ pattern cleared that owner. The file is not a trigger.",
+      "expectations": [
+        "Runs the matcher on the patterns fixture without calling gh",
+        "Does not list deploy/generated/index.md as a file that triggered the request",
+        "Names /deploy/generated/ as the winning pattern and shows that it has no owners",
+        "Names /deploy/ as the earlier rule that listed @elastic/cloud-docs and was replaced"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Which files triggered a review for @elastic/developer-docs? Use the offline fixture at skills/review/docs-codeowners/evals/fixtures/rename (CODEOWNERS and files.json). Repo elastic/kibana, base ref main, CODEOWNERS source CODEOWNERS. Do not call gh.",
+      "expected_output": "Reports new-path/page.md as a trigger because the old path old-path/page.md matched /old-path/, even though the new path is owned by @elastic/ski-docs. new-path/other.md is not a trigger. The trigger list is the required-review scope.",
+      "expectations": [
+        "Runs the matcher on the rename fixture without calling gh",
+        "Lists new-path/page.md as a trigger matched on previous_filename old-path/page.md",
+        "Gives the winning pattern /old-path/ and owner @elastic/developer-docs",
+        "Says the new path is owned by @elastic/ski-docs",
+        "Does not list new-path/other.md as a trigger",
+        "States that the trigger files are the required-review scope and does not apply the docs-content shared-review paragraph"
+      ]
+    }
+  ]
+}
