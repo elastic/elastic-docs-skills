@@ -1,0 +1,15 @@
+[
+  {
+    "filename": "new-path/page.md",
+    "previous_filename": "old-path/page.md",
+    "status": "renamed",
+    "additions": 0,
+    "deletions": 0
+  },
+  {
+    "filename": "new-path/other.md",
+    "status": "modified",
+    "additions": 2,
+    "deletions": 1
+  }
+]

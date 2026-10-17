@@ -1,0 +1,13 @@
+# Reduced stand-in for the elastic/docs-content rules that decided PR 8516.
+# Last match wins. Later lines replace earlier owners for the same path.
+
+* @elastic/docs
+
+/explore-analyze/ @elastic/ski-docs
+/explore-analyze/ai-features/agent-builder/ @elastic/developer-docs
+/explore-analyze/query-filter/ @elastic/developer-docs @elastic/ski-docs
+
+/solutions/ @elastic/developer-docs @elastic/ski-docs
+/solutions/observability/ @elastic/ski-docs
+
+/deploy-manage/ @elastic/admin-docs
