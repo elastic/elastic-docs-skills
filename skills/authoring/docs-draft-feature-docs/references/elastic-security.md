@@ -79,5 +79,6 @@ Add the page to its parent's `children:` list in the position it should appear, 
 
 - **Defend, Endpoint, and detection rules are three different things.** {{elastic-defend}} is the integration users configure, {{elastic-endpoint}} is the agent component, and detection rules are content shipped from `detection-rules`. Requests conflate them constantly. Establish which one the change touches before choosing a directory.
 - **Detection rule content is not documented in docs-content.** Confirm before drafting a page that should not exist.
+- **An ES|QL detection rule is not an ES|QL alerting rule.** Kibana Universal Alerting runs ES|QL rules too, under `explore-analyze/alerting/esql/`, and Classic Alerting's Elasticsearch query rule also accepts ES|QL. A request for an "ES|QL rule" can mean any of the three, so confirm it is a detection rule before placing it here. `alerting-and-cases.md` owns the other two.
 - **Serverless Security has product tiers, and there is no frontmatter field for them.** Tier requirements such as Security Complete are written in prose, typically in the Requirements admonition. Do not invent a `product_tier` key.
 - **The Kibana plugin moved.** Paths under `x-pack/plugins/security_solution/` are stale. Verifying against a stale path silently finds nothing and looks like a missing feature.

@@ -157,7 +157,7 @@
       "expectations": [
         "Follows the status: key in the area file's frontmatter to the status.md entry, and resolves each sub-entry's tracking issue with gh rather than trusting the file",
         "Treats the sub-entries as expiring separately, so confirmed names do not end the rename or Stack GA sub-entries",
-        "Treats a system rename as an edit to the docset.yml substitutions rather than a text sweep, never types Alerting V2 or another system name into page prose, and checks question 20 in #1758 before treating a working name as final",
+        "Treats a system rename as an edit to the docset.yml substitutions rather than a text sweep, never types Alerting V2 or another system name into page prose, and points out that the final name is Kibana Universal Alerting, applied through the substitutions, rather than Alerting V2",
         "Refuses a blanket search-replace of alert episode to alert, and explains that the data-model pages need rewriting instead",
         "Preserves rule event, signal, and series as distinct terms, and quotes the field and trigger names that HEAD actually uses rather than inferring renamed ones",
         "Recognizes that the restructure removed the production-readiness sentences on purpose because the lifecycle badges carry maturity, and does NOT add scoped replacements",
@@ -514,12 +514,13 @@
     },
     {
       "id": 40,
-      "prompt": "Draft a new page in the Alerting V2 section explaining how to snooze a series. The area file says every page in the section opens with an include of the shared system note snippet. (Assume the snippet exists on main.)",
-      "expected_output": "Opens the page with the system note include and leaves the system name out of the page opening. Does not flag the include as boilerplate, because it identifies which alerting system the page documents, which no applies_to value can express, and its wording lives once in the snippet.",
+      "prompt": "Draft a new page in the Alerting V2 section explaining how to snooze a series. The section has a shared system note snippet, so include it at the top like the other pages. (Assume the snippet exists on main.)",
+      "expected_output": "Names the system in the first sentence with the {{alerting-v2-system}} substitution and does not include the system note, because only the section landing pages carry it and a new how-to page is not one of them. Tells the user it did not follow the instruction to include the note, and why.",
       "expectations": [
-        "Opens the page with an include of the shared system note directly under the H1, rather than copying the note's text",
-        "Does NOT flag the include as boilerplate under the Step 2 rule, because it identifies which system the page documents, which no applies_to value can express, and its wording lives once in the snippet",
-        "Leaves the system name out of the H1, the description, and the first sentence, because the note carries it",
+        "Names the system in the first sentence with {{alerting-v2-system}} or {{alerting-v2-system-cap}}, rather than typing Kibana Universal Alerting or Alerting V2",
+        "Does NOT include the system note snippet, because the area file limits it to the section landing pages and the page being drafted is not one",
+        "Says that it did not follow the request to include the note, and explains that the note on every page is the repetition the restructure removed",
+        "Leaves the system name out of the H1",
         "Resolves the section's current path and toc.yml parent from main rather than from the area file, since the restructure moves and regroups the section",
         "Treats snoozing as per series rather than per alert, following the area file's terminology"
       ]
