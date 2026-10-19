@@ -51,6 +51,17 @@
         "Flags 'below' as directional language",
         "Flags missing alt text for the screenshot"
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Check this new Markdown source for style issues:\n\n```markdown\n## Configure the connector\n\nThe connector syncs data from your source. It runs on a schedule that you define.\n\n- Each sync creates a job. Jobs appear in the connector overview.\n```",
+      "expected_output": "Flags the paragraph line and the list item line because each contains two sentences, and suggests putting each sentence on its own line, with the list item's second sentence on an indented continuation line",
+      "expectations": [
+        "Flags the paragraph line 'The connector syncs data from your source. It runs on a schedule that you define.' for having more than one sentence on a line",
+        "Flags the list item line for having more than one sentence on a line",
+        "Suggests one sentence per line, with the list item's second sentence on an indented continuation line",
+        "Does not flag the heading"
+      ]
     }
   ]
 }
