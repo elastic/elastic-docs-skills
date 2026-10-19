@@ -1,0 +1,3 @@
+* @elastic/docs
+/old-path/ @elastic/developer-docs
+/new-path/ @elastic/ski-docs

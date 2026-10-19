@@ -1,0 +1,64 @@
+[
+  {
+    "filename": "explore-analyze/ai-features/agent-builder/create-alerts.md",
+    "status": "modified",
+    "additions": 1,
+    "deletions": 1,
+    "patch": "@@ -1 +1 @@\n-Kibana alerting rules\n+Kibana Classic Alerting rules\n"
+  },
+  {
+    "filename": "explore-analyze/query-filter/languages/esql-kibana.md",
+    "status": "modified",
+    "additions": 1,
+    "deletions": 1,
+    "patch": "@@ -4 +4 @@\n-[system overview](/explore-analyze/alerting/system-overview.md)\n+[system overview](/explore-analyze/alerting/esql/system-overview.md)\n"
+  },
+  {
+    "filename": "solutions/observability/nightshift/get-started.md",
+    "status": "modified",
+    "additions": 2,
+    "deletions": 2
+  },
+  {
+    "filename": "solutions/observability/nightshift/investigations.md",
+    "status": "modified",
+    "additions": 2,
+    "deletions": 2
+  },
+  {
+    "filename": "docset.yml",
+    "status": "modified",
+    "additions": 1,
+    "deletions": 0
+  },
+  {
+    "filename": "redirects.yml",
+    "status": "modified",
+    "additions": 3,
+    "deletions": 0
+  },
+  {
+    "filename": "explore-analyze/alerting/esql/system-overview.md",
+    "status": "added",
+    "additions": 180,
+    "deletions": 0
+  },
+  {
+    "filename": "explore-analyze/alerting/system-overview.md",
+    "status": "modified",
+    "additions": 4,
+    "deletions": 30
+  },
+  {
+    "filename": "explore-analyze/toc.yml",
+    "status": "modified",
+    "additions": 6,
+    "deletions": 2
+  },
+  {
+    "filename": "deploy-manage/users-roles/cluster-or-deployment-auth/kibana-privileges.md",
+    "status": "modified",
+    "additions": 2,
+    "deletions": 2
+  }
+]
