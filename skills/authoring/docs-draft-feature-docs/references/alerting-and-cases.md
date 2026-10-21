@@ -1,6 +1,6 @@
 ---
 area: Alerting and Cases
-verified: 2026-10-09
+verified: 2026-10-21
 verified_against:
   - docs-content
   - elastic/kibana
@@ -13,7 +13,7 @@ Two sections of the `explore-analyze/` docset that share one trait: each documen
 
 The boundary that matters: this area owns the cross-solution behavior. When a capability exists only inside Security or Observability, it belongs to that solution's page instead.
 
-> **Alerting V2, now named Kibana Universal Alerting, is mid-GA-transition.** Its names are final, but its section move, its follow-up pages, and its Stack release each finish on their own schedule. Read [`status.md`](status.md#alerting-v2-ga) and resolve each sub-entry's tracking issue before drafting any alerting page. Paths in this file describe the layout after the section move, elastic/docs-content#8516; `status.md` says what `main` has until it merges. The durable rules that survive all of it are below, in *Conventions* and *Known traps*.
+> **Alerting V2, now named Kibana Universal Alerting, is mid-GA-transition.** Its names are final, and its section move merged (elastic/docs-content#8516), but its follow-up pages and its Stack release each finish on their own schedule. Read [`status.md`](status.md#alerting-v2-ga) and resolve each sub-entry's tracking issue before drafting any alerting page. The durable rules that survive all of it are below, in *Conventions* and *Known traps*.
 >
 > **Workflows is a sibling area file**, `workflows.md`, not a section of this one. The two meet at triggers and at `workflows-alerting.md`, so read both when drafting at that seam.
 
