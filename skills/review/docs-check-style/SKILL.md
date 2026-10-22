@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.5.0
+version: 1.5.1
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when the user asks to check, lint, or review docs for voice, tone, grammar, formatting, accessibility, or word choice issues, or when a docs review runs. Do not trigger on ordinary drafting or editing.
 argument-hint: <file-or-directory>
 context: fork
@@ -150,7 +150,7 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 - **Lists**: Minimum two items. Parallel structure. Capitalize first letter. No periods unless complete sentences. Introduce with a heading, sentence, or fragment ending with a colon.
 - **Paragraphs**: Keep under seven lines.
 - **Line spacing**: Single line break between elements.
-- **Admonitions**: Use notes, tips, warnings, important blocks, and plain admonitions for their documented purpose. Do not stack admonitions, overuse them, or use regular admonitions for prerequisites when a plain requirements admonition fits better.
+- **Admonitions**: Use notes, tips, warnings, important blocks, and plain admonitions for their documented purpose. Do not stack admonitions, overuse them, or use regular admonitions for prerequisites when a plain requirements admonition fits better. Use no more than one admonition per section. When a reader needs the content to understand or complete the task, put it in the body. Reserve warning and important admonitions for real risk: data loss, security issues, irreversible actions, or impact on performance or stability.
 - **Code samples**: Use consistent indentation, syntax highlighting, runnable examples when possible, and short comments before the code they explain. For JSON, use footnotes only when needed because footnotes are less accessible.
 - **Sensitive information**: Flag screenshots, examples, logs, tokens, hostnames, IPs, internal links, customer data, and secrets that need redaction or replacement with documentation-safe placeholders.
 
