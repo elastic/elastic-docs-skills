@@ -178,8 +178,11 @@ Avoid: directional terms, Latinisms, parentheses cruft, italics or bold for emph
 ### Formatting and admonitions
 
 - Formatting is consistent.
-- Admonitions are used sparingly, roughly three or fewer in one area, so they still stand out.
-- No admonitions are stacked back to back. Merge them into one callout or into the narrative. After flagging individual admonitions, scan for consecutive pairs — two admonitions separated only by whitespace count as stacked even if each looks fine in isolation.
+- Admonitions are used sparingly, no more than one per section, so they still stand out.
+- Content that readers need to understand or complete the task sits in the body, in the step or paragraph where it applies, not in an admonition. If the page breaks down without the admonition, its content belongs in the body.
+- Warning and important admonitions flag real risk: data loss, security issues, irreversible actions, or impact on performance or stability. Notes carry only supplementary information that is safe to skip.
+- Admonitions are concise. A long admonition that is not temporary becomes a section.
+- No admonitions are stacked back to back. Move the content into the narrative or restructure the section. Do not merge them into one bigger callout that covers several topics. After flagging individual admonitions, scan for consecutive pairs — two admonitions separated only by whitespace count as stacked even if each looks fine in isolation.
 
 ### Links, accessibility, and preview
 
