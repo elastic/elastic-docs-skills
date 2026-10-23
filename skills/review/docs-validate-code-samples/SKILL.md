@@ -144,7 +144,7 @@ Suggestion: replace with explicit callout markers (`<N>`) and a numbered list af
 
 `console` blocks are API requests (customers copy-paste them); `console-result` blocks are responses (display only). Each `console` block contains one or more API calls: an HTTP method+path line (it can be indented inside a list item), followed by an optional JSON body, repeated for multiple calls.
 
-Run the script below once per `console` or `console-result` block, using the `file`, `open`, `close` values from Step 2 and the first word of the info string as `KIND`. Save it to a temp directory outside the repository (`d=$(mktemp -d)`) as `$d/check_console.pl`, then run `TMPDIR=$d perl $d/check_console.pl FILE OPEN CLOSE KIND` (set `TMPDIR` on the same command, because shell state does not persist between Bash calls). It needs `perl` and `jq`. Each output line is `file:line:High:D:message` with a real file line number, and no output means the block is clean. Report its output as the Check D findings; do not re-implement its rules by hand.
+Run the script below once per `console` or `console-result` block, using the `file`, `open`, `close` values from Step 2 and the first word of the info string as `KIND`. Save it to a temp directory outside the repository (`d=$(mktemp -d)`) as `$d/check_console.pl`, then run `perl $d/check_console.pl FILE OPEN CLOSE KIND`. The script keeps its one scratch file next to itself in `$d` and deletes it when it exits. It needs `perl` and `jq`. Each output line is `file:line:High:D:message` with a real file line number, and no output means the block is clean. Report its output as the Check D findings; do not re-implement its rules by hand.
 
 ```perl
 #!/usr/bin/env perl
@@ -152,12 +152,13 @@ Run the script below once per `console` or `console-result` block, using the `fi
 # usage: perl check_console.pl FILE OPEN CLOSE KIND     (KIND = console | console-result)
 # prints: FILE:LINE:SEVERITY:CHECK:message   (nothing when the block is clean)
 use strict; use warnings;
+use File::Temp qw(tempfile); use File::Basename qw(dirname);
 my ($file, $open, $close, $kind) = @ARGV;
 open(my $fh, '<', $file) or die "cannot read $file: $!";
 my @l = <$fh>; close $fh; chomp @l; s/\r$// for @l;
 my @body = @l[$open .. $close - 2];      # file lines OPEN+1 .. CLOSE-1
 my $first = $open + 1;
-my $tmp = $ENV{TMPDIR} || '/tmp';
+my (undef, $errfile) = tempfile('jqerr-XXXXXX', DIR => dirname($0), UNLINK => 1);   # scratch file stays beside the script
 
 # Split into requests. console-result has no method line: treat the whole body as one request.
 my @req;
@@ -212,11 +213,11 @@ for my $r (@req) {
   if ($r->{name} =~ m{(?:^|[ /])(?:_bulk|_msearch)(?:[?/]|$)}) { my $n = 0; for my $ln (split /\n/, $t, -1) { $n++; push @docs, [$n, $ln] if $ln =~ /\S/ } }
   else { @docs = ([1, $t]) }
   for my $d (@docs) {
-    open(my $jq, '|-', "jq -e . >/dev/null 2>$tmp/jq.err") or die;
+    open(my $jq, '|-', "jq -e . >/dev/null 2>'$errfile'") or die;
     print $jq $d->[1]; close $jq;
     if ($? != 0) {
       last if $r->{elided};                              # elided response: cannot be validated
-      open(my $e, '<', "$tmp/jq.err"); my $msg = join(' ', map { chomp; $_ } <$e>); close $e;
+      open(my $e, '<', $errfile); my $msg = join(' ', map { chomp; $_ } <$e>); close $e;
       my ($jl) = $msg =~ /line (\d+)/; $jl ||= 1;
       printf "%s:%d:High:D:invalid JSON (%s): %s\n", $file, $r->{start} + $d->[0] + $jl - 1, $ctx, $msg;
       last;
@@ -248,7 +249,7 @@ Suggestion: replace with `example.com` or a subdomain like `my-cluster.example.c
 
 Collect all unique `METHOD /path` values across all files first. For each unique endpoint (skip any already validated earlier in this run), call `mcp__elastic-docs__search_docs` (`productFilter`: `elasticsearch`, `sectionFilter`: `api`) with the query described below to find the matching API reference page (URL starting with `/docs/api/doc/elasticsearch/operation/`). Fetch it with `mcp__elastic-docs__get_document_by_url` (`includeBody`: true).
 
-Look each endpoint up by its literal words. Search with the method and the path as written, dropping only obvious user values: a leading segment that is not `_`-prefixed is an index, alias, or data stream name, and a purely numeric or id-like final segment is a resource id. Keep every other segment, because `_cluster/health`, `_cluster/settings`, `_cat/indices` and `_cat/shards` are different operations. For example, search `GET /my-index/_search` as `"GET _search API"` and `GET _cat/indices` as `"GET _cat/indices API"`. A missing leading slash does not matter. Accept a result only when the documented method and path on the page match the block's path, where a `{param}` in the documented path stands for any single segment. Match on the documented path, never on the URL slug (the `_search` operation is `operation-search`). The page may document a different HTTP method than the block uses (for example POST only for `_search`), which is not a finding. Always fetch the candidate page to confirm the documented path, even when every top-level key in the body is exempt. If the first search returns no matching page, retry once with the last two literal path segments plus `API` before concluding there is none.
+Find the page by what the call does, not by its path. API reference pages are titled by action ("Run a search", "Update field mappings", "Get the cluster health status"), and a query made of path text such as `GET _search API` or `PUT _mapping API` returns nothing useful. Search with a short plain-language description of the operation, using the method and path to decide the action (for example `run a search`, `update field mappings`, `cluster health`, `reindex documents`). Several operations can match one description (`cluster health` also returns the CAT health and health report pages), so fetch the candidate page and accept it only when its documented method and path match the block's path, where a `{param}` in the documented path stands for any single segment (an index name or an id in the block). Keep literal segments distinct: `_cluster/health` and `_cluster/settings` are different operations, as are `_cat/indices` and `_cat/shards`. Match on the documented path, never on the URL slug (the `_search` operation is `operation-search`). The page may document a different HTTP method than the block uses (for example POST only for `_search`), which is not a finding. Always fetch the candidate page, even when every top-level key in the body is exempt. If no result matches, retry once with different wording (the likely page title, or a synonym for the action) before concluding there is none.
 
 - **No matching page found (after the retry):** flag the endpoint as potentially removed or renamed.
 - **Deprecated field:** if a top-level request body key appears alongside "deprecated" in the docs, flag it with the replacement.
