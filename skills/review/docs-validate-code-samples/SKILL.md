@@ -1,10 +1,10 @@
 ---
 name: docs-validate-code-samples
-version: 1.0.3
+version: 1.1.0
 description: Validate code samples in Elastic documentation markdown files. Checks language identifiers, substitution attributes, callout usage, JSON validity, ES|QL syntax, and Painless scripts. Use when reviewing docs PRs, auditing content, or writing new examples.
 disable-model-invocation: true
 argument-hint: <file|dir|glob> [--output <path>]
-allowed-tools: Read, Glob, Grep, Write, Bash, mcp__elastic-docs__search_docs, mcp__elastic-docs__get_document_by_url
+allowed-tools: Read, Glob, Grep, Write, Bash, ToolSearch, mcp__elastic-docs__search_docs, mcp__elastic-docs__get_document_by_url
 sources:
   - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/code
   - https://docs-v3-preview.elastic.dev/elastic/docs-builder/tree/main/syntax/substitutions
@@ -46,60 +46,102 @@ Parse `$ARGUMENTS` for an optional `--output <path>` flag (strip it before conti
 
 ## Step 2: Extract code blocks
 
-For each file, use Grep with pattern `` ^``` `` to find fence line numbers, then Read the file to extract blocks. Also search for indented fences (`` ^\s+``` ``) to catch blocks inside list items.
+Find blocks with the `extract_fences.awk` script that ships with this skill (in `scripts/`, next to this file) instead of grepping for fence lines. Grep cannot tell an opening fence from a closing one, and it mispairs nested fences. `<skill-dir>` below is the directory that contains this `SKILL.md` (the base directory shown when the skill loads). Run it with Bash over every resolved file (pass the file list as arguments):
 
-- **Skip blocks inside HTML comments** (`<!-- ... -->`).
-- **Skip MyST directive blocks** where the info string starts and ends with `{}` (e.g., `` ```{note} ``).
+```bash
+awk -f <skill-dir>/scripts/extract_fences.awk <files>
+```
 
-For each block capture: opening line number, fence info string, language identifier (first word), attributes (remaining tokens), and body.
+If the script is missing, say so in the Notes section and stop. Do not rewrite it from memory: the pairing and comment rules are easy to get wrong.
+
+Each output line has four tab-separated fields, `file`, `open`, `close`, `info`, where `open` and `close` are the line numbers of the opening and closing fences and `info` is everything after the opening backticks (it may be empty). When the file list comes from `find`, use `find <dir> -type f -name '*.md' -print0 | xargs -0 awk -f <skill-dir>/scripts/extract_fences.awk` so file names with spaces survive. Split each output line on tabs: the first three fields are `file`, `open` and `close`, and everything after the third tab is the info string (tabs are the separator because file paths and info strings can contain colons). Use `open` as the line number in the report. Read lines `open+1` through `close-1` for the body.
+
+The script applies these conventions, so do not re-implement them:
+
+- A fence is a line that starts with three or more backticks, optionally indented. Mid-line backticks and `~~~` are not fences.
+- A block closes on a line with at least as many backticks as the opener and nothing after them. This keeps a 4-backtick block that contains ```` ``` ```` lines as one block.
+- Carriage returns are stripped, so CRLF files pair correctly.
+- Blocks whose info string starts with `{` (for example `{applies_to}`, `{include}`, `{note}`) are MyST directives, not code, and are skipped.
+- Fence lines inside a multi-line HTML comment are ignored entirely, so a commented-out fence (even one with no closing fence) cannot affect the visible blocks after it.
+- An unclosed fence is emitted with the same four tab-separated fields, with `UNCLOSED` in place of `close`. Report it as Check S (structure), Medium severity, with the suggestion to add a closing fence, and do not analyze its body.
+
+From the info string, take the first word as the language identifier and the remaining tokens as attributes (`subs=true`, `callouts=false`). An empty info string means no language identifier.
 
 ---
 
 ## Step 3: Run checks A through H
 
-### Check A — Missing or wrong language identifier
+Check S (unclosed fence) is reported from Step 2 and needs no separate pass.
 
-Flag any block with an empty fence info string. Also flag blocks where the language identifier is clearly wrong for the content (e.g., `js` used for a JSON-only response, `console` used for response-only data with no HTTP method line).
+### Check A — Missing or unknown language identifier
 
-Common valid identifiers: `bash`, `sh`, `console`, `console-result`, `json`, `yaml`, `python`, `javascript`, `js`, `typescript`, `java`, `go`, `ruby`, `sql`, `esql`, `eql`, `painless`, `kql`, `kuery`, `txt`, `text`, `xml`, `toml`, `ini`, `diff`.
+Two separate findings, with different severity.
 
-Infer the correct identifier from content: HTTP method line → `console`; starts with `{`/`[` → `json`; `key: value` lines → `yaml`; `curl`/`apt-get` → `bash`; `import`/`def`/`print(` → `python`; `public class` → `java`; `const`/`let`/`=>` → `javascript`.
+**A-1 (Low): empty info string.** Flag any block whose info string is empty. Infer the identifier from the content when it is unambiguous: an HTTP method line (`GET`, `PUT`, `POST`, `DELETE`, `HEAD`) means `console`; a body that starts with `{` or `[` means `json`; `key: value` lines mean `yaml`; `curl`, `apt-get`, or `$ ` prompts mean `bash`; `import`, `def`, or `print(` means `python`; `public class` means `java`; `const`, `let`, or `=>` means `javascript`. Otherwise suggest `text`. Many empty-info blocks are plain output, frontmatter samples, or paths, so do not guess a language for them.
 
-### Check B — Variable substitution missing `subs=true`
+**A-2 (Medium): identifier that is clearly wrong for the content.** Flag a block only when the identifier contradicts the content (for example, `console` on a response with no HTTP method line, or `json` on a body that is not valid JSON-like text), or when it appears in the likely-mistakes table below. Do not flag an identifier merely because it is absent from the accepted list.
 
-Walk up from the target file to find `docset.yml` and parse its `subs:` section for valid variable names. Stop at the git root (presence of `.git/`) or after 6 directory levels, whichever comes first. Flag any block containing `{{var}}` where `var` is a defined substitution key but the fence info lacks `subs=true`. Also flag the inverse: `subs=true` on a block with no `{{...}}` patterns.
+Accepted identifiers (in use in `elastic/docs-content`; do not flag any of these):
 
-If no `docset.yml` is found, flag any `{{word}}` pattern (single identifier) as a potential substitution variable.
+- Elasticsearch and Kibana: `console`, `console-result`, `esql`, `eql`, `painless`, `kql`, `kuery`
+- Shell: `bash`, `sh`, `shell`, `powershell`, `cmd`, `terminal`
+- Data and config: `json`, `jsonc`, `yaml`, `yml`, `xml`, `toml`, `ini`, `properties`, `dockerfile`, `nginx`, `gradle`, `diff`
+- Languages: `python`, `py`, `javascript`, `js`, `typescript`, `ts`, `java`, `go`, `ruby`, `php`, `csharp`, `swift`, `kotlin`, `groovy`, `sql`, `html`, `handlebars`
+- Text and docs: `text`, `txt`, `plaintext`, `markdown`, `md`, `asciidoc`, `mermaid`, `http`
+
+Flag these as likely mistakes, with the fix:
+
+| Found | Suggest | Why |
+|-------|---------|-----|
+| `JSON` (any non-lowercase identifier) | `json` | Identifiers are lowercase. |
+| `console-response` | `console-result` | `console-result` is the documented response identifier. Verify against the docs-builder code syntax page before flagging if unsure. |
+| `language` | the real identifier | A placeholder left in from a template. |
+
+### Check B — Variable substitution and `subs=true`
+
+This check looks only inside code block bodies. `{{var}}` in prose, headings, or link targets is outside its scope. Only variables that docs-builder substitutes count. Many blocks contain `{{...}}` that is literal template syntax (Mustache, Go templates, workflow expressions, Painless or ingest templates). Flagging those is wrong.
+
+1. Walk up from the target file to find `docset.yml` and parse its `subs:` keys. Count the file's own directory as level 1. Stop at the git root (presence of `.git/`) or after 10 directory levels, whichever comes first (generated reference pages can sit deep below `docset.yml`).
+2. Extract variable names from each block with `\{\{\{?\s*([^{}|]+?)\s*(\|[^{}]*)?\}?\}\}`. This drops mutation filters such as `{{version.stack|M.M}}` and handles `{{{var}}}`.
+3. **B-1 (Medium):** flag a block without `subs=true` only when at least one extracted name is a key in `subs:`. Report the matching variable names.
+4. **B-2 (Low):** flag `subs=true` on a block with no `{{` at all.
+5. Do not flag a block whose `{{...}}` names are all outside `subs:`, for example `{{steps.create_case.output.case.id}}`, `{{event.alerts}}`, `{{foreach.item}}`, `{{#toJson}}`, `{{ctx.payload.hits.total}}`, or `{{.Config.Image}}`.
+6. If no `docset.yml` is found, the valid variable names are unknown, so B-1 becomes an unverified advisory (Low). Flag a block without `subs=true` only when its language is a shell, YAML, text or markup type (`bash`, `sh`, `shell`, `yaml`, `yml`, `text`, `txt`, `markdown`, `md`, `ini`, `toml`, `xml`, `properties`) or it has no language, and a name extracted in step 2 is a single identifier (letters, digits, `_` or `-`, starting with a letter, for example `{{version}}`). Do not flag names with dots, `#`, `/`, `[`, spaces, or other characters, which are template syntax. Skip blocks in any other language (`console`, `console-result`, `json`, `js`, `ts`, `html`, `handlebars`, `painless`, and so on), where `{{x}}` is almost always template syntax. Label each finding "possible substitution, unverified because no `docset.yml` was found". B-2 runs as normal.
 
 ### Check C — Inline comments that should be callouts
 
 For blocks with language `bash`, `sh`, `shell`, `console`, `yaml`, `python`, `javascript`, `js`, `typescript`, `java`, `go`, or `ruby`: flag lines where `#` or `//` appears **after code on the same line** and the comment reads as a reader-facing explanation.
 
-Exemptions: shebang lines, standalone comment lines (no code on the same line), `#` inside strings, lines already using callout markers (`<1>`).
+Exemptions: shebang lines, standalone comment lines (no code on the same line), `#` inside strings, lines that end with a callout marker (`<1>`, `// <1>`, or `# <1>`).
 
-Suggestion: replace with explicit callout markers (`<N>`) and a numbered list after the block.
+Report the line that holds the comment, not the opening fence, so the reader can go straight to it (the same rule as Check D). Suggestion: replace with explicit callout markers (`<N>`) and a numbered list after the block.
 
 ### Check D — JSON validation in `console` and `console-result` blocks
 
-`console` blocks are API requests (customers copy-paste them); `console-result` blocks are responses (display only). Each `console` block contains one or more API calls: an HTTP method+path line, followed by an optional JSON body, repeated for multiple calls.
+`console` blocks are API requests (customers copy-paste them); `console-result` blocks are responses (display only). Each `console` block contains one or more API calls: an HTTP method+path line (it can be indented inside a list item), followed by an optional JSON body, repeated for multiple calls.
 
-**Flag `...` in `console` blocks** — never acceptable; replace with realistic values. `...` in `console-result` is fine.
+Pipe the Step 2 output into the `check_console.pl` script that ships with this skill. It picks out the `console` and `console-result` blocks itself, so no per-block loop is needed:
 
-**Pre-process both block types before JSON parsing:**
-1. Strip callout markers (`<N>`) and their preceding `//`/`#` from line ends.
-2. Replace `{{var}}` / `{{{var}}}` template variables with a placeholder string.
-3. Skip standalone `#` or `//` comment lines when building the JSON body.
-4. Replace triple-quoted Painless strings (`"""..."""`) with a placeholder using a multiline perl substitution.
-5. For `console-result` only: normalize `...` ellipsis — replace `[...]` with `[]`, `{...}` with `{}`, `: ...` with `: null`, strip standalone `...` lines.
-6. Detect and flag trailing commas before `}` or `]` (do not silently fix).
+```bash
+awk -f <skill-dir>/scripts/extract_fences.awk <files> | perl <skill-dir>/scripts/check_console.pl --stdin
+```
 
-**NDJSON (`_bulk`):** if the method line contains `_bulk`, validate each non-empty line as a separate JSON object. Otherwise validate the full body with `jq`.
+To check one block, pass its four values as four separate arguments: `perl <skill-dir>/scripts/check_console.pl FILE OPEN CLOSE KIND`, with `KIND` the first word of the info string (not one quoted string such as `"60 65"`). It needs `perl` and `jq`. It keeps one scratch file in the system temp directory and deletes it on exit, and it never writes to the file it checks. Each stdout line is `file:line:High:D:message` with a real file line number, and no stdout means every block is clean. It also prints one summary line on stderr (`checked N block(s), M finding(s)`), so a clean run can be told apart from a script that did nothing. Bad arguments exit with status 2 and a usage message: never read an error as a clean block. An unclosed `console` or `console-result` block is skipped with a stderr note, because Check S already reports every unclosed block. Report its output as the Check D findings; do not re-implement its rules by hand. If the script is missing, say so in the Notes section and skip Check D rather than rewriting it from memory.
 
-**Do NOT flag:** Painless scripts (replaced before parsing), EQL/ES|QL string values, callout markers and template variables (already stripped).
+What the script does:
+
+- **Requests:** splits a `console` block into requests on method lines and validates each body separately. A `console-result` block is one body, and it is validated only when it starts with `{` or `[`. Text tables (`_cat` output) and partial fragments are not JSON, so they are skipped.
+- **Pre-processing:** strips callout markers (`// <1>`, `# <1>`, a bare `<1>`, and several markers on one line), standalone comment lines, and trailing explanatory comments after code (Kibana Console accepts these, and Check C reports them). It replaces `{{var}}` / `{{{var}}}` with `null` (a JSON-valid token, so an unquoted value such as `{"size": {{size}}}` stays valid) and Painless `"""..."""` strings with a placeholder, keeping line numbers intact.
+- **`...`:** a `...` outside a string in a `console` block is High, because customers copy-paste requests (replace it with realistic values). In a `console-result` block `...` is allowed, since authors trim long response examples, so it is never a finding there. The script normalizes it before parsing (`[...]`, `{...}`, `"key": ...`, prose placeholders like `[...list of hits...]`, standalone `...` lines). A `console-result` block that uses `...` and then fails to parse is skipped, because the response is intentionally incomplete.
+- **Trailing commas:** a comma before `}` or `]` is High. It is reported, not silently fixed. The only commas ignored are those made dangling by removing a standalone `...` line or a trailing `"key": ...` value in a `console-result`; any other trailing comma, including one after `[...]`, is still reported.
+- **NDJSON:** for `_bulk` and `_msearch` each non-empty body line is validated as its own JSON document.
+- **Line numbers:** `jq` reports lines relative to the body, and the script maps them back to file lines. For `Expected separator between values`, jq points at the next token, but the comma is missing at the end of the previous line, so put the `^` there. Use the line the script reports in the heading, and put the `^` under the end of the previous line in the context snippet.
+
+Do NOT flag: Painless scripts, EQL/ES|QL string values, callout markers, template variables, text-table responses, or `...` inside a quoted string.
 
 ### Check E — Non-reserved domain names
 
-Flag URLs or hostnames in code blocks that use invented placeholder domains with real TLDs (e.g., `mycompany.com`, `mycluster.io`).
+Flag URLs or hostnames in code blocks that use invented placeholder domains with real TLDs (e.g., `mycompany.com`, `mycluster.io`). Scope is URLs and hostnames only: do not flag email addresses (for example `john@smith.com` in sample data).
 
 Safe — do not flag: `example.com/net/org`, any subdomain thereof, `.example`/`.test`/`.localhost`/`.invalid` TLDs, `localhost`, loopback (`127.x.x.x`), RFC 5737 doc IPs (`192.0.2.x`, `198.51.100.x`, `203.0.113.x`), private ranges, and known legitimate domains: `elastic.co`, `amazonaws.com`, `azure.com`, `googleapis.com`, `docker.com`, `github.com`, `pypi.org`, `npmjs.com`, and similar well-known registries and cloud providers.
 
@@ -107,15 +149,20 @@ Suggestion: replace with `example.com` or a subdomain like `my-cluster.example.c
 
 ### Check F — API validation for `console` blocks
 
-Collect all unique `METHOD /path` values across all files first. For each unique endpoint (skip any already validated earlier in this run), call `mcp__elastic-docs__search_docs` with query `"request body fields <endpoint> elasticsearch API"` (product: `elasticsearch`, section: `api`) to find the matching API reference page (URL starting with `/docs/api/doc/elasticsearch/operation/`). Fetch it with `mcp__elastic-docs__get_document_by_url` (include_body: true).
+Collect all unique `METHOD /path` values across all files first. For each unique endpoint (skip any already validated earlier in this run), call `mcp__elastic-docs__search_docs` (`productFilter`: `elasticsearch`, `sectionFilter`: `api`) and `pageSize` 3 with the query described below to find the matching API reference page (URL starting with `/docs/api/doc/elasticsearch/operation/`). Fetch a page with `mcp__elastic-docs__get_document_by_url` (`includeBody`: true) only when the rules below say to.
 
-- **No matching page found:** flag the endpoint as potentially removed or renamed.
+Check F covers Elasticsearch REST endpoints only. Skip a request, and list it in Notes as "not an Elasticsearch API, not looked up", when its path starts with `kbn:`, `/api/` or `api/` (Kibana, Fleet and Cloud APIs) or is a full URL. Do not report it as removed or renamed.
+
+Find the page by what the call does, not by its path. API reference pages are titled by action ("Run a search", "Update field mappings", "Get the cluster health status"), and a query made of path text such as `GET _search API` or `PUT _mapping API` returns nothing useful. Search with a short plain-language description of the operation, using the method and path to decide the action (for example `run a search`, `update field mappings`, `cluster health`, `reindex documents`). Several operations can match one description (`cluster health` also returns the CAT health and health report pages), so check the candidates before accepting one. Fetch the top candidate page and confirm its documented method and path only when (a) more than one of the top results could be the operation, (b) the block's path keeps a literal segment after an API segment (`_cluster/health` and `_cluster/settings` are different operations, as are `_cat/indices` and `_cat/shards`), or (c) a top-level body key is not exempt and needs checking against the page. Otherwise accept the top result when its title clearly names the operation (for example "Run a search" for `GET /my-index/_search`) and note "matched by title, not fetched" in Notes. When you fetch, match on the page's documented method and path, never on the URL slug (the `_search` operation is `operation-search`): a `{param}` in the documented path stands for any single segment (an index name or an id in the block), and a trailing optional parameter (for example `{context}` in `/_scripts/{id}/{context}`) may be absent from the block. The page may document a different HTTP method than the block uses (for example POST only for `_search`), which is not a finding. If no result matches, retry once with different wording (the likely page title, or a synonym for the action) before concluding there is none.
+
+- **No matching page found (after the retry):** flag the endpoint as potentially removed or renamed.
 - **Deprecated field:** if a top-level request body key appears alongside "deprecated" in the docs, flag it with the replacement.
 - **Unrecognized field (advisory):** if a top-level key doesn't appear in the docs body at all, note it for verification.
+- **No request-body listing:** if the fetched page body is prose only and lists no request fields, report "cannot verify request fields" once for that endpoint. Do not raise an unrecognized-field advisory for its keys.
 
-Do NOT flag: `_`-prefixed metadata fields, nested object keys, standard Search DSL fields (`query`, `aggs`, `sort`, `size`, `from`, `highlight`, `knn`, `retriever`, `script`).
+Do NOT flag: `_`-prefixed metadata fields, nested object keys, standard Search DSL fields (`query`, `aggs`, `sort`, `size`, `from`, `highlight`, `knn`, `retriever`, `script`), and the standard create-index body fields `settings`, `mappings`, `aliases`.
 
-Always include the API docs URL in the issue detail.
+Always include the API docs URL: in the issue detail when there is an issue, otherwise in the Notes section.
 
 ### Check G — ES|QL syntax validation
 
@@ -156,9 +203,21 @@ Run these checks on each Painless source:
 
 ---
 
+## Severity
+
+Assign each finding one of these default severities, and include it in the issue details.
+
+| Severity | Findings |
+|----------|----------|
+| High | D `...` in a `console` block; D invalid JSON or trailing comma; G-1 SQL syntax used for ES\|QL |
+| Medium | S unclosed fence; A-2 wrong identifier (including the likely-mistakes table); B-1 missing `subs=true` (Low when it is an unverified advisory because no `docset.yml` was found); F removed or deprecated API or field; G-1 missing source command, G-2, G-2a, G-3; H-1, H-3 |
+| Low | A-1 empty info string; B-2 unused `subs=true`; C inline comment; E domain; F unrecognized-field advisory; H-2 |
+
+---
+
 ## Step 4: Generate the report
 
-Output two sections. Omit any table where no files have issues.
+Output three sections (Summary tables, Issue details, Notes). Omit any table where no files have issues.
 
 **Section 1 — Summary tables:**
 
@@ -171,9 +230,9 @@ Output two sections. Omit any table where no files have issues.
 
 ### Summary
 
-#### All blocks (Checks A, B, C, E)
-| File | Missing/wrong lang | subs=true | Callout | Domain | Total |
-|------|--------------------|-----------|---------|--------|-------|
+#### All blocks (Checks A, B, C, E, S)
+| File | Missing/wrong lang | subs=true | Callout | Domain | Unclosed fence | Total |
+|------|--------------------|-----------|---------|--------|----------------|-------|
 
 #### Console / console-result blocks (Checks D, F)
 | File | Ellipsis | JSON errors | API Validation | Total |
@@ -191,7 +250,7 @@ Output two sections. Omit any table where no files have issues.
 **Section 2 — Issue details**, one subsection per file:
 
 ````
-#### `path/to/file.md` — Line N — Check X — Short title
+#### `path/to/file.md` — Line N — Check X — Severity — Short title
 
 > **Issue:** description
 > **Suggestion:** fix
@@ -204,7 +263,13 @@ Output two sections. Omit any table where no files have issues.
 
 For JSON errors include the `jq` error message and up to 2 lines of context around the offending line with a `^` pointer. For Painless inline scripts, note whether the issue is from a standalone block or an embedded triple-quoted string.
 
-If no issues are found: print "No issues found across all checked files." in place of Section 2.
+**Section 3 — Notes** (informational; not counted as issues). Always print it, including when there are no issues. List, one bullet each:
+
+- Checks that were skipped or limited, printed once per run, for example "Check B-1 ran as an unverified advisory: no `docset.yml` found".
+- Each endpoint Check F looked up, with its API docs URL (add "matched by title, not fetched" when the page was not fetched), and each request skipped as not an Elasticsearch API.
+- Each endpoint whose API page lists no request-body fields ("cannot verify request fields").
+
+If no issues are found: print "No issues found across all checked files." in place of Section 2, then Section 3.
 
 **Output mode:** print to console unless `--output <path>` was given, in which case write the report as a markdown file and confirm the path.
 
@@ -212,6 +277,6 @@ If no issues are found: print "No issues found across all checked files." in pla
 
 ## Guidelines
 
-- Report the line number of the opening fence for every flagged block.
+- Report the line number of the opening fence for block-level findings (A, B, E, S). Report the exact file line for findings on one line: for Check C the line that holds the comment, for Check D the line the script reports.
 - Do not flag false positives — skip ambiguous inline comments, and apply H-1 only when imbalance is unambiguous.
 - Skip non-markdown files silently. Note unreadable files and continue.
