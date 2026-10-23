@@ -96,6 +96,18 @@
         "Reports no substitution (subs=true) findings and no JSON validation errors",
         "Includes a severity for each reported finding"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "Check ~/docs/templates-example.md for code sample issues. The file contains:\n<!-- commented-out draft\n```console\nGET _search\n-->\n\n```console\nPOST /_scripts/size-example\n{\"size\": {{size}}, \"name\": \"{{name}}\"}\n```\n\n```console-result\n{\n  \"hits\": [...],\n  \"took\": 1,\n}\n```\n",
+      "expected_output": "Ignores the fence inside the HTML comment so the two visible blocks are still found, does not flag the unquoted {{size}} template variable, and reports the real trailing comma in the console-result block even though the block uses ... to trim the response",
+      "expectations": [
+        "Finds both visible blocks (the console block and the console-result block) and is not affected by the unclosed fence inside the HTML comment",
+        "Does NOT report a JSON error for the console block that uses the unquoted {{size}} template variable",
+        "Does NOT flag the ... in the console-result block",
+        "Reports the trailing comma after \"took\": 1 in the console-result block as a High severity Check D finding",
+        "Does NOT modify the source file"
+      ]
     }
   ]
 }

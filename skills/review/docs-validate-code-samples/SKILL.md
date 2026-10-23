@@ -67,9 +67,9 @@ FNR == 1 { flush_unclosed(); prev = FILENAME; in_comment = 0 }
         if (!skip) print FILENAME ":" start ":" FNR ":" info
         open = 0
       }
-    } else if (n >= 3 && index(rest, "`") == 0) {
+    } else if (n >= 3 && index(rest, "`") == 0 && !in_comment) {
       open = n; start = FNR; info = rest
-      skip = (substr(rest, 1, 1) == "{") || in_comment
+      skip = (substr(rest, 1, 1) == "{")
     }
   }
   if (!open && in_comment && line ~ /-->/) in_comment = 0
@@ -86,7 +86,7 @@ The script applies these conventions, so do not re-implement them:
 - A block closes on a line with at least as many backticks as the opener and nothing after them. This keeps a 4-backtick block that contains ```` ``` ```` lines as one block.
 - Carriage returns are stripped, so CRLF files pair correctly.
 - Blocks whose info string starts with `{` (for example `{applies_to}`, `{include}`, `{note}`) are MyST directives, not code, and are skipped.
-- Blocks inside a multi-line HTML comment are skipped.
+- Fence lines inside a multi-line HTML comment are ignored entirely, so a commented-out fence (even one with no closing fence) cannot affect the visible blocks after it.
 - An unclosed fence is emitted as `file:open:UNCLOSED:info` (the same four fields, with `UNCLOSED` in place of `close`). Report it as Check S (structure), Medium severity, with the suggestion to add a closing fence, and do not analyze its body.
 
 From the info string, take the first word as the language identifier and the remaining tokens as attributes (`subs=true`, `callouts=false`). An empty info string means no language identifier.
@@ -183,7 +183,7 @@ for my $r (@req) {
   for my $ln (split /\n/, $t, -1) {
     $ln = '' if $ln =~ m{^\s*(?:#|//)};
     $ln =~ s{\s*(?:(?://|#)\s*)?(?:<\d+>\s*)+$}{};
-    $ln =~ s/\{\{\{?[^{}]*\}?\}\}/PLACEHOLDER/g;
+    $ln =~ s/\{\{\{[^{}]*\}\}\}/null/g; $ln =~ s/\{\{[^{}]*\}\}/null/g;
     # trailing explanatory comment after code (Kibana Console accepts these; Check C reports them)
     (my $m = $ln) =~ s/"(?:[^"\\]|\\.)*"/'"' . ('x' x (length($&) - 2)) . '"'/ge;
     $ln = substr($ln, 0, $-[0]) if $m =~ m{(?://|#)};
@@ -199,9 +199,10 @@ for my $r (@req) {
     next unless $t =~ /^\s*[\[{]/;                      # text tables and partial fragments are not validated
     my $elided = ($s =~ /\.\.\./) ? 1 : 0;
     $t =~ s/\[\s*\.\.\.[^\]\n]*\]/[]/g; $t =~ s/\{\s*\.\.\.[^}\n]*\}/{}/g;
+    $t =~ s/,([ \t]*\n)(?:[ \t]*\n)*[ \t]*\.\.\.[ \t]*,?[ \t]*(?=\n\s*[}\]])/$1/g;   # comma dangling because a standalone `...` line is removed
+    $t =~ s/:\s*\.\.\.[ \t]*,(?=[ \t]*\n\s*[}\]])/: null/g;                       # `"key": ...,` as the last property
     $t =~ s/:\s*\.\.\.[ \t]*\n(?=\s*")/: null,\n/g; $t =~ s/:\s*\.\.\.(?=\s*[,}\]]|\s*$)/: null/gm;
     $t =~ s/^\s*\.\.\.\s*,?\s*$//gm;
-    $t =~ s/,(\s*\n\s*[}\]])/$1/g if $elided;          # comma left behind by a removed ellipsis line
     $r->{elided} = $elided;
     $s = strip_strings($t);
   }
@@ -227,9 +228,9 @@ for my $r (@req) {
 What the script does:
 
 - **Requests:** splits a `console` block into requests on method lines and validates each body separately. A `console-result` block is one body, and it is validated only when it starts with `{` or `[`. Text tables (`_cat` output) and partial fragments are not JSON, so they are skipped.
-- **Pre-processing:** strips callout markers (`// <1>`, `# <1>`, a bare `<1>`, and several markers on one line), standalone comment lines, and trailing explanatory comments after code (Kibana Console accepts these, and Check C reports them). It replaces `{{var}}` / `{{{var}}}` with a placeholder and Painless `"""..."""` strings with a placeholder, keeping line numbers intact.
+- **Pre-processing:** strips callout markers (`// <1>`, `# <1>`, a bare `<1>`, and several markers on one line), standalone comment lines, and trailing explanatory comments after code (Kibana Console accepts these, and Check C reports them). It replaces `{{var}}` / `{{{var}}}` with `null` (a JSON-valid token, so an unquoted value such as `{"size": {{size}}}` stays valid) and Painless `"""..."""` strings with a placeholder, keeping line numbers intact.
 - **`...`:** a `...` outside a string in a `console` block is High, because customers copy-paste requests (replace it with realistic values). In a `console-result` block `...` is allowed, since authors trim long response examples, so it is never a finding there. The script normalizes it before parsing (`[...]`, `{...}`, `"key": ...`, prose placeholders like `[...list of hits...]`, standalone `...` lines). A `console-result` block that uses `...` and then fails to parse is skipped, because the response is intentionally incomplete.
-- **Trailing commas:** a comma before `}` or `]` is High. It is reported, not silently fixed.
+- **Trailing commas:** a comma before `}` or `]` is High. It is reported, not silently fixed. The only commas ignored are those made dangling by removing a standalone `...` line or a trailing `"key": ...` value in a `console-result`; any other trailing comma, including one after `[...]`, is still reported.
 - **NDJSON:** for `_bulk` and `_msearch` each non-empty body line is validated as its own JSON document.
 - **Line numbers:** `jq` reports lines relative to the body, and the script maps them back to file lines. For `Expected separator between values`, jq points at the next token, but the comma is missing at the end of the previous line, so put the `^` there. Use the line the script reports in the heading, and put the `^` under the end of the previous line in the context snippet.
 
@@ -247,7 +248,7 @@ Suggestion: replace with `example.com` or a subdomain like `my-cluster.example.c
 
 Collect all unique `METHOD /path` values across all files first. For each unique endpoint (skip any already validated earlier in this run), call `mcp__elastic-docs__search_docs` (`productFilter`: `elasticsearch`, `sectionFilter`: `api`) with the query described below to find the matching API reference page (URL starting with `/docs/api/doc/elasticsearch/operation/`). Fetch it with `mcp__elastic-docs__get_document_by_url` (`includeBody`: true).
 
-A path with no leading slash (`POST _reindex`) is normalized the same way. Normalize each path before searching: keep the `_`-prefixed API segments and replace every other segment with a placeholder (`/my-index/_update/1` becomes `/{index}/_update/{id}`, `GET /my-index/_search` becomes `/{index}/_search`). Search on the API name rather than the full path, with the query `"<api-name> API request body"` (for example `"_update API request body"`). Accept the result whose URL starts with `/docs/api/doc/elasticsearch/operation/operation-` and whose path contains the same `_` API segment; the page may document a different HTTP method than the block uses (for example POST only for `_search`), which is not a finding. If the first search returns no such page, retry once with `"<api-name> API"` before concluding there is none. If every top-level key in the body is exempt (see below), still run the search so the endpoint is confirmed to exist, but skip fetching the page.
+Look each endpoint up by its literal words. Search with the method and the path as written, dropping only obvious user values: a leading segment that is not `_`-prefixed is an index, alias, or data stream name, and a purely numeric or id-like final segment is a resource id. Keep every other segment, because `_cluster/health`, `_cluster/settings`, `_cat/indices` and `_cat/shards` are different operations. For example, search `GET /my-index/_search` as `"GET _search API"` and `GET _cat/indices` as `"GET _cat/indices API"`. A missing leading slash does not matter. Accept a result only when the documented method and path on the page match the block's path, where a `{param}` in the documented path stands for any single segment. Match on the documented path, never on the URL slug (the `_search` operation is `operation-search`). The page may document a different HTTP method than the block uses (for example POST only for `_search`), which is not a finding. Always fetch the candidate page to confirm the documented path, even when every top-level key in the body is exempt. If the first search returns no matching page, retry once with the last two literal path segments plus `API` before concluding there is none.
 
 - **No matching page found (after the retry):** flag the endpoint as potentially removed or renamed.
 - **Deprecated field:** if a top-level request body key appears alongside "deprecated" in the docs, flag it with the replacement.
@@ -360,7 +361,7 @@ For JSON errors include the `jq` error message and up to 2 lines of context arou
 **Section 3 — Notes** (informational; not counted as issues). Always print it, including when there are no issues. List, one bullet each:
 
 - Checks that were skipped or limited, printed once per run, for example "Check B-1 ran as an unverified advisory: no `docset.yml` found".
-- Each endpoint Check F looked up, with its API docs URL, or "not field-checked (all keys exempt)" when the fetch was skipped.
+- Each endpoint Check F looked up, with its API docs URL.
 - Each endpoint whose API page lists no request-body fields ("cannot verify request fields").
 
 If no issues are found: print "No issues found across all checked files." in place of Section 2, then Section 3.
