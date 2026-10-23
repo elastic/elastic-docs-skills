@@ -106,6 +106,7 @@
         "Does NOT report a JSON error for the console block that uses the unquoted {{size}} template variable",
         "Does NOT flag the ... in the console-result block",
         "Reports the trailing comma after \"took\": 1 in the console-result block as a High severity Check D finding",
+        "Does NOT report a Check B finding for the console block's {{size}} and {{name}} names (without a docset.yml, console blocks are not checked for possible substitutions)",
         "Does NOT modify the source file"
       ]
     }

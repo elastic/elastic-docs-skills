@@ -51,7 +51,7 @@ Find blocks with one awk pass instead of grepping for fence lines. Grep cannot t
 ```bash
 awk '
 function flush_unclosed() {
-  if (open && !skip) print prev ":" start ":UNCLOSED:" info
+  if (open && !skip) print prev "\t" start "\tUNCLOSED\t" info
   open = 0
 }
 FNR == 1 { flush_unclosed(); prev = FILENAME; in_comment = 0 }
@@ -64,7 +64,7 @@ FNR == 1 { flush_unclosed(); prev = FILENAME; in_comment = 0 }
     sub(/^[ \t]+/, "", rest); sub(/[ \t]+$/, "", rest)
     if (open) {
       if (n >= open && rest == "") {
-        if (!skip) print FILENAME ":" start ":" FNR ":" info
+        if (!skip) print FILENAME "\t" start "\t" FNR "\t" info
         open = 0
       }
     } else if (n >= 3 && index(rest, "`") == 0 && !in_comment) {
@@ -78,7 +78,7 @@ END { flush_unclosed() }
 ' <files>
 ```
 
-Each output line is `file:open:close:info`, where `open` and `close` are the line numbers of the opening and closing fences and `info` is everything after the opening backticks (it may be empty). When the file list comes from `find`, use `find <dir> -type f -name '*.md' -print0 | xargs -0 awk '...'` so file names with spaces survive. Split each output line on the first three colons only (file, open, close); everything after the third colon is the info string, which can itself contain colons. Use `open` as the line number in the report. Read lines `open+1` through `close-1` for the body.
+Each output line has four tab-separated fields, `file`, `open`, `close`, `info`, where `open` and `close` are the line numbers of the opening and closing fences and `info` is everything after the opening backticks (it may be empty). When the file list comes from `find`, use `find <dir> -type f -name '*.md' -print0 | xargs -0 awk '...'` so file names with spaces survive. Split each output line on tabs: the first three fields are `file`, `open` and `close`, and everything after the third tab is the info string (tabs are the separator because file paths and info strings can contain colons). Use `open` as the line number in the report. Read lines `open+1` through `close-1` for the body.
 
 The script applies these conventions, so do not re-implement them:
 
@@ -87,7 +87,7 @@ The script applies these conventions, so do not re-implement them:
 - Carriage returns are stripped, so CRLF files pair correctly.
 - Blocks whose info string starts with `{` (for example `{applies_to}`, `{include}`, `{note}`) are MyST directives, not code, and are skipped.
 - Fence lines inside a multi-line HTML comment are ignored entirely, so a commented-out fence (even one with no closing fence) cannot affect the visible blocks after it.
-- An unclosed fence is emitted as `file:open:UNCLOSED:info` (the same four fields, with `UNCLOSED` in place of `close`). Report it as Check S (structure), Medium severity, with the suggestion to add a closing fence, and do not analyze its body.
+- An unclosed fence is emitted with the same four tab-separated fields, with `UNCLOSED` in place of `close`. Report it as Check S (structure), Medium severity, with the suggestion to add a closing fence, and do not analyze its body.
 
 From the info string, take the first word as the language identifier and the remaining tokens as attributes (`subs=true`, `callouts=false`). An empty info string means no language identifier.
 
@@ -130,7 +130,7 @@ This check looks only inside code block bodies. `{{var}}` in prose, headings, or
 3. **B-1 (Medium):** flag a block without `subs=true` only when at least one extracted name is a key in `subs:`. Report the matching variable names.
 4. **B-2 (Low):** flag `subs=true` on a block with no `{{` at all.
 5. Do not flag a block whose `{{...}}` names are all outside `subs:`, for example `{{steps.create_case.output.case.id}}`, `{{event.alerts}}`, `{{foreach.item}}`, `{{#toJson}}`, `{{ctx.payload.hits.total}}`, or `{{.Config.Image}}`.
-6. If no `docset.yml` is found, the valid variable names are unknown, so B-1 becomes an unverified advisory (Low). Flag a block without `subs=true` only when a name extracted in step 2 is a single identifier (letters, digits, `_` or `-`, starting with a letter, for example `{{version}}`). Do not flag names with dots, `#`, `/`, `[`, spaces, or other characters, which are template syntax. Label each finding "possible substitution, unverified because no `docset.yml` was found". B-2 runs as normal.
+6. If no `docset.yml` is found, the valid variable names are unknown, so B-1 becomes an unverified advisory (Low). Flag a block without `subs=true` only when its language is a shell, YAML, text or markup type (`bash`, `sh`, `shell`, `yaml`, `yml`, `text`, `txt`, `markdown`, `md`, `ini`, `toml`, `xml`, `properties`) or it has no language, and a name extracted in step 2 is a single identifier (letters, digits, `_` or `-`, starting with a letter, for example `{{version}}`). Do not flag names with dots, `#`, `/`, `[`, spaces, or other characters, which are template syntax. Skip blocks in any other language (`console`, `console-result`, `json`, `js`, `ts`, `html`, `handlebars`, `painless`, and so on), where `{{x}}` is almost always template syntax. Label each finding "possible substitution, unverified because no `docset.yml` was found". B-2 runs as normal.
 
 ### Check C — Inline comments that should be callouts
 
@@ -144,7 +144,7 @@ Suggestion: replace with explicit callout markers (`<N>`) and a numbered list af
 
 `console` blocks are API requests (customers copy-paste them); `console-result` blocks are responses (display only). Each `console` block contains one or more API calls: an HTTP method+path line (it can be indented inside a list item), followed by an optional JSON body, repeated for multiple calls.
 
-Run the script below once per `console` or `console-result` block, using the `file`, `open`, `close` values from Step 2 and the first word of the info string as `KIND`. Save it to a temp directory outside the repository (`d=$(mktemp -d)`) as `$d/check_console.pl`, then run `perl $d/check_console.pl FILE OPEN CLOSE KIND`. The script keeps its one scratch file next to itself in `$d` and deletes it when it exits. It needs `perl` and `jq`. Each output line is `file:line:High:D:message` with a real file line number, and no output means the block is clean. Report its output as the Check D findings; do not re-implement its rules by hand.
+Run the script below once per `console` or `console-result` block, using the `file`, `open`, `close` values from Step 2 and the first word of the info string as `KIND`. Save it to a temp directory outside the repository (`d=$(mktemp -d)`) as `$d/check_console.pl`, then run `perl $d/check_console.pl FILE OPEN CLOSE KIND`. The script keeps its one scratch file next to itself in `$d` and deletes it when it exits. After Check D has run on every block, delete the temp directory (`rm -rf "$d"`). It needs `perl` and `jq`. Each output line is `file:line:High:D:message` with a real file line number, and no output means the block is clean. Report its output as the Check D findings; do not re-implement its rules by hand.
 
 ```perl
 #!/usr/bin/env perl
@@ -249,7 +249,7 @@ Suggestion: replace with `example.com` or a subdomain like `my-cluster.example.c
 
 Collect all unique `METHOD /path` values across all files first. For each unique endpoint (skip any already validated earlier in this run), call `mcp__elastic-docs__search_docs` (`productFilter`: `elasticsearch`, `sectionFilter`: `api`) with the query described below to find the matching API reference page (URL starting with `/docs/api/doc/elasticsearch/operation/`). Fetch it with `mcp__elastic-docs__get_document_by_url` (`includeBody`: true).
 
-Find the page by what the call does, not by its path. API reference pages are titled by action ("Run a search", "Update field mappings", "Get the cluster health status"), and a query made of path text such as `GET _search API` or `PUT _mapping API` returns nothing useful. Search with a short plain-language description of the operation, using the method and path to decide the action (for example `run a search`, `update field mappings`, `cluster health`, `reindex documents`). Several operations can match one description (`cluster health` also returns the CAT health and health report pages), so fetch the candidate page and accept it only when its documented method and path match the block's path, where a `{param}` in the documented path stands for any single segment (an index name or an id in the block). Keep literal segments distinct: `_cluster/health` and `_cluster/settings` are different operations, as are `_cat/indices` and `_cat/shards`. Match on the documented path, never on the URL slug (the `_search` operation is `operation-search`). The page may document a different HTTP method than the block uses (for example POST only for `_search`), which is not a finding. Always fetch the candidate page, even when every top-level key in the body is exempt. If no result matches, retry once with different wording (the likely page title, or a synonym for the action) before concluding there is none.
+Find the page by what the call does, not by its path. API reference pages are titled by action ("Run a search", "Update field mappings", "Get the cluster health status"), and a query made of path text such as `GET _search API` or `PUT _mapping API` returns nothing useful. Search with a short plain-language description of the operation, using the method and path to decide the action (for example `run a search`, `update field mappings`, `cluster health`, `reindex documents`). Several operations can match one description (`cluster health` also returns the CAT health and health report pages), so fetch the candidate page and accept it only when its documented method and path match the block's path, where a `{param}` in the documented path stands for any single segment (an index name or an id in the block); a trailing optional parameter in the documented path (for example `{context}` in `/_scripts/{id}/{context}`) may be absent from the block. Keep literal segments distinct: `_cluster/health` and `_cluster/settings` are different operations, as are `_cat/indices` and `_cat/shards`. Match on the documented path, never on the URL slug (the `_search` operation is `operation-search`). The page may document a different HTTP method than the block uses (for example POST only for `_search`), which is not a finding. Always fetch the candidate page, even when every top-level key in the body is exempt. If no result matches, retry once with different wording (the likely page title, or a synonym for the action) before concluding there is none.
 
 - **No matching page found (after the retry):** flag the endpoint as potentially removed or renamed.
 - **Deprecated field:** if a top-level request body key appears alongside "deprecated" in the docs, flag it with the replacement.
