@@ -46,39 +46,15 @@ Parse `$ARGUMENTS` for an optional `--output <path>` flag (strip it before conti
 
 ## Step 2: Extract code blocks
 
-Find blocks with one awk pass instead of grepping for fence lines. Grep cannot tell an opening fence from a closing one, and it mispairs nested fences. Run this with Bash over every resolved file (pass the file list as arguments):
+Find blocks with the `extract_fences.awk` script that ships with this skill (in `scripts/`, next to this file) instead of grepping for fence lines. Grep cannot tell an opening fence from a closing one, and it mispairs nested fences. `<skill-dir>` below is the directory that contains this `SKILL.md` (the base directory shown when the skill loads). Run it with Bash over every resolved file (pass the file list as arguments):
 
 ```bash
-awk '
-function flush_unclosed() {
-  if (open && !skip) print prev "\t" start "\tUNCLOSED\t" info
-  open = 0
-}
-FNR == 1 { flush_unclosed(); prev = FILENAME; in_comment = 0 }
-{
-  line = $0; sub(/\r$/, "", line)
-  if (!open && line ~ /<!--/ && substr(line, index(line, "<!--") + 4) !~ /-->/) in_comment = 1
-  if (match(line, /^[ \t]*`+/)) {
-    s = substr(line, RSTART, RLENGTH); gsub(/[ \t]/, "", s); n = length(s)
-    rest = substr(line, RLENGTH + 1)
-    sub(/^[ \t]+/, "", rest); sub(/[ \t]+$/, "", rest)
-    if (open) {
-      if (n >= open && rest == "") {
-        if (!skip) print FILENAME "\t" start "\t" FNR "\t" info
-        open = 0
-      }
-    } else if (n >= 3 && index(rest, "`") == 0 && !in_comment) {
-      open = n; start = FNR; info = rest
-      skip = (substr(rest, 1, 1) == "{")
-    }
-  }
-  if (!open && in_comment && line ~ /-->/) in_comment = 0
-}
-END { flush_unclosed() }
-' <files>
+awk -f <skill-dir>/scripts/extract_fences.awk <files>
 ```
 
-Each output line has four tab-separated fields, `file`, `open`, `close`, `info`, where `open` and `close` are the line numbers of the opening and closing fences and `info` is everything after the opening backticks (it may be empty). When the file list comes from `find`, use `find <dir> -type f -name '*.md' -print0 | xargs -0 awk '...'` so file names with spaces survive. Split each output line on tabs: the first three fields are `file`, `open` and `close`, and everything after the third tab is the info string (tabs are the separator because file paths and info strings can contain colons). Use `open` as the line number in the report. Read lines `open+1` through `close-1` for the body.
+If the script is missing, say so in the Notes section and stop. Do not rewrite it from memory: the pairing and comment rules are easy to get wrong.
+
+Each output line has four tab-separated fields, `file`, `open`, `close`, `info`, where `open` and `close` are the line numbers of the opening and closing fences and `info` is everything after the opening backticks (it may be empty). When the file list comes from `find`, use `find <dir> -type f -name '*.md' -print0 | xargs -0 awk -f <skill-dir>/scripts/extract_fences.awk` so file names with spaces survive. Split each output line on tabs: the first three fields are `file`, `open` and `close`, and everything after the third tab is the info string (tabs are the separator because file paths and info strings can contain colons). Use `open` as the line number in the report. Read lines `open+1` through `close-1` for the body.
 
 The script applies these conventions, so do not re-implement them:
 
@@ -144,87 +120,7 @@ Suggestion: replace with explicit callout markers (`<N>`) and a numbered list af
 
 `console` blocks are API requests (customers copy-paste them); `console-result` blocks are responses (display only). Each `console` block contains one or more API calls: an HTTP method+path line (it can be indented inside a list item), followed by an optional JSON body, repeated for multiple calls.
 
-Run the script below once per `console` or `console-result` block, using the `file`, `open`, `close` values from Step 2 and the first word of the info string as `KIND`. Save it to a temp directory outside the repository (`d=$(mktemp -d)`) as `$d/check_console.pl`, then run `perl $d/check_console.pl FILE OPEN CLOSE KIND`. The script keeps its one scratch file next to itself in `$d` and deletes it when it exits. After Check D has run on every block, delete the temp directory (`rm -rf "$d"`). It needs `perl` and `jq`. Each output line is `file:line:High:D:message` with a real file line number, and no output means the block is clean. Report its output as the Check D findings; do not re-implement its rules by hand.
-
-```perl
-#!/usr/bin/env perl
-# Check D for one console or console-result block.
-# usage: perl check_console.pl FILE OPEN CLOSE KIND     (KIND = console | console-result)
-# prints: FILE:LINE:SEVERITY:CHECK:message   (nothing when the block is clean)
-use strict; use warnings;
-use File::Temp qw(tempfile); use File::Basename qw(dirname);
-my ($file, $open, $close, $kind) = @ARGV;
-open(my $fh, '<', $file) or die "cannot read $file: $!";
-my @l = <$fh>; close $fh; chomp @l; s/\r$// for @l;
-my @body = @l[$open .. $close - 2];      # file lines OPEN+1 .. CLOSE-1
-my $first = $open + 1;
-my (undef, $errfile) = tempfile('jqerr-XXXXXX', DIR => dirname($0), UNLINK => 1);   # scratch file stays beside the script
-
-# Split into requests. console-result has no method line: treat the whole body as one request.
-my @req;
-if ($kind eq 'console') {
-  for my $i (0 .. $#body) {
-    if ($body[$i] =~ /^\s*(GET|PUT|POST|DELETE|HEAD|PATCH)\s+(\S+)/) { push @req, { start => $first + $i, name => "$1 $2", lines => [] }; next; }
-    push @{ $req[-1]{lines} }, $body[$i] if @req;
-  }
-} else {
-  push @req, { start => $first - 1, name => 'response', lines => [@body] };
-}
-
-sub strip_strings { my $t = shift; $t =~ s/"(?:[^"\\\n]|\\.)*"/""/g; return $t }
-sub line_of { my ($t, $re) = @_; my $n = 0; for my $ln (split /\n/, $t, -1) { $n++; return $n if $ln =~ $re } return 1 }
-
-for my $r (@req) {
-  my $t = join("\n", @{ $r->{lines} }) . "\n";
-  next if $t =~ /^\s*$/;
-  # Painless triple-quoted strings -> placeholder, keeping the line count
-  $t =~ s/"""(.*?)"""/'"PAINLESS"' . ("\n" x ($1 =~ tr|\n||))/gse;
-  # standalone comments, trailing callout markers (one or more), template variables
-  my @out;
-  for my $ln (split /\n/, $t, -1) {
-    $ln = '' if $ln =~ m{^\s*(?:#|//)};
-    $ln =~ s{\s*(?:(?://|#)\s*)?(?:<\d+>\s*)+$}{};
-    $ln =~ s/\{\{\{[^{}]*\}\}\}/null/g; $ln =~ s/\{\{[^{}]*\}\}/null/g;
-    # trailing explanatory comment after code (Kibana Console accepts these; Check C reports them)
-    (my $m = $ln) =~ s/"(?:[^"\\]|\\.)*"/'"' . ('x' x (length($&) - 2)) . '"'/ge;
-    $ln = substr($ln, 0, $-[0]) if $m =~ m{(?://|#)};
-    push @out, $ln;
-  }
-  $t = join("\n", @out);
-  next if $t =~ /^\s*$/;
-  my $s = strip_strings($t);
-  my $ctx = $r->{name};
-  if ($kind eq 'console') {
-    if ($s =~ /\.\.\./) { printf "%s:%d:High:D:`...` in console block (%s); replace with realistic values\n", $file, $r->{start} + line_of($s, qr/\.\.\./), $ctx; next; }
-  } else {
-    next unless $t =~ /^\s*[\[{]/;                      # text tables and partial fragments are not validated
-    my $elided = ($s =~ /\.\.\./) ? 1 : 0;
-    $t =~ s/\[\s*\.\.\.[^\]\n]*\]/[]/g; $t =~ s/\{\s*\.\.\.[^}\n]*\}/{}/g;
-    $t =~ s/,([ \t]*\n)(?:[ \t]*\n)*[ \t]*\.\.\.[ \t]*,?[ \t]*(?=\n\s*[}\]])/$1/g;   # comma dangling because a standalone `...` line is removed
-    $t =~ s/:\s*\.\.\.[ \t]*,(?=[ \t]*\n\s*[}\]])/: null/g;                       # `"key": ...,` as the last property
-    $t =~ s/:\s*\.\.\.[ \t]*\n(?=\s*")/: null,\n/g; $t =~ s/:\s*\.\.\.(?=\s*[,}\]]|\s*$)/: null/gm;
-    $t =~ s/^\s*\.\.\.\s*,?\s*$//gm;
-    $r->{elided} = $elided;
-    $s = strip_strings($t);
-  }
-  if ($s =~ /,\s*[}\]]/) { my $pre = substr($s, 0, $-[0]); my $nl = ($pre =~ tr/\n//); printf "%s:%d:High:D:trailing comma before a closing bracket (%s)\n", $file, $r->{start} + 1 + $nl, $ctx; next; }
-  # NDJSON for _bulk (one JSON document per line), otherwise one JSON document
-  my @docs;
-  if ($r->{name} =~ m{(?:^|[ /])(?:_bulk|_msearch)(?:[?/]|$)}) { my $n = 0; for my $ln (split /\n/, $t, -1) { $n++; push @docs, [$n, $ln] if $ln =~ /\S/ } }
-  else { @docs = ([1, $t]) }
-  for my $d (@docs) {
-    open(my $jq, '|-', "jq -e . >/dev/null 2>'$errfile'") or die;
-    print $jq $d->[1]; close $jq;
-    if ($? != 0) {
-      last if $r->{elided};                              # elided response: cannot be validated
-      open(my $e, '<', $errfile); my $msg = join(' ', map { chomp; $_ } <$e>); close $e;
-      my ($jl) = $msg =~ /line (\d+)/; $jl ||= 1;
-      printf "%s:%d:High:D:invalid JSON (%s): %s\n", $file, $r->{start} + $d->[0] + $jl - 1, $ctx, $msg;
-      last;
-    }
-  }
-}
-```
+Run the `check_console.pl` script that ships with this skill once per `console` or `console-result` block, using the `file`, `open`, `close` values from Step 2 and the first word of the info string as `KIND`: `perl <skill-dir>/scripts/check_console.pl FILE OPEN CLOSE KIND`. It needs `perl` and `jq`. It keeps one scratch file in the system temp directory and deletes it on exit, and it never writes to the file it checks. Each output line is `file:line:High:D:message` with a real file line number, and no output means the block is clean. Report its output as the Check D findings; do not re-implement its rules by hand. If the script is missing, say so in the Notes section and skip Check D rather than rewriting it from memory.
 
 What the script does:
 
