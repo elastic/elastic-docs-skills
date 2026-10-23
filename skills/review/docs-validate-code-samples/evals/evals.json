@@ -4,10 +4,10 @@
     {
       "id": 1,
       "prompt": "Check ~/docs/bbq-example.md for code sample issues. The file contains:\n```console\nPUT bbq_disk-index/_mapping\n{\n  \"index_options\": {\n    \"type\": \"bbq_disk\"\n    \"bits\": 2\n  }\n}\n```",
-      "expected_output": "Flags a JSONDecodeError for the console block — missing comma between 'type': 'bbq_disk' and 'bits': 2 — and shows a ^ pointer at the error location",
+      "expected_output": "Flags a JSON parse error for the console block - missing comma between 'type': 'bbq_disk' and 'bits': 2 - and shows a ^ pointer at the error location",
       "expectations": [
         "Identifies the console block",
-        "Flags a JSONDecodeError with a message about a missing ',' delimiter",
+        "Flags a JSON parse error for the console block, with a message that identifies the missing ',' separator between values (the jq wording 'Expected separator between values' is acceptable)",
         "Shows a code snippet with a ^ pointer indicating the error line",
         "Reports the file path and line number in the output",
         "Does NOT modify the source file"
@@ -16,7 +16,7 @@
     {
       "id": 2,
       "prompt": "Check ~/docs/callout-example.md for code sample issues. The file contains:\n```console\nPUT /my-index\n{ // <1>\n  \"settings\": { // <2>\n    \"number_of_shards\": 1\n  }\n}\n```",
-      "expected_output": "Does NOT flag a JSON error — the // <1> and // <2> callout markers are stripped before JSON parsing, leaving valid JSON",
+      "expected_output": "Does NOT flag a JSON error \u2014 the // <1> and // <2> callout markers are stripped before JSON parsing, leaving valid JSON",
       "expectations": [
         "Identifies the console block with // <1> callout marker syntax",
         "Strips the // <1> and // <2> callout markers before JSON parsing",
@@ -38,7 +38,7 @@
     {
       "id": 4,
       "prompt": "Check ~/docs/painless-example.md for code sample issues. The file contains:\n```console\nPOST /my-index/_update/1\n{\n  \"script\": {\n    \"source\": \"\"\"ctx._source.counter += params.count\"\"\",\n    \"lang\": \"painless\",\n    \"params\": { \"count\": 4 }\n  }\n}\n```\nand:\n```console-result\n{\n  \"_index\": \"my-index\",\n  \"_id\": \"1\",\n  \"result\": \"updated\",\n  \"_shards\": ...\n}\n```",
-      "expected_output": "Reports no JSON errors — the Painless triple-quoted string is replaced before parsing, and the console-result ellipsis is normalized",
+      "expected_output": "Reports no JSON errors \u2014 the Painless triple-quoted string is replaced before parsing, and the console-result ellipsis is normalized",
       "expectations": [
         "Correctly handles the Painless triple-quoted string in the console block without a JSON error",
         "Correctly handles the ... ellipsis in the console-result block without a JSON error",
@@ -49,7 +49,7 @@
     {
       "id": 5,
       "prompt": "Check ~/docs/clean-example.md for code issues. The file has:\n```console\nGET /my-index/_search\n{\n  \"query\": { \"match_all\": {} }\n}\n```\nand:\n```bash\n#!/bin/bash\ncurl -X GET localhost:9200/_cat/indices\n```",
-      "expected_output": "Reports no issues — the console block has valid JSON, the bash block has a shebang (not a callout candidate), and all code blocks have language identifiers",
+      "expected_output": "Reports no issues \u2014 the console block has valid JSON, the bash block has a shebang (not a callout candidate), and all code blocks have language identifiers",
       "expectations": [
         "Does NOT flag the console block (valid JSON, no issues)",
         "Does NOT flag the shebang line as an inline comment that should be a callout",
@@ -59,16 +59,42 @@
     },
     {
       "id": 6,
-      "note": "The prompt references a file path but supplies the file content inline. The skill should use the inline content as the file body — no file system access is needed. This pattern works in CI without external repos and is the recommended approach for Check F evals.",
+      "note": "The prompt references a file path but supplies the file content inline. The skill should use the inline content as the file body \u2014 no file system access is needed. This pattern works in CI without external repos and is the recommended approach for Check F evals.",
       "prompt": "Check ~/docs/reindex-example.md for code sample issues. The file contains:\n```console\nPOST _reindex\n{\n  \"source\": { \"index\": \"old-index\" },\n  \"dest\": { \"index\": \"new-index\" },\n  \"conflicts\": \"proceed\"\n}\n```",
-      "expected_output": "Uses the elastic-docs MCP server to look up the reindex API, confirms the endpoint exists, and does not flag 'source', 'dest', or 'conflicts' as errors — all are valid documented request body fields",
+      "expected_output": "Uses the elastic-docs MCP server to look up the reindex API, confirms the endpoint exists, and does not flag 'source', 'dest', or 'conflicts' as errors \u2014 all are valid documented request body fields",
       "expectations": [
         "Calls SemanticSearch or GetDocumentByUrl to look up the POST _reindex API reference",
         "Confirms the endpoint exists in current Elastic documentation",
         "Does NOT flag 'source', 'dest', or 'conflicts' as errors (all are valid documented fields)",
-        "Includes the API docs URL in the API Validation section",
+        "Includes the API docs URL for POST _reindex in the report, in the issue detail or in the Notes section",
         "Reports no issues for this file",
-        "Treats the inline file content in the prompt as the file to validate — no external file access required"
+        "Treats the inline file content in the prompt as the file to validate \u2014 no external file access required"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Check ~/docs/fences-example.md for code sample issues. The file contains:\n```{applies_to}\nstack: ga\n```\n\n````markdown\nA documentation example that shows a fence:\n\n```console\nGET _search\n```\n````\n\n```console\nGET /my-index/_search\n{\n  \"query\": { \"match_all\": {} }\n}\n```\n\n```sh\nls -la\n",
+      "expected_output": "Skips the {applies_to} directive fence, treats the 4-backtick markdown block (with the nested console fence) as one block, reports no issues for the valid console block, and reports the final ```sh fence as unclosed without analyzing its body",
+      "expectations": [
+        "Does NOT treat the {applies_to} directive fence as a code block (no language, JSON, or other finding for it)",
+        "Treats the four-backtick markdown block and the console example inside it as a single block with language markdown, and does not report the inner console fence as a separate block",
+        "Reports no issues for the valid console block with the match_all query",
+        "Reports the final ```sh fence as unclosed (no closing fence)",
+        "Does NOT analyze the body of the unclosed block for other issues",
+        "Does NOT modify the source file"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Check ~/docs/langs-example.md for code sample issues. The file contains:\n```shell\nls -la\n```\n\n```ts\nconst x: number = 1;\n```\n\n```JSON\n{ \"a\": 1 }\n```\n\n```\nplain output from a command\n```\n",
+      "expected_output": "Does not flag shell or ts as unknown identifiers, flags the uppercase JSON identifier (suggesting json), and flags the empty info string as a low severity finding suggesting text",
+      "expectations": [
+        "Does NOT flag the shell identifier as unknown or invalid",
+        "Does NOT flag the ts identifier as unknown or invalid",
+        "Flags the JSON identifier as a likely mistake and suggests lowercase json",
+        "Flags the block with no language identifier as a Low severity finding and suggests text (or another language only if clearly identifiable from content)",
+        "Reports no substitution (subs=true) findings and no JSON validation errors",
+        "Includes a severity for each reported finding"
       ]
     }
   ]
