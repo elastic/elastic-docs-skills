@@ -101,7 +101,7 @@ Flag these as likely mistakes, with the fix:
 
 This check looks only inside code block bodies. `{{var}}` in prose, headings, or link targets is outside its scope. Only variables that docs-builder substitutes count. Many blocks contain `{{...}}` that is literal template syntax (Mustache, Go templates, workflow expressions, Painless or ingest templates). Flagging those is wrong.
 
-1. Walk up from the target file to find `docset.yml` and parse its `subs:` keys. Count the file's own directory as level 1. Stop at the git root (presence of `.git/`) or after 6 directory levels, whichever comes first.
+1. Walk up from the target file to find `docset.yml` and parse its `subs:` keys. Count the file's own directory as level 1. Stop at the git root (presence of `.git/`) or after 10 directory levels, whichever comes first (generated reference pages can sit deep below `docset.yml`).
 2. Extract variable names from each block with `\{\{\{?\s*([^{}|]+?)\s*(\|[^{}]*)?\}?\}\}`. This drops mutation filters such as `{{version.stack|M.M}}` and handles `{{{var}}}`.
 3. **B-1 (Medium):** flag a block without `subs=true` only when at least one extracted name is a key in `subs:`. Report the matching variable names.
 4. **B-2 (Low):** flag `subs=true` on a block with no `{{` at all.
@@ -114,13 +114,19 @@ For blocks with language `bash`, `sh`, `shell`, `console`, `yaml`, `python`, `ja
 
 Exemptions: shebang lines, standalone comment lines (no code on the same line), `#` inside strings, lines that end with a callout marker (`<1>`, `// <1>`, or `# <1>`).
 
-Suggestion: replace with explicit callout markers (`<N>`) and a numbered list after the block.
+Report the line that holds the comment, not the opening fence, so the reader can go straight to it (the same rule as Check D). Suggestion: replace with explicit callout markers (`<N>`) and a numbered list after the block.
 
 ### Check D — JSON validation in `console` and `console-result` blocks
 
 `console` blocks are API requests (customers copy-paste them); `console-result` blocks are responses (display only). Each `console` block contains one or more API calls: an HTTP method+path line (it can be indented inside a list item), followed by an optional JSON body, repeated for multiple calls.
 
-Run the `check_console.pl` script that ships with this skill once per `console` or `console-result` block, using the `file`, `open`, `close` values from Step 2 and the first word of the info string as `KIND`: `perl <skill-dir>/scripts/check_console.pl FILE OPEN CLOSE KIND`. It needs `perl` and `jq`. It keeps one scratch file in the system temp directory and deletes it on exit, and it never writes to the file it checks. Each output line is `file:line:High:D:message` with a real file line number, and no output means the block is clean. Report its output as the Check D findings; do not re-implement its rules by hand. If the script is missing, say so in the Notes section and skip Check D rather than rewriting it from memory.
+Pipe the Step 2 output into the `check_console.pl` script that ships with this skill. It picks out the `console` and `console-result` blocks itself, so no per-block loop is needed:
+
+```bash
+awk -f <skill-dir>/scripts/extract_fences.awk <files> | perl <skill-dir>/scripts/check_console.pl --stdin
+```
+
+To check one block, pass its four values as four separate arguments: `perl <skill-dir>/scripts/check_console.pl FILE OPEN CLOSE KIND`, with `KIND` the first word of the info string (not one quoted string such as `"60 65"`). It needs `perl` and `jq`. It keeps one scratch file in the system temp directory and deletes it on exit, and it never writes to the file it checks. Each stdout line is `file:line:High:D:message` with a real file line number, and no stdout means every block is clean. It also prints one summary line on stderr (`checked N block(s), M finding(s)`), so a clean run can be told apart from a script that did nothing. Bad arguments exit with status 2 and a usage message: never read an error as a clean block. An unclosed `console` or `console-result` block is skipped with a stderr note, because Check S already reports every unclosed block. Report its output as the Check D findings; do not re-implement its rules by hand. If the script is missing, say so in the Notes section and skip Check D rather than rewriting it from memory.
 
 What the script does:
 
@@ -143,9 +149,11 @@ Suggestion: replace with `example.com` or a subdomain like `my-cluster.example.c
 
 ### Check F — API validation for `console` blocks
 
-Collect all unique `METHOD /path` values across all files first. For each unique endpoint (skip any already validated earlier in this run), call `mcp__elastic-docs__search_docs` (`productFilter`: `elasticsearch`, `sectionFilter`: `api`) with the query described below to find the matching API reference page (URL starting with `/docs/api/doc/elasticsearch/operation/`). Fetch it with `mcp__elastic-docs__get_document_by_url` (`includeBody`: true).
+Collect all unique `METHOD /path` values across all files first. For each unique endpoint (skip any already validated earlier in this run), call `mcp__elastic-docs__search_docs` (`productFilter`: `elasticsearch`, `sectionFilter`: `api`) and `pageSize` 3 with the query described below to find the matching API reference page (URL starting with `/docs/api/doc/elasticsearch/operation/`). Fetch a page with `mcp__elastic-docs__get_document_by_url` (`includeBody`: true) only when the rules below say to.
 
-Find the page by what the call does, not by its path. API reference pages are titled by action ("Run a search", "Update field mappings", "Get the cluster health status"), and a query made of path text such as `GET _search API` or `PUT _mapping API` returns nothing useful. Search with a short plain-language description of the operation, using the method and path to decide the action (for example `run a search`, `update field mappings`, `cluster health`, `reindex documents`). Several operations can match one description (`cluster health` also returns the CAT health and health report pages), so fetch the candidate page and accept it only when its documented method and path match the block's path, where a `{param}` in the documented path stands for any single segment (an index name or an id in the block); a trailing optional parameter in the documented path (for example `{context}` in `/_scripts/{id}/{context}`) may be absent from the block. Keep literal segments distinct: `_cluster/health` and `_cluster/settings` are different operations, as are `_cat/indices` and `_cat/shards`. Match on the documented path, never on the URL slug (the `_search` operation is `operation-search`). The page may document a different HTTP method than the block uses (for example POST only for `_search`), which is not a finding. Always fetch the candidate page, even when every top-level key in the body is exempt. If no result matches, retry once with different wording (the likely page title, or a synonym for the action) before concluding there is none.
+Check F covers Elasticsearch REST endpoints only. Skip a request, and list it in Notes as "not an Elasticsearch API, not looked up", when its path starts with `kbn:`, `/api/` or `api/` (Kibana, Fleet and Cloud APIs) or is a full URL. Do not report it as removed or renamed.
+
+Find the page by what the call does, not by its path. API reference pages are titled by action ("Run a search", "Update field mappings", "Get the cluster health status"), and a query made of path text such as `GET _search API` or `PUT _mapping API` returns nothing useful. Search with a short plain-language description of the operation, using the method and path to decide the action (for example `run a search`, `update field mappings`, `cluster health`, `reindex documents`). Several operations can match one description (`cluster health` also returns the CAT health and health report pages), so check the candidates before accepting one. Fetch the top candidate page and confirm its documented method and path only when (a) more than one of the top results could be the operation, (b) the block's path keeps a literal segment after an API segment (`_cluster/health` and `_cluster/settings` are different operations, as are `_cat/indices` and `_cat/shards`), or (c) a top-level body key is not exempt and needs checking against the page. Otherwise accept the top result when its title clearly names the operation (for example "Run a search" for `GET /my-index/_search`) and note "matched by title, not fetched" in Notes. When you fetch, match on the page's documented method and path, never on the URL slug (the `_search` operation is `operation-search`): a `{param}` in the documented path stands for any single segment (an index name or an id in the block), and a trailing optional parameter (for example `{context}` in `/_scripts/{id}/{context}`) may be absent from the block. The page may document a different HTTP method than the block uses (for example POST only for `_search`), which is not a finding. If no result matches, retry once with different wording (the likely page title, or a synonym for the action) before concluding there is none.
 
 - **No matching page found (after the retry):** flag the endpoint as potentially removed or renamed.
 - **Deprecated field:** if a top-level request body key appears alongside "deprecated" in the docs, flag it with the replacement.
@@ -258,7 +266,7 @@ For JSON errors include the `jq` error message and up to 2 lines of context arou
 **Section 3 — Notes** (informational; not counted as issues). Always print it, including when there are no issues. List, one bullet each:
 
 - Checks that were skipped or limited, printed once per run, for example "Check B-1 ran as an unverified advisory: no `docset.yml` found".
-- Each endpoint Check F looked up, with its API docs URL.
+- Each endpoint Check F looked up, with its API docs URL (add "matched by title, not fetched" when the page was not fetched), and each request skipped as not an Elasticsearch API.
 - Each endpoint whose API page lists no request-body fields ("cannot verify request fields").
 
 If no issues are found: print "No issues found across all checked files." in place of Section 2, then Section 3.
@@ -269,6 +277,6 @@ If no issues are found: print "No issues found across all checked files." in pla
 
 ## Guidelines
 
-- Report the line number of the opening fence for block-level findings. For Check D use the file line the script reports, which is the line to fix.
+- Report the line number of the opening fence for block-level findings (A, B, E, S). Report the exact file line for findings on one line: for Check C the line that holds the comment, for Check D the line the script reports.
 - Do not flag false positives — skip ambiguous inline comments, and apply H-1 only when imbalance is unambiguous.
 - Skip non-markdown files silently. Note unreadable files and continue.

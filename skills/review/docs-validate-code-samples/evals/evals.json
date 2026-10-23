@@ -109,6 +109,19 @@
         "Does NOT report a Check B finding for the console block's {{size}} and {{name}} names (without a docset.yml, console blocks are not checked for possible substitutions)",
         "Does NOT modify the source file"
       ]
+    },
+    {
+      "id": 10,
+      "prompt": "Check ~/docs/scope-example.md for code sample issues. The file contains:\n```console\nPATCH /api/v1/serverless/projects/elasticsearch/1234\n{\n  \"name\": \"my-project\"\n}\n```\n\n```console\nPUT /my-index\n{\n  \"settings\": {\n    \"number_of_shards\": 1 // single shard for the example\n  }\n}\n```\n",
+      "expected_output": "Does not report the Cloud API request as removed or renamed (it is not an Elasticsearch API and is listed in Notes as not looked up), and reports the trailing explanatory comment as a Low Check C finding at the line that holds the comment",
+      "expectations": [
+        "Does NOT report the PATCH /api/v1/serverless/projects/... request as a removed, renamed or unmatched API",
+        "Lists the PATCH /api/v1/serverless/projects/... request in the Notes section as not an Elasticsearch API or not looked up",
+        "Reports the trailing comment after \"number_of_shards\": 1 as a Check C finding with Low severity",
+        "Reports the Check C finding at the file line that holds the comment (line 12), not at the opening fence line",
+        "Does NOT report a JSON error for the second console block",
+        "Does NOT modify the source file"
+      ]
     }
   ]
 }
