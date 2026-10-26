@@ -1,6 +1,6 @@
 ---
 name: docs-review-pr
-version: 1.2.1
+version: 1.2.2
 description: Run a full review of an Elastic documentation PR against the docs team review checklist — user focus, technical accuracy, applicability, maintainability, language, and style. Runs the companion review skills and merges everything into one report with a recommended approve, comment, or request-changes call. Use when reviewing a docs PR, checking a branch before requesting review, or deciding whether a docs change is ready to merge.
 argument-hint: "[pr-number-or-url-or-path]"
 allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *), Skill, Agent, CallMcpTool, WebFetch, AskUserQuestion
@@ -330,8 +330,9 @@ Four things to get right, because each is a way to be confidently wrong:
 ### Preview cleanliness
 
 - No literal `{{` reaches the rendered output, and every substitution resolves.
-- No admonitions are stacked back to back. Merge them into one callout or into the narrative. Scan for consecutive pairs — two admonitions separated only by whitespace count as stacked even if each looks fine individually.
-- Roughly three or fewer admonitions sit in one area, so they still stand out.
+- No admonitions are stacked back to back, whether they are the same type or different types. Move the content into the narrative or restructure the section. Do not merge them into one bigger callout that covers several topics. Scan for consecutive pairs — two admonitions separated only by whitespace count as stacked even if each looks fine individually.
+- No more than one admonition sits in a section, so it still stands out.
+- Content that readers need to understand or complete the task sits in the body, not in an admonition. Prerequisites do not go in admonitions. If a second admonition seems necessary, rewrite the content or add context earlier on the page. Warning and important admonitions flag real risk: data loss, security issues, irreversible actions, or impact on performance or stability.
 - No stray bullets, leftover comments, or broken tables and tabsets appear.
 - Badges render, and section- or line-level `applies_to` tags work alongside page-level tags.
 - Link text is meaningful, and new or changed links resolve.
