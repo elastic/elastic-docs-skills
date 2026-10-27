@@ -77,25 +77,32 @@ On any other repository, name GitHub's CODEOWNERS docs. Do not add a review tier
 
 For each trigger, give the path, winning pattern, full owner list, `+additions/−deletions`, and a one-line patch summary when `patch` is present. Keep every owner on a shared rule. When `matched_on` is `previous_filename`, say the old path requested the review and name the new path's owners.
 
-### Review level for the pull request
+### Review level
 
-Include this section only when `docs_content` is true. Choose the level from the whole change, not from which team owns a path.
+Include this section only when `docs_content` is true. Make two judgments. Do not tell the requested team to run the full checklist only because the pull request is comprehensive.
+
+**Pull request.** Choose trivial, light-touch, or comprehensive from the whole change, not from which team owns a path.
 
 - **Trivial.** The pull request is only typo, link, or formatting fixes. No checklist.
 - **Light-touch.** Small edits to existing content beyond a typo. Point at the light review checklist.
 - **Comprehensive.** New pages, moves, restructures, a large diff, or user-facing risk. Point at the full review checklist. When in doubt, choose comprehensive.
 
-If the trigger files are small and the rest of the diff is structural, say the owned files look trivial and the pull request does not. The level applies to the pull request.
+**This team.** Judge from the trigger files.
+
+- When those files are a small toc, link, or wording edit, and another owner is the winning owner of the new or structural pages, this team's pass is trivial or light-touch. Name that other team. Say this team does not need to repeat that pass. Give a sentence the reviewer can leave on the review: what they checked, and which team has the pages.
+- When this team is itself a winning owner of the structural files, their review uses the pull request level.
+
+**Whole-PR sign-off.** If the reader is the person approving the pull request as a whole, that approval covers the other files, so they use the pull request level and its checklist.
 
 ### Rest of the diff
 
 Label this section as files that did not trigger the request. Group them by winning owner and give each group's count. Call out each near miss with its path, the earlier pattern, and the winning pattern. An empty owner list means a later pattern cleared the owners.
 
-On docs-content, state that these files are still part of the shared review, and that a full review may need the surrounding page and the pages it connects to.
+On docs-content, state that these files are still part of the shared review for someone signing off on the pull request, and that a full review may need the surrounding page and the pages it connects to. Do not tell the requested team the other files are out of scope.
 
 On any other repository, stop after the ownership groups. The trigger list is the scope.
 
-When the docs-content level is light-touch or comprehensive, name `docs-review-pr` as an optional next step the reviewer can run on the trigger files or the whole pull request. Do not run it.
+When this team's review or a whole-PR sign-off is light-touch or comprehensive, name `docs-review-pr` as an optional next step. Point it at the trigger files for this team's pass, or at the whole pull request for a sign-off. Do not run it.
 
 ## Example
 

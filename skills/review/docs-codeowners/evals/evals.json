@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Which files triggered a review for @elastic/developer-docs? Use the offline fixture at skills/review/docs-codeowners/evals/fixtures/pr-8516 (CODEOWNERS and files.json). Repo elastic/docs-content, base ref main, CODEOWNERS source .github/CODEOWNERS, PR 8516. Do not call gh. Do not review the prose.",
-      "expected_output": "Runs the matcher on the fixture. Reports the two developer-docs files as the trigger, the observability near miss, and docset.yml under @elastic/docs. Chooses comprehensive for the pull request and keeps the other files in the shared review.",
+      "expected_output": "Runs the matcher on the fixture. Reports the two developer-docs files as the trigger, the observability near miss, and docset.yml under @elastic/docs. Names the pull request comprehensive, calls the developer-docs pass lighter, names ski-docs as the owner of the added page, and reserves the full checklist for a whole-PR sign-off.",
       "expectations": [
         "Runs scripts/match_codeowners.py on the pr-8516 fixture and does not call gh",
         "Lists explore-analyze/ai-features/agent-builder/create-alerts.md as a trigger owned only by @elastic/developer-docs, with pattern /explore-analyze/ai-features/agent-builder/",
@@ -12,9 +12,11 @@
         "Gives a one-line summary of each trigger patch",
         "Names solutions/observability/nightshift/get-started.md as a file that did not trigger the request because /solutions/observability/ replaced the earlier /solutions/ rule",
         "Does not list docset.yml as a trigger, and groups it with @elastic/docs",
-        "Chooses comprehensive for the pull request because of the added alerting page, and says the owned files are small edits inside that larger change",
-        "Points at the full review checklist",
-        "Says the other files are still part of the shared review on docs-content, and does not tell the reviewer to skip them",
+        "Names the pull request comprehensive because of the added alerting page",
+        "Calls the developer-docs pass trivial or light-touch, names @elastic/ski-docs as the owner of the added alerting page, and says developer-docs does not need to repeat that pass",
+        "Reserves the full review checklist for someone signing off on the whole pull request",
+        "Does not tell developer-docs to run the full checklist just because the pull request is comprehensive",
+        "Says the other files are still part of the shared review for a whole-PR sign-off, and does not tell the reviewer those files are out of scope",
         "Does not review prose and does not run docs-review-pr"
       ]
     },
