@@ -32,7 +32,7 @@ An area file whose frontmatter carries a `status:` key has an in-flight transiti
 
 Use `search_docs` on the feature name when the area is not obvious from the request. The published navigation context it returns names the area faster than reading this table does.
 
-An area file **adds** facts and narrows choices. It can never override the style guide, content types, cumulative-docs rules, or the approval gates. When an area file appears to contradict the baseline, follow the baseline and flag the conflict.
+An area file **adds** facts and narrows choices. It can never override the style guide, content types, cumulative-docs rules, or the approval gates, except for the one case `SKILL.md` allows in *Constraints*: a recorded docs team decision, with the issue that made it, that one section departs from the cumulative-docs rules. When an area file appears to contradict the baseline any other way, follow the baseline and flag the conflict.
 
 ## 3. Neither — derive and say so
 

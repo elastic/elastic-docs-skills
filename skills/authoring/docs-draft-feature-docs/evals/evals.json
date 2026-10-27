@@ -424,6 +424,7 @@
         "Does NOT add a removed applies_to tag, an experimental =9.5 badge, or a note about the removal, and does NOT write a version number into prose",
         "Does NOT document the removal as a change between 9.5 and GA, since the area file leaves those changes to the 9.5 release notes",
         "Treats the GA-only rule as specific to Universal Alerting, and says that for any other feature it would follow the cumulative-docs removal scenarios rather than citing this section as precedent",
+        "Says in its output that it followed the area file's recorded departure from the cumulative-docs rules, as the exception in SKILL.md's Constraints requires",
         "Leaves routing tags, the rule's Tags field, and the tag triage action untouched, identifying each as a different concept from the removed action policy Tags field"
       ]
     },
