@@ -13,44 +13,14 @@ An entry may add a **Fast path**, a named person's manual confirmation that the 
 **Areas:** `alerting-and-cases.md`, and `workflows.md` at the trigger seam.
 **Expires when:** every sub-entry below has expired. Each has its own condition, so resolve them one at a time and remove each sub-entry as its condition is met. [#920](https://github.com/elastic/docs-content-internal/issues/920) is the umbrella issue.
 
-The ES|QL-based alerting system, now named Kibana Universal Alerting, is moving from experimental to GA, serverless first. Four changes run on separate schedules, and one ending does not end the others. The section move lands with the Serverless release, but its follow-up pull requests, the short-name decision, and Stack GA each finish later.
+The ES|QL-based alerting system, now named Kibana Universal Alerting, is GA on Serverless. Its section moved to `explore-analyze/alerting/esql/` with that release, and its pages now describe only the GA version, a decision recorded in `alerting-and-cases.md`. Two changes are still open, and each finishes on its own schedule: the Classic Alerting name on pages outside the section, and the Stack release.
 
-Two rules hold across all four:
+Two rules hold across both:
 
 - **Do not invent a label.** If you need one that does not exist yet, it is an open question.
-- **Get `applies_to` values from `docs-applies-to-tagging`**, never from this file or a neighboring page. Which version carries GA is exactly the fact that moves.
+- **Get `applies_to` values from `docs-applies-to-tagging`**, never from this file or a neighboring page. Which version carries Stack GA is exactly the fact that can still move.
 
-The rules that outlast every sub-entry — the system names and substitutions, the alert versus rule event versus series distinctions, the stored-name mapping, the system note, the section layout, and why a term pass is not a search-replace — are durable and live in `alerting-and-cases.md`.
-
-### Before the section move merges
-
-**Expires when:** elastic/docs-content#8516 merges. Check with `gh pr view 8516 --repo elastic/docs-content --json state`. It is held for the Serverless release, and merging it also closes [#1791](https://github.com/elastic/docs-content-internal/issues/1791) and [#1917](https://github.com/elastic/docs-content-internal/issues/1917), the "alert episode" rename issues.
-
-elastic/docs-content#8516 holds everything that ships with the release: the move, the regroup, the final names, the "alert episode" to "alert" rename, the `serverless: ga` tags, and a redirect for each moved page. The contributing pull requests were merged into its branch rather than into `main`, so until it merges, `main` has none of that.
-
-While this is open:
-
-- **`main` does not match the area file.** The section is still at `explore-analyze/alerting/experimental-alerting-system/`, the overview is still at `alerting/system-overview.md`, the section has no `_snippets/`, `{{alerting-v2-system}}` still renders the old name, `{{alerting-v1-system}}` does not exist, and the pages say "alert episode." The area file describes the layout after the merge, so resolve paths from `main` or from the pull request branch, depending on which one you are drafting against.
-- **Ask before adding, moving, or renaming a file in the section.** A page added on `main` collides with the move. Name the collision at the first approval gate, and ask whether to base on elastic/docs-content#8516 or wait for it.
-- **Use the substitutions anyway**, because they are what the merge changes, but do not draft against the text they render on `main`.
-- **Do not rename "alert episode" by hand, redraw the two system-flow diagrams, or write alt text for them.** The merge renames the term and removes the diagrams.
-
-On close, remove this sub-entry. The area file already describes the merged layout, so recheck its *Navigation* section against `main` and bump its `verified:` date.
-
-### Serverless GA follow-ups
-
-**Expires when:** [#1880](https://github.com/elastic/docs-content-internal/issues/1880) closes. Its tables list the pull requests that merge after elastic/docs-content#8516, each with what it waits for. Expect it to stay open well after the section move merges.
-
-While this is open:
-
-- **Check the pending branch changes before editing what they touch.** elastic/docs-content#8736, elastic/docs-content#8734, and elastic/docs-content#8735 have merged into the elastic/docs-content#8516 branch; elastic/docs-content#8536 remains open and stacked on that branch. Editing the same pages on `main` still collides with #8516 or #8536.
-- **Do not add back what the restructure removed on purpose.** That covers the production-readiness sentences, scoped or not, because the lifecycle badges carry maturity; the "How to use the documentation" callouts; and the system note on every page, which now appears only on the section landing pages.
-- **The Agent Builder page stays experimental after serverless GA.** The code declares its skills for rules and action policies experimental, and they need the `alerting:v2:experimentalFeatures` space setting, labeled **Universal Alerting: Experimental Features** at `HEAD`. Check the registration rather than copying the neighbors' `serverless: ga`.
-- **Project-type scoping is unsettled.** Only Observability projects get the **Alerting** menu, the plugin does not load in Security Search AI Lake projects, and elastic/kibana#295505 hides the Universal Alerting privileges in serverless projects other than Observability. Carry it as an open question until question 1 in [#1758](https://github.com/elastic/docs-content-internal/issues/1758) is answered.
-- **The `alerting:v2:enabled` setting stays and defaults to on at `HEAD`.** Its label is **Universal Alerting**. A stored `false` stays off, including after an upgrade. Turning the setting off hides the UI and rejects API requests but does not stop rules from running; only `xpack.alerting_v2.enabled: false` in `kibana.yml` does that. Verify the default at `HEAD` before writing it down.
-- **The navigation changed, and three labels are easy to get wrong.** **Alerting V2 Preview** is gone from Serverless and later Stack versions, and 9.5 keeps it. In the Observability **Alerting** menu, **Alerts** opens the Universal Alerting alerts page, and **Alerts (V1)** opens the Classic one, but only when the `alerting:v1:showV1ObservabilityAlertsTable` space setting, **Classic Alerting: Show Classic Alerts table**, is on. **Inbox** is a global search keyword, not a label, so never quote it as one. Check the section for shared navigation snippets before writing a menu path.
-
-On close, fold the navigation that is now permanent into the *Navigation* section of `alerting-and-cases.md`.
+The rules that outlast every sub-entry — the system names and substitutions, the GA-only scope and its upgrade note, the alert versus rule event versus series distinctions, the stored-name mapping, the system note, the section layout and product navigation, and why a term pass is not a search-replace — are durable and live in `alerting-and-cases.md`.
 
 ### Short forms, former names, and other pages
 
@@ -72,10 +42,10 @@ On close, move the short-form rule into the substitutions paragraph of `alerting
 
 While this is open:
 
-- **Do not change the stack lifecycle tags yourself.** That change waits on the GA path, question 4 in #1758, and lands in [#1761](https://github.com/elastic/docs-content-internal/issues/1761). The 9.5 label is disputed too: the docs say experimental, and the Kibana settings reference says preview (question 5).
+- **The Stack tags already say GA, with no 9.5 value.** elastic/docs-content#9019 set them, following docs-content-internal#2079. [#1761](https://github.com/elastic/docs-content-internal/issues/1761) is still open and still describes the earlier plan to keep `experimental =9.5`, but #2079 superseded that plan, so do not follow #1761's task list. If the Stack GA path changes (question 4 in #1758), the fix is a lifecycle or version edit that `docs-applies-to-tagging` makes, never a return to 9.5 content.
 - **Verify every quoted label at `HEAD`.** They are rechecked against the release after its feature freeze in [#1893](https://github.com/elastic/docs-content-internal/issues/1893). elastic/kibana#294597 shipped the Rules tabs, alert source labels, banners, badges, maintenance-window scope options, privilege labels, and the first Advanced Settings renames; elastic/kibana#296790 subsequently finalized the two remaining Advanced Settings labels. Quote what `HEAD` shows, never an earlier plan.
-- **The unified alerts table is not documented yet.** It shows alerts from both systems together and ships with the Serverless release, announced only in the release notes. Its docs are elastic/docs-content#8226, part of question 8 in #1758. Until they land, do not describe it from a neighboring page.
-- **Read question 7 in #1758 before writing about upgrading from 9.5.** The field rename recreates `.rule-events` and deletes older `.alert-actions` data, so upgrading erases alert history and triage actions. Whether users get a release note or an upgrade note is still open, and release notes come from Kibana pull request labels rather than from the docs.
+- **Check elastic/docs-content#8536 before editing the rule settings pages.** It is open against `main` and edits four pages that elastic/docs-content#9019 also cut heavily: the recovery, alert delay, and no-data handling pages, and the YAML rule schema reference. Check with `gh pr view 8536 --repo elastic/docs-content --json state`, and expect it to need a rebase onto the GA-only pages.
+- **Do not say whether the APIs work outside Observability projects.** The docs send Serverless readers to an Observability project, but whether the APIs also work in other project types is still question 1 in #1758.
 - **The API routes might be renamed to match the system name** (question 10 in #1758). There is no tracking pull request yet, so quote the route `HEAD` uses, `/api/alerting/v2/` at last check.
 - **Feature docs for the release are tracked in [#1652](https://github.com/elastic/docs-content-internal/issues/1652).** Read the item's doc issue there before starting.
 

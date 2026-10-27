@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.7.1
+version: 2.7.2
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting] [with a reader test]"
 disable-model-invocation: true
@@ -74,7 +74,7 @@ If the MCP is not configured, WebFetch the same URLs with `.md` appended, which 
 - **Never commit to, or write on, a default branch.** Step 3 puts you on a working branch before anything else happens. After gate 2, commit on that working branch — the prohibition is the default branch, not committing.
 - Never invent a UI label, a default value, a parameter name, or a behavior. Every concrete claim is verified in Step 6 or surfaced as an open question.
 - Never invent or generate a screenshot. Name the screenshot that is needed and say where it goes.
-- An area reference file may **add** facts and narrow choices. It may never override the style guide, content types, cumulative-docs rules, or the approval gates.
+- An area reference file may **add** facts and narrow choices. It may never override the style guide, content types, cumulative-docs rules, or the approval gates, with one exception: it may record a docs team decision that one section departs from the cumulative-docs rules, citing the issue that made the decision. Follow that decision for that section only, say in the output that you did, and never infer such a decision or extend one by analogy.
 
 ## Inputs
 
@@ -216,7 +216,9 @@ Concluding that nothing needs documenting is a valid result. Report it and stop 
 
 The removal scenarios name two cases where the content can go instead: the feature was only ever beta or technical preview, or it only ever existed in an unversioned product. Both are permissions rather than instructions, so scoping is never the wrong answer and deleting sometimes is. Check the case against those scenarios rather than inferring it, and when the feature's lifecycle is not one they name — `experimental`, for instance — scope it and say which reading you took, rather than deleting on an analogy you made yourself.
 
-This is the request shape where doing literally what the issue asks is most often wrong. "Remove the tags section" describes the product change, not the edit to make, and deleting the section produces a clean-looking pull request that quietly takes documentation away from readers on supported versions.
+This is the request shape where doing literally what the issue asks is most often wrong. "Remove the X section" describes the product change, not the edit to make, and deleting the section produces a clean-looking pull request that quietly takes documentation away from readers on supported versions.
+
+The one exception is a section whose area file records that it documents only one version, as the Universal Alerting section does. There, content that the documented version doesn't have is removed, not scoped. That is the docs team decision the exception in *Constraints* allows, so it holds only where an area file records it.
 
 ### 4d. Establish the availability floor
 
