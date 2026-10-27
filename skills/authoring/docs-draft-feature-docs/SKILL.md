@@ -1,6 +1,6 @@
 ---
 name: docs-draft-feature-docs
-version: 2.7.1
+version: 2.7.2
 description: Draft Elastic documentation for any feature or feature area, from a doc issue, a product pull request, or raw notes. Enforces the docs-content baseline on every draft — verify against product source at HEAD, find the canonical home, place content once, scope it cumulatively — and reads per-area reference files for local conventions when they exist. Use when picking up a doc issue, documenting a shipped or upcoming feature, or turning engineering notes into a page.
 argument-hint: "[doc issue URL, product PR, page path, or what needs documenting] [with a reader test]"
 disable-model-invocation: true
