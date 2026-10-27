@@ -162,7 +162,7 @@
         "Preserves rule event, signal, and series as distinct terms, and quotes the field and trigger names that HEAD actually uses rather than inferring renamed ones",
         "Recognizes that the production-readiness sentences were removed on purpose because the lifecycle badges carry maturity, and does NOT add scoped replacements",
         "Does NOT add experimental =9.5 or any other 9.5-scoped content, because the section deliberately documents only the GA version, and delegates applies_to values to docs-applies-to-tagging rather than taking a version from status.md",
-        "Checks main and the open pull requests that touch the section before editing it, and reports the parts of the request that have already landed rather than redoing them",
+        "Checks main before editing, and reports the parts of the request that have already landed, such as the final names, the alert rename, and the removed caveats, rather than redoing them",
         "Does NOT carry a release date out of status.md into the draft, since the entry names events rather than dates"
       ]
     },
