@@ -9,6 +9,7 @@ GitHub ≠ Slack. Never invent IDs. Appendix maps GitHub → Slack name (`@wajih
 - Look up every ping with `slack_search_users`. Cache in `slack.handles`. Ask only if search is empty or ambiguous.
 - User groups: copy the `S…` ID from the latest `#docs` freeze ping. Search will miss. Send as `<!subteam^S…>` -- `<@S…>` is how search displays a group and will not ping.
 - Placeholder row (`` `Beats point person` ``): ping **only** the footnote GitHub person on the current issue. Do not add extra people from an older freeze ping. RN: `please update the table to confirm who's responsible`. API docs / docs-eng: `who can assist with this release?`. Match the latest `#docs` freeze ping for **phrasing** only.
+- Hub pages (minors only): ping the people in the issue's **Hub pages** table, not the RN table. The two can differ. Patch releases have no hub pages, so leave the hub lines out.
 - OOO: `slack_read_user_profile`. Flag palm_tree / OOO / PTO / sick. Not "in a meeting" or "outside of working hours".
 
 **Preview:** the exact Slack draft in a fenced code block so every line break is visible. Do not render it as chat markdown -- that collapses the message onto one line. `@slack-name` from the appendix or profile (`@wajiha`, not `@Wajiha Parvez`). Links may be aliased (`<URL|text>`). Mentions must not: no `<@U…|Name>`, no full real names.
@@ -29,6 +30,16 @@ Hi everyone! :wave: Today is the feature freeze for <VERSION>.
 Please add your release note PRs to the <ISSUE_URL|tracking issue>.
 
 (One `•` per product. Named: `@slack-name`. Placeholder: footnote person + assign phrasing above.)
+```
+
+**Minor release: add the hub pages block** after the release note pings. Skip it for a patch.
+
+```markdown
+This release also needs hub page updates. Please check the *What's new* section and the link lists on your hub page, and add your PR to the *Hub pages* table in the <ISSUE_URL|tracking issue>. Merge hub page PRs on release day, together with release notes. The <https://github.com/elastic/docs-content/tree/main/.agents/skills|hub page skills> in the docs-content repo help refresh the *What's new* cards and the link lists.
+
+:bell: *Pinging for hub pages:*
+
+(One `•` per row of the issue's Hub pages table. Named: `@slack-name`.)
 ```
 
 **Multiple versions:** if they share one GA date, use one date; otherwise list per version. Keep a `:bell: Ping for` heading per group (8.x vs 9.x when tables differ).
@@ -56,6 +67,8 @@ Please add your release note PRs to the issues linked below:
 :bell: *Ping for <VERSION_OR_GROUP_B>*
 ```
 
+In a mixed batch, add the hub pages block (see above) once, under the group that contains the minor.
+
 ## Outstanding release notes (day before)
 
 ```markdown
@@ -67,12 +80,27 @@ The <VERSION_LIST> release is scheduled for tomorrow. The following release note
 Please file and/or get approval on your PRs today. Tracking issue: <ISSUE_SLACK_LINK>
 ```
 
+**Minor release:** also list outstanding hub page PRs (a row with no PR URL, or a PR that is not approved) in a second list. Skip it when every hub page PR is ready.
+
+```markdown
+The following hub page PRs are still outstanding:
+
+(Repeat for each outstanding row of the Hub pages table:)
+• <Hub> @slack-name
+```
+
 ## Merge release notes (release day)
 
 ```markdown
 The <VERSION_LIST> release has kicked off. If you haven't already, you can merge your release notes PRs.
 
 <@api-docs-person> it is safe to update APIs.
+```
+
+**Minor release:** name hub pages in the first sentence. Skip this change for a patch.
+
+```markdown
+The <VERSION_LIST> release has kicked off. If you haven't already, you can merge your release notes and hub page PRs.
 ```
 
 ## Docs released (final / 8.x scrape)

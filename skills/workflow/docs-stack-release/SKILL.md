@@ -1,6 +1,6 @@
 ---
 name: docs-stack-release
-version: 1.6.10
+version: 1.7.0
 description: >-
   Coordinate Elastic Stack docs releases: classify versions, route 8.x vs 9.x
   PRs, edit elastic/dev tracking issues, handle same-GA supersession, draft
@@ -36,7 +36,7 @@ allowed-tools: Read, Write, Glob, Bash(gh *), Bash(git *), CallMcpTool
 - IDs, dates, PR URLs, @mentions: from `gh`, the docs issue, Slack, or the user. Never invent. Missing → `(issue TBD)` or `[@handle]` and ask.
 - Never mix 8.x and 9.x in one PR. 8.x/7.x: `elastic/docs` only; no `docs-internal-workflows`.
 - Checklist is the step index. Live-fetch only open work. RN merge is not a checkbox -- always `gh pr view` blocking RN URLs.
-- A PR URL in the RN table is blocking until merged. Skip only `No changes` / `N/A`. Do not exempt Fleet, Agent, or any product by name.
+- A PR URL in the RN table is blocking until merged. For a **minor**, a PR URL in the **Hub pages** table is blocking too (the template says to merge hub page PRs with the release notes on release day). Patch issues have no hub table. Skip only `No changes` / `N/A`. Do not exempt Fleet, Agent, or any product by name. In the rest of this skill, "RN PRs" includes hub page PRs for a minor.
 - Check boxes this skill just completed. Do not check anyone else's work (including docs-eng). Do not wait to be asked.
 - Slack: read [slack-templates.md](./slack-templates.md) before drafting or sending. Confirm before send; thread follow-ups on the FF announcement.
 - Live/released Slack only after the **gate** (§0.3) and a user eyeball of the site. Do not draft before the gate.
@@ -68,7 +68,7 @@ When versions or issue numbers are known (from `$ARGUMENTS` or session state), c
 **On every invocation:**
 
 1. Read the file. Fall back to scratch if missing, unreadable, invalid JSON, no matching version, or the user says "start fresh".
-2. Cached **IDs only** skip discovery: `docsIssue`, `engIssue`, `coordinatorPrs.{repo:{number,sha,url}}`, `rnPrs[].{product,url}`, `slack.{docsChannelId,docsFfThreadTs,missionControlChannelId,coordinationThreadTs,beginPublishingTs,handles}`, `deploys` (9.x only: `configSha`, `stagingBumpPr`, `prodBumpPr`, `stagingRunId`, `prodRunId`). Also `line`, `type`, `anticipatedDate`.
+2. Cached **IDs only** skip discovery: `docsIssue`, `engIssue`, `coordinatorPrs.{repo:{number,sha,url}}`, `rnPrs[].{product,url}` (minors: also hub page rows, with `kind: "hub"`), `slack.{docsChannelId,docsFfThreadTs,missionControlChannelId,coordinationThreadTs,beginPublishingTs,handles}`, `deploys` (9.x only: `configSha`, `stagingBumpPr`, `prodBumpPr`, `stagingRunId`, `prodRunId`). Also `line`, `type`, `anticipatedDate`.
 3. **Live-refresh only what the docs issue still has open** (§0.2). Do not re-`gh pr view` / `gh run view` checked lines. Always live-refresh RN PR merge state (the table stores URLs, not merge). Never trust cached JSON for merge/deploy conclusions; do trust a **checked issue line that already cites a PR or run URL**.
 4. Cached ID 404 / missing message: drop that field and rediscover just that piece. Empty `slack_read_thread` on a Buildkite/bot parent (`begin publishing`, `release build declared`) is **not** a 404.
 5. End of §0: drop CLOSED docs issues, then write or delete the file.
@@ -115,7 +115,7 @@ gh pr list -R elastic/docs --search "<version>" --json number,title,state,url
 ```
 
 - **Issue checkboxes:** If an item is unchecked but this skill already completed it (a Slack message you sent, a PR you opened), check it now using §4. Do not ask. Do not check items for work this skill did not do.
-- **RN PR status:** One shell loop over every PR URL in the Release Notes table:
+- **RN PR status:** One shell loop over every PR URL in the Release Notes table (and, for a minor, the Hub pages table):
 
 ```bash
 gh pr view <url> --json state,mergedAt,title
@@ -123,7 +123,7 @@ gh pr view <url> --json state,mergedAt,title
 
 **Skip vs blocking:** Skip only `No changes` / `N/A`. A **PR URL is blocking** until merged -- do not exempt Fleet, Agent, or any other product by name. Named stakeholder is the owner; do not add `?` on a named row.
 
-Report: X/Y merged (skipping N/A rows), Z outstanding. When all blocking RN PRs are merged: "All RN PRs merged."
+Report: X/Y merged (skipping N/A rows), Z outstanding. For a minor, report release notes and hub pages separately (for example, "RNs 7/8, hub pages 2/3"). When all blocking RN PRs are merged: "All RN PRs merged." For a minor, say "All RN and hub page PRs merged."
 
 **Then, by line -- only if §0.2 says publish infra is still open:**
 - **9.x:** After the `docs-builder` coordinator PR is merged **and** the prod-bump issue line is still unchecked, continue to §0.3. If that line is already checked with a run URL, skip §0.3.
@@ -195,8 +195,8 @@ When prod version-bump is `completed/success` and staging did not fail: "Prod de
 
 | Line | Gate |
 |------|------|
-| **9.x** | All blocking RN PRs merged **and** prod version-bump succeeded (staging did not fail) |
-| **8.x / 7.x** | All blocking RN PRs merged **and** the `elastic/docs` coordinator PR is merged |
+| **9.x** | All blocking RN PRs merged (minors: **and** all blocking hub page PRs) **and** prod version-bump succeeded (staging did not fail) |
+| **8.x / 7.x** | All blocking RN PRs merged **and** the `elastic/docs` coordinator PR is merged (no hub pages on 8.x) |
 
 Until the gate is met: do not draft those messages, do not ask "ready to send?", do not check website-confirm or `#mission-control` boxes.
 
@@ -282,9 +282,9 @@ Match by checklist wording, not by assuming one template:
 
 | Skill action | Checklist line |
 |--------------|----------------|
-| Outstanding-RNs / day-before `#docs` ping sent | Post in #docs to remind ... PRs that have not been opened and/or approved |
+| Outstanding-RNs / day-before `#docs` ping sent (minors: includes outstanding hub page PRs) | Post in #docs to remind ... PRs that have not been opened and/or approved |
 | Coordinator PR opened | Open a PR ... plus the nested versions.yml / assembler.yml / conf.yaml line |
-| Merge-RN `#docs` ping sent | Post in #docs ... they can merge their release note PRs |
+| Merge-RN `#docs` ping sent (minors: also names hub page PRs) | Post in #docs ... they can merge their release note and hub page PRs |
 | Coordinator PR merged | Merge the docs-builder config PR (or the 8.x equivalent) |
 | Prod version-bump deploy succeeded (**9.x only**) | Watch for the prod version-bump deploy -- check only after §0.3 prod deploy success (staging did not fail). **Do not use this line for 8.x.** |
 | User confirmed website eyeball | Confirm that the updated docs appear on the website -- only after the gate (§0.3) and the user says the site looks right |
@@ -328,13 +328,15 @@ Copy dates, issue links, products, and outstanding PR status from the docs issue
 
 If the body is not already in context from §0, `gh issue view <N> -R elastic/dev --json title,url,body`. Parse: version from title/Overview; anticipated GA / FF / merge-by from Overview; stakeholders and RN PR column from the Release Notes table. Skip vs blocking as in §0. URL present = blocking until merged.
 
+**Hub pages (minor releases only):** the minor template (`docs-release.md`) has a **Hub pages** section with its own stakeholder and PR table. Patch templates (9.x and 8.x) do not. For a minor, parse that table too and mention hub pages in the feature freeze, outstanding, and merge pings. Read the hub stakeholders from the hub table, not the RN table. They can differ (for example, the Logstash hub row has a named owner while the Logstash RN row can be a placeholder). Do not add hub lines to a patch-only batch.
+
 **Grouping:** 8.x and 9.x tables often differ -- separate "Ping for ..." sections when they do; merge duplicate product lines when the same stakeholders apply to multiple versions.
 
 Unresolved stakeholders and Slack send/preview: [slack-templates.md](./slack-templates.md).
 
 ### Templates, mentions, send
 
-Read [slack-templates.md](./slack-templates.md) for templates, handle lookup, and OOO checks. If the user doesn't specify the reminder type, present options: feature freeze, outstanding RNs, docs released, or other.
+Read [slack-templates.md](./slack-templates.md) for templates, handle lookup, and OOO checks. If the user doesn't specify the reminder type, present options: feature freeze, outstanding RNs (and hub pages, for a minor), merge, docs released, or other.
 
 **Docs-released:** one version → singular template (`version` / `are released`); two or more → plural (`versions` / `are all released`). Never "versions" / "all" for a single version. Omit the 8.x scrape line on a 9.x-only batch.
 
@@ -348,7 +350,7 @@ Read [slack-templates.md](./slack-templates.md) for templates, handle lookup, an
 
 ### 6.5 Replying in #mission-control threads (release day)
 
-Do not enter until the **gate** is met (§0.3): 9.x = blocking RNs merged + prod version-bump; 8.x = blocking RNs merged + `elastic/docs` coordinator PR merged. If not met, say what is outstanding and stop -- do not draft live/released messages.
+Do not enter until the **gate** is met (§0.3): 9.x = blocking RNs merged (minors: and hub page PRs) + prod version-bump; 8.x = blocking RNs merged + `elastic/docs` coordinator PR merged. If not met, say what is outstanding and stop -- do not draft live/released messages.
 
 Once the gate is met:
 
@@ -364,7 +366,7 @@ When the user says "watch the PRs", "watch the deploy", or "let me know when the
 
 ### 7.1 Release-note PRs
 
-1. Blocking RN PR URLs from the issue table (skip N/A / No changes only).
+1. Blocking RN PR URLs from the issue table, plus hub page PR URLs for a minor (skip N/A / No changes only).
 2. Background shell (`block_until_ms: 0`) every 5 minutes: `gh pr view <url> --json state -q .state`.
 3. All `MERGED` → emit `ALL_RN_PRS_MERGED` (`notify_on_output`).
 4. Report: "All RN PRs are merged." Persist to the session file.
