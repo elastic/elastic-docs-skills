@@ -97,23 +97,16 @@ Flag any usage that conflicts with this table:
 | copy | Caution | Exact copy in same location. Distinct from _clone_ and _duplicate_. |
 | could | Avoid | Use _can_ or _might_. |
 | create | Preferred | Creating from scratch. Not "create new." Opposite: _delete_. |
-| cutting-edge | Avoid | Marketing claim. Say what is new and when it shipped. |
 | delete | Preferred | Data permanently unavailable to users. Opposite: _create_. |
 | disable | Caution | Don't use for broken things. Use _inactive_, _unavailable_, _deactivate_, _turn off_, or _deselect_ depending on context. |
 | duplicate | Caution | Copy in same location. Distinct from _copy_ and _clone_. |
 | easy, easily | Avoid | Frustrating when users struggle. Remove — same meaning without it. |
 | edit | Preferred | Not _change_ or _modify_. Better for localization. |
-| effortless, effortlessly | Avoid | Same problem as _easy_. Describe the steps instead. |
 | e.g. | Avoid | Use _for example_ or _such as_. |
 | enable | Preferred | Turning on or activating a feature. |
 | enter | Preferred | User text input. Not _type_. |
-| empower | Avoid | Press-release verb. Say what the user can now do. |
-| enterprise-ready | Avoid | Unverifiable. Name the property: _scalable_, _secure_, _supports SAML_. |
 | execute | Avoid | Use _run_ or _start_. |
-| facilitate | Avoid | Use _help_, _let_, or _enable_, or name the action. |
-| game-changer, next-level | Avoid | Say what changed and why it matters to the reader. |
 | hack | Avoid | Noun: _tip_ or _work-around_. Verb: _configure_ or _modify_. |
-| harness | Avoid | Use _use_ or _apply_. |
 | hit | Avoid | Noun: _visits_. Verb: _click_ or _press_. |
 | i.e. | Avoid | Don't use Latin abbreviations. |
 | invalid | Avoid | Use _not valid_ or _incorrect_. |
@@ -121,18 +114,15 @@ Flag any usage that conflicts with this table:
 | kill | Caution | Use _cancel_ or _stop_ unless the actual command is `kill`. |
 | launch | Avoid | Use _open_. |
 | leverage, leveraging | Avoid | Use _use_ or _build on_. |
-| lightning-fast, blazing-fast | Avoid | Replace with a measured number or _low-latency_. |
 | may | Caution | _may_ = permissibility, _can_ = capability, _might_ = possibility. |
 | open | Preferred | Use instead of _launch_. |
 | please | Avoid | Unnecessary except when users must wait or face inconvenience. |
 | powerful | Avoid | Say what the feature can do. |
 | remove | Preferred | Removes a relationship, not data. Opposite: _add_. |
-| revolutionary | Avoid | Marketing claim. State the change. |
 | robust | Caution | Name what makes it robust, such as _retries failed requests_ or _tolerates node loss_. |
 | seamless, seamlessly | Avoid | Use _native_, _built in_, or describe the integration. |
 | select | Preferred | Preferred over _choose_. |
 | simple, simply | Avoid | Adds no value. Implies users shouldn't need help. |
-| smarter | Avoid | Say what it does better: _more accurate_, _uses fewer resources_. |
 | start | Caution | Context-dependent. Less formal than _begin_. |
 | streamline | Caution | Name the steps removed or the complexity reduced. |
 | terminate | Avoid | Use _stop_ or _exit_. |
@@ -145,7 +135,7 @@ Flag any usage that conflicts with this table:
 
 Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "that is," "etc." with "and more," "via" with "through."
 
-For any amplifier not in the table: if deleting it loses nothing from the sentence, delete it. If the sentence loses its only claim, replace the amplifier with a specific fact or cut the sentence.
+For any other amplifier or marketing word (for example _cutting-edge_, _effortless_, _game-changer_, _revolutionary_, _smarter_, _empower_): if deleting it loses nothing from the sentence, delete it. If the sentence loses its only claim, replace the amplifier with a specific fact or cut the sentence.
 
 ### AI-writing patterns
 
@@ -154,6 +144,8 @@ A draft can pass Vale and every rule above and still read as generated: padded, 
 | Pattern | Example | Fix |
 |---------|---------|-----|
 | Significance inflation | "This feature plays a crucial role in the observability landscape." | State what it does. Cut the claim about importance. |
+| Unsupported claim | "a smoother installation experience", "more accurately and efficiently" | Say what is smoother, more accurate, or faster, and by how much, or cut it. |
+| Trailing benefit clause | "...pipes results between steps, enabling complex data transformations." | Cut the "-ing" clause. State the benefit as its own concrete sentence only if you can support it. |
 | Copula avoidance | "The setting serves as the retention limit." | Use _is_ or _has_: "The setting is the retention limit." |
 | Vague attribution | "It is widely recommended to..." or "Experts suggest..." | Name the source (a docs page, an engineering issue) or cut it. |
 | Signposting | "Let's dive in." or "Here's what you need to know." | Start with the content. Use an admonition only for a real note or warning. |
@@ -174,6 +166,7 @@ Do not flag:
 
 - A word used in its literal sense, such as a server that really does _serve_ requests.
 - A list of three that is really three distinct items.
+- A short lead-in that introduces content immediately after it, such as "What this means in practice:" before a list. Flag signposting only when the phrase adds nothing, such as "Let's dive in."
 - An admonition that carries a real caution, note, or warning.
 
 ### Grammar and spelling

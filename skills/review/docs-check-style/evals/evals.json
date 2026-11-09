@@ -86,6 +86,26 @@
         "Does not flag the three-item list as rule of three padding",
         "Does not report an AI patterns finding for this snippet"
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "Check this docs snippet for style:\n\n\"The new installer offers a smoother setup experience and helps teams work more accurately and efficiently. Queries run as a pipeline, enabling complex data transformations.\"",
+      "expected_output": "Flags unsupported claims and a trailing benefit clause",
+      "expectations": [
+        "Flags 'smoother setup experience' as an unsupported claim and asks what is smoother",
+        "Flags 'more accurately and efficiently' as an unsupported claim with no measure",
+        "Flags 'enabling complex data transformations' as a trailing benefit clause",
+        "Reports findings under an AI patterns area"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Check this docs snippet for style:\n\n\"What this means in practice:\\n\\n* Index sizes drop because stored fields are compressed.\\n* Queries read fewer segments.\"",
+      "expected_output": "No AI-pattern finding: a lead-in that introduces content immediately is not signposting",
+      "expectations": [
+        "Does not flag 'What this means in practice:' as signposting",
+        "Does not report an AI patterns finding for this snippet"
+      ]
     }
   ]
 }
