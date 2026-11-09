@@ -145,6 +145,7 @@ Sources: [grammar and spelling](https://www.elastic.co/docs/contribute-docs/styl
 - Wording is minimal and the tone is informational.
 - Terms are used consistently, and ambiguous terms follow the word choice guidance.
 - No promotional language or superlatives.
+- No padding: significance claims without facts, vague amplifiers, and trailing benefit clauses. `docs-check-style` lists the patterns under "Padded and promotional language".
 - Avoid exact counts in prose: "there are N formats" or "there are N methods" become incorrect whenever content changes. Prefer "the following formats are available:" or "each method is described below."
 
 ### Variables
