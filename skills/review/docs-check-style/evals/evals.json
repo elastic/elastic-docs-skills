@@ -55,14 +55,14 @@
     {
       "id": 5,
       "prompt": "Check this docs snippet for style:\n\n\"Elastic Agent is a powerful, seamless way to collect data. It serves as the single entry point for your pipeline, marking a pivotal moment for observability. Just install it and you're ready to go. Let's dive in!\"",
-      "expected_output": "Flags amplifiers and AI-writing patterns with concrete fixes",
+      "expected_output": "Flags amplifiers and padded or promotional language with concrete fixes",
       "expectations": [
         "Flags 'powerful' and 'seamless' as vague amplifiers and asks for a specific claim",
         "Flags 'just' as minimizing effort",
         "Flags 'serves as' as copula avoidance and suggests 'is'",
         "Flags 'marking a pivotal moment' as significance inflation",
         "Flags 'Let's dive in' as signposting or chatbot residue",
-        "Reports findings under an AI patterns area"
+        "Reports findings under a padded language area"
       ]
     },
     {
@@ -80,11 +80,11 @@
     {
       "id": 7,
       "prompt": "Check this docs snippet for style:\n\n\"The coordinating node serves requests from clients and routes each one to the data nodes that hold the relevant shards.\\n\\n* Node roles\\n* Shard allocation\\n* Cluster state\"",
-      "expected_output": "No AI-pattern false positives: literal 'serves' and a genuine list of three are not flagged",
+      "expected_output": "No padded-language false positives: literal 'serves' and a genuine list of three are not flagged",
       "expectations": [
         "Does not flag 'serves requests' as copula avoidance because the node literally serves requests",
         "Does not flag the three-item list as rule of three padding",
-        "Does not report an AI patterns finding for this snippet"
+        "Does not report a padded language finding for this snippet"
       ]
     },
     {
@@ -95,16 +95,16 @@
         "Flags 'smoother setup experience' as an unsupported claim and asks what is smoother",
         "Flags 'more accurately and efficiently' as an unsupported claim with no measure",
         "Flags 'enabling complex data transformations' as a trailing benefit clause",
-        "Reports findings under an AI patterns area"
+        "Reports findings under a padded language area"
       ]
     },
     {
       "id": 9,
       "prompt": "Check this docs snippet for style:\n\n\"What this means in practice:\\n\\n* Index sizes drop because stored fields are compressed.\\n* Queries read fewer segments.\"",
-      "expected_output": "No AI-pattern finding: a lead-in that introduces content immediately is not signposting",
+      "expected_output": "No padded-language finding: a lead-in that introduces content immediately is not signposting",
       "expectations": [
         "Does not flag 'What this means in practice:' as signposting",
-        "Does not report an AI patterns finding for this snippet"
+        "Does not report a padded language finding for this snippet"
       ]
     }
   ]

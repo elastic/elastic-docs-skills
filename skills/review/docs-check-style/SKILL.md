@@ -137,9 +137,9 @@ Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "t
 
 For any other amplifier or marketing word (for example _cutting-edge_, _effortless_, _game-changer_, _revolutionary_, _smarter_, _empower_): if deleting it loses nothing from the sentence, delete it. If the sentence loses its only claim, replace the amplifier with a specific fact or cut the sentence.
 
-### AI-writing patterns
+### Padded and promotional language
 
-A draft can pass Vale and every rule above and still read as generated: padded, generic, and short on facts. Flag the patterns below and report them under the area **AI patterns**. Report a recurring pattern once, with a count and two or three examples, instead of listing every instance.
+A draft can pass Vale and every rule above and still read as padded, generic, and short on facts. Flag the patterns below and report them under the area **Padded language**. Report a recurring pattern once, with a count and two or three examples, instead of listing every instance.
 
 | Pattern | Example | Fix |
 |---------|---------|-----|
@@ -243,7 +243,7 @@ When a generic word-choice rule conflicts with UI writing, prefer the UI-specifi
 Present findings as a structured report. Group issues by area. For each issue:
 
 1. **File and line** — `path/to/file.md:42`
-2. **Area** — one of: Voice/Tone, Word Choice, AI Patterns, Grammar/Spelling, Formatting, Accessibility, UI Writing
+2. **Area** — one of: Voice/Tone, Word Choice, Padded Language, Grammar/Spelling, Formatting, Accessibility, UI Writing
 3. **Issue** — what's wrong
 4. **Suggestion** — how to fix it
 
