@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.5.1
+version: 1.6.0
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when the user asks to check, lint, or review docs for voice, tone, grammar, formatting, accessibility, or word choice issues, or when a docs review runs. Do not trigger on ordinary drafting or editing.
 argument-hint: <file-or-directory>
 context: fork
@@ -80,6 +80,7 @@ Flag any usage that conflicts with this table:
 | Word | Status | Guidance |
 |------|--------|----------|
 | abort | Avoid | Offensive. Use _shut down_, _cancel_, or _stop_. |
+| accelerate | Caution | Vague on its own. State what gets faster and by how much, or use _speed up_ or _reduce time to_. |
 | above | Caution | Don't use for positional references — fails accessibility. |
 | add | Preferred | Establishing a new relationship. Opposite: _remove_. |
 | app, application | Caution | Use _app_ only when needed for clarity. |
@@ -96,36 +97,84 @@ Flag any usage that conflicts with this table:
 | copy | Caution | Exact copy in same location. Distinct from _clone_ and _duplicate_. |
 | could | Avoid | Use _can_ or _might_. |
 | create | Preferred | Creating from scratch. Not "create new." Opposite: _delete_. |
+| cutting-edge | Avoid | Marketing claim. Say what is new and when it shipped. |
 | delete | Preferred | Data permanently unavailable to users. Opposite: _create_. |
 | disable | Caution | Don't use for broken things. Use _inactive_, _unavailable_, _deactivate_, _turn off_, or _deselect_ depending on context. |
 | duplicate | Caution | Copy in same location. Distinct from _copy_ and _clone_. |
 | easy, easily | Avoid | Frustrating when users struggle. Remove — same meaning without it. |
 | edit | Preferred | Not _change_ or _modify_. Better for localization. |
+| effortless, effortlessly | Avoid | Same problem as _easy_. Describe the steps instead. |
 | e.g. | Avoid | Use _for example_ or _such as_. |
 | enable | Preferred | Turning on or activating a feature. |
 | enter | Preferred | User text input. Not _type_. |
+| empower | Avoid | Press-release verb. Say what the user can now do. |
+| enterprise-ready | Avoid | Unverifiable. Name the property: _scalable_, _secure_, _supports SAML_. |
 | execute | Avoid | Use _run_ or _start_. |
+| facilitate | Avoid | Use _help_, _let_, or _enable_, or name the action. |
+| game-changer, next-level | Avoid | Say what changed and why it matters to the reader. |
 | hack | Avoid | Noun: _tip_ or _work-around_. Verb: _configure_ or _modify_. |
+| harness | Avoid | Use _use_ or _apply_. |
 | hit | Avoid | Noun: _visits_. Verb: _click_ or _press_. |
 | i.e. | Avoid | Don't use Latin abbreviations. |
 | invalid | Avoid | Use _not valid_ or _incorrect_. |
+| just | Avoid | Minimizes effort and reads as condescending ("just run the command"). Remove it. |
 | kill | Caution | Use _cancel_ or _stop_ unless the actual command is `kill`. |
 | launch | Avoid | Use _open_. |
+| leverage, leveraging | Avoid | Use _use_ or _build on_. |
+| lightning-fast, blazing-fast | Avoid | Replace with a measured number or _low-latency_. |
 | may | Caution | _may_ = permissibility, _can_ = capability, _might_ = possibility. |
 | open | Preferred | Use instead of _launch_. |
 | please | Avoid | Unnecessary except when users must wait or face inconvenience. |
+| powerful | Avoid | Say what the feature can do. |
 | remove | Preferred | Removes a relationship, not data. Opposite: _add_. |
+| revolutionary | Avoid | Marketing claim. State the change. |
+| robust | Caution | Name what makes it robust, such as _retries failed requests_ or _tolerates node loss_. |
+| seamless, seamlessly | Avoid | Use _native_, _built in_, or describe the integration. |
 | select | Preferred | Preferred over _choose_. |
 | simple, simply | Avoid | Adds no value. Implies users shouldn't need help. |
+| smarter | Avoid | Say what it does better: _more accurate_, _uses fewer resources_. |
 | start | Caution | Context-dependent. Less formal than _begin_. |
+| streamline | Caution | Name the steps removed or the complexity reduced. |
 | terminate | Avoid | Use _stop_ or _exit_. |
 | type | Avoid | Use _enter_ — accommodates multiple input methods. |
 | unable | Caution | Means not being able to perform an action. Distinct from _cannot_. |
+| unlock | Avoid | Use _enable_ or _provide access to_. |
 | utilize | Caution | Use _use_ instead. |
 | view | Preferred | More inclusive than _see_. |
 | whitelist | Avoid | Use _allowlist_. |
 
 Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "that is," "etc." with "and more," "via" with "through."
+
+For any amplifier not in the table: if deleting it loses nothing from the sentence, delete it. If the sentence loses its only claim, replace the amplifier with a specific fact or cut the sentence.
+
+### AI-writing patterns
+
+A draft can pass Vale and every rule above and still read as generated: padded, generic, and short on facts. Flag the patterns below and report them under the area **AI patterns**. Report a recurring pattern once, with a count and two or three examples, instead of listing every instance.
+
+| Pattern | Example | Fix |
+|---------|---------|-----|
+| Significance inflation | "This feature plays a crucial role in the observability landscape." | State what it does. Cut the claim about importance. |
+| Copula avoidance | "The setting serves as the retention limit." | Use _is_ or _has_: "The setting is the retention limit." |
+| Vague attribution | "It is widely recommended to..." or "Experts suggest..." | Name the source (a docs page, an engineering issue) or cut it. |
+| Signposting | "Let's dive in." or "Here's what you need to know." | Start with the content. Use an admonition only for a real note or warning. |
+| Chatbot residue | "I hope this helps." or "Let me know if you need more detail." | Remove. |
+| Generic positive close | "With these steps, you're ready to build great search experiences." | End on the last fact, or link to the next task. |
+| Negative parallelism | "It's not just a query language, it's a pipeline." or "No X. No Y. No Z." | State what the thing is or does in one sentence. |
+| Rule of three padding | "Fast, flexible, and scalable." | Keep only the items you can support with a fact. |
+| Mechanical bold | Bold on random phrases for emphasis. | Remove. Bold is for UI element names (see Formatting). |
+| Concept naming | "That's the key insight." | Cut, or state the point directly. |
+| Uniform rhythm | Every sentence the same length and shape, with no specifics. | Combine or split sentences and add the missing concrete detail. |
+
+Two checks catch what the table misses:
+
+- **Specificity test**: Remove every number, version, name, setting, and command from the paragraph. If it still makes the same point, it is too vague. Find the specific detail and lead with it.
+- **Two-pass audit**: If the draft is clean but still reads as generated, list in a few bullets what makes it obvious (uniform sentence length, no stated limits, no named source), then check the page against that list.
+
+Do not flag:
+
+- A word used in its literal sense, such as a server that really does _serve_ requests.
+- A list of three that is really three distinct items.
+- An admonition that carries a real caution, note, or warning.
 
 ### Grammar and spelling
 
@@ -201,7 +250,7 @@ When a generic word-choice rule conflicts with UI writing, prefer the UI-specifi
 Present findings as a structured report. Group issues by area. For each issue:
 
 1. **File and line** — `path/to/file.md:42`
-2. **Area** — one of: Voice/Tone, Word Choice, Grammar/Spelling, Formatting, Accessibility, UI Writing
+2. **Area** — one of: Voice/Tone, Word Choice, AI Patterns, Grammar/Spelling, Formatting, Accessibility, UI Writing
 3. **Issue** — what's wrong
 4. **Suggestion** — how to fix it
 
