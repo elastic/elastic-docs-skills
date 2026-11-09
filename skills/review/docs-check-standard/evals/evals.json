@@ -1,0 +1,99 @@
+{
+  "skill_name": "docs-check-standard",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run /docs-check-standard with no arguments. I am in a docs repo (it has a docset.yml and top-level solutions/ and deploy-manage/ folders). `git status --short --untracked-files=all` prints:\n\n?? solutions/search/get-started/widget-sync.md\n\nThere are no other local changes and no unpushed commits. The new file is the whole change. Its full content is:\n\n```\n# Widget sync\n\nWidget sync keeps widgets up to date.\n\n![](/images/widget-sync.png)\n\nSet `widget.sync.enabled` to turn it on. The tiger team in the PDC recommends leaving it on for high utilisation clusters.\n\n| | |\n|---|---|\n| Setting | widget.sync.enabled |\n| Default | false |\n\nWhen you are done, run a purge to clear all synced widgets. The purge cannot be undone.\n```",
+      "expected_output": "Treats the whole untracked file as new content, applies the full standard, and returns a NOT READY report with FAIL items for the missing frontmatter and availability, the unwarned irreversible purge, the on-versus-default conflict, the blank table header, the empty alt text. Verify is short and ends with the fixed ownership line.",
+      "expectations": [
+        "Finds the new file from the untracked status line and treats the whole file as changed content, so the full standard applies",
+        "Applies the standard's requirement groups to the page as a whole (audience and purpose, availability and prerequisites, core content, limitations and risks, terminology and accessibility, lifecycle), not just syntax checks",
+        "Status is NOT READY and the Fix section is not empty",
+        "Fails the page for having no frontmatter, so no applies_to, deployment type or lifecycle is stated",
+        "Fails the purge step: it is irreversible, and the only warning is a bare 'cannot be undone' with no consequence, command or safeguard",
+        "Fails the recommendation to leave widget.sync.enabled on, because the page states its default is false and does not say what value to set or where",
+        "Flags the table with an empty header row and the image with empty alt text",
+        "Notes that the page never states an audience or customer goal",
+        "Does not print an empty optional section such as 'Terminology notes: None' or 'Related pages: None found'",
+        "Keeps Verify to six items or fewer and ends the Verify section with the fixed ownership line",
+        "Does not edit, stage or write any file",
+        "Does not list the internal jargon (tiger team, PDC) or the non-US spelling 'utilisation' as findings, and does not let them affect Status; the report tells the author to run docs-check-style",
+        "Each Fix and Verify item cites a PS- requirement ID"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run /docs-check-standard with no arguments in my docs checkout. The branch tracks origin/feature. `git status --short` prints ` M docs/reference/query-languages/query-dsl/query-dsl-knn-query.md` (uncommitted), and `git diff --name-only --diff-filter=ACMR @{upstream}...HEAD` prints `docs/reference/elasticsearch/index-settings/index-modules.md` (committed, not pushed). Both pages have `applies_to: stack: all` and `serverless: all` in their frontmatter.\n\nAdded lines in query-dsl-knn-query.md (the `filter` parameter entry), shown with their line numbers in the working-tree file:\n\n```\n141:    The filter is a pre-filter, meaning that it is applied **during** the approximate kNN search to ensure that `num_candidates` matching documents are returned.\n142:\n143:    {applies_to}`stack: ga 9.6+` When the filter matches a large enough share of the vectors in a shard, {{es}} runs the approximate kNN search without the filter and applies it to the candidates afterward. If too few candidates match, {{es}} falls back to filtering during the search. For details, refer to [Filtering behavior and performance](elasticsearch://reference/elasticsearch/mapping-reference/dense-vector.md#filtering). Controlled by `index.dense_vector.post_filter_selectivity_threshold`.\n```\n\nUnchanged text further down the same page, line 183: `1. **pre-filtering** – filter is applied during the approximate kNN search to ensure that `k` matching documents are returned.`\n\nAdded entry in index-modules.md:\n\n```\n301: $$$index-dense-vector-post-filter-selectivity-threshold$$$ `index.dense_vector.post_filter_selectivity_threshold` {applies_to}`stack: ga 9.6` {applies_to}`serverless: ga`\n302: :   Controls when a filtered approximate kNN search applies its filter after the vector search instead of during it. For each shard, {{es}} estimates the fraction of vectors that match the filter. If that fraction is greater than or equal to this setting, the search runs without the filter and gathers extra candidates. Otherwise {{es}} applies the filter during the search. Defaults to `0.7`. Accepts `0.0` to `1.0`. `1.0` turns post-filtering off.\n```\n\nElsewhere on the knn page, `rescore_vector` already uses the badge `{applies_to}`stack: preview =9.0, ga 9.1+``.",
+      "expected_output": "Finds both files from different sources (one committed and unpushed, one uncommitted), reviews only the changed content, fails the same-scope contradiction between the pre-filter statement and the new paragraph, and keeps the boundary, serverless-badge and version questions as Verify items without flagging the valid link form or badges.",
+      "expectations": [
+        "Finds both files: the uncommitted one from git status and the committed one from the @{upstream} diff, and states which is which",
+        "Reports a What changed summary for each file",
+        "Reports a FAIL for the contradiction between line 141 (the filter is a pre-filter applied during the search) and line 143 (on 9.6+ it is applied after), quoting both lines. Line 141 has no badge, so it applies to every version including 9.6+, which makes both statements the same scope",
+        "Notes that line 183 repeats the unqualified pre-filter claim",
+        "Puts the '1.0 turns post-filtering off' versus 'greater than or equal to' boundary in Verify, not Fix, because it is an edge value with little reader impact",
+        "Raises the serverless badge mismatch (the setting entry says serverless: ga but the new filter paragraph has only a stack badge) as a Verify item",
+        "Names the exact badge values (ga 9.6+ on one page and ga 9.6 on the other) in a Verify item rather than treating them as an error",
+        "Does not flag the elasticsearch:// link form as broken and does not question the inline {applies_to} badge syntax",
+        "Does not list an 'Outside this change' section unless it has a confident, substantive defect, and prints no placeholder text if it has none",
+        "Does not edit, stage or write any file"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check my uncommitted change with /docs-check-standard (no arguments). The repo is a docs repo and `git status --short` prints ` M troubleshoot/elasticsearch/index-lifecycle-management-errors.md`. Here is the diff:\n\n```\n--- a/troubleshoot/elasticsearch/index-lifecycle-management-errors.md\n+++ b/troubleshoot/elasticsearch/index-lifecycle-management-errors.md\n@@ -1,8 +1,6 @@\n ---\n navigation_title: Index lifecycle management errors\n mapped_pages:\n   - https://www.elastic.co/guide/en/elasticsearch/reference/current/index-lifecycle-error-handling.html\n-applies_to:\n-  stack:\n products:\n   - id: elasticsearch\n ---\n@@ -222,6 +220,24 @@\n+## Reset a stuck policy [ilm-reset]\n+\n+If an index stays stuck, you can reset it. The behaviour of ILM after a reset depends on utilisation of the cluster, so recognise the symptoms first. Check with the SKI bot or the PDC dashboard.\n+\n+1. Remove the policy:\n+\n+   ```console\n+   DELETE _ilm/policy/my-policy\n+   ```\n+\n+2. Remove the stuck indices and start again:\n+\n+   ```console\n+   DELETE my-index-*\n+   ```\n+\n+3. Recreate the policy and the indices.\n+\n@@ -250,7 +268,7 @@\n-### Rollover errors [ilm-errors-rollover]\n+##### Rollover errors [ilm-errors-rollover]\n```\n\nThe rest of the 350-line page is unchanged. One unchanged paragraph on line 61 reads: 'This setting is utilised by the poll interval', which uses British spelling. The page title and all other headings are unchanged and valid.",
+      "expected_output": "Reviews only the changed lines, fails the removed availability, the skipped heading level and the unwarned destructive commands, and does not report spelling or jargon.",
+      "expectations": [
+        "Reviews the diff (changed content), not the whole 350-line page",
+        "Reports a FAIL for removing applies_to, because the page is left with no deployment type or lifecycle",
+        "Reports a FAIL for the heading that skips levels (### changed to #####)",
+        "Reports a FAIL for the DELETE commands: destructive and irreversible with no data-loss warning",
+        "Notes that the new commands state no required privileges and the section has no way to verify the result (as a Fail or a Verify)",
+        "Status is NOT READY and is driven only by problems in the changed content",
+        "Does not edit, stage or write any file",
+        "Does not list the added British spellings (behaviour, utilisation, recognise) or the internal jargon (SKI bot, PDC dashboard) as findings, and does not let them affect Status; the report tells the author to run docs-check-style",
+        "Each Fix and Verify item cites a PS- requirement ID"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Run /docs-check-standard on my committed, unpushed change. `git diff --name-only --diff-filter=ACMR @{upstream}...HEAD` prints `deploy-manage/production-guidance/optimize-performance/indexing-speed.md`. The page is a tuning page. Summary of the diff:\n\n1. Page-level frontmatter is `applies_to: stack: all, serverless: all` both before and after.\n2. Removed from the old section 'Use resiliency patterns': 'Retry failed bulk requests with exponential backoff. Do not retry immediately, because rejected requests that are retried at once can overload the node. For large-scale operations, ramp up gradually and double throughput roughly every 30 minutes.' This sentence no longer appears anywhere in the new file.\n3. The section 'Tune bulk request size' had no badge (it applied to all deployment types). It now carries `{applies_to}`serverless: ga`` and its text still gives general advice: 'Start with 5 MB per request and increase until throughput stops improving.'\n4. Four other sections ('Use multiple workers', 'Disable replicas during initial load', 'Use auto-generated IDs', 'Reduce refresh interval') changed their badge from `{applies_to}`stack: all`` to `{applies_to}`stack: ga`` and nothing else.\n5. Sections were reordered: 'Use auto-generated IDs' moved from the server-side group to the client-side group.\n\nThe rest of the page is unchanged. One unchanged paragraph on line 12 has an ungrammatical sentence.",
+      "expected_output": "Detects the lost warning, the narrowed availability, and groups the mechanical badge conversions, without asking for permissions, examples or steps on a tuning page.",
+      "expectations": [
+        "Searches the new file for the removed retry and ramp-up guidance and, finding it gone, reports the loss with the removed text quoted (a Fail, because it was a warning about overloading the node)",
+        "Reports the 'Tune bulk request size' badge change as a narrowing: content that applied to every deployment type is now Serverless-only, and says that stack and self-managed readers lose the guidance",
+        "Groups the four mechanical stack: all to stack: ga conversions into one Verify bullet instead of four",
+        "Mentions the moved 'Use auto-generated IDs' section as a position change",
+        "Treats configuration steps, examples, permissions and subscription tier as N/A for this tuning page and does not list them as findings or Verify bullets (naming the page type once in the Assumed line is fine)",
+        "Does not report the unchanged ungrammatical sentence on line 12 as a FAIL",
+        "Keeps Verify to six items or fewer and ends it with the fixed ownership line",
+        "Does not edit, stage or write any file"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Run /docs-check-standard with no arguments. The branch has no upstream; `git rev-parse --abbrev-ref @{upstream}` fails. `git diff --name-only --diff-filter=ACMR $(git merge-base HEAD origin/main)...HEAD` prints `docs/reference/elasticsearch/configuration-reference/s3-repository-settings.md`, and `git status --short` is empty. The page has `applies_to: deployment: ess:, self:` in its frontmatter. The change adds one list entry to the S3 client settings, shown below with its line number. Sibling entries on the page are also single paragraphs with a default and a badge, and none of them has a code example or a restart note.\n\n```\n205: `legacy_content_md5` {applies_to}`stack: ga =9.5.6!, deprecated 9.5.7!+`\n206: :   When `true`, adds a `Content-MD5` header to requests. This is a temporary workaround for S3-compatible stores that need it, and it is deprecated. AWS S3 does not require it. Defaults to `false`. Refer to the [put object API](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html).\n```\n\nElsewhere on the same page, line 241 uses the identical badge form: `unsafely_incompatible_with_s3_conditional_writes` {applies_to}`stack: ga =9.2.3!, deprecated 9.2.4!+`.",
+      "expected_output": "Uses the merge-base fallback to find the file, judges the one-line entry against its siblings, and returns READY TO PUBLISH with a short Verify list and no padding.",
+      "expectations": [
+        "Uses the merge-base fallback because there is no upstream, and finds the single changed file",
+        "Status is READY TO PUBLISH and the Fix section is 'None.'",
+        "Does not ask for an example snippet, a restart note, a permissions statement or a subscription tier for this one-line settings entry",
+        "Does not question the badge syntax `ga =9.5.6!, deprecated 9.5.7!+`, because the same form already appears on line 241",
+        "Keeps Verify to four items or fewer and does not add 'static or dynamic' boilerplate",
+        "Leaves out any optional section it has nothing for, with no 'None found' or 'N/A' placeholder text",
+        "Does not edit, stage or write any file"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Run /docs-check-standard with no arguments. This is an ordinary project repo, not a docs repo: it has no docset.yml and its top-level folders are `src/` and `tools/`. `git status --short --untracked-files=all` prints ` M CHANGELOG.md`. `git rev-parse --abbrev-ref @{upstream}` prints `origin/feature`, and `git diff --name-only --diff-filter=ACMR @{upstream}...HEAD` prints `README.md` and `tools/scan.py`.",
+      "expected_output": "Finds no docs files to check, says so in one sentence, asks for a path or URL, and stops without producing a report.",
+      "expectations": [
+        "Skips README.md and CHANGELOG.md by name and tools/scan.py because it is not markdown, so no files are left to check",
+        "Asks the author for a path or URL, with one sentence saying no docs changes were found",
+        "Produces no report: no Status line and no Fix or Verify sections",
+        "Runs only the git commands the skill allows (status, diff, rev-parse, merge-base)",
+        "Does not edit, stage or write any file"
+      ]
+    }
+  ]
+}
