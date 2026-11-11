@@ -22,28 +22,13 @@ Two rules hold across all four:
 
 The rules that outlast every sub-entry — the system names and substitutions, the alert versus rule event versus series distinctions, the stored-name mapping, the system note, the section layout, and why a term pass is not a search-replace — are durable and live in `alerting-and-cases.md`.
 
-### Before the section move merges
-
-**Expires when:** elastic/docs-content#8516 merges. Check with `gh pr view 8516 --repo elastic/docs-content --json state`. It is held for the Serverless release, and merging it also closes [#1791](https://github.com/elastic/docs-content-internal/issues/1791) and [#1917](https://github.com/elastic/docs-content-internal/issues/1917), the "alert episode" rename issues.
-
-elastic/docs-content#8516 holds everything that ships with the release: the move, the regroup, the final names, the "alert episode" to "alert" rename, the `serverless: ga` tags, and a redirect for each moved page. The contributing pull requests were merged into its branch rather than into `main`, so until it merges, `main` has none of that.
-
-While this is open:
-
-- **`main` does not match the area file.** The section is still at `explore-analyze/alerting/experimental-alerting-system/`, the overview is still at `alerting/system-overview.md`, the section has no `_snippets/`, `{{alerting-v2-system}}` still renders the old name, `{{alerting-v1-system}}` does not exist, and the pages say "alert episode." The area file describes the layout after the merge, so resolve paths from `main` or from the pull request branch, depending on which one you are drafting against.
-- **Ask before adding, moving, or renaming a file in the section.** A page added on `main` collides with the move. Name the collision at the first approval gate, and ask whether to base on elastic/docs-content#8516 or wait for it.
-- **Use the substitutions anyway**, because they are what the merge changes, but do not draft against the text they render on `main`.
-- **Do not rename "alert episode" by hand, redraw the two system-flow diagrams, or write alt text for them.** The merge renames the term and removes the diagrams.
-
-On close, remove this sub-entry. The area file already describes the merged layout, so recheck its *Navigation* section against `main` and bump its `verified:` date.
-
 ### Serverless GA follow-ups
 
 **Expires when:** [#1880](https://github.com/elastic/docs-content-internal/issues/1880) closes. Its tables list the pull requests that merge after elastic/docs-content#8516, each with what it waits for. Expect it to stay open well after the section move merges.
 
 While this is open:
 
-- **Check the pending branch changes before editing what they touch.** elastic/docs-content#8736, elastic/docs-content#8734, and elastic/docs-content#8735 have merged into the elastic/docs-content#8516 branch; elastic/docs-content#8536 remains open and stacked on that branch. Editing the same pages on `main` still collides with #8516 or #8536.
+- **Check the pending branch changes before editing what they touch.** elastic/docs-content#8736, elastic/docs-content#8734, elastic/docs-content#8735, and elastic/docs-content#8536 have all merged, along with the elastic/docs-content#8516 section move itself. Re-check [#1880](https://github.com/elastic/docs-content-internal/issues/1880) for any pull requests still pending before editing the same pages.
 - **Do not add back what the restructure removed on purpose.** That covers the production-readiness sentences, scoped or not, because the lifecycle badges carry maturity; the "How to use the documentation" callouts; and the system note on every page, which now appears only on the section landing pages.
 - **The Agent Builder page stays experimental after serverless GA.** The code declares its skills for rules and action policies experimental, and they need the `alerting:v2:experimentalFeatures` space setting, labeled **Universal Alerting: Experimental Features** at `HEAD`. Check the registration rather than copying the neighbors' `serverless: ga`.
 - **Project-type scoping is unsettled.** Only Observability projects get the **Alerting** menu, the plugin does not load in Security Search AI Lake projects, and elastic/kibana#295505 hides the Universal Alerting privileges in serverless projects other than Observability. Carry it as an open question until question 1 in [#1758](https://github.com/elastic/docs-content-internal/issues/1758) is answered.
