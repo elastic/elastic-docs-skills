@@ -1,0 +1,55 @@
+{
+  "repo": "elastic/kibana",
+  "reviews": [
+    {
+      "number": 306420,
+      "head": "9a429f1fec520d696e81b4d31bfa2280e0ab8dd9",
+      "event": "APPROVE",
+      "body": "Docs LGTM overall, with a few wording suggestions.",
+      "comments": [
+        {
+          "id": "mde-test",
+          "priority": "P3",
+          "why": "Recurring outline ask.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/microsoft-defender-for-endpoint-action-type.md",
+          "line": 62,
+          "expect": "## Test connectors",
+          "body": "```suggestion\n### Test connectors [microsoft-defender-for-endpoint-action-configuration]\n```\nShould be the last subsection under Create, since testing is the last step of creating the connector"
+        },
+        {
+          "id": "mde-arrows",
+          "priority": "P3",
+          "why": "Recurring ask: one bold element per menu item.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/microsoft-defender-for-endpoint-action-type.md",
+          "line": 18,
+          "expect": "You can create connectors in",
+          "body": "Nit, with arrows:\n\n```suggestion\nYou can create connectors in **{{stack-manage-app}}** → **{{connectors-ui}}**.\n```"
+        }
+      ],
+      "body_extras": [],
+      "replies": []
+    },
+    {
+      "number": 307140,
+      "head": "4f1c2e7d9b0a8c6e5d3f2a1b0c9d8e7f6a5b4c3d",
+      "event": "APPROVE",
+      "body": "Docs LGTM",
+      "comments": [
+        {
+          "id": "tv1-mark",
+          "priority": "P3",
+          "why": "Marker policy.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/trendai-vision-one-action-type.md",
+          "line": 88,
+          "expect": "`isolateEndpoint` _(not yet available)_",
+          "body": "Same here:\n\n```suggestion\n`isolateEndpoint` _(API only)_\n```"
+        }
+      ],
+      "body_extras": [],
+      "replies": []
+    }
+  ]
+}

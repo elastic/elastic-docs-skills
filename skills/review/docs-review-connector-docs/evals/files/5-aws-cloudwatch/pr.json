@@ -1,0 +1,25 @@
+{
+  "repo": "elastic/kibana",
+  "number": 282281,
+  "title": "[Workflows][Connectors] Add AWS CloudWatch connector",
+  "state": "OPEN",
+  "headRefOid": "6e98ab608fe2f6853e17cd6e1f490f997a2ab658",
+  "labels": [],
+  "autoMergeRequest": null,
+  "reviews": [],
+  "review_threads": [],
+  "changed_docs_files": [
+    {
+      "path": "docs/reference/connectors-kibana/_snippets/data-context-sources-connectors-list.md",
+      "status": "modified"
+    },
+    {
+      "path": "docs/reference/connectors-kibana/aws-cloudwatch-action-type.md",
+      "status": "added"
+    },
+    {
+      "path": "docs/reference/toc.yml",
+      "status": "modified"
+    }
+  ]
+}

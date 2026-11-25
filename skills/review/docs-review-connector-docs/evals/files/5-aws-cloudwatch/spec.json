@@ -1,0 +1,78 @@
+{
+  "spec_dir": "src/platform/packages/shared/kbn-connector-specs/src/specs/aws_cloudwatch",
+  "commit": "6e98ab608fe2f6853e17cd6e1f490f997a2ab658",
+  "supportedFeatureIds": [
+    "agentBuilder"
+  ],
+  "docsUrl": null,
+  "auth": [
+    {
+      "type": "aws_credentials",
+      "fields": [
+        "accessKeyId",
+        "secretAccessKey"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "listAlarms",
+      "isTool": true
+    },
+    {
+      "name": "enableAlarmActions",
+      "isTool": true
+    },
+    {
+      "name": "disableAlarmActions",
+      "isTool": true
+    },
+    {
+      "name": "setAlarmState",
+      "isTool": false
+    },
+    {
+      "name": "getAlarmHistory",
+      "isTool": true
+    },
+    {
+      "name": "putMetricAlarm",
+      "isTool": false
+    },
+    {
+      "name": "listMetrics",
+      "isTool": true
+    },
+    {
+      "name": "getMetricData",
+      "isTool": true
+    },
+    {
+      "name": "getMetricWidgetImage",
+      "isTool": true
+    },
+    {
+      "name": "listLogGroups",
+      "isTool": true
+    },
+    {
+      "name": "filterLogEvents",
+      "isTool": true
+    },
+    {
+      "name": "startLogsQuery",
+      "isTool": true
+    },
+    {
+      "name": "getLogsQueryResults",
+      "isTool": true
+    },
+    {
+      "name": "listLogAnomalies",
+      "isTool": true
+    }
+  ],
+  "form_labels": [
+    "AWS Region"
+  ]
+}

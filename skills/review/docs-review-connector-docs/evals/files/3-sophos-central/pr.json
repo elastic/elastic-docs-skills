@@ -1,0 +1,21 @@
+{
+  "repo": "elastic/kibana",
+  "number": 306905,
+  "title": "[Connector][Sophos Central] Add Sophos Central Connector",
+  "state": "OPEN",
+  "headRefOid": "dc5da506c0a9a8fe8f0cfabc056d1bd157e728bf",
+  "labels": [],
+  "autoMergeRequest": null,
+  "reviews": [],
+  "review_threads": [],
+  "changed_docs_files": [
+    {
+      "path": "docs/reference/connectors-kibana/sophos-central-action-type.md",
+      "status": "added"
+    },
+    {
+      "path": "docs/reference/toc.yml",
+      "status": "modified"
+    }
+  ]
+}

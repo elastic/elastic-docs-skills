@@ -1,0 +1,25 @@
+{
+  "repo": "elastic/kibana",
+  "number": 306454,
+  "title": "[Connectors] Add CrowdStrike Falcon v2 connector",
+  "state": "OPEN",
+  "headRefOid": "cc14b4e9a78e1408af51437fb261a19f13518ff7",
+  "labels": [],
+  "autoMergeRequest": null,
+  "reviews": [],
+  "review_threads": [],
+  "changed_docs_files": [
+    {
+      "path": "docs/reference/connectors-kibana/_snippets/data-context-sources-connectors-list.md",
+      "status": "modified"
+    },
+    {
+      "path": "docs/reference/connectors-kibana/crowdstrike2-action-type.md",
+      "status": "added"
+    },
+    {
+      "path": "docs/reference/toc.yml",
+      "status": "modified"
+    }
+  ]
+}

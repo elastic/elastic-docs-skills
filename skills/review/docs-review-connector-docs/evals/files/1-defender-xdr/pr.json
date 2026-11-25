@@ -1,0 +1,25 @@
+{
+  "repo": "elastic/kibana",
+  "number": 306392,
+  "title": "[Connector][Microsoft Defender XDR] Add Microsoft Defender XDR connector",
+  "state": "OPEN",
+  "headRefOid": "b7224b816fd5e46b96ab94a31e23742268314e88",
+  "labels": [],
+  "autoMergeRequest": null,
+  "reviews": [],
+  "review_threads": [],
+  "changed_docs_files": [
+    {
+      "path": "docs/reference/connectors-kibana/_snippets/data-context-sources-connectors-list.md",
+      "status": "modified"
+    },
+    {
+      "path": "docs/reference/connectors-kibana/microsoft-defender-xdr-action-type.md",
+      "status": "added"
+    },
+    {
+      "path": "docs/reference/toc.yml",
+      "status": "modified"
+    }
+  ]
+}
