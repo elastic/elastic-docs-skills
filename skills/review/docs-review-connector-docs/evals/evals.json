@@ -59,6 +59,18 @@
         "Does NOT use a [Workflows][Connectors] PR title as proof of Workflows availability.",
         "Checks authentication and permission claims separately from feature availability."
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "The reviews for elastic/kibana #307001 and #276815 are posted. drafts.initial.json and drafts.json are in this folder. Between the two, I switched #276815 from Comment to Approve without touching its summary, removed 'I can open a follow-up for those' from a summary extra, and turned on two outline questions that were off by default. You also changed 'The other connector pages set the page type' to 'Most connector pages' after counting. Wrap up the round.",
+      "expected_output": "A short list of candidate lessons with inferred reasons, confirmed with the user before any skill edit, and no push or PR without approval.",
+      "expectations": [
+        "Runs compare_drafts.py, or an equivalent comparison, on drafts.initial.json and drafts.json.",
+        "States an inferred reason for each change and separates lessons that generalize from changes tied to one PR or to the user's personal voice.",
+        "Proposes at most a few lessons, each with the target file in the skill and the exact text to add or change.",
+        "Asks the user to confirm each lesson and its reason before editing the skill.",
+        "Does not push a branch or open a PR in elastic/elastic-docs-skills until the user approves the diff."
+      ]
     }
   ]
 }

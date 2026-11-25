@@ -1,9 +1,9 @@
 ---
 name: docs-review-connector-docs
 version: 1.0.0
-description: Use when reviewing the documentation in one or more Kibana connector PRs, even if the user only shares PR links and asks for a docs pass. Covers new or changed docs/reference/connectors-kibana/*-action-type.md pages, the connector-list snippet, and toc.yml. Checks each page against the connector spec and the connector-docs outline, drafts short review comments with one-click suggestions, lets the user select and edit them, and posts one GitHub review per PR only after the user validates the exact payload. Handles API-only action markers, applies_to versions, Agent Builder and Workflows availability, and connector-list entries. Not for drafting a connector page from scratch or for reviewing connector spec code.
+description: Use when reviewing the documentation in one or more Kibana connector PRs, even if the user only shares PR links and asks for a docs pass. Covers new or changed docs/reference/connectors-kibana/*-action-type.md pages, the connector-list snippet, and toc.yml. Checks each page against the connector spec and the connector-docs outline, drafts short review comments with one-click suggestions, lets the user select and edit them, and posts one GitHub review per PR only after the user validates the exact payload. After posting, compares the posted reviews with the first drafts and proposes skill improvements for the user to confirm. Handles API-only action markers, applies_to versions, Agent Builder and Workflows availability, and connector-list entries. Not for drafting a connector page from scratch or for reviewing connector spec code.
 argument-hint: <one or more elastic/kibana PR numbers or URLs>
-allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *), Bash(python3 *), WebFetch, AskUserQuestion
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash(gh *), Bash(git *), Bash(python3 *), WebFetch, AskUserQuestion
 sources:
   - https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-connector-specs/src/connector_spec.ts
   - https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-connector-specs/src/connector_spec_quality_contract.test.ts
@@ -54,6 +54,7 @@ Copy this checklist and track it:
 - [ ] 5. Present drafts for selection and editing
 - [ ] 6. Before posting: re-check heads, anchors, auto-merge
 - [ ] 7. Post after explicit validation, then verify
+- [ ] 8. Learn from the round: compare posted with drafted, propose skill edits
 ```
 
 ### 1. Gather
@@ -91,6 +92,8 @@ Write the drafts to `drafts.json`, using the schema in [references/posting.md](r
 - **P2:** reader-facing accuracy or clarity.
 - **P3:** outline and style.
 
+When the drafts are complete, copy `drafts.json` to `drafts.initial.json` before the user sees them. Step 8 compares the posted reviews against this copy.
+
 ### 5. Present drafts for selection
 
 Show drafts grouped by PR: ID, priority, target line, comment text, and the "why". If the client supports an interactive canvas, build one over `drafts.json` with a checkbox and an editable text box per comment, plus an editable summary and review type per PR. Otherwise, list the drafts in chat and take selections by ID.
@@ -116,6 +119,16 @@ python3 scripts/post_reviews.py drafts.json --yes
 ```
 
 The script skips a PR with auto-merge on. Add `--disable-auto-merge` once the user agreed to turn it off. Report each review URL and the posted comment count against the expected count.
+
+### 8. Learn from the round
+
+Read [references/learn-from-round.md](references/learn-from-round.md) and run:
+
+```bash
+python3 scripts/compare_drafts.py drafts.initial.json drafts.json
+```
+
+Explain each change between the first drafts and the posted reviews, and keep only the lessons that would apply to the next connector PR. Confirm each lesson and its reason with the user, then propose the skill edit on GitHub. The step is done when the user has accepted or declined every proposed lesson, or when you report that the round produced none.
 
 ## Gotchas
 
