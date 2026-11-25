@@ -5,7 +5,7 @@ Write as a docs reviewer leaving quick notes for a developer: short, direct, and
 ## Rules
 
 - **No thank-yous.** Not in comments, not in the review summary.
-- **One-line review summary.** Examples: "Docs LGTM overall, with a few wording suggestions." "A few wording suggestions below, and one question about the scopes." Add a second sentence only for something that must change before merge.
+- **One-line review summary.** Examples: "Docs LGTM overall, with a few wording suggestions." "A few wording suggestions, and one question about the scopes." Add a second sentence only for something that must change before merge.
 - **One point per comment.** A short reason plus a suggestion block. The reason can come before or after the block. Keep it to one or two sentences.
 - **Own preferences.** "I'd suggest", "I'd rather", "I think this fits better in…". Explain the effect on readers, not the rule.
 - **Ask when you can't verify.** "Could you confirm…?" for any technical claim from the code or the vendor console. Don't explain what the code does.

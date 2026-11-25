@@ -4,7 +4,7 @@
 
 Every connector page follows one outline, so a reader who knows one page finds the same sections in the same place on any other.
 
-1. **Intro, right under the H1.** What the connector does and where it's available. If some capabilities start later, an untagged lead-in sentence, then tagged bullets.
+1. **Intro, first after the H1.** What the connector does and where it's available. If some capabilities start later, an untagged lead-in sentence, then tagged bullets.
 2. **Prerequisites.** What the reader needs to have, on the vendor side and the Elastic side: licenses, roles, privileges, setup done elsewhere. Things to have, never steps.
 3. **Create connectors in {{kib}}.** In this order, as H3s: vendor-side setup (for example **Get API credentials**), connector configuration, networking configuration, then **Test connectors**. Every instruction lives here.
 4. **Connector actions.** Reference for every action, split into H3s when it helps (read, lookup, write).
@@ -45,7 +45,7 @@ Short reason: testing is the last step of creating the connector.
 
 **No `## Overview` heading.** Fold its content into the intro, or into the section it repeats.
 
-**Section name.** Call the action reference **Connector actions**, without an extra "summary table" heading above the table.
+**Section name.** Call the action reference **Connector actions**, without an extra "summary table" heading for the table.
 
 **Test notes in user docs.** Flag phrases such as "in testing", "has not been verified", or a "Notes from live use" heading. Ask for reader guidance instead: what the reader should expect or do. A heading like **Usage notes** works.
 
@@ -61,5 +61,5 @@ Short reason: testing is the last step of creating the connector.
 
 - A description, intro, or list line that mentions API-only actions. See `availability-and-markers.md`.
 - Unchanged copy around the diff, unless a cross-reference in it is broken.
-- A restructure beyond the outline above.
+- A restructure beyond the target outline on this page.
 - Points a bot or another reviewer already made in an open thread.
