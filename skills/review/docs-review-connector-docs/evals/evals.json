@@ -1,0 +1,64 @@
+{
+  "skill_name": "docs-review-connector-docs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review the docs in elastic/kibana PR #306392 (Microsoft Defender XDR connector) as of commit b7224b816fd5. Draft the comments, don't post anything.",
+      "expected_output": "Drafted comments that catch the stale applies_to version and the missing markers, recommend _(API only)_ with one suggestion per action line, and add a one-line CI heads-up because the spec has no docsUrl.",
+      "expectations": [
+        "Flags `stack: preview 9.6` and suggests 9.7, based on the existing 9.6 release branch.",
+        "Flags that the definition terms of mergeIncidents, createDetectionRule, updateDetectionRule, and deleteDetectionRule have no marker.",
+        "Suggests `_(API only)_` with a separate suggestion on each of those action lines, not one comment asking the developer to find them.",
+        "Adds one heads-up line about connector_spec_quality_contract.test.ts without explaining how to change the test.",
+        "Flags that the OAuth scope field is documented only in the trailing Configure the connector table.",
+        "Does not post anything to GitHub."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "can you do a docs pass on https://github.com/elastic/kibana/pull/306454 (commit cc14b4e9a78e)? keep it short, i'll pick what to post",
+      "expected_output": "A selectable set of short drafts that switches 19 markers to _(API only)_, flags test notes in user docs, and doesn't object to the description listing API-only actions.",
+      "expectations": [
+        "Does NOT flag the description or intro for listing actions that are API-only, such as detonation or IOC and IOA rule management.",
+        "Drafts one suggestion per marked action line, 19 in total, plus one comment that explains the marker change.",
+        "Flags notes about how the developer tested the connector, such as values seen in testing, and suggests keeping only what readers can act on.",
+        "Proposes a one-line review summary with no thank-you.",
+        "Presents the drafts with IDs or checkboxes so the user can select and edit them before anything is posted."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review the Sophos Central connector docs in elastic/kibana PR #306905 (commit dc5da506c0a9).",
+      "expected_output": "A review that removes the bogus mapped_pages entry, notices the missing connector-list entry, and asks rather than asserts about the vendor credential scopes.",
+      "expectations": [
+        "Flags the `mapped_pages` frontmatter as invalid for a new page and suggests deleting it.",
+        "Notices that the PR adds no entry to the connector-list snippet and puts that point in the review summary, because the file isn't in the PR diff.",
+        "Phrases the claim about Sophos Central credential scopes as a question to the developer instead of asserting it.",
+        "Recommends `_(API only)_` for updateTamperProtection, addAllowedItem, and deleteBlockedItem."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "ok i'm good with the drafts for #306420 and #307140, post them",
+      "expected_output": "The agent rechecks heads, anchors, and auto-merge, shows the exact payload, and waits for an explicit go-ahead before posting one review per PR.",
+      "expectations": [
+        "Runs the drafts check, or an equivalent, against the current PR heads before posting.",
+        "Reports whether auto-merge is enabled on each PR, and includes disabling it in the plan when it is.",
+        "Shows the exact review summaries, review types, and comment counts, and waits for confirmation instead of posting immediately.",
+        "Posts one review per PR with the commit pinned, rather than individual comments.",
+        "After a 5xx error, checks whether the review exists before retrying."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review the AWS CloudWatch connector page added by elastic/kibana PR #282281. Pay attention to which features and actions can use the connector.",
+      "expected_output": "A review that separates connector-level feature availability from action-level tool eligibility.",
+      "expectations": [
+        "Explains that supportedFeatureIds controls whether Agent Builder and Workflows list the connector.",
+        "Explains that `isTool: false` keeps an action away from agents but doesn't make it workflow-only.",
+        "Does NOT use a [Workflows][Connectors] PR title as proof of Workflows availability.",
+        "Checks authentication and permission claims separately from feature availability."
+      ]
+    }
+  ]
+}
