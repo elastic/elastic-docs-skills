@@ -41,7 +41,7 @@ Fields:
 - `comments[].line`: the last line of the range, on the new side of the diff. Add `start_line` for a multi-line suggestion. A suggestion replaces every line from `start_line` to `line`. An empty suggestion block deletes them.
 - `comments[].expect`: a substring of the target line or lines at `head`. It catches drift that line numbers alone miss.
 - `body_extras[]`: `{id, selected, body}` text appended to the review summary, for a point about a file the PR doesn't touch.
-- `replies[]`: `{id, selected, in_reply_to, body}` for a reply in an existing review thread. `in_reply_to` is the numeric ID of the thread's first comment.
+- `replies[]`: `{id, selected, in_reply_to, body}` for a reply in an existing review thread. `in_reply_to` is the numeric ID of the thread's first comment, as printed by `list_threads.py`.
 - `selected: false` keeps a draft in the file without posting it.
 
 ## Check

@@ -3,7 +3,7 @@ name: docs-review-connector-docs
 version: 1.0.0
 description: Use when reviewing the documentation in one or more Kibana connector PRs, even if the user only shares PR links and asks for a docs pass. Covers new or changed docs/reference/connectors-kibana/*-action-type.md pages, the connector-list snippet, and toc.yml. Checks each page against the connector spec and the connector-docs outline, drafts short review comments with one-click suggestions, lets the user select and edit them, and posts one GitHub review per PR only after the user validates the exact payload. After posting, compares the posted reviews with the first drafts and proposes skill improvements for the user to confirm. Handles API-only action markers, applies_to versions, Agent Builder and Workflows availability, and connector-list entries. For connector pages, use this skill rather than docs-review-pr. Not for drafting a connector page from scratch or for reviewing connector spec code.
 argument-hint: <one or more elastic/kibana PR numbers or URLs>
-allowed-tools: Read, Grep, Glob, Write, Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr list *), Bash(git fetch *), Bash(git show *), Bash(git grep *), Bash(git log *), Bash(git diff *), Bash(git remote get-url *), Bash(python3 *check_drafts.py *), Bash(python3 *compare_drafts.py *), WebFetch, AskUserQuestion
+allowed-tools: Read, Grep, Glob, Write, Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr list *), Bash(git fetch *), Bash(git show *), Bash(git grep *), Bash(git log *), Bash(git diff *), Bash(git remote get-url *), Bash(python3 *list_threads.py *), Bash(python3 *check_drafts.py *), Bash(python3 *compare_drafts.py *), WebFetch, AskUserQuestion
 sources:
   - https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-connector-specs/src/connector_spec.ts
   - https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-connector-specs/src/connector_spec_quality_contract.test.ts
@@ -71,7 +71,7 @@ Copy this checklist and track it:
 - Use a local `elastic/kibana` clone. Confirm `git remote get-url origin`, then `git fetch origin main`. Read baseline files at `origin/main` with `git show origin/main:<path>`, never from a stale working tree.
 - Every line number you draft is tied to the head SHA you recorded.
 - Read the docs files at the PR head: the `*-action-type.md` page, `docs/reference/connectors-kibana/_snippets/data-context-sources-connectors-list.md`, and `docs/reference/toc.yml`. Use `gh pr diff` for the changed hunks.
-- Read every existing review comment, including bots and the user's own earlier comments. Don't repeat a point someone already made. If one of the user's earlier suggestions turns out wrong, draft a reply in that thread instead of a new comment.
+- Read every existing review comment, including bots and the user's own earlier comments. The status call above returns the review summaries, and `python3 <skill-dir>/scripts/list_threads.py <n>` lists the inline threads with the ID a reply needs. Don't repeat a point someone already made. If one of the user's earlier suggestions turns out wrong, draft a reply in that thread instead of a new comment.
 - Read the connector spec at the PR head: `metadata.supportedFeatureIds`, `metadata.docsUrl`, each action's `isTool`, and the config and auth fields with their labels.
 - Read the Kibana `review-connector` skill at `origin/main` (`src/platform/packages/shared/kbn-connector-specs/.claude/skills/review-connector/SKILL.md`). Its "Documentation and Icons" section is the developers' baseline. Don't repeat it in full. This skill adds the docs-team layer on top.
 
@@ -146,7 +146,7 @@ python3 <skill-dir>/scripts/compare_drafts.py drafts.initial.json drafts.json --
 
 ## Gotchas
 
-- **The contract test enforces the old marker.** `connector_spec_quality_contract.test.ts` requires the exact `_(not yet available)_` text on every non-tool action line of an Agent Builder-only connector, unless the spec sets `metadata.docsUrl`. Recommend `_(API only)_` anyway. CI is the developer's to fix: add one heads-up line, and don't explain how to change the test.
+- **The contract test enforces the old marker.** Recommend `_(API only)_` anyway. CI is the developer's to fix: add the heads-up line from `availability-and-markers.md`, and don't explain how to change the test.
 - **Don't flag descriptions or intros that list API-only actions.** These actions will become fully available later. Listing them with the other actions is fine.
 - **One suggestion per marked line.** A note comment alone makes the developer hunt for 19 lines. Post a one-click suggestion on every marked action, and tie them to the note comment.
 - **Line numbers go stale between drafting and posting.** Developers push while you review. Pin `commit_id` to the head you checked, and re-check right before posting.

@@ -12,7 +12,7 @@ Comments post under the name of the user who runs the skill, so write in their v
 - **Own preferences.** "I'd suggest", "I'd rather", "I think this fits better in…". Explain the effect on readers, not the rule.
 - **Report the finding, not its scope.** Say what you found and why it matters to readers. Whether it's fixed in this PR or later is the developer's call, so don't label a point as out of scope or as a follow-up, and don't offer to open one.
 - **Ask when you can't verify.** "Could you confirm…?" for any technical claim from the code or the vendor console. Don't explain what the code does.
-- **Same change on many lines.** The first comment explains, and the others say "Same here:" with the suggestion.
+- **Same change on many lines.** For markers, the first comment explains, and every other marked line gets "Same here:" with its suggestion. A style nit repeated across the page gets one comment with one example suggestion and a list of the other lines.
 - **An occasional emoji is fine** (🙏, 😅, `:)`), but not in every comment.
 - **Plain style.** No em dashes, no semicolons joining clauses.
 - **Internal notes stay out.** The "why" field, priorities, and verification evidence are for the user, never posted.
@@ -60,10 +60,10 @@ The first comment on a page with markers explains the change once:
 <standard note from availability-and-markers.md>
 ```
 
-Heads-up: `connector_spec_quality_contract.test.ts` checks these lines for the old `_(not yet available)_` text, so it needs a matching change there.
+<heads-up line from availability-and-markers.md>
 ````
 
-Each marked action line then gets "Same here:" plus its suggestion. The heads-up line goes only on pages the test checks.
+Each marked action line then gets "Same here:" plus its suggestion. Add the heads-up line only when the spec has no `docsUrl`.
 
 ## Review type
 

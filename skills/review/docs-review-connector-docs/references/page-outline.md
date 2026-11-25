@@ -55,7 +55,7 @@ Short reason: testing is the last step of creating the connector.
 
 **Links to sibling connector pages.** Only when the target page exists on `main`. Otherwise, ask that the PR merging second adds the link.
 
-**Style nits.** "Click" becomes "Select". Use US spelling. Replace em dashes and "e.g." with a colon, a new sentence, or "for example". When a page has many of the same nit, post one comment with one example suggestion and list the other lines. Don't post twenty separate nits.
+**Style nits.** "Click" becomes "Select". Use US spelling. Replace em dashes and "e.g." with a colon, a new sentence, or "for example". When a page has many of the same nit, post one comment with one example suggestion and list the other lines. Don't post twenty separate nits. Markers are different: each marked action gets its own suggestion.
 
 ## Don't flag
 
