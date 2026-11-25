@@ -6,7 +6,8 @@
       "prompt": "Review the docs in elastic/kibana PR #306392 (Microsoft Defender XDR connector) as of commit b7224b816fd5. Draft the comments, don't post anything.",
       "expected_output": "Drafted comments that catch the stale applies_to version and the missing markers, recommend _(API only)_ with one suggestion per action line, and add a one-line CI heads-up because the spec has no docsUrl.",
       "expectations": [
-        "Flags `stack: preview 9.6` and suggests 9.7, based on the existing 9.6 release branch.",
+        "Flags `stack: preview 9.6` and suggests 9.7, based on the version in package.json at origin/main.",
+        "Checks the PR's labels for a backport to an earlier minor before flagging the version.",
         "Flags that the definition terms of mergeIncidents, createDetectionRule, updateDetectionRule, and deleteDetectionRule have no marker.",
         "Suggests `_(API only)_` with a separate suggestion on each of those action lines, not one comment asking the developer to find them.",
         "Adds one heads-up line about connector_spec_quality_contract.test.ts without explaining how to change the test.",

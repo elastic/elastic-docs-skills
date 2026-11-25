@@ -7,7 +7,7 @@ Most rounds produce no lesson, or only one. A lesson needs both the user's confi
 ## 1. Collect the changes
 
 ```bash
-python3 scripts/compare_drafts.py drafts.initial.json drafts.json
+python3 <skill-dir>/scripts/compare_drafts.py drafts.initial.json drafts.json
 ```
 
 It lists, per PR, the review type and summary changes, drafts turned on or off, drafts added or removed, and word-level edits to each body.

@@ -44,9 +44,12 @@ def check_review(repo, review):
     if pr["autoMergeRequest"]:
         warnings.append("AUTO-MERGE ON: disable it before posting (--disable-auto-merge)")
     if not head.startswith(review["head"]):
-        changed = gh_json("api", f"repos/{repo}/compare/{review['head']}...{head}", "--jq", "[.files[].filename]") or []
-        docs = [f for f in changed if f.startswith(DOCS_PREFIX)]
-        problems.append("HEAD MOVED since drafting. Docs files changed: " + (", ".join(docs) or "none"))
+        try:
+            changed = gh_json("api", f"repos/{repo}/compare/{review['head']}...{head}", "--jq", "[.files[].filename]") or []
+            docs = ", ".join(f for f in changed if f.startswith(DOCS_PREFIX)) or "none"
+        except GhError:
+            docs = "unknown, the drafted commit is no longer reachable (force-push?)"
+        problems.append(f"HEAD MOVED since drafting. Docs files changed: {docs}")
 
     files = {f["filename"]: commentable_lines(f.get("patch")) for f in gh_list(f"repos/{repo}/pulls/{n}/files?per_page=100")}
     contents = {}

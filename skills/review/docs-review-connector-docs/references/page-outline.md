@@ -11,7 +11,7 @@ Every connector page follows one outline, so a reader who knows one page finds t
 5. **Connector events**, only if the connector has them.
 6. **How-tos.** Example-oriented tasks for one use case.
 
-Tagging: the frontmatter carries the baseline lifecycle, so tag only what started later. Use one section tag for a group, not one per action. Put `serverless` first, then `stack`. Take versions from shipped minors.
+Tagging: the frontmatter carries the baseline lifecycle, so tag only what started later. Use one section tag for a group, not one per action. Put `serverless` first, then `stack`. When an existing page gains content that started in an earlier release, take the version from the minor that shipped it. Content new on `main` uses the version from SKILL.md step 2.
 
 Ask for outline changes one comment at a time, anchored on the heading that moves. Don't rewrite whole sections in a suggestion.
 

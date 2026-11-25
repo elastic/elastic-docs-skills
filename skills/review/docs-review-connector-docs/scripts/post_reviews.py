@@ -71,10 +71,11 @@ def post_review(repo, n, payload, viewer):
 
 def post_reply(repo, n, reply, viewer):
     thread = gh_list(f"repos/{repo}/pulls/{n}/comments?per_page=100")
-    if any(c.get("in_reply_to_id") == reply["in_reply_to"] and c["user"]["login"] == viewer and c["body"] == reply["body"] for c in thread):
+    target = int(reply["in_reply_to"])
+    if any(c.get("in_reply_to_id") == target and c["user"]["login"] == viewer and c["body"] == reply["body"] for c in thread):
         print(f"  reply {reply['id']} already exists")
         return
-    out = gh_json("api", "-X", "POST", f"repos/{repo}/pulls/{n}/comments/{reply['in_reply_to']}/replies", "-f", f"body={reply['body']}")
+    out = gh_json("api", "-X", "POST", f"repos/{repo}/pulls/{n}/comments/{target}/replies", "-f", f"body={reply['body']}")
     print(f"  reply {reply['id']}: {out['html_url']}")
 
 
@@ -116,7 +117,13 @@ def main():
             failures += 1
             continue
         if not args.yes:
-            print("  dry run: nothing posted")
+            print("  summary: " + payload["body"].replace("\n", "\n           "))
+            for c in payload["comments"]:
+                span = f"{c['start_line']}-{c['line']}" if c.get("start_line") else str(c["line"])
+                print(f"  comment: {c['path'].split('/')[-1]}:{span}")
+            for r in replies:
+                print(f"  reply to comment {r['in_reply_to']}")
+            print("  dry run: nothing posted. The full comment text is in preview.md.")
             continue
 
         if i:

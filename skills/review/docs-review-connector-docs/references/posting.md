@@ -47,7 +47,7 @@ Fields:
 ## Check
 
 ```bash
-python3 scripts/check_drafts.py drafts.json --preview preview.md
+python3 <skill-dir>/scripts/check_drafts.py drafts.json --preview preview.md
 ```
 
 It exits non-zero when something blocks posting:
@@ -64,7 +64,7 @@ It exits non-zero when something blocks posting:
 Only after the user validates the payload in this round:
 
 ```bash
-python3 scripts/post_reviews.py drafts.json --yes [--disable-auto-merge]
+python3 <skill-dir>/scripts/post_reviews.py drafts.json --yes [--disable-auto-merge]
 ```
 
 The script re-checks each head, posts one review per PR with `commit_id` pinned, then posts replies. It skips a review that already exists with the same body on the same commit. It handles the two known failures this way:
@@ -72,4 +72,4 @@ The script re-checks each head, posts one review per PR with `commit_id` pinned,
 - **5xx:** it waits, checks whether the review posted anyway, and retries only if it didn't.
 - **Secondary rate limit (403):** it waits two minutes, checks, and retries, up to three times.
 
-It waits between PRs, then prints each review URL with the posted and expected comment counts. Without `--yes`, it prints what it would do and posts nothing.
+It waits between PRs, then prints each review URL with the posted and expected comment counts. Without `--yes`, it prints each review's type, summary, and comment locations, and posts nothing. The full comment text is in `preview.md`.

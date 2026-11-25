@@ -2,6 +2,8 @@
 
 Write as a docs reviewer leaving quick notes for a developer: short, direct, and friendly. The developer should be able to accept a suggestion in one click and understand why in one line.
 
+Comments post under the name of the user who runs the skill, so write in their voice. If they have a writing-style profile, follow it. The examples below come from one reviewer. Match their length and directness, not their exact phrasing or emoji.
+
 ## Rules
 
 - **No thank-yous.** Not in comments, not in the review summary.

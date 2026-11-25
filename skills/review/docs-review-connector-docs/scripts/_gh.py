@@ -62,7 +62,7 @@ def raw_file(repo, path, ref):
 def commentable_lines(patch):
     """Return the set of new-side line numbers a review comment can target in a file patch."""
     lines, right = set(), 0
-    for row in (patch or "").split("\n"):
+    for row in (patch or "").splitlines():
         hunk = re.match(r"^@@ -\d+(?:,\d+)? \+(\d+)", row)
         if hunk:
             right = int(hunk.group(1))
