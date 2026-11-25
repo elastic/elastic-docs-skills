@@ -67,8 +67,9 @@ Copy this checklist and track it:
 
 ### 1. Gather
 
+- Start with each PR's status: `gh pr view <n> --repo elastic/kibana --json state,headRefOid,autoMergeRequest,reviews`. Note the state, the head SHA, auto-merge, and any review the user already left. If the user already reviewed the current head, show that review and ask before drafting another one.
 - Use a local `elastic/kibana` clone. Confirm `git remote get-url origin`, then `git fetch origin main`. Read baseline files at `origin/main` with `git show origin/main:<path>`, never from a stale working tree.
-- For each PR, record the head SHA (`gh pr view <n> --repo elastic/kibana --json headRefOid`). Every line number you draft is tied to that SHA.
+- Every line number you draft is tied to the head SHA you recorded.
 - Read the docs files at the PR head: the `*-action-type.md` page, `docs/reference/connectors-kibana/_snippets/data-context-sources-connectors-list.md`, and `docs/reference/toc.yml`. Use `gh pr diff` for the changed hunks.
 - Read every existing review comment, including bots and the user's own earlier comments. Don't repeat a point someone already made. If one of the user's earlier suggestions turns out wrong, draft a reply in that thread instead of a new comment.
 - Read the connector spec at the PR head: `metadata.supportedFeatureIds`, `metadata.docsUrl`, each action's `isTool`, and the config and auth fields with their labels.
@@ -119,7 +120,7 @@ Read [references/posting.md](references/posting.md), then run:
 python3 <skill-dir>/scripts/check_drafts.py drafts.json --preview preview.md
 ```
 
-It reports, per PR: head changes since drafting, anchors outside the diff, `expect` mismatches, and auto-merge status. If a head moved, diff the docs files between the drafted SHA and the new head, re-anchor or drop comments the new commits already addressed, and run the check again. If auto-merge is on, the plan must include disabling it so the developer has time to read the review.
+It reports, per PR: head changes since drafting, reviews the user already left, anchors outside the diff, `expect` mismatches, and auto-merge status. If a head moved, diff the docs files between the drafted SHA and the new head, re-anchor or drop comments the new commits already addressed, and run the check again. If auto-merge is on, the plan must include disabling it so the developer has time to read the review.
 
 ### 7. Post and verify
 
@@ -131,17 +132,17 @@ python3 <skill-dir>/scripts/post_reviews.py drafts.json --yes
 
 This command posts on the user's behalf, so it stays outside `allowed-tools` and the client asks for permission each time.
 
-The script skips a PR with auto-merge on. Add `--disable-auto-merge` once the user agreed to turn it off. Report each review URL and the posted comment count against the expected count.
+The script skips a PR with auto-merge on, and a PR where the user already reviewed the current head. Add `--disable-auto-merge` once the user agreed to turn auto-merge off, and `--second-review` once the user confirmed a second review. Report each review URL and the posted comment count against the expected count.
 
 ### 8. Learn from the round
 
 Read [references/learn-from-round.md](references/learn-from-round.md) and run:
 
 ```bash
-python3 <skill-dir>/scripts/compare_drafts.py drafts.initial.json drafts.json
+python3 <skill-dir>/scripts/compare_drafts.py drafts.initial.json drafts.json --live
 ```
 
-Explain each change between the first drafts and the posted reviews, and keep only the lessons that would apply to the next connector PR. Confirm each lesson and its reason with the user, then propose the skill edit on GitHub. The step is done when the user has accepted or declined every proposed lesson, or when you report that the round produced none.
+`--live` reads the posted reviews from GitHub, so edits the user made there after posting count too. Explain each change between the first drafts and the posted reviews, and keep only the lessons that would apply to the next connector PR. Confirm each lesson and its reason with the user, then propose the skill edit on GitHub. The step is done when the user has accepted or declined every proposed lesson, or when you report that the round produced none.
 
 ## Gotchas
 

@@ -55,6 +55,25 @@ def gh_list(path):
     return [json.loads(line) for line in out.splitlines() if line.strip()]
 
 
+def viewer_login():
+    return gh("api", "user", "--jq", ".login").strip()
+
+
+def own_reviews(repo, n, viewer):
+    """Return the viewer's reviews on a PR, including an unsubmitted (PENDING) one."""
+    return [r for r in gh_list(f"repos/{repo}/pulls/{n}/reviews?per_page=100") if r["user"]["login"] == viewer]
+
+
+def review_status(reviews, head):
+    """Split the viewer's reviews into (pending, on the current head, on earlier commits)."""
+    submitted = [r for r in reviews if r["state"] != "PENDING"]
+    return (
+        [r for r in reviews if r["state"] == "PENDING"],
+        [r for r in submitted if r.get("commit_id") == head],
+        [r for r in submitted if r.get("commit_id") != head],
+    )
+
+
 def raw_file(repo, path, ref):
     return gh("api", f"repos/{repo}/contents/{path}?ref={ref}", "-H", "Accept: application/vnd.github.raw")
 

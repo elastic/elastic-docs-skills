@@ -7,10 +7,10 @@ Most rounds produce no lesson, or only one. A lesson needs both the user's confi
 ## 1. Collect the changes
 
 ```bash
-python3 <skill-dir>/scripts/compare_drafts.py drafts.initial.json drafts.json
+python3 <skill-dir>/scripts/compare_drafts.py drafts.initial.json drafts.json --live
 ```
 
-It lists, per PR, the review type and summary changes, drafts turned on or off, drafts added or removed, and word-level edits to each body.
+`--live` takes the posted side from the user's reviews on GitHub, as they read now. Without it, the script compares the two files offline and misses edits made on GitHub after posting. It lists, per PR, the review type and summary changes, drafts turned on or off, drafts added or removed, and word-level edits to each body.
 
 Add what the comparison can't show:
 

@@ -52,6 +52,8 @@ python3 <skill-dir>/scripts/check_drafts.py drafts.json --preview preview.md
 
 It exits non-zero when something blocks posting:
 
+- **ALREADY REVIEWED:** the user already reviewed the current head. Show the existing review and ask whether a second one makes sense.
+- **PENDING REVIEW:** the user has an unsubmitted review on the PR. GitHub allows only one, so they submit or delete it first.
 - **HEAD MOVED:** the PR has new commits. It lists the docs files that changed. Re-read them, fix line numbers and `expect`, drop comments the new commits addressed, update `head`, and check again.
 - **OUTSIDE DIFF:** the anchor isn't on a line GitHub can comment on. Move the point to `body_extras` or to a line inside a hunk.
 - **EXPECT MISMATCH:** the target line doesn't contain `expect`. Re-anchor.
@@ -64,10 +66,10 @@ It exits non-zero when something blocks posting:
 Only after the user validates the payload in this round:
 
 ```bash
-python3 <skill-dir>/scripts/post_reviews.py drafts.json --yes [--disable-auto-merge]
+python3 <skill-dir>/scripts/post_reviews.py drafts.json --yes [--disable-auto-merge] [--second-review]
 ```
 
-The script re-checks each head, posts one review per PR with `commit_id` pinned, then posts replies. It skips a review that already exists with the same body on the same commit. It handles the two known failures this way:
+The script re-checks each head, posts one review per PR with `commit_id` pinned, then posts replies. It skips a PR where the user already reviewed the current head, unless `--second-review` is set. It handles the two known failures this way:
 
 - **5xx:** it waits, checks whether the review posted anyway, and retries only if it didn't.
 - **Secondary rate limit (403):** it waits two minutes, checks, and retries, up to three times.

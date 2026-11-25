@@ -27,12 +27,24 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _gh import GhError, commentable_lines, gh_json, gh_list, load_drafts, raw_file, review_body, selected  # noqa: E402
+from _gh import (  # noqa: E402
+    GhError,
+    commentable_lines,
+    gh_json,
+    gh_list,
+    load_drafts,
+    own_reviews,
+    raw_file,
+    review_body,
+    review_status,
+    selected,
+    viewer_login,
+)
 
 DOCS_PREFIX = "docs/"
 
 
-def check_review(repo, review):
+def check_review(repo, review, viewer):
     n = review["number"]
     problems, warnings = [], []
     pr = gh_json("pr", "view", str(n), "--repo", repo, "--json", "state,headRefOid,autoMergeRequest,isDraft")
@@ -41,6 +53,13 @@ def check_review(repo, review):
 
     if pr["state"] != "OPEN":
         problems.append(f"PR is {pr['state']}")
+    pending, on_head, earlier = review_status(own_reviews(repo, n, viewer), head)
+    if pending:
+        problems.append("PENDING REVIEW: you have an unsubmitted review on this PR. Submit or delete it on GitHub first.")
+    if on_head:
+        problems.append("ALREADY REVIEWED this head: " + ", ".join(r["html_url"] for r in on_head))
+    if earlier:
+        warnings.append("You reviewed an earlier commit: " + ", ".join(r["html_url"] for r in earlier))
     if pr["autoMergeRequest"]:
         warnings.append("AUTO-MERGE ON: disable it before posting (--disable-auto-merge)")
     if not head.startswith(review["head"]):
@@ -108,9 +127,10 @@ def main():
     args = parser.parse_args()
 
     drafts = load_drafts(args.drafts)
+    viewer = viewer_login()
     total = 0
     for review in drafts["reviews"]:
-        total += len(check_review(drafts["repo"], review))
+        total += len(check_review(drafts["repo"], review, viewer))
     if args.preview:
         write_preview(drafts, args.preview)
     print(f"\n{'Ready to post.' if total == 0 else f'{total} problem(s) block posting.'}")
