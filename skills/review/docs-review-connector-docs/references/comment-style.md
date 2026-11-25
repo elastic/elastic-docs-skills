@@ -10,6 +10,7 @@ Comments post under the name of the user who runs the skill, so write in their v
 - **One-line review summary.** Examples: "Docs LGTM overall, with a few wording suggestions." "A few wording suggestions, and one question about the scopes." Add a second sentence only for something that must change before merge.
 - **One point per comment.** A short reason plus a suggestion block. The reason can come before or after the block. Keep it to one or two sentences.
 - **Own preferences.** "I'd suggest", "I'd rather", "I think this fits better in…". Explain the effect on readers, not the rule.
+- **Report the finding, not its scope.** Say what you found and why it matters to readers. Whether it's fixed in this PR or later is the developer's call, so don't label a point as out of scope or as a follow-up, and don't offer to open one.
 - **Ask when you can't verify.** "Could you confirm…?" for any technical claim from the code or the vendor console. Don't explain what the code does.
 - **Same change on many lines.** The first comment explains, and the others say "Same here:" with the suggestion.
 - **An occasional emoji is fine** (🙏, 😅, `:)`), but not in every comment.
