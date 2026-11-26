@@ -116,6 +116,8 @@ Show drafts grouped by PR: ID, priority, target line, comment text, and the "why
   python3 <skill-dir>/scripts/build_canvas.py drafts.json --out ~/.cursor/projects/<workspace>/canvases/connector-docs-review-<prs>.canvas.tsx
   ```
 
+  A file the script writes doesn't appear in the chat, because Cursor only surfaces a canvas that the agent's own file tools write or edit. Right after the script runs, open the canvas with `open_resource` from the `cursor-app-control` namespace, passing its `file://` URI. If that tool isn't available, make a one-line edit to the file with your file-edit tool. The edit also returns Cursor's TypeScript check for the canvas. Then link the canvas in your chat message with its absolute path, for example `[Review canvas](/Users/<user>/.cursor/projects/<workspace>/canvases/connector-docs-review-<prs>.canvas.tsx)`. A file name in backticks isn't clickable, and the user won't find the canvas.
+
   `<workspace>` is the folder Cursor uses for the open workspace. List `~/.cursor/projects/` to find it. The canvas comes from [assets/review-canvas.tsx](assets/review-canvas.tsx) and shows, per PR, an editable summary and review type, one card per draft with a checkbox, the reason, a GitHub-style diff of the target lines, and an editable body, then a checks table and a count of what would post. To change the layout, edit the template, not a generated copy. After the user edits `drafts.json` through chat, run the script again. Their canvas selections and edits survive, because they're saved by draft ID.
 
   Before step 6, copy the user's choices back:
@@ -169,5 +171,6 @@ python3 <skill-dir>/scripts/compare_drafts.py drafts.initial.json drafts.json --
 - **A comment must sit inside a diff hunk.** GitHub rejects a review if one anchor is outside the PR diff. For a file the PR doesn't touch, put the comment in the review summary.
 - **A 5xx from the reviews API doesn't mean it failed.** A large review can post and still return 502. Check for the review before retrying, or the developer gets duplicates.
 - **Several large reviews in a row hit the secondary rate limit.** Wait about two minutes, confirm nothing posted, then retry.
+- **A generated canvas stays hidden until you open and link it.** `build_canvas.py` writes the file from the shell, so Cursor never shows it in the chat. Open it with `open_resource` and link its absolute path in the same turn, as step 5 says.
 - **No thank-yous.** Don't open comments or summaries with thanks. Keep review summaries to one line.
 - **The developer isn't the docs owner, and you aren't the code owner.** Don't explain what the code does. Ask the developer to confirm any technical claim you couldn't test.
