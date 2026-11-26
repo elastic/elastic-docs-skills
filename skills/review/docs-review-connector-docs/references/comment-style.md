@@ -12,9 +12,9 @@ Comments post under the name of the user who runs the skill, so write in their v
 - **Own preferences.** "I'd suggest", "I'd rather", "I think this fits better in…". Explain the effect on readers, not the rule.
 - **Report the finding, not its scope.** Say what you found and why it matters to readers. Whether it's fixed in this PR or later is the developer's call, so don't label a point as out of scope or as a follow-up, and don't offer to open one.
 - **Ask when you can't verify.** "Could you confirm…?" for any technical claim from the code or the vendor console. Don't explain what the code does.
-- **Same change on many lines.** For markers, the first comment explains, and every other marked line gets "Same here:" with its suggestion. A style nit repeated across the page gets one comment with one example suggestion and a list of the other lines.
+- **Same change on many lines.** For markers, the first comment explains, and every other marked line gets "Same here:" with its suggestion. An editorial fix, such as a semicolon split, gets a suggestion on every line and no comment text. The suggestion is the explanation.
 - **An occasional emoji is fine** (🙏, 😅, `:)`), but not in every comment.
-- **Plain style.** No em dashes, no semicolons joining clauses.
+- **Plain style.** No em dashes, no semicolons joining clauses. This also applies to the text inside suggestion blocks, because it lands on the page.
 - **Internal notes stay out.** The "why" field, priorities, and verification evidence are for the user, never posted.
 
 ## Real examples

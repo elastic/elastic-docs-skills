@@ -55,7 +55,22 @@ Short reason: testing is the last step of creating the connector.
 
 **Links to sibling connector pages.** Only when the target page exists on `main`. Otherwise, ask that the PR merging second adds the link.
 
-**Style nits.** "Click" becomes "Select". Use US spelling. Replace em dashes and "e.g." with a colon, a new sentence, or "for example". When a page has many of the same nit, post one comment with one example suggestion and list the other lines. Don't post twenty separate nits. Markers are different: each marked action gets its own suggestion.
+## Editorial basics
+
+Review the prose as an editor, not only against the outline. Readers notice a sentence that is hard to follow, so flag that and suggest the fix. On a new page, every line is in scope. On an existing page, only the lines the PR changes are.
+
+- **Semicolons that join clauses.** Split them into two sentences. Run `rg -n ';'` on the page, because they hide in table cells and parentheses.
+- **Em dashes and "e.g."** Replace them with a colon, a new sentence, or "for example".
+- **"Click".** Use "Select".
+- **A sentence that packs several facts, conditions, or error cases.** Split it into sentences, or into two paragraphs when the second part is a separate case. Keep every fact.
+- **Steps run together in one sentence.** Give each step its own sentence, for example with "First" and "Then".
+- **US spelling.**
+
+If you rewrite a line, lead with the reader's goal where it helps: "To keep waiting for the same file, call the action again…". When the line changes anyway, also capitalize the first word after a colon.
+
+Post a one-click suggestion on every line, with no comment text, so the developer can accept them in one batch. Don't post one comment that lists the lines for the developer to fix by hand.
+
+Don't flag passive voice in action descriptions, missing contractions, Oxford commas, correct and clear word choices, or sentence length on its own. These are nitpicks, and they bury the fixes readers notice.
 
 ## Don't flag
 

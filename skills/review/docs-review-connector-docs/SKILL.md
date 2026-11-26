@@ -1,7 +1,7 @@
 ---
 name: docs-review-connector-docs
 version: 1.0.0
-description: Use when reviewing the documentation in one or more Kibana connector PRs, even if the user only shares PR links and asks for a docs pass. Covers new or changed docs/reference/connectors-kibana/*-action-type.md pages, the connector-list snippet, and toc.yml. Checks each page against the connector spec and the connector-docs outline, drafts short review comments with one-click suggestions, lets the user select and edit them, and posts one GitHub review per PR only after the user validates the exact payload. After posting, compares the posted reviews with the first drafts and proposes skill improvements for the user to confirm. Handles API-only action markers, applies_to versions, Agent Builder and Workflows availability, and connector-list entries. For connector pages, use this skill rather than docs-review-pr. Not for drafting a connector page from scratch or for reviewing connector spec code.
+description: Use when reviewing the documentation in one or more Kibana connector PRs, even if the user only shares PR links and asks for a docs pass. Covers new or changed docs/reference/connectors-kibana/*-action-type.md pages, the connector-list snippet, and toc.yml. Checks each page against the connector spec, the connector-docs outline, and editorial basics such as joining semicolons, drafts short review comments with one-click suggestions, lets the user select and edit them, and posts one GitHub review per PR only after the user validates the exact payload. After posting, compares the posted reviews with the first drafts and proposes skill improvements for the user to confirm. Handles API-only action markers, applies_to versions, Agent Builder and Workflows availability, and connector-list entries. For connector pages, use this skill rather than docs-review-pr. Not for drafting a connector page from scratch or for reviewing connector spec code.
 argument-hint: <one or more elastic/kibana PR numbers or URLs>
 allowed-tools: Read, Grep, Glob, Write, Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr list *), Bash(git fetch *), Bash(git show *), Bash(git grep *), Bash(git log *), Bash(git diff *), Bash(git remote get-url *), Bash(python3 *list_threads.py *), Bash(python3 *check_drafts.py *), Bash(python3 *compare_drafts.py *), WebFetch, AskUserQuestion
 sources:
@@ -57,7 +57,7 @@ Copy this checklist and track it:
 ```
 - [ ] 1. Gather: PR heads, docs diffs, existing review threads, connector specs
 - [ ] 2. Check facts: availability, markers, applies_to, config fields, actions
-- [ ] 3. Check the page against the outline and the recurring asks
+- [ ] 3. Check the page against the outline, the recurring asks, and the editorial basics
 - [ ] 4. Draft comments into drafts.json
 - [ ] 5. Present drafts for selection and editing
 - [ ] 6. Before posting: re-check heads, anchors, auto-merge
@@ -87,9 +87,11 @@ Read [references/availability-and-markers.md](references/availability-and-marker
 - **Connector list and toc:** the page has an entry in the connector-list snippet, in the right group and in alphabetical order, and a `toc.yml` entry.
 - **Anything you can't verify** from source, such as vendor roles or console menu labels, becomes a question to the developer, never an assertion.
 
-### 3. Check the page against the outline
+### 3. Check the page against the outline and the editorial basics
 
-Read [references/page-outline.md](references/page-outline.md). It has the target outline, the recurring asks with ready-made suggestion text, and what not to flag.
+Read [references/page-outline.md](references/page-outline.md). It has the target outline, the recurring asks with ready-made suggestion text, the editorial basics, and what not to flag.
+
+Run the editorial basics on every review, including a second review after an approval. A page that passes the outline can still be hard to read.
 
 ### 4. Draft comments
 
