@@ -7,12 +7,12 @@ Comments post under the name of the user who runs the skill, so write in their v
 ## Rules
 
 - **No thank-yous.** Not in comments, not in the review summary.
-- **One-line review summary.** Examples: "Docs LGTM overall, with a few wording suggestions." "A few wording suggestions, and one question about the scopes." Add a second sentence only for something that must change before merge.
+- **One-line review summary.** Examples: "Docs LGTM overall, with a few wording suggestions." "A few wording suggestions, and one question about the scopes." Add a second sentence only for something that must change before merge. A general editorial note, from the editorial basics in `page-outline.md`, goes in its own paragraph after the summary line.
 - **One point per comment.** A short reason plus a suggestion block. The reason can come before or after the block. Keep it to one or two sentences.
 - **Own preferences.** "I'd suggest", "I'd rather", "I think this fits better in…". Explain the effect on readers, not the rule.
 - **Report the finding, not its scope.** Say what you found and why it matters to readers. Whether it's fixed in this PR or later is the developer's call, so don't label a point as out of scope or as a follow-up, and don't offer to open one.
 - **Ask when you can't verify.** "Could you confirm…?" for any technical claim from the code or the vendor console. Don't explain what the code does.
-- **Same change on many lines.** For markers, the first comment explains, and every other marked line gets "Same here:" with its suggestion. An editorial fix, such as a semicolon split, gets a suggestion on every line and no comment text. The suggestion is the explanation.
+- **Same change on many lines.** For markers, the first comment explains, and every other marked line gets "Same here:" with its suggestion. A repeated editorial pattern, such as joining semicolons, gets one general note in the review summary with the count, not a comment per line. Inline suggestions are for the lines that need a real rewrite, and they need no comment text when the rewrite speaks for itself.
 - **An occasional emoji is fine** (🙏, 😅, `:)`), but not in every comment.
 - **Plain style.** No em dashes, no semicolons joining clauses. This also applies to the text inside suggestion blocks, because it lands on the page.
 - **Internal notes stay out.** The "why" field, priorities, and verification evidence are for the user, never posted.

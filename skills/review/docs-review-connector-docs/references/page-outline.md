@@ -68,7 +68,11 @@ Review the prose as an editor, not only against the outline. Readers notice a se
 
 If you rewrite a line, lead with the reader's goal where it helps: "To keep waiting for the same file, call the action again…". When the line changes anyway, also capitalize the first word after a colon.
 
-Post a one-click suggestion on every line, with no comment text, so the developer can accept them in one batch. Don't post one comment that lists the lines for the developer to fix by hand.
+For a pattern that repeats across the page, such as joining semicolons or em dashes, add one general note to the review summary. Name the pattern, give the count, and say why it hurts readers. These patterns are common markers of AI-written text, so the note can say that. Then ask the developer to fix them across the page. Example:
+
+> One general note: the page has 27 semicolons joining clauses. That's a common marker of AI-written text, and it makes the longer descriptions harder to follow. Could you split them into separate sentences? The same goes for em dashes and similar patterns on future connector pages. I've only left inline suggestions where a description needs breaking down.
+
+Keep inline suggestions for lines where the fix needs a real rewrite, such as a long description that packs several facts or error cases. A one-word fix that the general note already covers doesn't get its own comment.
 
 Don't flag passive voice in action descriptions, missing contractions, Oxford commas, correct and clear word choices, or sentence length on its own. These are nitpicks, and they bury the fixes readers notice.
 
