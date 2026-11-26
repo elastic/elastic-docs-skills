@@ -224,9 +224,6 @@ When validating, check for these errors:
     - ❌ `- On ECK, set `spec.backgroundTasks` {applies_to}`eck: ga 3.6+` and let ECK run...`
     - ✅ `- {applies_to}`eck: ga 3.6+` On ECK, set `spec.backgroundTasks` and let ECK run...`
     - ✅ `**Playground:** {applies_to}`stack: deprecated 9.4+` Playground is deprecated...`
-14. **Floating tag between sentences** — an inline `{applies_to}` placed between two sentences in the same paragraph is floating even when it appears only once. Physical adjacency to the sentence it's meant to cover does not establish scope — only a blank-line paragraph boundary or one of the sanctioned positions (rule 13) does. Split into two paragraphs so the tag leads the one it scopes, or restructure into a tagged admonition or dropdown.
-    - ❌ `General statement. {applies_to}`stack: ga 9.5+` This part only applies from 9.5.` — tag floats between sentences
-    - ✅ Split into two paragraphs separated by a blank line, with the tag leading the second one
 14. **Section-level block after body content** — a section-level `{applies_to}` block must directly follow its heading, before any body content. A block placed after paragraphs, lists, or other content is misplaced. A block inside an admonition or dropdown is also misplaced, because those components take the dedicated `:applies_to:` option. Move the block directly below the heading, or use an inline tag or the component option.
 16. **Redundant inline tag duplicating parent scope** — an inline `{applies_to}` whose keys, lifecycles, and versions are already fully covered by the page-level or enclosing section-level tag adds no information. Remove it unless the inline tag narrows or changes the scope.
 
