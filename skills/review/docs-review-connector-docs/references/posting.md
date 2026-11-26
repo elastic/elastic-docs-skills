@@ -44,6 +44,14 @@ Fields:
 - `replies[]`: `{id, selected, in_reply_to, body}` for a reply in an existing review thread. `in_reply_to` is the numeric ID of the thread's first comment, as printed by `list_threads.py`.
 - `selected: false` keeps a draft in the file without posting it.
 
+The canvas also reads these optional fields. The other scripts ignore them, and none of them is posted:
+
+- `comments[].title`, `body_extras[].title`, `replies[].title`: a short label for the draft card, for example "RTR sessions: break the paragraph into three".
+- `title`, `author`: the PR title and author, for the canvas header.
+- `status`: one line on the PR state, such as approvals, auto-merge, and points bots already raised.
+- `notes[]`: blockers the user should see before posting, such as a pending review or auto-merge.
+- `checks[]`: `{area, finding, status}` rows from step 2, with `OK`, `NO`, or `Open` as the status.
+
 ## Check
 
 ```bash
@@ -53,7 +61,7 @@ python3 <skill-dir>/scripts/check_drafts.py drafts.json --preview preview.md
 It exits non-zero when something blocks posting:
 
 - **ALREADY REVIEWED:** the user already reviewed the current head. Show the existing review and ask whether a second one makes sense.
-- **PENDING REVIEW:** the user has an unsubmitted review on the PR. GitHub allows only one, so they submit or delete it first.
+- **PENDING REVIEW:** the user has an unsubmitted review on the PR. GitHub allows only one, so `post_reviews.py` can't post a second one. Show the user the pending comments, and offer to add the selected drafts to that review instead. Once the user validates the payload, add each inline draft with the GraphQL `addPullRequestReviewThread` mutation, passing the pending review's `node_id`, `path`, `line`, `side: RIGHT`, and `body`. GitHub doesn't let you set the summary of a pending review, so give the user the summary text to paste when they submit the review on GitHub.
 - **HEAD MOVED:** the PR has new commits. It lists the docs files that changed. Re-read them, fix line numbers and `expect`, drop comments the new commits addressed, update `head`, and check again.
 - **OUTSIDE DIFF:** the anchor isn't on a line GitHub can comment on. Move the point to `body_extras` or to a line inside a hunk.
 - **EXPECT MISMATCH:** the target line doesn't contain `expect`. Re-anchor.

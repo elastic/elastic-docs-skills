@@ -3,7 +3,7 @@ name: docs-review-connector-docs
 version: 1.0.0
 description: Use when reviewing the documentation in one or more Kibana connector PRs, even if the user only shares PR links and asks for a docs pass. Covers new or changed docs/reference/connectors-kibana/*-action-type.md pages, the connector-list snippet, and toc.yml. Checks each page against the connector spec, the connector-docs outline, and editorial basics such as joining semicolons, drafts short review comments with one-click suggestions, lets the user select and edit them, and posts one GitHub review per PR only after the user validates the exact payload. After posting, compares the posted reviews with the first drafts and proposes skill improvements for the user to confirm. Handles API-only action markers, applies_to versions, Agent Builder and Workflows availability, and connector-list entries. For connector pages, use this skill rather than docs-review-pr. Not for drafting a connector page from scratch or for reviewing connector spec code.
 argument-hint: <one or more elastic/kibana PR numbers or URLs>
-allowed-tools: Read, Grep, Glob, Write, Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr list *), Bash(git fetch *), Bash(git show *), Bash(git grep *), Bash(git log *), Bash(git diff *), Bash(git remote get-url *), Bash(python3 *list_threads.py *), Bash(python3 *check_drafts.py *), Bash(python3 *compare_drafts.py *), WebFetch, AskUserQuestion
+allowed-tools: Read, Grep, Glob, Write, Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr list *), Bash(git fetch *), Bash(git show *), Bash(git grep *), Bash(git log *), Bash(git diff *), Bash(git remote get-url *), Bash(python3 *list_threads.py *), Bash(python3 *check_drafts.py *), Bash(python3 *compare_drafts.py *), Bash(python3 *build_canvas.py *), Bash(python3 *apply_canvas.py *), WebFetch, AskUserQuestion
 sources:
   - https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-connector-specs/src/connector_spec.ts
   - https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-connector-specs/src/connector_spec_quality_contract.test.ts
@@ -110,7 +110,21 @@ When the drafts are complete, copy `drafts.json` to `drafts.initial.json` before
 Show drafts grouped by PR: ID, priority, target line, comment text, and the "why".
 
 - **In chat**, the default and the only option in clients without a canvas, such as Claude Code: list the drafts, then take selections and edits by ID.
-- **In a canvas**, when the client has one, such as Cursor: build one card per draft with a checkbox, an editable comment body, and a GitHub-style diff of the target lines against the suggestion. Add an editable summary and review type per PR. Before step 6, copy the canvas selections and edits back into `drafts.json`.
+- **In a canvas**, when the client has one, such as Cursor: always use one, even for a single draft, so users get the same review screen in every session. Don't build the canvas by hand. Generate it from `drafts.json`:
+
+  ```bash
+  python3 <skill-dir>/scripts/build_canvas.py drafts.json --out ~/.cursor/projects/<workspace>/canvases/connector-docs-review-<prs>.canvas.tsx
+  ```
+
+  `<workspace>` is the folder Cursor uses for the open workspace. List `~/.cursor/projects/` to find it. The canvas comes from [assets/review-canvas.tsx](assets/review-canvas.tsx) and shows, per PR, an editable summary and review type, one card per draft with a checkbox, the reason, a GitHub-style diff of the target lines, and an editable body, then a checks table and a count of what would post. To change the layout, edit the template, not a generated copy. After the user edits `drafts.json` through chat, run the script again. Their canvas selections and edits survive, because they're saved by draft ID.
+
+  Before step 6, copy the user's choices back:
+
+  ```bash
+  python3 <skill-dir>/scripts/apply_canvas.py drafts.json ~/.cursor/projects/<workspace>/canvases/connector-docs-review-<prs>.canvas.data.json
+  ```
+
+  Show the changes it prints.
 
 Iterate with the user. When the user changes a policy ("don't flag X", "always suggest Y"), apply it to every PR in the set, not only the one under discussion. Tell the user when one of their saved edits conflicts with a newer default.
 
