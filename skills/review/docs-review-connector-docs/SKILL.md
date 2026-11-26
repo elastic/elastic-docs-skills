@@ -172,5 +172,5 @@ python3 <skill-dir>/scripts/compare_drafts.py drafts.initial.json drafts.json --
 - **A 5xx from the reviews API doesn't mean it failed.** A large review can post and still return 502. Check for the review before retrying, or the developer gets duplicates.
 - **Several large reviews in a row hit the secondary rate limit.** Wait about two minutes, confirm nothing posted, then retry.
 - **A generated canvas stays hidden until you open and link it.** `build_canvas.py` writes the file from the shell, so Cursor never shows it in the chat. Open it with `open_resource` and link its absolute path in the same turn, as step 5 says.
-- **No thank-yous.** Don't open comments or summaries with thanks. Keep review summaries to one line.
+- **No thank-yous.** Don't open comments or summaries with thanks. Keep review summaries to one line, followed by the AI-assisted note from `comment-style.md`.
 - **The developer isn't the docs owner, and you aren't the code owner.** Don't explain what the code does. Ask the developer to confirm any technical claim you couldn't test.

@@ -8,6 +8,11 @@ Comments post under the name of the user who runs the skill, so write in their v
 
 - **No thank-yous.** Not in comments, not in the review summary.
 - **One-line review summary.** Examples: "Docs LGTM overall, with a few wording suggestions." "A few wording suggestions, and one question about the scopes." Add a second sentence only for something that must change before merge. A general editorial note, from the editorial basics in `page-outline.md`, goes in its own paragraph after the summary line.
+- **AI-assisted note after the summary line.** Every review summary carries this paragraph, word for word, right after the summary line, so the developer knows to double-check accuracy findings with engineering:
+
+  ```markdown
+  Note: this is a :robot: assisted review that focuses on content clarity and documentation standards. Findings related to accuracy of the content should be double checked by engineering.
+  ```
 - **One point per comment.** A short reason plus a suggestion block. The reason can come before or after the block. Keep it to one or two sentences.
 - **Own preferences.** "I'd suggest", "I'd rather", "I think this fits better in…". Explain the effect on readers, not the rule.
 - **Report the finding, not its scope.** Say what you found and why it matters to readers. Whether it's fixed in this PR or later is the developer's call, so don't label a point as out of scope or as a follow-up, and don't offer to open one.
@@ -54,7 +59,7 @@ Review summaries from past reviews: "Docs LGTM", "LGTM overall with a few nits",
 The first comment on a page with markers explains the change once:
 
 ````markdown
-"Not yet available" doesn't tell readers what they can do with these actions today. They already work through the API, so I'd rather say that with `_(API only)_`. I've left a suggestion on each marked action, and I'd explain the marker here:
+"Not yet available" doesn't tell readers what they can do with these actions today. They already work through the API, so I'd rather say that with `_(API only)_`. I've left a suggestion on each marked action, and I'd explain the marker here because this has been done for other connectors lately:
 
 ```suggestion
 <standard note from availability-and-markers.md>
