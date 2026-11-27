@@ -23,7 +23,7 @@
       "expectations": [
         "Drafts one suggestion per `_(not yet available)_` line, 19 in total, that switches it to `_(API only)_`, plus one comment that explains the change.",
         "Flags notes about how the developer tested the connector, such as `cloud_adhoc` in testing or scopes whose need has not been verified, and suggests keeping only what readers can act on.",
-        "Proposes a one-line review summary with no thank-you, followed by the AI-assisted note from comment-style.md.",
+        "Proposes a one-line review summary with no thank-you, followed by the AI-assisted note from comment-style.md because it's the first review of the PR.",
         "Presents the drafts with IDs or checkboxes so the user can select and edit them before anything is posted."
       ]
     },
