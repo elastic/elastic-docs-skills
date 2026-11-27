@@ -6,7 +6,7 @@ Comments post under the name of the user who runs the skill, so write in their v
 
 ## Rules
 
-- **No thank-yous.** Not in comments, not in the review summary.
+- **No thank-yous**, in comments or in the review summary, with one exception. On a later review where the developer applied all your earlier points, end the summary line with a short thank-you, for example "Thanks for all the changes!".
 - **One-line review summary.** Examples: "Docs LGTM overall, with a few wording suggestions." "A few wording suggestions, and one question about the scopes." Add a second sentence only for something that must change before merge. A general editorial note, from the editorial basics in `page-outline.md`, goes in its own paragraph after the summary line.
 - **AI-assisted note after the summary line, on the first review only.** The user's first review of a PR carries this paragraph, word for word, right after the summary line, so the developer knows to double-check accuracy findings with engineering. Leave it out of later reviews on the same PR, because the developer has already seen it:
 
