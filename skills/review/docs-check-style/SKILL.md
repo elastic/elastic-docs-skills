@@ -1,6 +1,6 @@
 ---
 name: docs-check-style
-version: 1.5.1
+version: 1.6.0
 description: Check documentation for Elastic style guide compliance using Vale linter output and style rules. Use when the user asks to check, lint, or review docs for voice, tone, grammar, formatting, accessibility, or word choice issues, or when a docs review runs. Do not trigger on ordinary drafting or editing.
 argument-hint: <file-or-directory>
 context: fork
@@ -80,6 +80,7 @@ Flag any usage that conflicts with this table:
 | Word | Status | Guidance |
 |------|--------|----------|
 | abort | Avoid | Offensive. Use _shut down_, _cancel_, or _stop_. |
+| accelerate | Caution | Vague on its own. State what gets faster and by how much, or use _speed up_ or _reduce time to_. |
 | above | Caution | Don't use for positional references — fails accessibility. |
 | add | Preferred | Establishing a new relationship. Opposite: _remove_. |
 | app, application | Caution | Use _app_ only when needed for clarity. |
@@ -109,23 +110,64 @@ Flag any usage that conflicts with this table:
 | hit | Avoid | Noun: _visits_. Verb: _click_ or _press_. |
 | i.e. | Avoid | Don't use Latin abbreviations. |
 | invalid | Avoid | Use _not valid_ or _incorrect_. |
+| just | Avoid | Minimizes effort and reads as condescending ("just run the command"). Remove it. |
 | kill | Caution | Use _cancel_ or _stop_ unless the actual command is `kill`. |
 | launch | Avoid | Use _open_. |
+| leverage, leveraging | Avoid | Use _use_ or _build on_. |
 | may | Caution | _may_ = permissibility, _can_ = capability, _might_ = possibility. |
 | open | Preferred | Use instead of _launch_. |
 | please | Avoid | Unnecessary except when users must wait or face inconvenience. |
+| powerful | Avoid | Say what the feature can do. |
 | remove | Preferred | Removes a relationship, not data. Opposite: _add_. |
+| robust | Caution | Name what makes it robust, such as _retries failed requests_ or _tolerates node loss_. |
+| seamless, seamlessly | Avoid | Use _native_, _built in_, or describe the integration. |
 | select | Preferred | Preferred over _choose_. |
 | simple, simply | Avoid | Adds no value. Implies users shouldn't need help. |
 | start | Caution | Context-dependent. Less formal than _begin_. |
+| streamline | Caution | Name the steps removed or the complexity reduced. |
 | terminate | Avoid | Use _stop_ or _exit_. |
 | type | Avoid | Use _enter_ — accommodates multiple input methods. |
 | unable | Caution | Means not being able to perform an action. Distinct from _cannot_. |
+| unlock | Avoid | Use _enable_ or _provide access to_. |
 | utilize | Caution | Use _use_ instead. |
 | view | Preferred | More inclusive than _see_. |
 | whitelist | Avoid | Use _allowlist_. |
 
 Also flag Latin abbreviations: replace "e.g." with "for example," "i.e." with "that is," "etc." with "and more," "via" with "through."
+
+For any other amplifier or marketing word (for example _cutting-edge_, _effortless_, _game-changer_, _revolutionary_, _smarter_, _empower_): if deleting it loses nothing from the sentence, delete it. If the sentence loses its only claim, replace the amplifier with a specific fact or cut the sentence.
+
+### Padded and promotional language
+
+A draft can pass Vale and every rule above and still read as padded, generic, and short on facts. Flag the patterns below and report them under the area **Padded language**. Report a recurring pattern once, with a count and two or three examples, instead of listing every instance.
+
+| Pattern | Example | Fix |
+|---------|---------|-----|
+| Significance inflation | "This feature plays a crucial role in the observability landscape." | State what it does. Cut the claim about importance. |
+| Unsupported claim | "a smoother installation experience", "more accurately and efficiently" | Say what is smoother, more accurate, or faster, and by how much, or cut it. |
+| Trailing benefit clause | "...pipes results between steps, enabling complex data transformations." | Cut the "-ing" clause. State the benefit as its own concrete sentence only if you can support it. |
+| Copula avoidance | "The setting serves as the retention limit." | Use _is_ or _has_: "The setting is the retention limit." |
+| Vague attribution | "It is widely recommended to..." or "Experts suggest..." | Name the source (a docs page, an engineering issue) or cut it. |
+| Signposting | "Let's dive in." or "Here's what you need to know." | Start with the content. Use an admonition only for a real note or warning. |
+| Chatbot residue | "I hope this helps." or "Let me know if you need more detail." | Remove. |
+| Generic positive close | "With these steps, you're ready to build great search experiences." | End on the last fact, or link to the next task. |
+| Negative parallelism | "It's not just a query language, it's a pipeline." or "No X. No Y. No Z." | State what the thing is or does in one sentence. |
+| Rule of three padding | "Fast, flexible, and scalable." | Keep only the items you can support with a fact. |
+| Mechanical bold | Bold on random phrases for emphasis. | Remove. Bold is for UI element names (see Formatting). |
+| Concept naming | "That's the key insight." | Cut, or state the point directly. |
+| Uniform rhythm | Every sentence the same length and shape, with no specifics. | Combine or split sentences and add the missing concrete detail. |
+
+Two checks catch what the table misses:
+
+- **Specificity test**: Remove every number, version, name, setting, and command from the paragraph. If it still makes the same point, it is too vague. Find the specific detail and lead with it.
+- **Two-pass audit**: If the draft is clean but still reads as generated, list in a few bullets what makes it obvious (uniform sentence length, no stated limits, no named source), then check the page against that list.
+
+Do not flag:
+
+- A word used in its literal sense, such as a server that really does _serve_ requests.
+- A list of three that is really three distinct items.
+- A short lead-in that introduces content immediately after it, such as "What this means in practice:" before a list. Flag signposting only when the phrase adds nothing, such as "Let's dive in."
+- An admonition that carries a real caution, note, or warning.
 
 ### Grammar and spelling
 
@@ -201,7 +243,7 @@ When a generic word-choice rule conflicts with UI writing, prefer the UI-specifi
 Present findings as a structured report. Group issues by area. For each issue:
 
 1. **File and line** — `path/to/file.md:42`
-2. **Area** — one of: Voice/Tone, Word Choice, Grammar/Spelling, Formatting, Accessibility, UI Writing
+2. **Area** — one of: Voice/Tone, Word Choice, Padded Language, Grammar/Spelling, Formatting, Accessibility, UI Writing
 3. **Issue** — what's wrong
 4. **Suggestion** — how to fix it
 

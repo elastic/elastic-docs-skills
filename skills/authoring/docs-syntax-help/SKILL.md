@@ -1,6 +1,6 @@
 ---
 name: docs-syntax-help
-version: 1.2.0
+version: 1.2.1
 description: Provide Elastic Docs syntax guidance, troubleshoot markup issues, and help write directives correctly. Use when writing or editing documentation that uses MyST Markdown with Elastic extensions, or when troubleshooting build errors related to syntax.
 argument-hint: <question-or-directive>
 context: fork
@@ -202,7 +202,7 @@ Disable callout processing: ````callouts=false`
 
 ### Console code blocks
 
-Use `console` as the language. First line renders as a dev console command; rest as JSON.
+Use `console` as the language. First line renders as a dev console command; rest as JSON. A single console block can contain multiple API calls (e.g., a `GET` followed by a `POST`); each is displayed as a separate section with its own dev console link.
 
 ### Substitutions in code
 
