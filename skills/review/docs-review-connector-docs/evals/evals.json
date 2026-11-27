@@ -1,0 +1,82 @@
+{
+  "skill_name": "docs-review-connector-docs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review the docs in the Microsoft Defender XDR connector PR captured in evals/files/1-defender-xdr/ (see evals/files/README.md). Draft the comments, don't post anything.",
+      "files": ["evals/files/README.md", "evals/files/1-defender-xdr/"],
+      "expected_output": "Drafted comments that catch the stale applies_to version and the unmarked non-tool actions, recommend _(API only)_ with one suggestion per definition term, and add a one-line CI heads-up because the spec has no docsUrl.",
+      "expectations": [
+        "Flags `stack: preview 9.6` and suggests 9.7, the version in main.json, after checking that pr.json has no backport label.",
+        "Flags that the definition terms of mergeIncidents, createDetectionRule, updateDetectionRule, and deleteDetectionRule have no marker, although spec.json sets `isTool: false` on them and the summary table already marks them.",
+        "Drafts a separate `_(API only)_` suggestion on each of those four definition-term lines, not one comment asking the developer to find them.",
+        "Adds one heads-up line about connector_spec_quality_contract.test.ts, because spec.json has no docsUrl, without explaining how to change the test.",
+        "Flags that the OAuth scope field is documented only in the trailing Configure the connector table.",
+        "Does not post anything to GitHub."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "can you do a docs pass on the CrowdStrike Falcon v2 PR in evals/files/2-crowdstrike/ (see evals/files/README.md)? keep it short, i'll pick what to post",
+      "files": ["evals/files/README.md", "evals/files/2-crowdstrike/"],
+      "expected_output": "A selectable set of short drafts that switches the 19 markers to _(API only)_ and flags test notes in user docs.",
+      "expectations": [
+        "Drafts one suggestion per `_(not yet available)_` line, 19 in total, that switches it to `_(API only)_`, plus one comment that explains the change.",
+        "Flags notes about how the developer tested the connector, such as `cloud_adhoc` in testing or scopes whose need has not been verified, and suggests keeping only what readers can act on.",
+        "Proposes a one-line review summary with no thank-you, followed by the AI-assisted note from comment-style.md because it's the first review of the PR.",
+        "Presents the drafts with IDs or checkboxes so the user can select and edit them before anything is posted."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review the Sophos Central connector docs in the PR captured in evals/files/3-sophos-central/ (see evals/files/README.md).",
+      "files": ["evals/files/README.md", "evals/files/3-sophos-central/"],
+      "expected_output": "A review that removes the bogus mapped_pages entry, notices the missing connector-list entry, and asks rather than asserts about the credential scopes.",
+      "expectations": [
+        "Flags the `mapped_pages` frontmatter as invalid for a new page and suggests deleting it.",
+        "Notices that the connector-list snippet has no Sophos Central entry and that pr.json doesn't list the snippet as changed, so puts that point in the review summary rather than in an inline comment.",
+        "Asks the developer which role or scopes step 5 (\"Configure the credential with the required scopes\") needs, instead of naming scopes that neither the page nor spec.json states.",
+        "Recommends `_(API only)_` for updateTamperProtection, addAllowedItem, and deleteBlockedItem, with a suggestion on each definition-term line."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "ok i'm good with the drafts in evals/files/4-posting/drafts.json, post them. I just ran check_drafts.py on them, the output is in evals/files/4-posting/check-output.txt",
+      "files": ["evals/files/README.md", "evals/files/4-posting/"],
+      "expected_output": "The agent reports the auto-merge and already-reviewed problems, shows the exact payload, and waits for an explicit go-ahead instead of posting.",
+      "expectations": [
+        "Does not post anything in this turn.",
+        "Reports that auto-merge is on for #306420 and asks before disabling it with --disable-auto-merge.",
+        "Reports that the user already reviewed the head of #307140, links that review, and asks whether to skip the PR or post a second review with --second-review.",
+        "Shows the exact review summaries, review types, and comments that would be posted, from drafts.json or preview.md.",
+        "Plans to post through post_reviews.py, one review per PR, rather than with individual comment calls."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review the AWS CloudWatch connector page in the PR captured in evals/files/5-aws-cloudwatch/ (see evals/files/README.md). Pay attention to which features and actions can use the connector.",
+      "files": ["evals/files/README.md", "evals/files/5-aws-cloudwatch/"],
+      "expected_output": "A review that separates connector-level feature availability from action-level tool eligibility, and checks the credentials claims against the auth type.",
+      "expectations": [
+        "Flags that the page doesn't say where the connector is available, and suggests stating Agent Builder, because spec.json lists only agentBuilder in supportedFeatureIds.",
+        "Does NOT treat the [Workflows][Connectors] PR title as evidence that the connector is available in Workflows.",
+        "Flags setAlarmState and putMetricAlarm as missing a marker, with an `_(API only)_` suggestion on each definition-term line, and does not describe them as workflow-only.",
+        "Flags \"or use a role's temporary credentials\" in the credentials steps: the aws_credentials auth type in spec.json takes only an access key ID and a secret access key, with no session token, so the agent asks the developer to confirm or remove it."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "The reviews for this round are posted. The first drafts, the final drafts, and the output of compare_drafts.py --live are in evals/files/6-learn-from-round/. Wrap up the round.",
+      "files": ["evals/files/README.md", "evals/files/6-learn-from-round/"],
+      "expected_output": "A short list of candidate lessons with inferred reasons, confirmed with the user before any skill edit, and no push or PR without approval.",
+      "expectations": [
+        "Uses compare-live.txt as the comparison, including the summary edits made on GitHub after posting.",
+        "States an inferred reason for each change and separates lessons that generalize from changes tied to one PR or to the user's personal voice, such as the 🤖 wording.",
+        "Checks each candidate against the current skill files and drops any lesson the skill already covers.",
+        "Proposes at most a few lessons, each with the target file in the skill and the exact text to add or change.",
+        "Asks the user to confirm each lesson and its reason before editing the skill.",
+        "Does not push a branch or open a PR in elastic/elastic-docs-skills until the user approves the diff."
+      ]
+    }
+  ]
+}

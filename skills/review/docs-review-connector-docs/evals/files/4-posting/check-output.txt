@@ -1,0 +1,13 @@
+
+#306420  state=OPEN  head=9a429f1fec52  drafted=9a429f1fec52
+  OK mde-test microsoft-defender-for-endpoint-action-type.md:62
+  OK mde-arrows microsoft-defender-for-endpoint-action-type.md:18
+  WARN AUTO-MERGE ON: disable it before posting (--disable-auto-merge)
+
+#307140  state=OPEN  head=4f1c2e7d9b0a  drafted=4f1c2e7d9b0a
+  OK tv1-mark trendai-vision-one-action-type.md:88
+  BAD  ALREADY REVIEWED this head: https://github.com/elastic/kibana/pull/307140#pullrequestreview-6051234567
+
+Preview written to preview.md
+
+1 problem(s) block posting.

@@ -1,0 +1,311 @@
+{
+  "repo": "elastic/kibana",
+  "reviews": [
+    {
+      "number": 305223,
+      "head": "37107c0d0929b16b6b4575c7f63948b0d5e8e0b5",
+      "event": "APPROVE",
+      "body": "Docs LGTM",
+      "comments": [],
+      "body_extras": [
+        {
+          "id": "fc-drift",
+          "selected": true,
+          "body": "Not for this PR, but the rest of the Firecrawl page has drifted from the spec: `formats` and `ignoreQueryParameters` aren't inputs, the `crawl` limit defaults to 20 rather than 100, and `crawlAndWait` isn't documented."
+        }
+      ],
+      "replies": []
+    },
+    {
+      "number": 307001,
+      "head": "ceb63ec22938bc199b1cac9490a70773924ede01",
+      "event": "APPROVE",
+      "body": "Docs LGTM overall, with a few wording suggestions.",
+      "comments": [
+        {
+          "id": "pg-note",
+          "priority": "P3",
+          "why": "Marker policy. No docsUrl and the PR doesn't touch the contract test, so the heads-up applies. Keeps the author's note wording.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/postgresql-action-type.md",
+          "line": 15,
+          "expect": "Actions marked _(not yet available)_ are not exposed to agents.",
+          "body": "\"Not yet available\" doesn't tell readers what they can do with these actions today. They already work through the API, so I'd rather say that with `_(API only)_`. Your note already explains it, so only the marker changes:\n\n```suggestion\nThis connector is currently available in **Agent Builder** only. Workflow support is planned for a future release. Actions marked _(API only)_ are not exposed to agents. Until workflow support is added, you can only run them through the [Run a connector](https://www.elastic.co/docs/api/doc/kibana/operation/operation-post-actions-connector-id-execute) API.\n```\n\nHeads-up: `connector_spec_quality_contract.test.ts` checks these lines for the old `_(not yet available)_` text, so it needs a matching change there."
+        },
+        {
+          "id": "pg-mark-execsql",
+          "priority": "P3",
+          "why": "Marker on the action's own line.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/postgresql-action-type.md",
+          "line": 104,
+          "expect": "Execute SQL _(not yet available)_",
+          "body": "Same here:\n\n```suggestion\nExecute SQL _(API only)_\n```"
+        },
+        {
+          "id": "pg-execsql",
+          "priority": "P2",
+          "why": "\"Becomes usable when workflow support is added\" contradicts the note: the executor never checks isTool. Multi-statement input runs as one implicit transaction (agent description says so). Rollback wording unverified, so it asks.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/postgresql-action-type.md",
+          "line": 105,
+          "expect": "becomes usable when workflow support is added",
+          "body": "\"Becomes usable when workflow support is added\" reads as if it can't run today, but it already runs through the API. Other recent connector PRs I've seen mark the action as \"API only\" next to the action's name. I'd also mention the single transaction, since it changes what happens when one statement fails. Could you confirm that part?\n\n```suggestion\n:   Run any SQL against the database. This action has no restrictions. You can run `INSERT`, `UPDATE`, `DELETE`, `DROP`, `COPY`, and data definition language (DDL) statements, and you can send several statements at once. They run in a single transaction, so if one fails, none of them apply. Use it only when you explicitly need a write or destructive operation. One result is returned per statement, with at most the first 1,000 rows of each. Agents can't use this action. Prefer **Query** for read-only access.\n```"
+        },
+        {
+          "id": "pg-searchrows",
+          "priority": "P3",
+          "why": "searchRows runs SELECT *, so column-level grants fail. The bot's code thread was resolved by updating the agent description only, not the docs.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/postgresql-action-type.md",
+          "line": 97,
+          "expect": "Search rows in a table by matching",
+          "body": "I'd mention the permission this one needs, since **List Tables** also shows tables where the role can read only some columns:\n\n```suggestion\n:   Search rows in a table by matching a search term against one or more columns, using a case-insensitive partial match. Non-text columns are compared on their text representation. The role needs `SELECT` on every column of the table.\n```"
+        },
+        {
+          "id": "pg-test",
+          "priority": "P3",
+          "why": "Recurring outline ask. Keeps the existing anchor.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/postgresql-action-type.md",
+          "line": 67,
+          "expect": "## Test connectors",
+          "body": "```suggestion\n### Test connectors [postgresql-action-configuration]\n```\nShould be the last subsection under Create, since testing is the last step of creating the connector"
+        },
+        {
+          "id": "pg-arrows",
+          "priority": "P3",
+          "why": "Recurring ask: one bold element per menu item.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/postgresql-action-type.md",
+          "line": 43,
+          "expect": "You can create connectors in",
+          "body": "Nit, one bold per menu item:\n\n```suggestion\nYou can create connectors in **{{stack-manage-app}}** → **{{connectors-ui}}**.\n```"
+        },
+        {
+          "id": "pg-networking",
+          "priority": "P3",
+          "why": "Outline: networking settings belong under Create. MySQL (merged) keeps a similar Requirements layout, so this is a question.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/postgresql-action-type.md",
+          "line": 31,
+          "expect": "### TLS",
+          "body": "Should **TLS** and **Proxy** move under **Create connectors in {{kib}}** as a networking configuration H3? They're settings to configure rather than things to have, and that's where the other new connector pages put networking."
+        },
+        {
+          "id": "pg-permissions",
+          "priority": "P3",
+          "why": "Outline: vendor-side setup is the first H3 under Create. Bigger move (its H3s become H4s), so off by default.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/postgresql-action-type.md",
+          "line": 108,
+          "expect": "## Database user permissions",
+          "body": "Should **Database user permissions** move up as the first H3 under **Create connectors in {{kib}}**? Readers need the role before they fill in the form, and that's the order we've been using on the other new connector pages."
+        }
+      ],
+      "body_extras": [],
+      "replies": []
+    },
+    {
+      "number": 276815,
+      "head": "a87236a165d1994ab4788676a84488c6dd4f4b53",
+      "event": "APPROVE",
+      "body": "Docs LGTM, with a few wording suggestions and one question about IAM Role outside the default Regions.",
+      "comments": [
+        {
+          "id": "ddb-note",
+          "priority": "P3",
+          "why": "Marker policy. No docsUrl and the PR doesn't touch the contract test, so the heads-up applies. Keeps the author's note wording.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 14,
+          "expect": "Actions marked _(not yet available)_ are not exposed to agents",
+          "body": "\"Not yet available\" doesn't tell readers what they can do with these actions today. They already work through the API, so I'd rather say that with `_(API only)_`. Your note already explains it, so only the marker changes:\n\n```suggestion\nThis connector is currently available in **Agent Builder** only. Workflow support is planned for a future release. Actions marked _(API only)_ are not exposed to agents, because an agent-driven write can silently overwrite or delete existing data. Until workflow support is added, you can only run them through the [Run a connector](https://www.elastic.co/docs/api/doc/kibana/operation/operation-post-actions-connector-id-execute) API.\n```\n\nHeads-up: `connector_spec_quality_contract.test.ts` checks these lines for the old `_(not yet available)_` text, so it needs a matching change there."
+        },
+        {
+          "id": "ddb-mark-put",
+          "priority": "P3",
+          "why": "Marker on the action's own line.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 108,
+          "expect": "Put item _(not yet available)_",
+          "body": "Same here:\n\n```suggestion\nPut item _(API only)_\n```"
+        },
+        {
+          "id": "ddb-mark-delete",
+          "priority": "P3",
+          "why": "Marker on the action's own line.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 116,
+          "expect": "Delete item _(not yet available)_",
+          "body": "Same here:\n\n```suggestion\nDelete item _(API only)_\n```"
+        },
+        {
+          "id": "ddb-iam-regions",
+          "priority": "P2",
+          "why": "Global STS tokens are valid only in Regions enabled by default (AWS IAM docs). GovCloud and China ARNs pass the schema but can't use commercial STS. Bot raised the code side on aws_iam_role.ts:115. This asks only for the docs side.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 42,
+          "expect": "#### AWS IAM Role fields",
+          "body": "Could you confirm where IAM Role works while STS stays on the global endpoint (the bot raised it on `aws_iam_role.ts`)? From the AWS docs, tokens from the global endpoint only work in Regions enabled by default, and GovCloud and China roles can't use it. If that's how it ships, I'd add a short note here so readers in those Regions pick **AWS Credentials** instead."
+        },
+        {
+          "id": "ddb-networking",
+          "priority": "P3",
+          "why": "Outline: networking configuration H3 under Create. Firecrawl and other pages have it. STS proxy bypass is an open bot thread, so it's mentioned, not asserted.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 57,
+          "expect": "Defaults to `kibana-connector`",
+          "body": "Should there be a networking section like other connector pages have? If the STS call keeps skipping the proxy settings (the other bot thread on `aws_iam_role.ts`), this would be the place to say so:\n\n```suggestion\n:   (Optional) A name for the assumed-role session that appears in AWS CloudTrail logs. Defaults to `kibana-connector`.\n\n### Connector networking configuration [amazon-dynamodb-connector-networking-configuration]\n\nUse the [Action configuration settings](/reference/configuration-reference/alerting-settings.md#action-settings) to customize connector networking, such as proxies, certificates, or TLS settings. You can set configurations that apply to all your connectors or use `xpack.actions.customHostSettings` to set per-host configurations.\n```"
+        },
+        {
+          "id": "ddb-label-key",
+          "priority": "P2",
+          "why": "translations.ts labels: 'Access Key ID' and 'Secret Access Key'. Same in both auth types.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 36,
+          "expect": "AWS Access Key ID",
+          "body": "The form labels these without \"AWS\", so I'd match them:\n\n```suggestion\nAccess Key ID\n```"
+        },
+        {
+          "id": "ddb-label-secret",
+          "priority": "P2",
+          "why": "Same label fix.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 39,
+          "expect": "AWS Secret Access Key",
+          "body": "Same here:\n\n```suggestion\nSecret Access Key\n```"
+        },
+        {
+          "id": "ddb-label-key-role",
+          "priority": "P2",
+          "why": "Same label fix.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 44,
+          "expect": "AWS Access Key ID",
+          "body": "Same here:\n\n```suggestion\nAccess Key ID\n```"
+        },
+        {
+          "id": "ddb-label-secret-role",
+          "priority": "P2",
+          "why": "Same label fix.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 47,
+          "expect": "AWS Secret Access Key",
+          "body": "Same here:\n\n```suggestion\nSecret Access Key\n```"
+        },
+        {
+          "id": "ddb-limit-query",
+          "priority": "P2",
+          "why": "DEFAULT_ITEM_LIMIT = 100 in types.ts. DynamoDB's own default is a 1 MB page.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 91,
+          "expect": "Maximum number of items to evaluate before filtering.",
+          "body": "I'd mention the default, since it's lower than what DynamoDB returns on its own:\n\n```suggestion\n    - **limit** (optional): Maximum number of items to evaluate before filtering (default 100).\n```"
+        },
+        {
+          "id": "ddb-limit-scan",
+          "priority": "P2",
+          "why": "Same default on scan.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 104,
+          "expect": "Maximum number of items to evaluate.",
+          "body": "Same here:\n\n```suggestion\n    - **limit** (optional): Maximum number of items to evaluate (default 100).\n```"
+        },
+        {
+          "id": "ddb-auth-types",
+          "priority": "P3",
+          "why": "Em dashes, plus IAM Role still stores a long-lived IAM user key in Kibana to call AssumeRole.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "start_line": 31,
+          "line": 32,
+          "expect": "short-lived credentials",
+          "body": "Without the em dashes. I'd also say that IAM Role still needs a long-lived key to call STS, so readers who pick it for security reasons know what Kibana still stores:\n\n```suggestion\n    - **AWS Credentials**: authenticate with a long-lived IAM user access key and secret. Use this for simple setups where a dedicated IAM user is acceptable.\n    - **AWS IAM Role**: authenticate by assuming an IAM role through AWS STS. The connector still uses an IAM user access key to call STS, then signs DynamoDB requests with short-lived role credentials. Use this for cross-account access or when your security policy requires role-based access.\n```"
+        },
+        {
+          "id": "ddb-emdash-tip",
+          "priority": "P3",
+          "why": "Style nit.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 142,
+          "expect": "Follow the principle of least privilege",
+          "body": "Same em dash nit:\n\n```suggestion\n   Follow the principle of least privilege: grant only the permissions required for your use case.\n```"
+        },
+        {
+          "id": "ddb-emdash-arn",
+          "priority": "P3",
+          "why": "Style nit.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 187,
+          "expect": "Note the role's **ARN**",
+          "body": "Same here:\n\n```suggestion\n3. Note the role's **ARN**. You enter it as the **Role ARN** in the connector configuration.\n```"
+        },
+        {
+          "id": "ddb-arrows",
+          "priority": "P3",
+          "why": "Recurring ask: arrows, one bold element per menu item.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 19,
+          "expect": "You can create connectors in",
+          "body": "Nit, with arrows:\n\n```suggestion\nYou can create connectors in **{{stack-manage-app}}** → **{{connectors-ui}}**.\n```"
+        },
+        {
+          "id": "ddb-menu",
+          "priority": "P3",
+          "why": "Recurring ask: menu paths in steps.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 131,
+          "expect": "Navigate to **IAM > Users**",
+          "body": "Same here:\n\n```suggestion\n2. Go to **IAM** → **Users** and select or create an IAM user.\n```"
+        },
+        {
+          "id": "ddb-test",
+          "priority": "P3",
+          "why": "Recurring outline ask. Keeps the existing anchor.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 59,
+          "expect": "## Test connectors",
+          "body": "```suggestion\n### Test connectors [amazon-dynamodb-action-configuration]\n```\nShould be the last subsection under Create, since testing is the last step of creating the connector"
+        },
+        {
+          "id": "ddb-creds",
+          "priority": "P3",
+          "why": "Recurring outline ask. No suggestion block because the section moves.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 124,
+          "expect": "## Get API credentials",
+          "body": "Should **Get API credentials** move up as the first H3 under **Create connectors in {{kib}}**? Readers need the credentials before they fill in the form, and that's the order we've been using on the other new connector pages."
+        },
+        {
+          "id": "ddb-type",
+          "priority": "P3",
+          "why": "PostgreSQL, Firecrawl, MySQL, RDS, and CloudWatch set type: reference. S3 doesn't, so off by default.",
+          "selected": true,
+          "path": "docs/reference/connectors-kibana/amazon-dynamodb-action-type.md",
+          "line": 2,
+          "expect": "navigation_title: \"Amazon DynamoDB\"",
+          "body": "Most connector pages set the page type:\n\n```suggestion\nnavigation_title: \"Amazon DynamoDB\"\ntype: reference\n```"
+        }
+      ],
+      "body_extras": [],
+      "replies": []
+    }
+  ]
+}

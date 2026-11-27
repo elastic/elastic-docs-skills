@@ -1,0 +1,98 @@
+{
+  "spec_dir": "src/platform/packages/shared/kbn-connector-specs/src/specs/microsoft_defender_xdr",
+  "commit": "b7224b816fd5e46b96ab94a31e23742268314e88",
+  "supportedFeatureIds": [
+    "agentBuilder"
+  ],
+  "docsUrl": null,
+  "actions": [
+    {
+      "name": "listAlerts",
+      "isTool": true
+    },
+    {
+      "name": "getAlert",
+      "isTool": true
+    },
+    {
+      "name": "updateAlert",
+      "isTool": true
+    },
+    {
+      "name": "addAlertComment",
+      "isTool": true
+    },
+    {
+      "name": "listDetectionRules",
+      "isTool": true
+    },
+    {
+      "name": "getDetectionRule",
+      "isTool": true
+    },
+    {
+      "name": "createDetectionRule",
+      "isTool": false
+    },
+    {
+      "name": "updateDetectionRule",
+      "isTool": false
+    },
+    {
+      "name": "deleteDetectionRule",
+      "isTool": false
+    },
+    {
+      "name": "runHuntingQuery",
+      "isTool": true
+    },
+    {
+      "name": "listIncidents",
+      "isTool": true
+    },
+    {
+      "name": "getIncident",
+      "isTool": true
+    },
+    {
+      "name": "updateIncident",
+      "isTool": true
+    },
+    {
+      "name": "addIncidentComment",
+      "isTool": true
+    },
+    {
+      "name": "mergeIncidents",
+      "isTool": false
+    },
+    {
+      "name": "listSecureScores",
+      "isTool": true
+    },
+    {
+      "name": "getThreatIntelHost",
+      "isTool": true
+    },
+    {
+      "name": "getThreatIntelHostReputation",
+      "isTool": true
+    },
+    {
+      "name": "getPassiveDnsRecords",
+      "isTool": true
+    },
+    {
+      "name": "getWhoisRecord",
+      "isTool": true
+    }
+  ],
+  "form_labels": [
+    "Cloud environment",
+    "Commercial (global)",
+    "OAuth scope",
+    "Token URL",
+    "US Government DoD",
+    "US Government GCC High"
+  ]
+}

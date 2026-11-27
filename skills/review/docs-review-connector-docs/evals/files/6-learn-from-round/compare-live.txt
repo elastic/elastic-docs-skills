@@ -1,0 +1,44 @@
+
+#276815: 18 inline comments selected at first, 19 posted
+- REVIEW TYPE COMMENT -> APPROVE
+- SUMMARY:
+  [-A-]{+Docs LGTM, with a+} few wording [-suggestions,-]{+suggestions+} and one question about IAM Role outside the default Regions.
+- TURNED OFF comment ddb-iam-regions
+- TURNED OFF comment ddb-networking
+- EDITED comment ddb-networking (not posted):
+  [-I'd-]{+Should+} [-add-]{+there+} [-the-]{+be a+} networking section [-the-]{+like+} other connector pages [-have.-]{+have?+} If the STS call keeps skipping the proxy settings (the othe ... ions.customHostSettings` to set per-host configurations.
+```
+- TURNED ON comment ddb-type
+- EDITED comment ddb-type:
+  [-The other-]{+Most+} connector pages set the page type:
+
+```suggestion
+navigation_title: "Amazon DynamoDB"
+type: reference
+```
+- ADDED comment github:amazon-dynamodb-action-type.md:112 (posted):
+  Could you confirm where IAM Role works while STS stays on the global endpoint (the bot raised it on `aws_iam_role.ts`)? From the AWS docs, tokens from the global endpoint only work in Regions enabled by default, and GovCloud and China roles can't use it. If that's how it ships, I'd add a short note here so readers in those Regions pick **AWS Credentials** instead.
+- ADDED comment github:amazon-dynamodb-action-type.md:127 (posted):
+  Should there be a networking section like other connector pages have? If the STS call keeps skipping the proxy settings (the other bot thread on `aws_iam_role.ts`), this would be the place to say so:
+
+```suggestion
+:   (Optional) A name for the assumed-role session that appears in AWS CloudTrail logs. Defaults to `kibana-connector`.
+
+### Connector networking configuration [amazon-dynamodb-connector-networking-configuration]
+
+Use the [Action configuration settings](/reference/configuration-reference/alerting-settings.md#action-settings) to customize connector networking, such as proxies, certificates, or TLS settings. You can set configurations that apply to all your connectors or use `xpack.actions.customHostSettings` to set per-host configurations.
+```
+
+#305223: 0 inline comments selected at first, 0 posted
+- SUMMARY:
+  Docs LGTM{+
+
+additional 🤖 findings: the rest of the Firecrawl page has drifted from the spec: `formats` and `ignoreQueryParameters` aren't inputs, the `crawl` limit defaults to 20 rather than 100, and `crawlAndWait` isn't documented.+}
+
+#307001: 7 inline comments selected at first, 8 posted
+- EDITED comment pg-execsql:
+  "Becomes usable when workflow support is added" reads as if it can't run today, but it already runs through the API.{+ Other recent connector PRs I've seen mark the action as "API only" next to the action's name.+} I'd also mention the single transaction, since it changes w ...  use this action. Prefer **Query** for read-only access.
+```
+- TURNED ON comment pg-permissions
+
+12 change(s) in total.

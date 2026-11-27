@@ -1,0 +1,75 @@
+{
+  "spec_dir": "src/platform/packages/shared/kbn-connector-specs/src/specs/sophos_central",
+  "commit": "dc5da506c0a9a8fe8f0cfabc056d1bd157e728bf",
+  "supportedFeatureIds": [
+    "agentBuilder"
+  ],
+  "docsUrl": null,
+  "actions": [
+    {
+      "name": "listAlerts",
+      "isTool": true
+    },
+    {
+      "name": "getAlert",
+      "isTool": true
+    },
+    {
+      "name": "actOnAlert",
+      "isTool": true
+    },
+    {
+      "name": "actOnAlertsBulk",
+      "isTool": true
+    },
+    {
+      "name": "listEndpoints",
+      "isTool": true
+    },
+    {
+      "name": "getEndpoint",
+      "isTool": true
+    },
+    {
+      "name": "isolateEndpoint",
+      "isTool": true
+    },
+    {
+      "name": "deisolateEndpoint",
+      "isTool": true
+    },
+    {
+      "name": "scanEndpoint",
+      "isTool": true
+    },
+    {
+      "name": "getTamperProtection",
+      "isTool": true
+    },
+    {
+      "name": "updateTamperProtection",
+      "isTool": false
+    },
+    {
+      "name": "listBlockedItems",
+      "isTool": true
+    },
+    {
+      "name": "addBlockedItem",
+      "isTool": true
+    },
+    {
+      "name": "addAllowedItem",
+      "isTool": false
+    },
+    {
+      "name": "deleteBlockedItem",
+      "isTool": false
+    },
+    {
+      "name": "listDetections",
+      "isTool": true
+    }
+  ],
+  "form_labels": []
+}

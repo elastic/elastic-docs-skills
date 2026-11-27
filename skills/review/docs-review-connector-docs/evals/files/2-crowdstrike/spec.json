@@ -1,0 +1,215 @@
+{
+  "spec_dir": "src/platform/packages/shared/kbn-connector-specs/src/specs/crowdstrike2",
+  "commit": "cc14b4e9a78e1408af51437fb261a19f13518ff7",
+  "supportedFeatureIds": [
+    "agentBuilder"
+  ],
+  "docsUrl": null,
+  "actions": [
+    {
+      "name": "searchAlerts",
+      "isTool": true
+    },
+    {
+      "name": "getAlertDetails",
+      "isTool": true
+    },
+    {
+      "name": "updateAlert",
+      "isTool": true
+    },
+    {
+      "name": "uploadIOC",
+      "isTool": false
+    },
+    {
+      "name": "searchIOCs",
+      "isTool": true
+    },
+    {
+      "name": "deleteIOC",
+      "isTool": false
+    },
+    {
+      "name": "findHostsByIndicator",
+      "isTool": true
+    },
+    {
+      "name": "searchCases",
+      "isTool": true
+    },
+    {
+      "name": "getCaseDetails",
+      "isTool": true
+    },
+    {
+      "name": "updateCase",
+      "isTool": true
+    },
+    {
+      "name": "addCaseTags",
+      "isTool": true
+    },
+    {
+      "name": "removeCaseTags",
+      "isTool": true
+    },
+    {
+      "name": "getAgentDetails",
+      "isTool": true
+    },
+    {
+      "name": "searchDevices",
+      "isTool": true
+    },
+    {
+      "name": "getAgentOnlineStatus",
+      "isTool": true
+    },
+    {
+      "name": "containHost",
+      "isTool": true
+    },
+    {
+      "name": "liftContainment",
+      "isTool": false
+    },
+    {
+      "name": "listHostGroups",
+      "isTool": true
+    },
+    {
+      "name": "addHostGroupMembers",
+      "isTool": false
+    },
+    {
+      "name": "removeHostGroupMembers",
+      "isTool": false
+    },
+    {
+      "name": "getFileReputation",
+      "isTool": true
+    },
+    {
+      "name": "getUrlReputation",
+      "isTool": true
+    },
+    {
+      "name": "detonateUrl",
+      "isTool": false
+    },
+    {
+      "name": "detonateFile",
+      "isTool": false
+    },
+    {
+      "name": "spotlightSearchVulnerability",
+      "isTool": true
+    },
+    {
+      "name": "listIOARules",
+      "isTool": true
+    },
+    {
+      "name": "createIOARule",
+      "isTool": false
+    },
+    {
+      "name": "updateIOARule",
+      "isTool": false
+    },
+    {
+      "name": "deleteIOARule",
+      "isTool": false
+    },
+    {
+      "name": "searchIOAExclusions",
+      "isTool": true
+    },
+    {
+      "name": "getRTRCloudScripts",
+      "isTool": true
+    },
+    {
+      "name": "uploadRTRFile",
+      "isTool": false
+    },
+    {
+      "name": "listRTRFiles",
+      "isTool": true
+    },
+    {
+      "name": "deleteRTRFile",
+      "isTool": false
+    },
+    {
+      "name": "uploadRTRScript",
+      "isTool": false
+    },
+    {
+      "name": "deleteRTRScript",
+      "isTool": false
+    },
+    {
+      "name": "listQuarantinedFiles",
+      "isTool": true
+    },
+    {
+      "name": "applyQuarantineFileAction",
+      "isTool": false
+    },
+    {
+      "name": "startNgSiemSearch",
+      "isTool": true
+    },
+    {
+      "name": "getNgSiemSearchResults",
+      "isTool": true
+    },
+    {
+      "name": "stopNgSiemSearch",
+      "isTool": true
+    },
+    {
+      "name": "executeRTRCommand",
+      "isTool": true
+    },
+    {
+      "name": "batchActiveResponderExecuteRTR",
+      "isTool": false
+    },
+    {
+      "name": "batchAdminExecuteRTR",
+      "isTool": false
+    },
+    {
+      "name": "getRTRCommandStatus",
+      "isTool": true
+    },
+    {
+      "name": "rtrRetrieveFile",
+      "isTool": false
+    },
+    {
+      "name": "rtrKillProcess",
+      "isTool": false
+    },
+    {
+      "name": "rtrListProcesses",
+      "isTool": true
+    },
+    {
+      "name": "createScan",
+      "isTool": true
+    },
+    {
+      "name": "getScanResults",
+      "isTool": true
+    }
+  ],
+  "form_labels": [
+    "API URL (custom cloud only)",
+    "Falcon API client",
+    "Falcon cloud"
+  ]
+}
