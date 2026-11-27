@@ -153,17 +153,16 @@
     {
       "id": 13,
       "prompt": "Alerting v2 is going GA, so let's get ahead of it. Rename the experimental alerting system to Alerting V2 across the docset, swap alert episode to alert everywhere, and drop the not-ready-for-production caveats.",
-      "expected_output": "Declines to run the sweep. Follows the area file's status: key to the Alerting V2 GA entry and resolves each sub-entry's tracking issue on its own. Explains that a system rename is an edit to the docset.yml substitutions rather than a text sweep, that a term pass would break the data-model pages while the rename still follows the product, and that the caveats are not a sweep target, because the restructure removed them on purpose and the lifecycle badges carry maturity.",
+      "expected_output": "Declines to run the sweep. Follows the area file's status: key to the Alerting V2 GA entry and resolves each sub-entry's tracking issue on its own. Recognizes that most of the request has already landed: the system renders as Kibana Universal Alerting through the docset.yml substitutions, the pages say alert, and the caveats are gone. Explains that a rename is an edit to those substitutions rather than a text sweep, that a term pass would break file names, heading IDs, and the episode.* examples, and that the caveats are not a sweep target, because the lifecycle badges carry maturity.",
       "expectations": [
         "Follows the status: key in the area file's frontmatter to the status.md entry, and resolves each sub-entry's tracking issue with gh rather than trusting the file",
-        "Treats the sub-entries as expiring separately, so confirmed names do not end the rename or Stack GA sub-entries",
+        "Treats the sub-entries as expiring separately, so the Serverless release having shipped does not end the naming or Stack GA sub-entries",
         "Treats a system rename as an edit to the docset.yml substitutions rather than a text sweep, never types Alerting V2 or another system name into page prose, and points out that the final name is Kibana Universal Alerting, applied through the substitutions, rather than Alerting V2",
-        "Refuses a blanket search-replace of alert episode to alert, and explains that the data-model pages need rewriting instead",
+        "Refuses a blanket search-replace of alert episode to alert, and explains that file names, heading IDs, and the episode.* examples keep the old word on purpose while the data-model pages need rewriting instead",
         "Preserves rule event, signal, and series as distinct terms, and quotes the field and trigger names that HEAD actually uses rather than inferring renamed ones",
-        "Recognizes that the restructure removed the production-readiness sentences on purpose because the lifecycle badges carry maturity, and does NOT add scoped replacements",
-        "Keeps the experimental lifecycle on the stack version that shipped with it, and delegates applies_to values to docs-applies-to-tagging rather than taking a version from status.md",
-        "Checks which pull requests in the #1880 stack have merged before editing files in the section, because a docset-wide sweep collides with the open stack",
-        "Does NOT generate replacements for the two system-flow diagrams, which the restructure removes rather than redraws",
+        "Recognizes that the production-readiness sentences were removed on purpose because the lifecycle badges carry maturity, and does NOT add scoped replacements",
+        "Does NOT add experimental =9.5 or any other 9.5-scoped content, because the section deliberately documents only the GA version, and delegates applies_to values to docs-applies-to-tagging rather than taking a version from status.md",
+        "Checks main before editing, and reports the parts of the request that have already landed, such as the final names, the alert rename, and the removed caveats, rather than redoing them",
         "Does NOT carry a release date out of status.md into the draft, since the entry names events rather than dates"
       ]
     },
@@ -418,16 +417,15 @@
     {
       "id": 33,
       "prompt": "Pick up this doc issue: the Tags field is being removed from action policies in 9.6. The issue says to remove the \"## Add tags to categorize the action policy [policy-tags]\" section, and to check the other pages under action-policies/ for any remaining tags references. The feature was only ever experimental, and is available on both stack and serverless.",
-      "expected_output": "Treats the removal as a scoping change rather than a deletion, keeps the section for readers on the version that still has the field, hands the tag values to docs-applies-to-tagging, and leaves the unrelated rule-tags and triage-tag references alone.",
+      "expected_output": "Applies the area file's GA-only rule for Kibana Universal Alerting: no documented version has the field, so the section goes rather than being scoped. Checks main first and reports that the section is already gone, then checks the other action-policies/ pages for leftovers, leaving routing tags, the rule Tags field, and triage tags alone because they are different concepts.",
       "expectations": [
-        "Keeps the section and scopes it rather than deleting it, because readers on the earlier supported version still have the field",
-        "Adds a removed applies_to tag, and hands the lifecycle, version, and deployment answers to docs-applies-to-tagging rather than composing the tag itself",
-        "Checks the cumulative-docs removal scenarios to decide between scoping and deleting instead of inferring which case applies",
-        "Recognizes that experimental is not one of the lifecycles the removal scenarios name, and says which reading it took instead of deleting on its own analogy to beta or technical preview",
-        "Treats the issue's \"remove the section\" wording as a description of the product change rather than as the edit to make",
-        "Leaves rule.tags and the tag triage action untouched, identifying them as different concepts from action policy tags",
-        "Does NOT delete the section, and does NOT report a deletion as the completed work",
-        "Does NOT write the version number into the prose next to the badge"
+        "Recognizes that the Universal Alerting section documents only the GA version, so a field the GA version does not have is removed rather than scoped",
+        "Checks main before editing, and reports that the section is already gone rather than reporting a deletion it did not make",
+        "Does NOT add a removed applies_to tag, an experimental =9.5 badge, or a note about the removal, and does NOT write a version number into prose",
+        "Does NOT document the removal as a change between 9.5 and GA, since the area file leaves those changes to the 9.5 release notes",
+        "Treats the GA-only rule as specific to Universal Alerting, and says that for any other feature it would follow the cumulative-docs removal scenarios rather than citing this section as precedent",
+        "Says in its output that it followed the area file's recorded departure from the cumulative-docs rules, as the exception in SKILL.md's Constraints requires",
+        "Leaves routing tags, the rule's Tags field, and the tag triage action untouched, identifying each as a different concept from the removed action policy Tags field"
       ]
     },
     {

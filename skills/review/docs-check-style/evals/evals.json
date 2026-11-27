@@ -51,6 +51,61 @@
         "Flags 'below' as directional language",
         "Flags missing alt text for the screenshot"
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Check this docs snippet for style:\n\n\"Elastic Agent is a powerful, seamless way to collect data. It serves as the single entry point for your pipeline, marking a pivotal moment for observability. Just install it and you're ready to go. Let's dive in!\"",
+      "expected_output": "Flags amplifiers and padded or promotional language with concrete fixes",
+      "expectations": [
+        "Flags 'powerful' and 'seamless' as vague amplifiers and asks for a specific claim",
+        "Flags 'just' as minimizing effort",
+        "Flags 'serves as' as copula avoidance and suggests 'is'",
+        "Flags 'marking a pivotal moment' as significance inflation",
+        "Flags 'Let's dive in' as signposting or chatbot residue",
+        "Reports findings under a padded language area"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Check this docs snippet for style:\n\n\"The ingest pipeline is not just a processor chain. It is a framework for reliability. Experts recommend it. Fast, flexible, and scalable. With these steps, you're ready to build great search experiences.\"",
+      "expected_output": "Flags negative parallelism, vague attribution, rule of three padding, and a generic closer",
+      "expectations": [
+        "Flags 'not just X, it is Y' as negative parallelism",
+        "Flags 'Experts recommend it' as vague attribution and asks for a source",
+        "Flags 'Fast, flexible, and scalable' as rule of three padding without supporting facts",
+        "Flags the final sentence as a generic positive close",
+        "Applies the specificity test or notes the paragraph has no concrete detail"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Check this docs snippet for style:\n\n\"The coordinating node serves requests from clients and routes each one to the data nodes that hold the relevant shards.\\n\\n* Node roles\\n* Shard allocation\\n* Cluster state\"",
+      "expected_output": "No padded-language false positives: literal 'serves' and a genuine list of three are not flagged",
+      "expectations": [
+        "Does not flag 'serves requests' as copula avoidance because the node literally serves requests",
+        "Does not flag the three-item list as rule of three padding",
+        "Does not report a padded language finding for this snippet"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Check this docs snippet for style:\n\n\"The new installer offers a smoother setup experience and helps teams work more accurately and efficiently. Queries run as a pipeline, enabling complex data transformations.\"",
+      "expected_output": "Flags unsupported claims and a trailing benefit clause",
+      "expectations": [
+        "Flags 'smoother setup experience' as an unsupported claim and asks what is smoother",
+        "Flags 'more accurately and efficiently' as an unsupported claim with no measure",
+        "Flags 'enabling complex data transformations' as a trailing benefit clause",
+        "Reports findings under a padded language area"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Check this docs snippet for style:\n\n\"What this means in practice:\\n\\n* Index sizes drop because stored fields are compressed.\\n* Queries read fewer segments.\"",
+      "expected_output": "No padded-language finding: a lead-in that introduces content immediately is not signposting",
+      "expectations": [
+        "Does not flag 'What this means in practice:' as signposting",
+        "Does not report a padded language finding for this snippet"
+      ]
     }
   ]
 }

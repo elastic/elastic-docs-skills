@@ -1,6 +1,6 @@
 ---
 name: docs-draft-workflow-docs
-version: 1.1.9
+version: 1.1.10
 description: Draft or update Elastic Workflows documentation pages in explore-analyze/workflows/ — step references, use cases, how-tos, concepts, and overviews. Use when writing Workflows docs, documenting a step type, turning workflow YAML into documentation, drafting from a doc issue in docs-content or docs-content-internal, or creating a new page under the Workflows docset.
 argument-hint: <doc-issue-url-or-page-idea-or-file-path>
 disable-model-invocation: true
@@ -14,7 +14,7 @@ sources:
   - https://www.elastic.co/docs/contribute-docs/content-types/how-tos
   - https://www.elastic.co/docs/contribute-docs/content-types/overviews
   - https://github.com/elastic/kibana/tree/main/src/platform/packages/shared/kbn-workflows/spec
-  - https://github.com/elastic/kibana/tree/main/src/platform/plugins/shared/workflows_extensions/dev_docs
+  - https://github.com/elastic/kibana/tree/main/x-pack/platform/plugins/shared/workflows_extensions/dev_docs
 ---
 <!-- Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. See the NOTICE file distributed with
@@ -306,9 +306,9 @@ Likely starting points in Kibana — search by step type ID first, then use the 
 | **Step parameters, workflow YAML schema, deprecations** | `src/platform/packages/shared/kbn-workflows/spec/` — start with `schema.ts`, `builtin_step_definitions.ts`, `builtin_trigger_definitions.ts`, and namespace dirs `spec/elasticsearch/`, `spec/kibana/` |
 | **A specific step type** (`elasticsearch.search`, `cases.addComment`, `security.setAlertStatus`, `kibana.SetAlertsStatus`, `slack.postMessage`, `foreach`, etc.) | `kbn-workflows/spec/<namespace>/` for namespaced steps; `builtin_step_definitions.ts` for built-ins like `foreach`; then the registering plugin via repo search |
 | **Triggers** (manual, scheduled, alert, event-driven) | `kbn-workflows/spec/builtin_trigger_definitions.ts`; product triggers in registering plugins; `workflows_extensions/dev_docs/TRIGGERS.md` |
-| **UI labels, step menu, YAML editor, authoring surfaces** | `src/platform/plugins/shared/workflows_management/public/`; server-side step discovery in `workflows_management/server/` |
-| **Execution lifecycle, error handling, step output shape** | `src/platform/plugins/shared/workflows_execution_engine/` |
-| **Custom or product-registered steps** | `src/platform/plugins/shared/workflows_extensions/`; internal guide at `workflows_extensions/dev_docs/STEPS.md` |
+| **UI labels, step menu, YAML editor, authoring surfaces** | `x-pack/platform/plugins/shared/workflows_management/public/`; server-side step discovery in `workflows_management/server/` |
+| **Execution lifecycle, error handling, step output shape** | `x-pack/platform/plugins/shared/workflows_execution_engine/` |
+| **Custom or product-registered steps** | `x-pack/platform/plugins/shared/workflows_extensions/`; internal guide at `workflows_extensions/dev_docs/STEPS.md` |
 | **Stack connector actions** | `x-pack/platform/plugins/shared/stack_connectors/` and connector-specific plugins under `x-pack/platform/plugins/` |
 
 Official example workflows live in `kbn-workflows/spec/examples/`. Prefer these over `elastic/workflows` when verifying schema-valid YAML.
