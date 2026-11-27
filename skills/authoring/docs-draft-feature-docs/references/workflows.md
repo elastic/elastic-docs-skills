@@ -1,6 +1,6 @@
 ---
 area: Elastic Workflows
-verified: 2026-09-16
+verified: 2026-11-25
 verified_against:
   - docs-content
   - elastic/kibana
@@ -33,7 +33,7 @@ The boundary that matters: this area owns **how to author workflows**. A workflo
 
 ## Source of truth
 
-Workflows lives under `src/platform/`, not `x-pack/`. The old `x-pack/platform/plugins/shared/workflows/` path **no longer exists**, so a search there returns nothing and looks like a missing feature.
+The workflow schema package lives under `src/platform/`, but the workflow plugins (management, execution engine, extensions) live under `x-pack/platform/`. The old `x-pack/platform/plugins/shared/workflows/` path **no longer exists**, so a search there returns nothing and looks like a missing feature.
 
 | Question | Verify at |
 |---|---|
@@ -43,9 +43,9 @@ Workflows lives under `src/platform/`, not `x-pack/`. The old `x-pack/platform/p
 | Workflow inputs | `spec/builtin_workflow_input_definitions.ts` |
 | Deprecated and renamed steps | `spec/deprecated_step_metadata.ts` — check this before documenting any step as current |
 | Schema-valid example YAML | `spec/examples/`. Prefer these over the `elastic/workflows` library, which is useful for realistic scenarios but not authoritative on schema |
-| UI labels, step menu, YAML editor | `src/platform/plugins/shared/workflows_management/public/`; server-side step discovery in the same plugin's `server/` |
-| Execution lifecycle, error handling, step output shape | `src/platform/plugins/shared/workflows_execution_engine/` |
-| Product-registered and custom steps | `src/platform/plugins/shared/workflows_extensions/`, with internal guides at `dev_docs/STEPS.md`, `TRIGGERS.md`, and `MANAGED_WORKFLOWS.md` |
+| UI labels, step menu, YAML editor | `x-pack/platform/plugins/shared/workflows_management/public/`; server-side step discovery in the same plugin's `server/` |
+| Execution lifecycle, error handling, step output shape | `x-pack/platform/plugins/shared/workflows_execution_engine/` |
+| Product-registered and custom steps | `x-pack/platform/plugins/shared/workflows_extensions/`, with internal guides at `dev_docs/STEPS.md`, `TRIGGERS.md`, and `MANAGED_WORKFLOWS.md` |
 | Connector actions behind action steps | `x-pack/platform/plugins/shared/stack_connectors/` |
 
 Search by step type identifier first — `cases.addComment`, `elasticsearch.search`, `foreach` — then read the definition or schema rather than an example that happens to use it.
@@ -102,7 +102,7 @@ A new step or page is never a single-file change. Update these as follow-ups:
 ## Known traps
 
 - **`to_json` does not exist.** Use `| json` and `| json_parse`. This one reaches drafts constantly because it looks plausible.
-- **The Kibana path moved.** `x-pack/platform/plugins/shared/workflows/` is gone; everything is under `src/platform/`. Verifying against the old path silently finds nothing.
+- **The Kibana path moved.** `x-pack/platform/plugins/shared/workflows/` is gone. The schema package stays under `src/platform/`, but the management, execution-engine, and extensions plugins moved to `x-pack/platform/plugins/shared/`. Verifying against the old `src/platform/plugins/shared/workflows_*` locations silently finds nothing.
 - **PascalCase is right exactly once.** `kibana.SetAlertsStatus` keeps its casing as a legacy step. Every new namespaced step is lowercase dot notation. Do not regularize either direction.
 - **Keep HQ docs are deprecated.** Never cite or link them.
 - **`concepts.md` is a file, not a directory.** The standalone skill this file replaced recorded `concepts/` as a directory, which was already wrong — check the path rather than trusting a table.
