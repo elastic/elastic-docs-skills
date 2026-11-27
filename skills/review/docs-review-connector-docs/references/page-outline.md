@@ -49,6 +49,8 @@ Short reason: testing is the last step of creating the connector.
 
 **Test notes in user docs.** Flag phrases such as "in testing", "has not been verified", or a "Notes from live use" heading. Ask for reader guidance instead: what the reader should expect or do. A heading like **Usage notes** works.
 
+**Implementation details in user docs.** For each sentence that explains how the connector works, ask whether readers can act on it or would notice it. Flag retry counts and delays, internal page sizes and time budgets, how a request or signature is built, and notes on how the page was written, such as "the API reference doesn't name a permission, so the table lists…". Suggest the effect readers see instead: "The connector retries a rate-limited request automatically" or "The {{kib}} host clock must be correct". Keep the limits readers set or hit, such as `maxResults`, request timeouts, and size caps.
+
 **Duplicated content.** One explanation in one place. A trailing "Configure the connector" table that repeats the configuration fields should go, after any field it alone mentions moves up.
 
 **Connector list.** One entry per connector in the snippet, alphabetical within its group. Similar connectors share a group, for example **Endpoint security** for EDR and XDR products. When several open PRs add to the same list, say "whoever lands last could move it there" instead of asking for a change that depends on merge order.
