@@ -214,7 +214,18 @@ When validating, check for these errors:
 10. **Heading annotations** — section-level only, never use inline annotations with headings; the block goes on the line directly below the heading, with no blank line between them
 11. **Version numbers in prose** — never write versions in text next to applies_to badges
 12. **Patch-level tags** — tags should be at the minor (`stack: ga 9.4`), not the patch (`stack: ga 9.4.2`); flag patch-level tags and the redundant same-minor bullets they often create
-13. **Mid-paragraph inline tags** — an inline `{applies_to}` tag must never appear mid-paragraph. Valid positions are: the very start of a paragraph, the start of a list item, the end of a definition term, or inside a table cell. Any tag that follows prose text within the same paragraph is invalid, whether it sits between sentences, after a sentence, or mid-sentence
+13. **Inline tag not in an allowed position** — an inline `{applies_to}` tag is valid only in these positions:
+    - The first token of a paragraph or list item.
+    - Directly after a bold lead-in label that starts a paragraph or list item.
+    - The end of a definition term line. The term can be bold, code, or a link.
+    - The end of the content in a table cell.
+
+    Other inline tags can precede a tag in any of these positions. A tag after a link, prose, or a code span anywhere else is floating. That includes a tag between two sentences, in the middle of a sentence, or in a definition body. To check, look at what precedes the tag on the same line. Outside a definition term or table cell, anything other than whitespace, a list marker, a bold lead-in label, or another inline tag means the tag is misplaced. To fix it, move the tag to the start of the list item, split the paragraph so that the tag leads the one it scopes, or use an admonition.
+    - ❌ `- On ECK, set `spec.backgroundTasks` {applies_to}`eck: ga 3.6+` and let ECK run...`
+    - ✅ `- {applies_to}`eck: ga 3.6+` On ECK, set `spec.backgroundTasks` and let ECK run...`
+    - ✅ `**Playground:** {applies_to}`stack: deprecated 9.4+` Playground is deprecated...`
+14. **Section-level block after body content** — a section-level `{applies_to}` block must directly follow its heading, before any body content. A block placed after paragraphs, lists, or other content is misplaced. A block inside an admonition or dropdown is also misplaced, because those components take the dedicated `:applies_to:` option. Move the block directly below the heading, or use an inline tag or the component option.
+16. **Redundant inline tag duplicating parent scope** — an inline `{applies_to}` whose keys, lifecycles, and versions are already fully covered by the page-level or enclosing section-level tag adds no information. Remove it unless the inline tag narrows or changes the scope.
 
 ## Guidelines for tagging
 
